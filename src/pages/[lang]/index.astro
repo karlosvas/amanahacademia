@@ -1,0 +1,28 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import App from "@/layouts/App.astro";
+import type { i18nTranslations } from "@/types/types.ts";
+import { getI18N } from "@/../i18n/index";
+
+// Creamos todas las rutas a los posibles idiomas
+export async function getStaticPaths() {
+  return [
+    { params: { lang: "en" } },
+    { params: { lang: "es" } },
+    { params: { lang: "fr" } },
+    { params: { lang: "de" } },
+    { params: { lang: "it" } },
+    { params: { lang: "pt" } },
+    { params: { lang: "ar" } },
+  ];
+}
+
+// Obtenemos el idioma obtenido mediante la ruta
+const { lang } = Astro.params;
+// Obtenemos los datos del idioma selecionado
+const data: i18nTranslations = getI18N({ lang });
+---
+
+<Layout>
+  <App data={data} />
+</Layout>

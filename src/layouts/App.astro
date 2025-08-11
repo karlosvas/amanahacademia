@@ -1,0 +1,12 @@
+---
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import Main from "@/components/Main.astro";
+const { data } = Astro.props;
+---
+
+<div class="h-full w-full">
+  <Header data={data} />
+  <Main data={data} />
+  <Footer data={data} />
+</div>
