@@ -1,0 +1,2 @@
+fn(axum::extract::State<Arc<AppState>>, axum::Json<UserAuthentication>) -> impl Future<Output = impl IntoResponse> {create_user}
+fn(axum::extract::State<Arc<AppState>>, axum::Json<UserAuthentication>) -> impl Future<Output = impl IntoResponse> {create_user}: Handler<_, _>

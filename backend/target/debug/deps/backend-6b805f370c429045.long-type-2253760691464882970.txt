@@ -1,0 +1,1 @@
+for<'a> fn({type error}, &'a str) -> impl Future<Output = impl IntoResponse> {create_user}: Handler<_, _>

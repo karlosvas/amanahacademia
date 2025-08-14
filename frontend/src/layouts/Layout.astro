@@ -1,0 +1,27 @@
+---
+import "@/styles/global.css";
+const { lang } = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang} class="m-0 w-full h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <!-- Favicon clásico para compatibilidad total -->
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico" />
+    <!-- Favicon SVG (para navegadores que lo soporten) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <!-- PNG de fallback -->
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png" />
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png" sizes="180x180" />
+    <!-- Manifest PWA -->
+    <link rel="manifest" href="/favicon/site.webmanifest" />
+    <title>Amana Academia</title>
+  </head>
+  <body class="m-0 w-full h-full">
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,2 @@
+axum::middleware::FromFn<fn(axum::http::HeaderMap, axum::http::Request<axum::body::Body>, Next) -> impl Future<Output = Result<axum::http::Response<axum::body::Body>, axum::http::StatusCode>> {firebase_auth_middleware}, (), Route, _>
+axum::middleware::FromFn<fn(axum::http::HeaderMap, axum::http::Request<axum::body::Body>, Next) -> impl Future<Output = Result<axum::http::Response<axum::body::Body>, axum::http::StatusCode>> {firebase_auth_middleware}, (), Route, _>: tower_service::Service<axum::http::Request<axum::body::Body>>

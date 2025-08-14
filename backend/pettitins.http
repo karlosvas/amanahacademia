@@ -1,0 +1,30 @@
+## GET 
+POST  http://127.0.0.1:3000/user/register
+Content-Type: application/json
+
+{
+    "email": "user@example.com",
+    "password": "password123",
+    "name": "John Doe",
+    "phone_number": "+1234567890",
+    "role": "user",
+    "permissions": ["read", "write"],
+    "subscription_tier": "premium"
+}
+
+// Estructura de los datos que se pasan desde el frontend para los enpoints de users
+#[derive(Debug, Serialize, Deserialize)]
+# pub struct UserRequest {
+#     // Datos obligatorios requeridos por firebase auth
+#     pub email: String,
+#     pub password: String,
+
+#     // Datos opcionales que el cliente puede enviar
+#     pub name: Option<String>,
+#     pub phone_number: Option<String>,
+
+#     // Datos especificos para la DB
+#     pub role: Option<String>,
+#     pub permissions: Option<Vec<String>>,
+#     pub subscription_tier: Option<String>,
+# }

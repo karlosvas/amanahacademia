@@ -22,3 +22,30 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+
+# Rust build artifacts
+/target/
+**/*.rs.bk
+
+# Cargo package manager files
+Cargo.lock
+Cargo.toml.orig
+
+# Rust coverage and test output
+/coverage/
+/*.profraw
+
+# Rust language server and IDE files
+.rls/
+.rustup/
+rustfmt.toml
+.clippy.toml
+
+# VS Code settings
+.vscode/
+
+# Misc
+*.log
+*.swp
+*.swo

@@ -1,0 +1,2 @@
+fn(axum::extract::State<Arc<AppState>>, {type error}, axum::Json<UserRequest>) -> impl Future<Output = impl IntoResponse> {controller::user::create_user}
+fn(axum::extract::State<Arc<AppState>>, {type error}, axum::Json<UserRequest>) -> impl Future<Output = impl IntoResponse> {controller::user::create_user}: Handler<_, _>
