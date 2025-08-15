@@ -56,6 +56,7 @@ pub struct FirebaseAuthResponse {
     pub refresh_token: String, // Token de actualización
     #[serde(rename = "expiresIn")]
     pub expires_in: String, // "3600" (segundos)
+    #[serde(rename = "registered", default)]
     pub registered: Option<bool>, // Si es usuario nuevo o existente
 }
 
@@ -73,6 +74,16 @@ pub struct UserDB {
     pub role: Option<String>,
     pub subscription_tier: Option<String>,
     pub permissions: Option<HashSet<String>>,
+}
+
+// Usuario de la FB auth
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+pub struct UserAuth {
+    #[serde(rename = "idToken")]
+    pub id_token: Option<String>,
+    pub email: String,
+    pub password: String,
+    pub return_secure_token: bool,
 }
 
 pub type UserDBResponse = HashMap<String, UserDB>;
@@ -143,4 +154,10 @@ pub struct ProviderUserInfo {
 
     #[serde(rename = "rawId")]
     pub raw_id: Option<String>,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct RefreshToken {
+    pub grant_type: String,
+    pub refresh_token: String,
 }

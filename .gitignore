@@ -1,4 +1,5 @@
 # build output
+target
 dist/
 
 # generated types
@@ -49,3 +50,7 @@ rustfmt.toml
 *.log
 *.swp
 *.swo
+
+# Test
+http
+amanahacademia.code-workspace

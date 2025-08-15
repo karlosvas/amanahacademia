@@ -11,7 +11,6 @@ use {
     },
     jsonwebtoken::{Algorithm, DecodingKey, Header, TokenData, Validation, decode},
     std::sync::Arc,
-    tracing::error,
 };
 
 impl From<AuthError> for StatusCode {
@@ -34,15 +33,15 @@ pub async fn firebase_auth_middleware(
     // Extract and validate the token
     let token: String = {
         let token_str: &str = extract_bearer_token(&request)?;
-        token_str.to_string() // Convert to `String` para evitar problemas de lifetime
+        token_str.to_string() // Convertimos a `String` para evitar problemas de lifetime
     };
 
     // Verificar el token y obtener los claims del usuario
     let user_claims: TokenData<UserAuthentication> =
-        verify_firebase_token(&token, &state.firebase.firebase_keys).map_err(|err| {
-            error!("Token verification failed: {}", err);
-            StatusCode::from(err)
-        })?;
+        match verify_firebase_token(&token, &state.firebase.firebase_keys) {
+            Ok(claims) => claims,
+            Err(err) => return Err(StatusCode::from(err)),
+        };
 
     // Agregar los claims del usuario a las extensiones del request
     // para que puedan ser utilizados en los handlers
@@ -90,7 +89,7 @@ fn verify_firebase_token(
         .ok_or(AuthError::NoMatchingKey)?;
 
     // Configura la validación del token
-    let mut validation = Validation::new(Algorithm::RS256);
+    let mut validation: Validation = Validation::new(Algorithm::RS256);
     validation.set_audience(&["amanahacademia"]); // Reemplaza con tu project ID
     validation.set_issuer(&[&format!("https://securetoken.google.com/amanahacademia")]); // Reemplaza con tu project ID
 
