@@ -1,2 +1,0 @@
-for<'a> fn(axum::Json<User>, &'a str) -> impl Future<Output = impl IntoResponse> {create_user}
-for<'a> fn(axum::Json<User>, &'a str) -> impl Future<Output = impl IntoResponse> {create_user}: Handler<_, _>

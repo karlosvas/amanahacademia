@@ -1,5 +1,5 @@
 [package]
-name = "backend"
+name = "amanahacademia"
 version = "0.1.0"
 edition = "2024"
 
@@ -18,3 +18,4 @@ axum-extra = "0.9"
 headers = "0.4"
 thiserror = "1.0"
 tracing = "0.1"
+anyhow = "1.0"

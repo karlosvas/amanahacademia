@@ -1,2 +1,0 @@
-axum::middleware::FromFn<fn(axum::extract::State<Arc<AppState>>, axum::http::Request<axum::body::Body>, Next) -> impl Future<Output = axum::http::Response<axum::body::Body>> {firebase_auth_middleware}, Arc<AppState>, Route, _>
-axum::middleware::FromFn<fn(axum::extract::State<Arc<AppState>>, axum::http::Request<axum::body::Body>, Next) -> impl Future<Output = axum::http::Response<axum::body::Body>> {firebase_auth_middleware}, Arc<AppState>, Route, _>: tower_service::Service<axum::http::Request<axum::body::Body>>

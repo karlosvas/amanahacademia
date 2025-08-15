@@ -1,13 +1,15 @@
-mod controller;
+mod controllers;
 mod middleware;
 mod models;
 mod routes;
+mod services;
 mod state;
 
 use {
     axum::Router,
+    reqwest::Client,
     state::{AppState, CustomFirebase},
-    std::{net::SocketAddr, sync::Arc},
+    std::{env, net::SocketAddr, sync::Arc},
     tokio::net::TcpListener,
     tower_http::{cors::CorsLayer, trace::TraceLayer},
 };
@@ -30,15 +32,17 @@ async fn main() {
     // Crear la instancia de CustomFirebase, con todos los datos neceesarios para la autenticación
     let firebase: CustomFirebase = CustomFirebase {
         firebase_keys,
-        firebase_project_id: std::env::var("FIREBASE_PROJECT_ID")
+        firebase_project_id: env::var("FIREBASE_PROJECT_ID")
             .expect("FIREBASE_PROJECT_ID must be set"),
-        firebase_api_key: std::env::var("FIREBASE_API_KEY").expect("FIREBASE_API_KEY must be set"),
+        firebase_api_key: env::var("FIREBASE_API_KEY").expect("FIREBASE_API_KEY must be set"),
     };
     // Inicializar el estado de la aplicación y el enrutador
     let state: Arc<AppState> = Arc::new(AppState {
-        app_state: "running".to_string(),
         firebase,
+        client: Client::new(),
     });
+
+    // Configurar el enrutador de la aplicación
     let app: Router = Router::new()
         .nest("/user", routes::user::router(state.clone()))
         .layer(CorsLayer::permissive()) // CORS abierto
@@ -50,5 +54,8 @@ async fn main() {
     let listener: TcpListener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
     println!("Servidor escuchando en http://{}", addr);
-    axum::serve(listener, app).await.unwrap();
+    match axum::serve(listener, app).await {
+        Ok(_) => println!("Servidor detenido"),
+        Err(err) => eprintln!("Error en el servidor: {}", err),
+    };
 }

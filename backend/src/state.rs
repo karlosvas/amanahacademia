@@ -1,9 +1,9 @@
-use std::sync::Arc;
+use reqwest::Client;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub app_state: String,
     pub firebase: CustomFirebase,
+    pub client: Client,
 }
 
 #[derive(Clone)]
@@ -12,5 +12,3 @@ pub struct CustomFirebase {
     pub firebase_project_id: String,
     pub firebase_api_key: String,
 }
-
-pub type SharedState = Arc<AppState>;

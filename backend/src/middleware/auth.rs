@@ -5,7 +5,7 @@ use {
     },
     axum::{
         extract::{Request, State},
-        http::StatusCode,
+        http::{HeaderValue, StatusCode},
         middleware::Next,
         response::Response,
     },
@@ -31,12 +31,15 @@ pub async fn firebase_auth_middleware(
     mut request: Request,
     next: Next,
 ) -> Result<Response, StatusCode> {
-    // Extraer y validar el token
-    let token: &str = extract_bearer_token(&request)?;
+    // Extract and validate the token
+    let token: String = {
+        let token_str: &str = extract_bearer_token(&request)?;
+        token_str.to_string() // Convert to `String` para evitar problemas de lifetime
+    };
 
     // Verificar el token y obtener los claims del usuario
     let user_claims: TokenData<UserAuthentication> =
-        verify_firebase_token(token, &state.firebase.firebase_keys).map_err(|err| {
+        verify_firebase_token(&token, &state.firebase.firebase_keys).map_err(|err| {
             error!("Token verification failed: {}", err);
             StatusCode::from(err)
         })?;
@@ -45,19 +48,22 @@ pub async fn firebase_auth_middleware(
     // para que puedan ser utilizados en los handlers
     request.extensions_mut().insert(user_claims.claims);
 
+    // Agregar el token original a las extensiones del request
+    request.extensions_mut().insert(token.to_string());
+
     Ok(next.run(request).await)
 }
 
 // Manejamos errores de extraer el token
 fn extract_bearer_token(request: &Request) -> Result<&str, AuthError> {
     // Obtenemos el token del header si no esta lanzamos un error de no autorizado
-    let auth_header = request
+    let auth_header: &HeaderValue = request
         .headers()
         .get("authorization")
         .ok_or(AuthError::MissingHeader)?;
 
     // Verificamos que el header tenga el formato correcto
-    let auth_str = auth_header
+    let auth_str: &str = auth_header
         .to_str()
         .map_err(|_| AuthError::InvalidHeaderFormat)?;
 
@@ -78,15 +84,15 @@ fn verify_firebase_token(
     let kid: String = header.kid.ok_or(AuthError::MissingKid)?;
 
     // Obtén la clave pública correspondiente
-    let public_key_pem = firebase_keys
+    let public_key_pem: &str = firebase_keys
         .get(&kid)
         .and_then(|key| key.as_str())
         .ok_or(AuthError::NoMatchingKey)?;
 
     // Configura la validación del token
     let mut validation = Validation::new(Algorithm::RS256);
-    validation.set_audience(&["your-project-id"]); // Reemplaza con tu project ID
-    validation.set_issuer(&[&format!("https://securetoken.google.com/your-project-id")]); // Reemplaza con tu project ID
+    validation.set_audience(&["amanahacademia"]); // Reemplaza con tu project ID
+    validation.set_issuer(&[&format!("https://securetoken.google.com/amanahacademia")]); // Reemplaza con tu project ID
 
     // Verifica el token
     let decoding_key = DecodingKey::from_rsa_pem(public_key_pem.as_bytes())

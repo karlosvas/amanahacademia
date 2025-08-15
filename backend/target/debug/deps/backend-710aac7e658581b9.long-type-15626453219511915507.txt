@@ -1,2 +1,0 @@
-axum::middleware::FromFn<fn({type error}, {type error}, {type error}) -> impl Future<Output = Result<{type error}, {type error}>> {firebase_auth_middleware}, (), Route, _>
-axum::middleware::FromFn<fn({type error}, {type error}, {type error}) -> impl Future<Output = Result<{type error}, {type error}>> {firebase_auth_middleware}, (), Route, _>: tower_service::Service<axum::http::Request<axum::body::Body>>
