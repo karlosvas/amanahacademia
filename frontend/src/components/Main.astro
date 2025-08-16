@@ -1,11 +1,12 @@
 ---
 import type { HeaderIn18 } from "@/types/types";
-import Title from "./Title.astro";
+import AboutUs from "./AboutUs.astro";
 
 const info = Astro.props.info as HeaderIn18;
 ---
 
 <div class="h-full w-full">
+  <!-- Banner -->
   <section>
     <h1 class="text-center px-10 pt-10 pb-1 text-[--color-red] font-bold text-3xl">Amanah Academia</h1>
     <div class="bg-[--color-salmon] w-40 h-1 m-auto mb-10 w60"></div>
@@ -13,63 +14,5 @@ const info = Astro.props.info as HeaderIn18;
       <img src="/desert.webp" alt="" class="w-full" />
     </div>
   </section>
-  <section class="mt-24">
-    <Title title="Sobre nosotros" sizeText="text-2xl" sizeLine="w-20" />
-    <p class="text-center mb-10">Tu camino hacia el dominio del español</p>
-    <div class="flex row w-3/4 m-auto bg-red-50">
-      <img src="/about_us.webp" alt="" class="w-52 h-52" />
-      <div class="p-5">
-        <h3 class="text-[--color-red]">Sobre Amanah</h3>
-        <p>
-          Amanah es la plataforma lider para aprender esapñol de manera personalizada y efectiva. Conectamos estudiantes
-          de todo el mundo con profesores nativos especializados en diferentes métodos de enseñanza. Nuestra plataforma
-          cuenta con mas de 50 profesores certificados de Espana y América Latina, cad uno con su propia especialidad y
-          estilo de enseñanza. Puedes elegir el profesor que mejor se adapte a tus objetivos y horarios. Y sea que
-          bisques clases de conversación preparación para exámenes oficiales, español de negocios o simplemente quieras
-          explorar la cultura hispanohablante, tenemos el profesor perfecto par ti.
-        </p>
-        <div class="flex">
-          <div>2500+</div>
-          <div>50+</div>
-          <div>98%</div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <h3 class="mt-24 text-center text-[--color-red] font-semibold">Nuestro enfoque</h3>
-      <div class="flex row mb-10 w-3/4 m-auto">
-        <div class="bg-[--color-light-salmon] p-3">
-          <div class="bg-[--color-salmon] w-10 h-10 rounded-full m-auto">
-            <img src="" alt="" />
-          </div>
-          <h4 class="p-3">Profesores diversos</h4>
-          <p class="text-sm">
-            Elige entre más de 50 profesores navitos con diferentes especialidades, acentos y métodos de enseñanza
-          </p>
-        </div>
-        <div class="bg-[--color-light-salmon] p-3">
-          <div class="bg-[--color-red] w-10 h-10 rounded-full m-auto">
-            <img src="" alt="" />
-          </div>
-          <h4 class="p-3">Clases personalizadas</h4>
-          <p class="text-sm">
-            Cada profesor adapta tus clases a tu nivel objetivos y estilo de aprendizake para maximizar tu progreso
-          </p>
-        </div>
-        <div class="bg-[--color-light-salmon] p-3">
-          <div class="bg-[--color-light-brown] w-10 h-10 rounded-full m-auto">
-            <img src="" alt="" />
-          </div>
-          <h4 class="p-3">Horarios flexibles</h4>
-          <p class="text-sm">
-            Reserva clases cuando te convenga. Nuestros profesores están disponibles en diferentes zonas horarias
-          </p>
-        </div>
-      </div>
-      <p class="m-10 text-[--color-red] text-center">
-        “En Amanah Academia creemos que cada estudianto es único. Por eso te ofrcrmos la libertad de elegir el profesor
-        que mejor conecte contigo y te ayude a alnanzar tus metas en esapñol” - Equipo Amanah Academia
-      </p>
-    </div>
-  </section>
+  <AboutUs />
 </div>

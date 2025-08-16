@@ -1,0 +1,13 @@
+---
+const { colourRectangle } = Astro.props;
+---
+
+<div class="bg-[--color-light-salmon] p-3 rounded-md m-auto md:m-3 w-1/2 md:w-96 text-center">
+  <div class=`${colourRectangle} w-10 h-10 rounded-full flex items-center justify-center m-auto`>
+    <slot name="icon" />
+  </div>
+  <h4 class="p-3"><slot name="title" /></h4>
+  <p class="text-xs">
+    <slot name="description" />
+  </p>
+</div>
