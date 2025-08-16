@@ -1,3 +1,10 @@
 {
-  "title": "Title in English"
+  "header": {
+    "about_us": "About Us",
+    "articles": "Articles",
+    "pracing": "Pricing",
+    "courses": "Courses",
+    "comments": "Comments",
+    "contact": "Contact"
+  }
 }

@@ -1,7 +1,22 @@
 ---
-const { data } = Astro.props;
+import type { HeaderIn18 } from "@/types/types";
+import Hamburger from "@/components/Hamburger.astro";
+
+const info = Astro.props.info as HeaderIn18;
 ---
 
-<div class="h-20 bg-background w-full flex items-center">
-  <img src="/logo_amanah.webp" alt="" class="h-full rounded-3xl" />
+<div class="h-20 w-full bg-background flex items-center justify-between cursor-pointer">
+  <Hamburger />
+  <img src="/logo_amanah.webp" alt="" class="h-full hidden md:block" />
+  <nav class="hidden md:block">
+    <ul class="flex flex-row gap-6 items-center color-red text-[--color-red] font-jomolhari ml-5">
+      <li><a href="/">{info.about_us}</a></li>
+      <li><a href="/articles">{info.articles}</a></li>
+      <li><a href="/pracing">{info.pricing}</a></li>
+      <li><a href="/courses">{info.courses}</a></li>
+      <li><a href="/comments">{info.comments}</a></li>
+      <li><a href="/contact">{info.contact}</a></li>
+    </ul>
+  </nav>
+  <img src="/translate.webp" alt="" class="h-7 w-7 cursor-pointer mr-5 ml-auto md:ml-0" />
 </div>

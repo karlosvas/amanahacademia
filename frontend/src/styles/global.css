@@ -2,12 +2,15 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+@import url("https://fonts.cdnfonts.com/css/jomolhari");
 
 :root {
   --color-red: #6d0006;
   --color-light-red: #b2443a;
   --color-salmon: #fa8072;
   --color-light-salmon: #ffbba8;
+  --color-light-brown: #d89c8d;
+  --color-brown: #8a4141;
   --color-white: #fff4e1;
   --color-black: #000;
 }
@@ -35,4 +38,8 @@
 body {
   font-family: "Onest Variable", system-ui, sans-serif;
   font-size: 15px;
+}
+
+.font-jomolhari {
+  font-family: "Jomolhari", serif;
 }

@@ -1,3 +1,10 @@
 {
-  "title": "Título en español"
+  "header": {
+    "about_us": "معلومات عنا",
+    "articles": "مقالات",
+    "pracing": "الأسعار",
+    "courses": "الدورات",
+    "comments": "تعليقات",
+    "contact": "اتصال"
+  }
 }

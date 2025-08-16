@@ -1,3 +1,10 @@
 {
-  "title": "Título en español"
+  "header": {
+    "about_us": "Sobre de nosotros",
+    "articles": "Articulos",
+    "pracing": "Precios",
+    "courses": "Cursos",
+    "comments": "Comentarios",
+    "contact": "Contacto"
+  }
 }
