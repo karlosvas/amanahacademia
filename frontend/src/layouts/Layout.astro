@@ -22,6 +22,8 @@ const { lang } = Astro.props;
     <title>Amana Academia</title>
   </head>
   <body class="m-0 w-full h-full">
-    <slot />
+    <div class="min-h-screen w-full bg-background">
+      <slot />
+    </div>
   </body>
 </html>

@@ -1,18 +1,5 @@
----
-import type { HeaderIn18 } from "@/types/types";
-import AboutUs from "./AboutUs.astro";
-
-const info = Astro.props.info as HeaderIn18;
----
-
-<div class="h-full w-full">
-  <!-- Banner -->
-  <section>
-    <h1 class="text-center px-10 pt-10 pb-1 text-[--color-red] font-bold text-3xl">Amanah Academia</h1>
-    <div class="bg-[--color-salmon] w-40 h-1 m-auto mb-10 w60"></div>
-    <div class="w-full h-96 overflow-hidden">
-      <img src="/desert.webp" alt="" class="w-full" />
-    </div>
-  </section>
-  <AboutUs />
-</div>
+<main>
+  <div class="h-full w-full">
+    <slot />
+  </div>
+</main>

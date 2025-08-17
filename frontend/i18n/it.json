@@ -2,9 +2,65 @@
   "header": {
     "about_us": "Chi siamo",
     "articles": "Articoli",
-    "pracing": "Prezzi",
+    "pricing": "Prezzi",
     "courses": "Corsi",
     "comments": "Commenti",
     "contact": "Contatto"
+  },
+  "main": {
+    "home": {
+      "title": "Chi siamo",
+      "about_us": {
+        "title": "Su Amanah",
+        "description": [
+          "Amanah è la piattaforma leader per imparare lo spagnolo in modo personalizzato ed efficace. Colleghiamo studenti di tutto il mondo con insegnanti madrelingua specializzati in diversi metodi di insegnamento.",
+          "La nostra piattaforma conta più di 50 insegnanti certificati provenienti dalla Spagna e dall’America Latina, ognuno con la propria specialità e stile di insegnamento. Puoi scegliere l’insegnante che meglio si adatta ai tuoi obiettivi e ai tuoi orari.",
+          "Che tu stia cercando lezioni di conversazione, preparazione per esami ufficiali, spagnolo per affari o semplicemente desideri esplorare la cultura ispanofona, abbiamo l’insegnante perfetto per te."
+        ]
+      },
+      "info": {
+        "students": "Studenti",
+        "teachers": "Insegnanti",
+        "satisfaction": "Soddisfazione"
+      },
+      "focus": {
+        "title": "Il nostro approccio",
+        "cards": [
+          {
+            "title": "Insegnanti diversificati",
+            "description": "Scegli tra più di 50 insegnanti madrelingua con diverse specialità, accenti e metodi di insegnamento."
+          },
+          {
+            "title": "Lezioni personalizzate",
+            "description": "Ogni insegnante adatta le tue lezioni al tuo livello, ai tuoi obiettivi e al tuo stile di apprendimento per massimizzare i tuoi progressi."
+          },
+          {
+            "title": "Orari flessibili",
+            "description": "Prenota lezioni quando vuoi. I nostri insegnanti sono disponibili in diversi fusi orari."
+          }
+        ],
+        "note": [
+          "“In Amanah Academia crediamo che ogni studente sia unico. Per questo ti offriamo la libertà di scegliere l’insegnante che si connette meglio con te e ti aiuta a raggiungere i tuoi obiettivi in spagnolo.”",
+          "- Team Amanah Academia"
+        ]
+      }
+    },
+    "articles": {
+      "title": "Articoli"
+    },
+    "courses": {
+      "title": "Corsi"
+    },
+    "comments": {
+      "title": "Commenti"
+    },
+    "contact": {
+      "title": "Contatto"
+    }
+  },
+  "footer": {
+    "license": "Licenza",
+    "privacy_policy": "Informativa sulla privacy",
+    "terms_of_service": "Termini di servizio"
   }
 }

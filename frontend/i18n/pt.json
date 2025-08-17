@@ -2,9 +2,65 @@
   "header": {
     "about_us": "Sobre nós",
     "articles": "Artigos",
-    "pracing": "Preços",
+    "pricing": "Preços",
     "courses": "Cursos",
     "comments": "Comentários",
     "contact": "Contato"
+  },
+  "main": {
+    "home": {
+      "title": "Sobre nós",
+      "about_us": {
+        "title": "Sobre a Amanah",
+        "description": [
+          "Amanah é a plataforma líder para aprender espanhol de forma personalizada e eficaz. Conectamos estudantes de todo o mundo com professores nativos especializados em diferentes métodos de ensino.",
+          "A nossa plataforma conta com mais de 50 professores certificados da Espanha e da América Latina, cada um com a sua especialidade e estilo de ensino. Você pode escolher o professor que melhor se adapte aos seus objetivos e horários.",
+          "Seja para aulas de conversação, preparação para exames oficiais, espanhol para negócios ou simplesmente para explorar a cultura hispânica, temos o professor perfeito para você."
+        ]
+      },
+      "info": {
+        "students": "Estudantes",
+        "teachers": "Professores",
+        "satisfaction": "Satisfação"
+      },
+      "focus": {
+        "title": "Nosso enfoque",
+        "cards": [
+          {
+            "title": "Professores Diversos",
+            "description": "Escolha entre mais de 50 professores nativos com diferentes especialidades, sotaques e métodos de ensino."
+          },
+          {
+            "title": "Aulas personalizadas",
+            "description": "Cada professor adapta suas aulas ao seu nível, objetivos e estilo de aprendizagem para maximizar seu progresso."
+          },
+          {
+            "title": "Horários Flexíveis",
+            "description": "Agende aulas quando quiser. Nossos professores estão disponíveis em diferentes fusos horários."
+          }
+        ],
+        "note": [
+          "“Na Amanah Academia acreditamos que cada estudante é único. Por isso oferecemos a liberdade de escolher o professor que melhor se conecta com você e o ajuda a alcançar seus objetivos em espanhol.”",
+          "- Equipa Amanah Academia"
+        ]
+      }
+    },
+    "articles": {
+      "title": "Artigos"
+    },
+    "courses": {
+      "title": "Cursos"
+    },
+    "comments": {
+      "title": "Comentários"
+    },
+    "contact": {
+      "title": "Contato"
+    }
+  },
+  "footer": {
+    "license": "Licença",
+    "privacy_policy": "Política de Privacidade",
+    "terms_of_service": "Termos de Serviço"
   }
 }

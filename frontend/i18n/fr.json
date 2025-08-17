@@ -2,9 +2,65 @@
   "header": {
     "about_us": "À propos de nous",
     "articles": "Articles",
-    "pracing": "Tarifs",
+    "pricing": "Tarifs",
     "courses": "Cours",
     "comments": "Commentaires",
     "contact": "Contact"
+  },
+  "main": {
+    "home": {
+      "title": "À propos de nous",
+      "about_us": {
+        "title": "À propos d’Amanah",
+        "description": [
+          "Amanah est la plateforme leader pour apprendre l’espagnol de manière personnalisée et efficace. Nous connectons des étudiants du monde entier avec des professeurs natifs spécialisés dans différentes méthodes d’enseignement.",
+          "Notre plateforme compte plus de 50 professeurs certifiés d’Espagne et d’Amérique latine, chacun ayant sa propre spécialité et son style d’enseignement. Vous pouvez choisir le professeur qui correspond le mieux à vos objectifs et à vos horaires.",
+          "Que vous cherchiez des cours de conversation, une préparation aux examens officiels, de l’espagnol des affaires ou que vous souhaitiez simplement découvrir la culture hispanophone, nous avons le professeur idéal pour vous."
+        ]
+      },
+      "info": {
+        "students": "Étudiants",
+        "teachers": "Professeurs",
+        "satisfaction": "Satisfaction"
+      },
+      "focus": {
+        "title": "Notre approche",
+        "cards": [
+          {
+            "title": "Professeurs diversifiés",
+            "description": "Choisissez parmi plus de 50 professeurs natifs avec différentes spécialités, accents et méthodes d’enseignement."
+          },
+          {
+            "title": "Cours personnalisés",
+            "description": "Chaque professeur adapte vos cours à votre niveau, vos objectifs et votre style d’apprentissage afin de maximiser vos progrès."
+          },
+          {
+            "title": "Horaires flexibles",
+            "description": "Réservez des cours quand cela vous convient. Nos professeurs sont disponibles dans différents fuseaux horaires."
+          }
+        ],
+        "note": [
+          "“À Amanah Academia, nous croyons que chaque étudiant est unique. C’est pourquoi nous vous donnons la liberté de choisir le professeur qui se connecte le mieux avec vous et vous aide à atteindre vos objectifs en espagnol.”",
+          "- Équipe Amanah Academia"
+        ]
+      }
+    },
+    "articles": {
+      "title": "Articles"
+    },
+    "courses": {
+      "title": "Cours"
+    },
+    "comments": {
+      "title": "Commentaires"
+    },
+    "contact": {
+      "title": "Contact"
+    }
+  },
+  "footer": {
+    "license": "Licence",
+    "privacy_policy": "Politique de confidentialité",
+    "terms_of_service": "Conditions d’utilisation"
   }
 }

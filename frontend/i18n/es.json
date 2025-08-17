@@ -6,5 +6,61 @@
     "courses": "Cursos",
     "comments": "Comentarios",
     "contact": "Contacto"
+  },
+  "main": {
+    "home": {
+      "title": "Sobre nosotros",
+      "about_us": {
+        "title": "Sobre Amanah",
+        "description": [
+          "Amanah es la plataforma líder para aprender español de forma personalizada y efectiva. Conectamos estudiantes de todo el mundo con profesores nativos especializados en distintos métodos de enseñanza.",
+          "Nuestra plataforma cuenta con más de 50 profesores certificados de España y América Latina, cada uno con su especialidad y estilo de enseñanza. Puedes elegir al profesor que mejor se adapte a tus objetivos y horarios.",
+          "Tanto si buscas clases de conversación, preparación para exámenes oficiales, español de negocios o simplemente explorar la cultura hispanohablante, tenemos el profesor perfecto para ti."
+        ]
+      },
+      "info": {
+        "students": "Estudiantes",
+        "teachers": "Profesores",
+        "satisfaction": "Satisfacción"
+      },
+      "focus": {
+        "title": "Nuestro enfoque",
+        "cards": [
+          {
+            "title": "Profesores Diversos",
+            "description": "Elige entre más de 50 profesores navitos con diferentes especialidades, acentos y métodos de enseñanza"
+          },
+          {
+            "title": "Clases personalizadas",
+            "description": "Cada profesor adapta tus clases a tu nivel objetivos y estilo de aprendizake para maximizar tu progreso."
+          },
+          {
+            "title": "Horarios Flexibles",
+            "description": "Reserva clases cuando te convenga. Nuestros profesores están disponibles en diferentes zonas horarias."
+          }
+        ],
+        "note": [
+          "“En Amanah Academia creemos que cada estudianto es único. Por eso te ofrcrmos la libertad de elegir el profesor que mejor conecte contigo y te ayude a alnanzar tus metas en español”",
+          "- Equipo Amanah Academia"
+        ]
+      }
+    },
+    "articles": {
+      "title": "Articulos"
+    },
+    "courses": {
+      "title": "Cursos"
+    },
+    "comments": {
+      "title": "Comentarios"
+    },
+    "contact": {
+      "title": "Contacto"
+    }
+  },
+  "footer": {
+    "license": "Licencia",
+    "privacy_policy": "Política de privacidad",
+    "terms_of_service": "Términos y condiciones"
   }
 }

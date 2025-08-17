@@ -1,10 +1,66 @@
 {
   "header": {
-    "about_us": "About Us",
+    "about_us": "About us",
     "articles": "Articles",
-    "pracing": "Pricing",
+    "pricing": "Pricing",
     "courses": "Courses",
     "comments": "Comments",
     "contact": "Contact"
+  },
+  "main": {
+    "home": {
+      "title": "About us",
+      "about_us": {
+        "title": "About Amanah",
+        "description": [
+          "Amanah is the leading platform for learning Spanish in a personalized and effective way. We connect students from all over the world with native teachers specialized in different teaching methods.",
+          "Our platform features more than 50 certified teachers from Spain and Latin America, each with their own specialty and teaching style. You can choose the teacher that best fits your goals and schedule.",
+          "Whether you are looking for conversation classes, preparation for official exams, business Spanish, or simply want to explore Hispanic culture, we have the perfect teacher for you."
+        ]
+      },
+      "info": {
+        "students": "Students",
+        "teachers": "Teachers",
+        "satisfaction": "Satisfaction"
+      },
+      "focus": {
+        "title": "Our approach",
+        "cards": [
+          {
+            "title": "Diverse Teachers",
+            "description": "Choose from over 50 native teachers with different specialties, accents, and teaching methods."
+          },
+          {
+            "title": "Personalized Classes",
+            "description": "Each teacher adapts your classes to your level, goals, and learning style to maximize your progress."
+          },
+          {
+            "title": "Flexible Schedules",
+            "description": "Book classes whenever it suits you. Our teachers are available across different time zones."
+          }
+        ],
+        "note": [
+          "“At Amanah Academia, we believe every student is unique. That’s why we give you the freedom to choose the teacher who connects with you best and helps you achieve your goals in Spanish.”",
+          "- Amanah Academia Team"
+        ]
+      }
+    },
+    "articles": {
+      "title": "Articles"
+    },
+    "courses": {
+      "title": "Courses"
+    },
+    "comments": {
+      "title": "Comments"
+    },
+    "contact": {
+      "title": "Contact"
+    }
+  },
+  "footer": {
+    "license": "License",
+    "privacy_policy": "Privacy Policy",
+    "terms_of_service": "Terms of Service"
   }
 }

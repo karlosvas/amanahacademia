@@ -1,13 +1,14 @@
 ---
 import Footer from "@/components/Footer.astro";
 import Header from "@/components/Header.astro";
-import Main from "@/components/Main.astro";
+import type { i18nTranslations } from "@/types/types";
 
-const { data } = Astro.props;
+const data = Astro.props.data as i18nTranslations;
 ---
 
-<div class="min-h-screen w-full bg-background">
-  <Header info={data.header} />
-  <Main />
-  <Footer />
-</div>
+<!-- Header -->
+<Header data={data.header} />
+<!-- Contenido Principal -->
+<slot />
+<!-- Footer -->
+<Footer data={data.footer} />
