@@ -1,7 +1,6 @@
 ---
 import App from "@/layouts/App.astro";
 import { getI18N } from "@/../i18n/index";
-import Main from "@/components/Main.astro";
 import Layout from "@/layouts/Layout.astro";
 import Home from "@/components/Home.astro";
 
@@ -12,8 +11,8 @@ const data = getI18N({ lang });
 
 <Layout>
   <App data={data}>
-    <Main>
-      <Home data={data.main} />
-    </Main>
+    <main>
+      <Home data={data.main.home} />
+    </main>
   </App>
 </Layout>

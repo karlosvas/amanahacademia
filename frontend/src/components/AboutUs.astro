@@ -10,7 +10,7 @@ const data = Astro.props.data as HomeIn18;
 ---
 
 <section>
-  <Title title={data.title} sizeText="text-2xl" sizeLine="w-20" />
+  <Title sizeText="text-2xl" sizeLine="w-20">{data.title}</Title>
   <div class="flex flex-col md:flex-row w-full max-w-3xl mx-auto px-4 items-center">
     <img src="/about_us.webp" alt="" class="w-full md:w-[300px] h-52 md:h-[400px] rounded-md object-cover" />
     <div class="p-5 flex-1">
@@ -32,7 +32,7 @@ const data = Astro.props.data as HomeIn18;
       </div>
     </div>
   </div>
-  <div class="w-full max-w-3xl mx-auto px-4">
+  <div class="w-full max-w-3xl mx-auto px-4 mb-20">
     <h3 class="mt-24 text-center text-[--color-red] font-semibold mb-5">{data.focus.title}</h3>
     <div class="flex flex-col md:flex-row gap-6 mb-10 justify-center">
       <CardInfo colourRectangle="bg-[--color-salmon]">
@@ -52,8 +52,8 @@ const data = Astro.props.data as HomeIn18;
       </CardInfo>
     </div>
     <p class="m-10 text-[--color-red] text-center text-sm">
-      <span slot="title">{data.focus.note[0]}</span>
-      <span slot="description">{data.focus.note[1]}</span><br />
+      <span slot="title">{data.focus.note[0]}</span><br />
+      <span slot="description">{data.focus.note[1]}</span>
     </p>
   </div>
 </section>

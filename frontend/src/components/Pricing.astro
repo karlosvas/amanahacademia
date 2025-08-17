@@ -1,0 +1,45 @@
+---
+import CardPricing from "./CardPricing.astro";
+import Title from "./Title.astro";
+import IconShell from "@/assets/shell.svg";
+---
+
+<div class="w-full md:w-3/4 m-auto">
+  <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-24">Planes y precios</Title>
+  <p class="text-center w-1/2 m-auto">
+    Elige el plan que mejor se adapte a tus objetivos de aprendizaje. Todo nuesytros plenaes incluyen acceso a
+    profesores nativos certificados.
+  </p>
+  <br />
+  <div class="flex flex-col md:flex-row justify-center align-middle items-center">
+    <CardPricing />
+    <CardPricing />
+    <CardPricing />
+  </div>
+  <div class="w-4/6 flex text-sm mt-20 m-auto pb-20">
+    <div class="mx-3">
+      <h4 class="text-[--color-salmon] text-lg font-semibold">No estas seguro de que plan elegir</h4>
+      <p class="mt-2">
+        Ofrecemos una clase de prueba gratuita de 25 minutos para que puedas conocer a nuestros profesores y evaluar qué
+        plan se adapta mejor a tus necesidades.
+      </p>
+      <button class="bg-[--color-red] text-[--color-salmon] py-2 px-10 rounded-full mt-5">
+        Reservar clase gratuita</button
+      >
+    </div>
+    <div class="mx-3 mb-20">
+      <h4 class="text-[--color-salmon] text-lg font-semibold">Garantía de Satisfación</h4>
+      <p class="mt-2">
+        Si no estás completamente satisfecho con tu primera clas, te devolbemos el 100% de tu dinero. Nosotros objetico
+        es que tengas la mejor experiencia de aprendizaje posible.
+      </p>
+      <span class="flex items-center mt-4">
+        <div class="bg-[--color-salmon] rounded-full h-10 w-10 flex justify-center items-center">
+          <IconShell />
+        </div>
+        <h5 class="px-3">Garantía de 30 días</h5>
+      </span>
+    </div>
+  </div>
+  <img src="/dunas.png" alt="" class="w-1/2 h-auto absolute left-0 bottom-0" />
+</div>

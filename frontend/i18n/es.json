@@ -2,7 +2,7 @@
   "header": {
     "about_us": "Sobre de nosotros",
     "articles": "Articulos",
-    "pracing": "Precios",
+    "pricing": "Precios",
     "courses": "Cursos",
     "comments": "Comentarios",
     "contact": "Contacto"
@@ -46,7 +46,96 @@
       }
     },
     "articles": {
-      "title": "Articulos"
+      "title": "Articulos",
+      "articles": [
+        {
+          "title": "Cómo mejorar tu español rápidamente",
+          "summary": [
+            "Consejos prácticos para acelerar tu aprendizaje del español.",
+            "Incluye recursos, técnicas de estudio y recomendaciones de profesores."
+          ]
+        },
+        {
+          "title": "La importancia de la inmersión cultural",
+          "summary": [
+            "Explora cómo la inmersión en la cultura hispana puede mejorar tu fluidez.",
+            "Recomendaciones de películas, música y literatura en español."
+          ]
+        },
+        {
+          "title": "Cómo mejorar tu español rápidamente",
+          "summary": [
+            "Consejos prácticos para acelerar tu aprendizaje del español.",
+            "Incluye recursos, técnicas de estudio y recomendaciones de profesores."
+          ]
+        },
+        {
+          "title": "La importancia de la inmersión cultural",
+          "summary": [
+            "Explora cómo la inmersión en la cultura hispana puede mejorar tu fluidez.",
+            "Recomendaciones de películas, música y literatura en español."
+          ]
+        },
+        {
+          "title": "Cómo mejorar tu español rápidamente",
+          "summary": [
+            "Consejos prácticos para acelerar tu aprendizaje del español.",
+            "Incluye recursos, técnicas de estudio y recomendaciones de profesores."
+          ]
+        },
+        {
+          "title": "La importancia de la inmersión cultural",
+          "summary": [
+            "Explora cómo la inmersión en la cultura hispana puede mejorar tu fluidez.",
+            "Recomendaciones de películas, música y literatura en español."
+          ]
+        },
+        {
+          "title": "Cómo mejorar tu español rápidamente",
+          "summary": [
+            "Consejos prácticos para acelerar tu aprendizaje del español.",
+            "Incluye recursos, técnicas de estudio y recomendaciones de profesores."
+          ]
+        },
+        {
+          "title": "La importancia de la inmersión cultural",
+          "summary": [
+            "Explora cómo la inmersión en la cultura hispana puede mejorar tu fluidez.",
+            "Recomendaciones de películas, música y literatura en español."
+          ]
+        },
+        {
+          "title": "Cómo mejorar tu español rápidamente",
+          "summary": [
+            "Consejos prácticos para acelerar tu aprendizaje del español.",
+            "Incluye recursos, técnicas de estudio y recomendaciones de profesores."
+          ]
+        },
+        {
+          "title": "La importancia de la inmersión cultural",
+          "summary": [
+            "Explora cómo la inmersión en la cultura hispana puede mejorar tu fluidez.",
+            "Recomendaciones de películas, música y literatura en español."
+          ]
+        },
+        {
+          "title": "Cómo mejorar tu español rápidamente",
+          "summary": [
+            "Consejos prácticos para acelerar tu aprendizaje del español.",
+            "Incluye recursos, técnicas de estudio y recomendaciones de profesores."
+          ]
+        },
+        {
+          "title": "La importancia de la inmersión cultural",
+          "summary": [
+            "Explora cómo la inmersión en la cultura hispana puede mejorar tu fluidez.",
+            "Recomendaciones de películas, música y literatura en español."
+          ]
+        }
+      ]
+    },
+    "pricing": {
+      "title": "Precios"
     },
     "courses": {
       "title": "Cursos"

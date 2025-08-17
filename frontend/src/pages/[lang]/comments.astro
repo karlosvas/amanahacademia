@@ -2,12 +2,14 @@
 import App from "@/layouts/App.astro";
 import { getI18N } from "@/../i18n/index";
 import Layout from "@/layouts/Layout.astro";
-import Home from "@/components/Home.astro";
+import CommentsPage from "@/components/Comments.astro";
 
-// Creamos todas las rutas a los posibles idiomas
+// Obtenemos el idioma obtenido mediante la ruta
+const { lang } = Astro.params;
+const data = getI18N({ lang });
+
 export async function getStaticPaths() {
   return [
-    { params: { lang: "en" } },
     { params: { lang: "en" } },
     { params: { lang: "fr" } },
     { params: { lang: "de" } },
@@ -16,16 +18,12 @@ export async function getStaticPaths() {
     { params: { lang: "ar" } },
   ];
 }
-
-// Obtenemos el idioma obtenido mediante la ruta
-const { lang } = Astro.params;
-const data = getI18N({ lang });
 ---
 
 <Layout>
-  <App data={data} lang={lang}>
+  <App data={data}>
     <main>
-      <Home data={data.main.home} />
+      <CommentsPage data={data.main} />
     </main>
   </App>
 </Layout>

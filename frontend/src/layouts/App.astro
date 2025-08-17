@@ -4,10 +4,11 @@ import Header from "@/components/Header.astro";
 import type { i18nTranslations } from "@/types/types";
 
 const data = Astro.props.data as i18nTranslations;
+const { lang } = Astro.params;
 ---
 
 <!-- Header -->
-<Header data={data.header} />
+<Header data={data.header} lang={lang} />
 <!-- Contenido Principal -->
 <slot />
 <!-- Footer -->

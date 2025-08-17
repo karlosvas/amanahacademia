@@ -15,7 +15,7 @@ export type HeaderIn18 = {
 
 export type MainIn18 = {
   home: HomeIn18;
-  articles: SimpleSectionIn18;
+  articles: ArticleIn18;
   courses: SimpleSectionIn18;
   comments: SimpleSectionIn18;
   contact: SimpleSectionIn18;
@@ -46,6 +46,16 @@ export type FocusCardIn18 = {
 
 export type SimpleSectionIn18 = {
   title: string;
+};
+
+export type ArticleIn18 = {
+  title: string;
+  articles: [
+    {
+      title: string;
+      summary: string[];
+    }
+  ];
 };
 
 export type FooterIn18 = {

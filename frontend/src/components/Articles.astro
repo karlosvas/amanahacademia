@@ -1,0 +1,24 @@
+---
+import Title from "./Title.astro";
+import type { ArticleIn18 } from "@/types/types";
+
+const data = Astro.props.data as ArticleIn18;
+console.log(data);
+---
+
+<Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-20">{data.title}</Title>
+<div id="articles" class="mb-20 columns-1 sm:columns-2 md:columns-3 gap-4 p-4 w-3/4 m-auto">
+  {
+    data.articles?.map((article, i) => (
+      <div
+        class="mb-4 break-inside-avoid rounded-lg bg-[--color-salmon] shadow p-4 overflow-hidden flex flex-col justify-between h-full"
+        style={`height: ${120 + Math.random() * 180}px; width: 100%`}
+      >
+        <h3 class="font-bold mb-2">{article.title}</h3>
+        <div class="mt-auto">
+          <p class="text-sm">{article.summary}</p>
+        </div>
+      </div>
+    ))
+  }
+</div>

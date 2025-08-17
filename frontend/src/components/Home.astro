@@ -1,11 +1,10 @@
 ---
-import type { MainIn18 } from "@/types/types";
+import type { HomeIn18 } from "@/types/types";
 import AboutUs from "./AboutUs.astro";
 
-const data = Astro.props.data as MainIn18;
+const data = Astro.props.data as HomeIn18;
 ---
 
-<!-- Banner -->
 <section>
   <h1 class="text-center px-10 pt-10 pb-1 text-[--color-red] font-bold text-5xl">Amanah Academia</h1>
   <div class="bg-[--color-salmon] h-2 m-auto mb-10 w-80 mt-1"></div>
@@ -13,4 +12,4 @@ const data = Astro.props.data as MainIn18;
     <img src="/desert.webp" alt="" class="w-full" />
   </div>
 </section>
-<AboutUs data={data.home} />
+<AboutUs data={data} />
