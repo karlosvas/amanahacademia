@@ -4,19 +4,19 @@ import StarGroup from "./StarGroup.astro";
 import Stadistics from "./Stadistics.astro";
 ---
 
-<div class="my-20 flex flex-col lg:flex-row m-auto w-full justify-center">
-  <div>
+<div class="mt-10 lg:mt-0 mb-20 flex flex-col lg:flex-row m-auto w-full justify-center">
+  <div class="m-auto">
     <div class="text-center">
       <p class="text-7xl font-bold">3.75</p>
       <StarGroup star={4} />
     </div>
-    <h5>Comentarios con mas me gusta</h5>
+    <h5 class="text-[--color-red] ml-3">Comentarios con mas me gusta</h5>
     <div>
       <CardComment name="ana.banana" fecha="12 ago 2025" />
       <CardComment name="carmen_ortega" fecha="15 apr 2023" />
     </div>
   </div>
-  <div class="p-10 mx-5 bg-[--color-brown] rounded-2xl w-80">
+  <div class="p-10 mx-5 bg-[--color-brown] rounded-2xl w-80 mt-20 lg:mt-0 self-center">
     <h5 class="text-[--color-salmon] text-xl font-semibold">Elementos de evaluacion</h5>
     <Stadistics />
     <Stadistics />
@@ -24,8 +24,8 @@ import Stadistics from "./Stadistics.astro";
     <Stadistics />
     <Stadistics />
   </div>
-  <div>
-    <button class="bg-[--color-brown] rounded-md ml-3 text-2xl w-96 py-2">Comentar</button>
+  <div class="m-auto">
+    <button class="bg-[--color-brown] rounded-md ml-3 text-2xl w-96 mt-20 lg:mt-32 py-2">Comentar</button>
     <div>
       <CardComment name="carlos.vasquez" fecha="12 ago 2025" />
       <CardComment name="gillermo.duran" fecha="12 ago 2025" />
