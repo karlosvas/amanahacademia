@@ -1,0 +1,9 @@
+---
+import StarIcon from "@/assets/star.svg";
+
+const { star } = Astro.props;
+---
+
+<div class="flex justify-center">
+  {Array.from({ length: 5 }).map((_, i) => <StarIcon class={star > i ? "text-yellow-200" : "text-gray-100"} />)}
+</div>
