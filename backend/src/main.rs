@@ -6,12 +6,22 @@ mod services;
 mod state;
 
 use {
-    axum::Router,
-    reqwest::Client,
+    axum::{
+        Router,
+        http::{
+            Method,
+            header::{AUTHORIZATION, CONTENT_TYPE},
+        },
+    },
+    reqwest::Client as HttpClient,
     state::{AppState, CustomFirebase},
     std::{env, net::SocketAddr, sync::Arc},
+    stripe::Client as StripeClient,
     tokio::net::TcpListener,
-    tower_http::{cors::CorsLayer, trace::TraceLayer},
+    tower_http::{
+        cors::{AllowOrigin, CorsLayer},
+        trace::TraceLayer,
+    },
 };
 
 #[tokio::main]
@@ -36,16 +46,33 @@ async fn main() {
             .expect("FIREBASE_PROJECT_ID must be set"),
         firebase_api_key: env::var("FIREBASE_API_KEY").expect("FIREBASE_API_KEY must be set"),
     };
+
+    // Cliente de stripe
+    let stripe_client: StripeClient =
+        StripeClient::new(env::var("STRIPE_API_KEY").expect("STRIPE_API_KEY must be set"));
+
     // Inicializar el estado de la aplicación y el enrutador
     let state: Arc<AppState> = Arc::new(AppState {
         firebase,
-        client: Client::new(),
+        firebase_client: HttpClient::new(),
+        stripe_client,
     });
+
+    let cors: CorsLayer = CorsLayer::new()
+        .allow_origin(AllowOrigin::list(vec![
+            "http://localhost:3000".parse().unwrap(), // Redirecciones internas
+            "http://localhost:4321".parse().unwrap(), // Frontend desarrollo
+            "https://amanahacademia.com".parse().unwrap(), // Dominio de producción
+        ])) // Origenes Permitidos
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE]) // Métodos permitidos
+        .allow_headers([CONTENT_TYPE, AUTHORIZATION]) // Encabezados permitidos
+        .allow_credentials(true); // Permitir cookies y credenciales
 
     // Configurar el enrutador de la aplicación
     let app: Router = Router::new()
-        .nest("/user", routes::user::router(state.clone()))
-        .layer(CorsLayer::permissive()) // CORS abierto
+        .nest("/user", routes::user::router(state.clone())) // FB Auth, FB Realtime DB
+        .nest("/payment", routes::payment::router(state.clone())) //
+        .layer(cors) // CORS abierto
         .layer(TraceLayer::new_for_http()) // Logging básico
         .with_state(state);
 

@@ -1,6 +1,6 @@
 use {
     crate::{
-        models::{error::AuthError, user::UserAuthentication},
+        models::{error::AuthError, firebase::UserAuthentication},
         state::AppState,
     },
     axum::{

@@ -1,8 +1,10 @@
 use {
     crate::{
-        models::user::{
-            FirebaseAccountsLookupResponse, FirebaseAuthResponse, RefreshToken, UserAuth,
-            UserAuthentication, UserDB, UserDBResponse, UserRequest,
+        models::{
+            firebase::{
+                FirebaseAuthResponse, FirebaseUserInfo, RefreshToken, UserAuth, UserAuthentication,
+            },
+            user::{UserDB, UserRequest},
         },
         services::firebase::handle_firebase_response,
         state::AppState,
@@ -41,7 +43,7 @@ pub async fn create_user(
 
     // POST:: Crear usuario en Firebase Authentication
     let auth_response: FirebaseAuthResponse = match state
-        .client
+        .firebase_client
         .post(&url_register_auth)
         .json(&new_user_authentication)
         .send()
@@ -76,7 +78,7 @@ pub async fn create_user(
 
     // POST:: crear usuario
     match state
-        .client
+        .firebase_client
         .put(&url_firebase_db)
         .json(&user_db)
         .send()
@@ -124,7 +126,7 @@ pub async fn login_user(
 
     // Enviar la solicitud a Firebase Auth
     match state
-        .client
+        .firebase_client
         .post(&url_login_firebase)
         .json(&login_payload)
         .send()
@@ -168,7 +170,7 @@ pub async fn update_user(
 
     // Enviar la solicitud a Firebase Auth
     let _: Response<Body> = match state
-        .client
+        .firebase_client
         .post(&url_firebase_auth_update)
         .json(&user_payload)
         .send()
@@ -226,7 +228,7 @@ pub async fn update_user(
 
     // Actualizar en la base de datos
     match state
-        .client
+        .firebase_client
         .put(&url_firebase_db)
         .json(&user_db)
         .send()
@@ -264,7 +266,7 @@ pub async fn delete_me(
     // Obtenemos el usuario de las claims y lo borramos
     // Si falló la eliminación de Auth, retornar error inmediatamente
     let _: Response<Body> = match state
-        .client
+        .firebase_client
         .post(url_firebase_auth) // Fb utiliza POST para eliminar usuarios
         .json(&json!({ "idToken": id_token }))
         .send()
@@ -288,7 +290,7 @@ pub async fn delete_me(
     );
 
     // Eliminamos el usuario de Firebase Realtime Database
-    match state.client.delete(url_firebase_db).send().await {
+    match state.firebase_client.delete(url_firebase_db).send().await {
         Ok(response) if response.status().is_success() => (StatusCode::NO_CONTENT).into_response(),
         Ok(response) => {
             eprintln!(
@@ -347,50 +349,51 @@ pub async fn get_all_users(
     );
 
     // Realizamos la petición a Firebase Realtime Database para obtener todos los usuarios
-    let user_data_db: UserDBResponse = match state.client.get(&url_firebase_db).send().await {
-        Ok(response) if response.status().is_success() => match response.text().await {
-            Ok(response_text) => {
-                if response_text.trim().is_empty() || response_text.trim() == "null" {
-                    HashMap::new()
-                } else {
-                    match serde_json::from_str::<UserDBResponse>(&response_text) {
-                        Ok(value) => value,
-                        Err(_) => {
-                            return (
-                                StatusCode::INTERNAL_SERVER_ERROR,
-                                Json(json!({ "error": "Error parsing database users data" })),
-                            )
-                                .into_response();
+    let user_data_db: HashMap<String, UserDB> =
+        match state.firebase_client.get(&url_firebase_db).send().await {
+            Ok(response) if response.status().is_success() => match response.text().await {
+                Ok(response_text) => {
+                    if response_text.trim().is_empty() || response_text.trim() == "null" {
+                        HashMap::new()
+                    } else {
+                        match serde_json::from_str::<HashMap<String, UserDB>>(&response_text) {
+                            Ok(value) => value,
+                            Err(_) => {
+                                return (
+                                    StatusCode::INTERNAL_SERVER_ERROR,
+                                    Json(json!({ "error": "Error parsing database users data" })),
+                                )
+                                    .into_response();
+                            }
                         }
                     }
                 }
+                Err(e) => {
+                    eprintln!("Error reading response text: {}", e);
+                    HashMap::new()
+                }
+            },
+            Ok(response) => {
+                eprintln!(
+                    "Firebase DB Error - Status: {}, Body: {}",
+                    response.status(),
+                    response.text().await.unwrap_or_default()
+                );
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(json!({ "error": "Error retrieving users from database" })),
+                )
+                    .into_response();
             }
             Err(e) => {
-                eprintln!("Error reading response text: {}", e);
-                HashMap::new()
+                eprintln!("Connection error: {}", e);
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(json!({ "error": "Error connecting to Firebase" })),
+                )
+                    .into_response();
             }
-        },
-        Ok(response) => {
-            eprintln!(
-                "Firebase DB Error - Status: {}, Body: {}",
-                response.status(),
-                response.text().await.unwrap_or_default()
-            );
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({ "error": "Error retrieving users from database" })),
-            )
-                .into_response();
-        }
-        Err(e) => {
-            eprintln!("Connection error: {}", e);
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({ "error": "Error connecting to Firebase" })),
-            )
-                .into_response();
-        }
-    };
+        };
 
     // URL de los datos de Firebase Admin
     let url_firebase_admin: String = format!(
@@ -400,25 +403,27 @@ pub async fn get_all_users(
     );
 
     // Realizamos la petición a Firebase Admin para obtener la información del usuario
-    let user_data_auth: FirebaseAccountsLookupResponse = match state
-        .client
+    let user_data_auth: Vec<FirebaseUserInfo> = match state
+        .firebase_client
         .post(&url_firebase_admin)
         .json(&json!({ "idToken": id_token }))
         .send()
         .await
     {
-        Ok(response) => {
-            match handle_firebase_response::<FirebaseAccountsLookupResponse>(response).await {
-                Ok(users) => users,
-                Err((status, error)) => {
-                    eprintln!("Firebase Admin Error: {} - {}", status, error);
-                    return (status, Json(error)).into_response();
-                }
+        Ok(response) => match handle_firebase_response::<Vec<FirebaseUserInfo>>(response).await {
+            Ok(users) => users,
+            Err((status, error)) => {
+                eprintln!("Firebase Admin Error: {} - {}", status, error);
+                return (status, Json(error)).into_response();
             }
-        }
+        },
         Err(_) => {
             eprintln!("Error connecting to Firebase");
-            FirebaseAccountsLookupResponse::default()
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({ "error": "Error connecting to Firebase" })),
+            )
+                .into_response();
         }
     };
 
@@ -449,7 +454,7 @@ pub async fn refresh_token(
 
     // Actualizamos el neuvo token, no hace falta devolber nada
     match state
-        .client
+        .firebase_client
         .post(&url_firebase_auth_refresh_token)
         .json(&refresh_token)
         .send()
@@ -488,7 +493,7 @@ async fn get_user_data(
     );
 
     // Realizamos la petición a Firebase Realtime Database
-    match state.client.get(url_firebase_db).send().await {
+    match state.firebase_client.get(url_firebase_db).send().await {
         Ok(response) => match handle_firebase_response::<UserDB>(response).await {
             Ok(user) => Some(user),
             Err((status, error)) => {

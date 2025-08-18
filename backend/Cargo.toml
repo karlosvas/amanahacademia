@@ -20,3 +20,4 @@ thiserror = "1.0"
 tracing = "0.1"
 anyhow = "1.0"
 chrono = "0.4"
+async-stripe = { version = "0.41.0", features = ["runtime-tokio-hyper"] }
