@@ -1,40 +1,49 @@
 <img
   src="/coffe.webp"
   alt=""
-  class="absolute w-full md:w-3/12 h-96 md:h-72 right-0 top-24 md:top-0 md:rounded-bl-2xl object-cover"
+  class="absolute w-full md:w-3/12 h-96 md:h-72 right-0 top-36 md:top-0 md:rounded-bl-2xl object-cover z-0 pointer-events-none"
 />
 <img
   src="/coffe.webp"
   alt=""
-  class="hidden md:block absolute w-28 h-28 left-[440px] top-14 rounded-full object-cover"
+  class="hidden md:block absolute w-28 h-28 left-[440px] top-28 rounded-full object-cover z-0 pointer-events-none"
 />
-<img src="/coffe.webp" alt="" class="hidden md:block absolute w-80 h-80 left-10 top-30 rounded-full object-cover" />
+<img
+  src="/coffe.webp"
+  alt=""
+  class="hidden md:block absolute w-80 h-80 left-10 top-30 rounded-full object-cover z-0 pointer-events-none"
+/>
 <h2
-  class=`mt-24 text-center px-10 pb-1 text-[--color-red] font-bold text-2xl absolute left-40 md:left-28 -top-20 md:top-28`
+  class=`mt-24 text-center px-10 pb-1 text-[--color-red] font-bold text-2xl absolute left-40 md:left-28 -top-20 md:top-28 pointer-events-none`
 >
   Contacto
 </h2>
-<div class=`bg-[--color-salmon] w-20 md:w-28 h-1 m-auto mb-10 absolute top-12 md:top-60 left-52 md:left-36`></div>
 <div
-  class="ml-0 md:ml-72 lg:ml-[500px] py-10 flex flex-col items-start md:border-2 md:border-gray-500 md:rounded-l-3xl mb-20"
+  class=`bg-[--color-salmon] w-20 md:w-28 h-1 m-auto mb-10 absolute top-12 md:top-60 left-52 md:left-36 pointer-events-none`
 >
-  <form action="" class="flex flex-col z-10 pl-10">
+</div>
+<div class="w-full mt-20 z-20 relative">
+  <form
+    action="post"
+    class="flex flex-col z-10 pl-10 ml-0 md:ml-72 lg:ml-[500px] py-10 items-start md:border-2 md:border-gray-500 md:rounded-l-3xl mb-20 relative"
+  >
     <label for="name" class="my-5">
       Name <br />
-      <input type="text" class="bg-transparent border-b-2 border-gray-500 w-96" />
+      <input type="text" class="bg-transparent border-b-2 outline-none border-gray-500 w-96" />
     </label>
     <label for="name" class="my-5">
       Asunto
       <br />
-      <input type="text" class="bg-transparent border-b-2 border-gray-500 w-96" />
+      <input type="text" class="bg-transparent border-b-2 border-gray-500 w-96 outline-none" />
     </label>
     <label for="name" class="my-5">
       Message<br />
-      <input type="text" class="bg-transparent border-b-2 border-gray-500 w-96" />
+      <input type="text" class="bg-transparent border-b-2 border-gray-500 w-96 outline-none" />
     </label>
+    <button
+      type="submit"
+      class="text-white bg-[--color-salmon] w-3/4 m-auto md:m-0 md:ml-10 md:w-96 font-semibold rounded-xl mt-40 md:mt-10 p-3"
+      >Contactar</button
+    >
   </form>
-  <button
-    class="text-white bg-[--color-salmon] w-3/4 m-auto md:m-0 md:ml-10 md:w-96 font-semibold rounded-xl mt-40 md:mt-10 p-3"
-    >Contactar</button
-  >
 </div>

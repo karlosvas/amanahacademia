@@ -1,1 +1,45 @@
-<h1></h1>
+---
+import CardModule from "./CardModule.astro";
+---
+
+<div class="my-20">
+  <div class="flex w-1/2 m-auto">
+    <div class="w-[700px] p-10">
+      <h1 class="text-[--color-red] font-semibold text-2xl">
+        The course is ideal fo you <span class="text-[--color-salmon]">if yopu are</span>
+      </h1>
+      <img src="/salmon.webp" alt="" class="h-40 w-72" />
+    </div>
+    <div class="flex-col justify-center items-center">
+      <div class="m-3 flex justify-center items-center">
+        <div class="bg-purple-600 w-16 h-6 rounded-full m-3 text-white flex justify-center align-middle">1</div>
+        <h2>Bisnes analist in it</h2><p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas hic quidem natus, saepe culpa labore fuga
+          sint consequatur, optio laudantium assumenda dolor quaerat. Quis ipsum optio fugit! Amet, animi quod?
+        </p>
+      </div>
+      <div class="m-3 flex justify-center items-center">
+        <div class="bg-purple-600 w-16 h-6 rounded-full m-3 text-white flex justify-center align-middle">2</div>
+
+        <h2>Bisnes analist in it</h2><p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas hic quidem natus, saepe culpa labore fuga
+          sint consequatur, optio laudantium assumenda dolor quaerat. Quis ipsum optio fugit! Amet, animi quod?
+        </p>
+      </div>
+      <div class="m-3 flex justify-center items-center">
+        <div class="bg-purple-600 w-16 h-6 rounded-full m-3 text-white flex justify-center align-middle">3</div>
+        <h2>Bisnes analist in it</h2><p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas hic quidem natus, saepe culpa labore fuga
+          sint consequatur, optio laudantium assumenda dolor quaerat. Quis ipsum optio fugit! Amet, animi quod?
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="w-1/2 m-auto">
+    <h1 class="text-[--color-red]"><span class="text-[--color-salmon] font-bold">Program</span> of the course</h1>
+    <CardModule sessons={9} homeworks={8} modulo={1} content={["Ejemplo 1"]} />
+    <CardModule sessons={4} homeworks={1} modulo={2} content={["Ejemplo 1"]} />
+    <CardModule sessons={2} homeworks={2} modulo={3} content={["Ejemplo 1"]} />
+    <CardModule sessons={1} homeworks={3} modulo={4} content={["Ejemplo 1"]} />
+  </div>
+</div>

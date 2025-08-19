@@ -1,0 +1,103 @@
+---
+import CameraIcon from "@/assets/camera.svg";
+import BookIcon from "@/assets/book.svg";
+
+interface CardModuleProps {
+  sessons: number;
+  homeworks: number;
+  modulo: number;
+  content: string[];
+}
+const { sessons, homeworks, modulo, content } = Astro.props as CardModuleProps;
+---
+
+<div
+  class="border border-gray-300 p-5 rounded-2xl mt-10 mb-[-20px] cursor-pointer transition-all duration-300 hover:shadow-lg"
+  id=`module-${modulo}`
+>
+  <div class="flex justify-between items-center">
+    <h2 class="text-lg font-semibold">Module {modulo}</h2>
+    <svg class="w-5 h-5 transform transition-transform duration-300" id="arrow" fill="currentColor" viewBox="0 0 20 20">
+      <path
+        fill-rule="evenodd"
+        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+        clip-rule="evenodd"></path>
+    </svg>
+  </div>
+  <div>
+    <p class="text-gray-600">
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas hic quidem natus, saepe culpa labore fuga sint
+      consequatur, optio laudantium assumenda dolor quaerat.
+    </p>
+    <div class="flex">
+      <img src="/camara-devideo.png" alt="" />
+      <div class="border border-gray-100 mr-4">
+        <div class="flex justify-center items-center align-middle border border-gray-400 rounded-xl px-3">
+          <CameraIcon />
+          <p class="px-2">{sessons} online sessons</p>
+        </div>
+      </div>
+      <div class="flex justify-center items-center align-middle border border-gray-400 rounded-xl px-3">
+        <BookIcon />
+        <div class="px-2">{homeworks} homeworks</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  class="w-full border border-[--color-light-salmon] border-t-0 border-b-0 rounded-b-xl overflow-hidden transition-all duration-500 ease-in-out"
+  id=`showcourse-${modulo}`
+  style="max-height: 0;"
+>
+  <div class="p-5">
+    <h3 class="font-semibold text-lg mb-3">Contenido del módulo:</h3>
+    <ul class="space-y-2">
+      {
+        content.map((item) => (
+          <li class="flex items-center">
+            <span class="w-2 h-2 bg-[--color-salmon] rounded-full mr-3" />
+            {item}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>
+
+<script define:vars={{ modulo }}>
+  const module = document.getElementById(`module-${modulo}`);
+  const showCourse = document.getElementById(`showcourse-${modulo}`);
+  const arrow = document.getElementById("arrow");
+
+  if (module && showCourse && arrow) {
+    module.addEventListener("click", () => {
+      const isExpanded = showCourse.style.maxHeight !== "0px" && showCourse.style.maxHeight !== "";
+
+      if (isExpanded) {
+        // Cerrar
+        showCourse.style.maxHeight = "0px";
+        arrow.style.transform = "rotate(0deg)";
+        module.classList.remove("border-[--color-light-salmon]");
+        module.classList.add("border-gray-300");
+        showCourse.classList.add("border-b-0");
+        showCourse.classList.remove("border-b");
+      } else {
+        // Abrir
+        showCourse.style.maxHeight = showCourse.scrollHeight + "px";
+        arrow.style.transform = "rotate(180deg)";
+        module.classList.add("border-[--color-light-salmon]");
+        module.classList.remove("border-gray-300");
+        showCourse.classList.remove("border-b-0");
+        showCourse.classList.add("border-b");
+      }
+    });
+  }
+</script>
+
+<style>
+  #showcourse {
+    transition:
+      max-height 0.5s ease-in-out,
+      padding 0.3s ease-in-out;
+  }
+</style>
