@@ -1,4 +1,5 @@
 use {
+    crate::models::comments::Comment,
     serde::{Deserialize, Serialize},
     std::collections::HashMap,
 };
@@ -60,12 +61,6 @@ pub struct FirebaseAuthResponse {
     #[serde(rename = "registered", default)]
     pub registered: Option<bool>, // Si es usuario nuevo o existente
 }
-
-// #[derive(Debug, Serialize, Deserialize, Clone, Default)]
-// pub struct FirebaseAccountsLookupResponse {
-//     #[serde(default)]
-//     pub users: ,
-// }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FirebaseUserInfo {
@@ -134,4 +129,9 @@ pub struct ProviderUserInfo {
 pub struct FirebaseInfo {
     pub identities: HashMap<String, Vec<String>>,
     pub sign_in_provider: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FirebaseAdminLookupResponse {
+    pub users: Vec<FirebaseUserInfo>,
 }

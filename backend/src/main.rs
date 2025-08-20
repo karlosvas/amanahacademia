@@ -71,6 +71,7 @@ async fn main() {
     // Configurar el enrutador de la aplicación
     let app: Router = Router::new()
         .nest("/user", routes::user::router(state.clone())) // FB Auth, FB Realtime DB
+        .nest("/comments", routes::comments::router(state.clone())) // FB Auth, FB Realtime DB
         .nest("/payment", routes::payment::router(state.clone())) //
         .layer(cors) // CORS abierto
         .layer(TraceLayer::new_for_http()) // Logging básico

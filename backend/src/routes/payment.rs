@@ -1,8 +1,8 @@
 use {
     crate::{
         controllers::payment::{
-            basic_class, cancel_payment, get_payment_history, get_payment_status, refund_payment,
-            webhook_handler,
+            basic_class_payment, cancel_payment, create_product, generic_payment,
+            get_payment_history, get_payment_status, refund_payment, webhook_handler,
         },
         middleware::auth::firebase_auth_middleware,
         state::AppState,
@@ -16,7 +16,9 @@ use {
 
 pub fn router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     let protected_routes: Router<Arc<AppState>> = Router::new()
-        .route("/basic-class", post(basic_class))
+        .route("/product", post(create_product))
+        .route("/payment", post(generic_payment))
+        .route("/basic-class", post(basic_class_payment))
         .route("/:id", get(get_payment_status))
         .route("/:id/canceled", post(cancel_payment))
         .route("/:id/refund", post(refund_payment))

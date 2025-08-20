@@ -1,3 +1,4 @@
+pub mod comments;
 pub mod error;
 pub mod firebase;
 pub mod stripe;
