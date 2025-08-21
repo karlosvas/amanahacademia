@@ -4,7 +4,7 @@ import Title from "./Title.astro";
 import IconShell from "@/assets/shell.svg";
 ---
 
-<div class="w-full md:w-3/4 m-auto">
+<div class="w-full lg:w-3/4 m-auto">
   <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-24">Planes y precios</Title>
   <p class="text-center w-1/2 m-auto">
     Elige el plan que mejor se adapte a tus objetivos de aprendizaje. Todo nuesytros plenaes incluyen acceso a
@@ -12,18 +12,36 @@ import IconShell from "@/assets/shell.svg";
   </p>
   <br />
   <div class="flex flex-col md:flex-row justify-center align-middle items-center">
-    <CardPricing />
-    <CardPricing />
-    <CardPricing />
+    <CardPricing
+      title="Básico"
+      subtitle="Perfecto para comenzar el aprendizaje"
+      content={[
+        "Clases individuales de 1 hora",
+        "Acceso a profesores certificados",
+        "Material de apoyo básico",
+        "Reserva flexible de horarios",
+        "Soporte email",
+      ]}
+    />
+    <CardPricing
+      title="Premium"
+      subtitle="Perfecto para propulsar tu español"
+      content={["Clases grupales ilimitadas", "Acceso a contenido premium", "Certificación oficial", "Soporte 24/7"]}
+    />
+    <CardPricing
+      title={"Subscripción"}
+      subtitle="Perfecto conseguir tus objetivos"
+      content={["Clases grupales ilimitadas", "Acceso a contenido premium", "Certificación oficial", "Soporte 24/7"]}
+    />
   </div>
-  <div class="w-4/6 flex text-sm mt-20 m-auto pb-20">
+  <div class="w-full md:w-4/6 flex text-sm mt-20 m-auto pb-20 p-10 md:p-0">
     <div class="mx-3">
       <h4 class="text-[--color-salmon] text-lg font-semibold">No estas seguro de que plan elegir</h4>
       <p class="mt-2">
         Ofrecemos una clase de prueba gratuita de 25 minutos para que puedas conocer a nuestros profesores y evaluar qué
         plan se adapta mejor a tus necesidades.
       </p>
-      <button class="bg-[--color-red] text-[--color-salmon] py-2 px-10 rounded-full mt-5">
+      <button class="bg-[--color-red] text-[--color-salmon] py-2 px-10 rounded-full mt-5 text-xs md:text-sm">
         Reservar clase gratuita</button
       >
     </div>
@@ -41,5 +59,4 @@ import IconShell from "@/assets/shell.svg";
       </span>
     </div>
   </div>
-  <img src="/dunas.png" alt="" class="w-1/2 h-auto absolute left-0 bottom-0" />
 </div>

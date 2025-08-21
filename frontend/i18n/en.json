@@ -46,7 +46,37 @@
       }
     },
     "articles": {
-      "title": "Articles"
+      "title": "Articles",
+      "articles": [
+        {
+          "title": "How to improve your Spanish quickly",
+          "summary": [
+            "Practical tips to accelerate your Spanish learning.",
+            "Includes resources, study techniques, and teacher recommendations."
+          ]
+        },
+        {
+          "title": "The importance of cultural immersion",
+          "summary": [
+            "Explore how immersing yourself in Hispanic culture can improve your fluency.",
+            "Recommendations for Spanish-language movies, music, and literature."
+          ]
+        },
+        {
+          "title": "How to improve your Spanish quickly",
+          "summary": [
+            "Practical tips to accelerate your Spanish learning.",
+            "Includes resources, study techniques, and teacher recommendations."
+          ]
+        },
+        {
+          "title": "The importance of cultural immersion",
+          "summary": [
+            "Explore how immersing yourself in Hispanic culture can improve your fluency.",
+            "Recommendations for Spanish-language movies, music, and literature."
+          ]
+        }
+      ]
     },
     "courses": {
       "title": "Courses"

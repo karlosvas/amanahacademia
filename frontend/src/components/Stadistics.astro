@@ -1,10 +1,14 @@
+---
+const { title, percentage } = Astro.props;
+---
+
 <div>
   <div class="my-10">
-    <div>Profesionalismo</div>
+    <h5 class="text-[--color-salmon] text-sm">{title}</h5>
     <div class="bg-[--color-salmon] flex justify-center items-center rounded-lg p-3">
       <div class="bg-black h-3 w-full relative mx-2 rounded-md">
         <div class="bg-red-600 h-3 absolute top-0 left-0"></div>
-      </div><p class="text-white">70%</p>
+      </div><p class="text-white">{percentage}%</p>
     </div>
   </div>
 </div>

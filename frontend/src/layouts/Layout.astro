@@ -6,6 +6,17 @@ const { lang } = Astro.props;
 <!doctype html>
 <html lang={lang} class="m-0 w-full h-full">
   <head>
+    <!-- Antes de cargar la pagina verificamos is ya teniamos tema previo -->
+    <script is:inline>
+      (function () {
+        try {
+          const savedTheme = localStorage.getItem("theme") || "light";
+          document.documentElement.className = savedTheme;
+        } catch (e) {
+          document.documentElement.className = "light";
+        }
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />

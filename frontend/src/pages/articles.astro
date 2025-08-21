@@ -22,6 +22,8 @@ export async function getStaticPaths() {
 
 <Layout>
   <App data={data}>
-    <ArticlesPage data={data.main.articles} />
+    <main>
+      <ArticlesPage data={data.main.articles} />
+    </main>
   </App>
 </Layout>

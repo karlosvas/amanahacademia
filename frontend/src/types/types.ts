@@ -63,3 +63,11 @@ export type FooterIn18 = {
   privacy_policy: string;
   terms_of_service: string;
 };
+
+export interface CardModuleProps {
+  sessons: number;
+  homeworks: number;
+  modulo: number;
+  content: string[];
+  url: string;
+}

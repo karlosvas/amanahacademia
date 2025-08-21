@@ -46,7 +46,37 @@
       }
     },
     "articles": {
-      "title": "Artigos"
+      "title": "Artigos",
+      "articles": [
+        {
+          "title": "Como melhorar rapidamente o seu espanhol",
+          "summary": [
+            "Dicas práticas para acelerar o seu aprendizado de espanhol.",
+            "Inclui recursos, técnicas de estudo e recomendações de professores."
+          ]
+        },
+        {
+          "title": "A importância da imersão cultural",
+          "summary": [
+            "Descubra como a imersão na cultura hispânica pode melhorar sua fluência.",
+            "Recomendações de filmes, música e literatura em espanhol."
+          ]
+        },
+        {
+          "title": "Como melhorar rapidamente o seu espanhol",
+          "summary": [
+            "Dicas práticas para acelerar o seu aprendizado de espanhol.",
+            "Inclui recursos, técnicas de estudo e recomendações de professores."
+          ]
+        },
+        {
+          "title": "A importância da imersão cultural",
+          "summary": [
+            "Descubra como a imersão na cultura hispânica pode melhorar sua fluência.",
+            "Recomendações de filmes, música e literatura em espanhol."
+          ]
+        }
+      ]
     },
     "courses": {
       "title": "Cursos"

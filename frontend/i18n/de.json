@@ -41,7 +41,39 @@
         ]
       }
     },
-    "articles": { "title": "Artikel" },
+    "articles": {
+      "title": "Artikel",
+      "articles": [
+        {
+          "title": "Wie man schnell Spanisch verbessert",
+          "summary": [
+            "Praktische Tipps, um dein Spanisch schneller zu lernen.",
+            "Beinhaltet Ressourcen, Lerntechniken und Empfehlungen von Lehrern."
+          ]
+        },
+        {
+          "title": "Die Bedeutung des kulturellen Eintauchens",
+          "summary": [
+            "Erkunde, wie das Eintauchen in die spanische Kultur deine Sprachflüssigkeit verbessern kann.",
+            "Empfehlungen für Filme, Musik und Literatur auf Spanisch."
+          ]
+        },
+        {
+          "title": "Wie man schnell Spanisch verbessert",
+          "summary": [
+            "Praktische Tipps, um dein Spanisch schneller zu lernen.",
+            "Beinhaltet Ressourcen, Lerntechniken und Empfehlungen von Lehrern."
+          ]
+        },
+        {
+          "title": "Die Bedeutung des kulturellen Eintauchens",
+          "summary": [
+            "Erkunde, wie das Eintauchen in die spanische Kultur deine Sprachflüssigkeit verbessern kann.",
+            "Empfehlungen für Filme, Musik und Literatur auf Spanisch."
+          ]
+        }
+      ]
+    },
     "courses": { "title": "Kurse" },
     "comments": { "title": "Kommentare" },
     "contact": { "title": "Kontakt" }

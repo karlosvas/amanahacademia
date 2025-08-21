@@ -1,22 +1,17 @@
 ---
 import CameraIcon from "@/assets/camera.svg";
 import BookIcon from "@/assets/book.svg";
+import type { CardModuleProps } from "@/types/types";
 
-interface CardModuleProps {
-  sessons: number;
-  homeworks: number;
-  modulo: number;
-  content: string[];
-}
-const { sessons, homeworks, modulo, content } = Astro.props as CardModuleProps;
+const { sessons, homeworks, modulo, content, url } = Astro.props as CardModuleProps;
 ---
 
 <div
-  class="border border-gray-300 p-5 rounded-2xl mt-10 mb-[-20px] cursor-pointer transition-all duration-300 hover:shadow-lg"
+  class="border border-gray-300 p-5 min-w-[400px] rounded-2xl mt-10 mb-[-20px] cursor-pointer transition-all duration-300 hover:shadow-lg"
   id=`module-${modulo}`
 >
   <div class="flex justify-between items-center">
-    <h2 class="text-lg font-semibold">Module {modulo}</h2>
+    <h2 class="text-lg font-semibold text-[--color-red]">Module {modulo}</h2>
     <svg class="w-5 h-5 transform transition-transform duration-300" id="arrow" fill="currentColor" viewBox="0 0 20 20">
       <path
         fill-rule="evenodd"
@@ -24,13 +19,12 @@ const { sessons, homeworks, modulo, content } = Astro.props as CardModuleProps;
         clip-rule="evenodd"></path>
     </svg>
   </div>
-  <div>
-    <p class="text-gray-600">
+  <div class="text-[--color-black]">
+    <p class="p-2">
       Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas hic quidem natus, saepe culpa labore fuga sint
       consequatur, optio laudantium assumenda dolor quaerat.
     </p>
     <div class="flex">
-      <img src="/camara-devideo.png" alt="" />
       <div class="border border-gray-100 mr-4">
         <div class="flex justify-center items-center align-middle border border-gray-400 rounded-xl px-3">
           <CameraIcon />
@@ -45,13 +39,18 @@ const { sessons, homeworks, modulo, content } = Astro.props as CardModuleProps;
   </div>
 </div>
 <div
-  class="w-full border border-[--color-light-salmon] border-t-0 border-b-0 rounded-b-xl overflow-hidden transition-all duration-500 ease-in-out"
+  class="text-[--color-black] w-full border border-[--color-light-salmon] border-t-0 border-b-0 rounded-b-xl overflow-hidden transition-all duration-500 ease-in-out pt-5"
   id=`showcourse-${modulo}`
   style="max-height: 0;"
 >
   <div class="p-5">
-    <h3 class="font-semibold text-lg mb-3">Contenido del módulo:</h3>
+    <h3 class="font-semibold text-lg mb-3 text-[--color-red]">Contenido del módulo:</h3>
     <ul class="space-y-2">
+      <li>
+        <div class="bg-yellow-200">
+          <img src={url} alt="" class="mb-10 max-w-40 m-auto" />
+        </div>
+      </li>
       {
         content.map((item) => (
           <li class="flex items-center">

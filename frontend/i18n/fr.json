@@ -46,7 +46,37 @@
       }
     },
     "articles": {
-      "title": "Articles"
+      "title": "Articles",
+      "articles": [
+        {
+          "title": "Comment améliorer rapidement votre espagnol",
+          "summary": [
+            "Conseils pratiques pour accélérer votre apprentissage de l'espagnol.",
+            "Inclut des ressources, des techniques d'étude et des recommandations de professeurs."
+          ]
+        },
+        {
+          "title": "L'importance de l'immersion culturelle",
+          "summary": [
+            "Découvrez comment l'immersion dans la culture hispanique peut améliorer votre fluidité.",
+            "Recommandations de films, musique et littérature en espagnol."
+          ]
+        },
+        {
+          "title": "Comment améliorer rapidement votre espagnol",
+          "summary": [
+            "Conseils pratiques pour accélérer votre apprentissage de l'espagnol.",
+            "Inclut des ressources, des techniques d'étude et des recommandations de professeurs."
+          ]
+        },
+        {
+          "title": "L'importance de l'immersion culturelle",
+          "summary": [
+            "Découvrez comment l'immersion dans la culture hispanique peut améliorer votre fluidité.",
+            "Recommandations de films, musique et littérature en espagnol."
+          ]
+        }
+      ]
     },
     "courses": {
       "title": "Cours"

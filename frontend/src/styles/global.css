@@ -4,26 +4,23 @@
 @import url("https://fonts.cdnfonts.com/css/jomolhari");
 /* @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"); */
 
-:root {
-  --color-red: #6d0006;
-  --color-light-red: #b2443a;
-  --color-salmon: #fa8072;
-  --color-light-salmon: #ffbba8;
-  --color-light-brown: #d89c8d;
-  --color-brown: #8a4141;
-  /* --color-brown: #fee8d6; */
-  --color-white: #fff4e1;
-  --color-black: #000;
-}
-
 .dark {
-  background-color: var(--color-black, #000);
+  background-color: var(--color-white, #fff);
   color: var(--color-white, #fff);
   outline-color: var(--color-white, #fff);
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
   .glow-shadow {
     box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.8);
   }
+  --color-red: #ff4d4f; /* Rojo acento más vivo */
+  --color-light-red: #ff6b6b; /* Rojo suave brillante */
+  --color-salmon: #ff8c7a; /* Salmón adaptado */
+  --color-light-salmon: #ffb5a7; /* Versión clara para destacar */
+  --color-light-brown: #a6786d; /* Marrón cálido apagado */
+  --color-brown: #593737; /* Marrón profundo */
+  --color-smooth-brown: #3a2b2b; /* Fondo marrón oscuro muy suave */
+  --color-white: #131313; /* Blanco cálido (no puro) */
+  --color-black: #f3f3f3; /* Fondo base casi negro */
 }
 
 .light {
@@ -34,6 +31,15 @@
   .glow-shadow {
     box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.8);
   }
+  --color-red: #6d0006;
+  --color-light-red: #b2443a;
+  --color-salmon: #fa8072;
+  --color-light-salmon: #ffbba8;
+  --color-light-brown: #d89c8d;
+  --color-brown: #8a4141;
+  --color-smooth-brown: #fee8d6;
+  --color-white: #fff4e1;
+  --color-black: #000;
 }
 
 body {

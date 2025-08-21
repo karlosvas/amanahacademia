@@ -27,13 +27,13 @@
   class="bg-[--color-salmon] h-40 w-32 absolute text-sm top-16 right-4 rounded-md flex items-center justify-center text-white hidden z-50"
 >
   <ul>
-    <li><a href="/ar/">Árabe</a></li>
-    <li><a href="/de/">Alemán</a></li>
-    <li><a href="/en/">Inglés</a></li>
-    <li><a href="/">Español</a></li>
-    <li><a href="/fr/">Francés</a></li>
-    <li><a href="/it/">Italiano</a></li>
-    <li><a href="/pt/">Portugués</a></li>
+    <li><a href="#" data-lang="ar">Árabe</a></li>
+    <li><a href="#" data-lang="de">Alemán</a></li>
+    <li><a href="#" data-lang="en">Inglés</a></li>
+    <li><a href="#" data-lang="es">Español</a></li>
+    <li><a href="#" data-lang="fr">Francés</a></li>
+    <li><a href="#" data-lang="it">Italiano</a></li>
+    <li><a href="#" data-lang="pt">Portugués</a></li>
   </ul>
 </div>
 <div
@@ -46,7 +46,6 @@
   "
 >
 </div>
-
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const btnTraductor = document.getElementById("btnTraductor");
@@ -58,6 +57,31 @@
         e.stopPropagation();
         bocadilloTraductor.classList.toggle("hidden");
         trianguloTraductor.classList.toggle("hidden");
+      });
+
+      // Manejar clics en los enlaces de idioma
+      bocadilloTraductor.addEventListener("click", function (e) {
+        if (e.target && (e.target as HTMLElement).tagName === "A") {
+          e.preventDefault();
+          const lang = (e.target as HTMLElement).getAttribute("data-lang");
+          const currentPath = window.location.pathname; // Quitar el + "/"
+
+          // Remover el prefijo de idioma actual si existe
+          const pathWithoutLang = currentPath.replace(/^\/(ar|de|en|fr|it|pt)\//, "/");
+
+          // Construir nueva URL
+          let newPath;
+          if (lang === "es") {
+            newPath = pathWithoutLang || "/";
+          } else {
+            newPath = `/${lang}${pathWithoutLang || "/"}`;
+          }
+
+          // Limpiar dobles barras
+          newPath = newPath.replace(/\/+/g, "/");
+
+          window.location.href = newPath;
+        }
       });
     }
 

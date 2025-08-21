@@ -46,7 +46,37 @@
       }
     },
     "articles": {
-      "title": "Articoli"
+      "title": "Articoli",
+      "articles": [
+        {
+          "title": "Come migliorare rapidamente il tuo spagnolo",
+          "summary": [
+            "Consigli pratici per accelerare il tuo apprendimento dello spagnolo.",
+            "Include risorse, tecniche di studio e raccomandazioni dei docenti."
+          ]
+        },
+        {
+          "title": "L'importanza dell'immersione culturale",
+          "summary": [
+            "Scopri come l'immersione nella cultura ispanica può migliorare la tua fluidità.",
+            "Raccomandazioni di film, musica e letteratura in spagnolo."
+          ]
+        },
+        {
+          "title": "Come migliorare rapidamente il tuo spagnolo",
+          "summary": [
+            "Consigli pratici per accelerare il tuo apprendimento dello spagnolo.",
+            "Include risorse, tecniche di studio e raccomandazioni dei docenti."
+          ]
+        },
+        {
+          "title": "L'importanza dell'immersione culturale",
+          "summary": [
+            "Scopri come l'immersione nella cultura ispanica può migliorare la tua fluidità.",
+            "Raccomandazioni di film, musica e letteratura in spagnolo."
+          ]
+        }
+      ]
     },
     "courses": {
       "title": "Corsi"
