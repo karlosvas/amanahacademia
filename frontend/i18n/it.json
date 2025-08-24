@@ -5,7 +5,7 @@
     "pricing": "Prezzi",
     "courses": "Corsi",
     "comments": "Commenti",
-    "contact": "Contatto"
+    "contact": "Contatti"
   },
   "main": {
     "home": {
@@ -13,9 +13,9 @@
       "about_us": {
         "title": "Su Amanah",
         "description": [
-          "Amanah è la piattaforma leader per imparare lo spagnolo in modo personalizzato ed efficace. Colleghiamo studenti di tutto il mondo con insegnanti madrelingua specializzati in diversi metodi di insegnamento.",
-          "La nostra piattaforma conta più di 50 insegnanti certificati provenienti dalla Spagna e dall’America Latina, ognuno con la propria specialità e stile di insegnamento. Puoi scegliere l’insegnante che meglio si adatta ai tuoi obiettivi e ai tuoi orari.",
-          "Che tu stia cercando lezioni di conversazione, preparazione per esami ufficiali, spagnolo per affari o semplicemente desideri esplorare la cultura ispanofona, abbiamo l’insegnante perfetto per te."
+          "All'Amanah Academy ti aiutiamo a imparare lo spagnolo in modo dinamico, efficace e motivante. Per noi imparare una lingua non significa solo memorizzare regole: è un'esperienza culturale che ti mette in contatto con nuove persone, idee e modi di vedere il mondo.",
+          "Hai studiato spagnolo per molto tempo ma non parli ancora fluentemente? Qui troverai la fiducia e gli strumenti per esprimerti in modo naturale e senza nervosismo.",
+          "Sei un principiante assoluto? Non preoccuparti: progettiamo lezioni su misura, adattate al tuo ritmo, ai tuoi interessi e ai tuoi obiettivi."
         ]
       },
       "info": {
@@ -27,70 +27,256 @@
         "title": "Il nostro approccio",
         "cards": [
           {
-            "title": "Insegnanti diversificati",
-            "description": "Scegli tra più di 50 insegnanti madrelingua con diverse specialità, accenti e metodi di insegnamento."
+            "title": "Insegnanti diversi",
+            "description": "Scegli tra un'ampia varietà di insegnanti, madrelingua e non madrelingua, provenienti da contesti diversi e con accenti, personalità e stili di insegnamento differenti. Tutti seguono il nostro metodo per garantire un'esperienza di apprendimento efficace e arricchente."
           },
           {
             "title": "Lezioni personalizzate",
-            "description": "Ogni insegnante adatta le tue lezioni al tuo livello, ai tuoi obiettivi e al tuo stile di apprendimento per massimizzare i tuoi progressi."
+            "description": "Ogni insegnante adatta le lezioni al tuo livello, ai tuoi obiettivi e a ciò che ti piace di più. Imparerai nel modo che si adatta meglio a te, potenziando i tuoi progressi e mantenendo alta la motivazione."
           },
           {
             "title": "Orari flessibili",
-            "description": "Prenota lezioni quando vuoi. I nostri insegnanti sono disponibili in diversi fusi orari."
+            "description": "Decidi tu quando imparare. Prenota le tue lezioni negli orari che preferisci: troverai sempre insegnanti disponibili nel tuo fuso orario."
           }
         ],
         "note": [
-          "“In Amanah Academia crediamo che ogni studente sia unico. Per questo ti offriamo la libertà di scegliere l’insegnante che si connette meglio con te e ti aiuta a raggiungere i tuoi obiettivi in spagnolo.”",
-          "- Team Amanah Academia"
+          "\"All'Amanah Academy crediamo che ogni studente sia unico. Per questo ti offriamo la libertà di scegliere l'insegnante che meglio si rapporta con te e ti aiuta a raggiungere i tuoi obiettivi nello spagnolo.\"",
+          "- Team Amanah Academy"
         ]
       }
     },
     "articles": {
       "title": "Articoli",
+      "summary": [
+        "Vuoi provare prima di decidere? 📚",
+        "Ecco campioni gratuiti dei materiali, così puoi vedere come lavoriamo e iniziare a imparare subito. Esercizi, spiegazioni e attività pratiche che ti daranno un'anteprima di ciò che vivrai in classe."
+      ],
       "articles": [
         {
           "title": "Come migliorare rapidamente il tuo spagnolo",
           "summary": [
             "Consigli pratici per accelerare il tuo apprendimento dello spagnolo.",
-            "Include risorse, tecniche di studio e raccomandazioni dei docenti."
+            "Include risorse, tecniche di studio e raccomandazioni degli insegnanti."
           ]
         },
         {
           "title": "L'importanza dell'immersione culturale",
           "summary": [
             "Scopri come l'immersione nella cultura ispanica può migliorare la tua fluidità.",
-            "Raccomandazioni di film, musica e letteratura in spagnolo."
+            "Consigli su film, musica e letteratura in lingua spagnola."
           ]
         },
         {
           "title": "Come migliorare rapidamente il tuo spagnolo",
           "summary": [
             "Consigli pratici per accelerare il tuo apprendimento dello spagnolo.",
-            "Include risorse, tecniche di studio e raccomandazioni dei docenti."
+            "Include risorse, tecniche di studio e raccomandazioni degli insegnanti."
           ]
         },
         {
           "title": "L'importanza dell'immersione culturale",
           "summary": [
             "Scopri come l'immersione nella cultura ispanica può migliorare la tua fluidità.",
-            "Raccomandazioni di film, musica e letteratura in spagnolo."
+            "Consigli su film, musica e letteratura in lingua spagnola."
+          ]
+        },
+        {
+          "title": "Come migliorare rapidamente il tuo spagnolo",
+          "summary": [
+            "Consigli pratici per accelerare il tuo apprendimento dello spagnolo.",
+            "Include risorse, tecniche di studio e raccomandazioni degli insegnanti."
+          ]
+        },
+        {
+          "title": "L'importanza dell'immersione culturale",
+          "summary": [
+            "Scopri come l'immersione nella cultura ispanica può migliorare la tua fluidità.",
+            "Consigli su film, musica e letteratura in lingua spagnola."
+          ]
+        },
+        {
+          "title": "Come migliorare rapidamente il tuo spagnolo",
+          "summary": [
+            "Consigli pratici per accelerare il tuo apprendimento dello spagnolo.",
+            "Include risorse, tecniche di studio e raccomandazioni degli insegnanti."
+          ]
+        },
+        {
+          "title": "L'importanza dell'immersione culturale",
+          "summary": [
+            "Scopri come l'immersione nella cultura ispanica può migliorare la tua fluidità.",
+            "Consigli su film, musica e letteratura in lingua spagnola."
+          ]
+        },
+        {
+          "title": "Come migliorare rapidamente il tuo spagnolo",
+          "summary": [
+            "Consigli pratici per accelerare il tuo apprendimento dello spagnolo.",
+            "Include risorse, tecniche di studio e raccomandazioni degli insegnanti."
+          ]
+        },
+        {
+          "title": "L'importanza dell'immersione culturale",
+          "summary": [
+            "Scopri come l'immersione nella cultura ispanica può migliorare la tua fluidità.",
+            "Consigli su film, musica e letteratura in lingua spagnola."
+          ]
+        },
+        {
+          "title": "Come migliorare rapidamente il tuo spagnolo",
+          "summary": [
+            "Consigli pratici per accelerare il tuo apprendimento dello spagnolo.",
+            "Include risorse, tecniche di studio e raccomandazioni degli insegnanti."
+          ]
+        },
+        {
+          "title": "L'importanza dell'immersione culturale",
+          "summary": [
+            "Scopri come l'immersione nella cultura ispanica può migliorare la tua fluidità.",
+            "Consigli su film, musica e letteratura in lingua spagnola."
           ]
         }
       ]
     },
+    "pricing": {
+      "title": "Prezzi",
+      "type": {
+        "estandar": {
+          "title": "Lezioni individuali standard",
+          "description": "Un approccio completo per lavorare su grammatica, vocabolario, comprensione ed espressione. Non ci limitiamo a liste di verbi o parole isolate: tutto si impara nel contesto, con esempi ed espressioni reali. Includiamo sempre dialoghi e attività che rendono la lezione pratica e coinvolgente.",
+          "price": {
+            "currency": "€",
+            "amount": 30,
+            "time": "/lezione"
+          },
+          "content": [
+            "Lezioni individuali di 1 ora",
+            "Accesso a insegnanti certificati",
+            "Materiale di supporto base",
+            "Prenotazione flessibile degli orari",
+            "Supporto via email"
+          ],
+          "time": "/lezione",
+          "button": "Prenota lezione"
+        },
+        "conversation": {
+          "title": "Lezioni individuali di conversazione",
+          "description": "Progettate per chi ha un livello intermedio-alto (B1+/B2) e vuole concentrarsi sul parlare. Utilizziamo dinamiche, giochi e temi vari per far fluire la conversazione. Pur non approfondendo la grammatica, correggiamo e chiarifichiamo i dubbi sul momento.",
+          "price": {
+            "currency": "€",
+            "amount": 20,
+            "time": "/lezione"
+          },
+          "content": [
+            "Lezioni di gruppo illimitate",
+            "Accesso a contenuti premium",
+            "Certificazione ufficiale",
+            "Supporto 24/7"
+          ],
+          "button": "Prenota lezione"
+        },
+        "grupales": {
+          "title": "Lezioni di gruppo",
+          "description": "La stessa qualità delle lezioni standard, ma in gruppi ristretti di massimo 4 persone. Ideali se cerchi un'opzione più economica e collaborativa. Includono dibattiti, giochi e attività partecipative. Se non puoi partecipare, riceverai un riassunto con i contenuti e gli esercizi svolti.",
+          "price": {
+            "currency": "€",
+            "amount": 10,
+            "time": "/lezione"
+          },
+          "content": [
+            "Lezioni di gruppo illimitate",
+            "Accesso a contenuti premium",
+            "Certificazione ufficiale",
+            "Supporto 24/7"
+          ],
+          "time": "/lezione",
+          "button": "Prenota lezione"
+        }
+      },
+      "info": [
+        {
+          "title": "Non sei sicuro su quale piano scegliere?",
+          "description": "Sei curioso di imparare con noi ma non sei ancora convinto? Non restare nel dubbio! Prova una lezione gratuita (standard o conversazione) con l'insegnante che scegli e scopri perché imparare lo spagnolo con Amanah Academy è diverso.",
+          "button": "Prenota lezione gratuita"
+        },
+        {
+          "title": "Vuoi chiarire i tuoi dubbi prima di iniziare?",
+          "description": "Prenota una chiamata gratuita e senza impegno con noi. Ti spiegheremo come funzionano le nostre lezioni, chi sono i nostri insegnanti e risponderemo a tutte le tue domande su pagamenti, orari e garanzie."
+        }
+      ]
+    },
     "courses": {
-      "title": "Corsi"
+      "title": "Corsi",
+      "summary": [
+        "Preferisci imparare al tuo ritmo? ⏳",
+        "I nostri corsi online ti permettono di studiare da casa, senza orari fissi e con totale flessibilità.",
+        "Non troverai solo corsi linguistici, ma anche corsi su cultura, gastronomia e altri argomenti che ti avvicineranno al mondo ispanofono."
+      ],
+      "ideal_for": {
+        "title": "Questo corso è ideale per te",
+        "title_color": "se sei",
+        "points": [
+          {
+            "title": "?????",
+            "description": "Ti piace imparare al tuo ritmo. Sei autodidatta e apprezzi la libertà di studiare quando vuoi, ma desideri materiali di qualità che davvero favoriscano i tuoi progressi."
+          },
+          {
+            "title": "?????",
+            "description": "Non puoi impegnarti in un orario fisso per le lezioni e preferisci decidere tu il ritmo di apprendimento."
+          },
+          {
+            "title": "?????",
+            "description": "Vuoi imparare la lingua da solo, ma senti che i materiali gratuiti su YouTube o i libri tradizionali non ti portano ai risultati desiderati, quindi vuoi iniziare con qualcosa che ti aiuti davvero."
+          }
+        ]
+      },
+      "modules": {
+        "title": "Programma",
+        "title_color": "dei corsi",
+        "content": [
+          {
+            "title": "Moduli",
+            "description": "Ogni corso è composto da più moduli che affrontano diversi aspetti della lingua.",
+            "icons": {
+              "session": "Sessioni online",
+              "book": "Materiale di lettura"
+            }
+          }
+        ]
+      }
     },
     "comments": {
-      "title": "Commenti"
+      "title": "Commenti",
+      "summary": [
+        "Ti stanno piacendo le lezioni con noi? 💬",
+        "Lasciaci un commento e aiutaci a migliorare ogni giorno."
+      ]
     },
     "contact": {
-      "title": "Contatto"
+      "title": "Contatti",
+      "form": {
+        "name": "Nome",
+        "subject": "Oggetto",
+        "message": "Messaggio",
+        "button": "Contatta"
+      },
+      "etsy": {
+        "title": "Negozio Etsy",
+        "description": "Nel nostro shop su Etsy troverai mini-corsi e materiali economici: attività, esercizi e spiegazioni visive per continuare a praticare lo spagnolo in modo semplice e divertente."
+      },
+      "podcast": {
+        "title": "Scopri il nostro podcast",
+        "description": "Impara lo spagnolo ascoltando conversazioni reali, consigli pratici e temi culturali che miglioreranno la tua comprensione mentre ti godi il percorso."
+      },
+      "call": {
+        "title": "Vuoi chiarire i tuoi dubbi prima di iniziare?",
+        "description": "Prenota una chiamata gratuita e senza impegno con noi. Ti spiegheremo come funzionano le nostre lezioni, chi sono i nostri insegnanti e risponderemo a tutte le tue domande su pagamenti, orari e garanzie."
+      }
     }
   },
   "footer": {
     "license": "Licenza",
     "privacy_policy": "Informativa sulla privacy",
-    "terms_of_service": "Termini di servizio"
+    "terms_of_service": "Termini e condizioni"
   }
 }

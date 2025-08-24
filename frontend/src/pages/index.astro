@@ -3,13 +3,30 @@ import App from "@/layouts/App.astro";
 import { getI18N } from "@/../i18n/index";
 import Layout from "@/layouts/Layout.astro";
 import Home from "@/components/Home.astro";
+import type { i18nTranslations } from "@/types/types";
 
 // Obtenemos el idioma obtenido mediante la ruta
 const { lang } = Astro.params;
-const data = getI18N({ lang });
+const data = getI18N({ lang }) as i18nTranslations;
+
+// SEO data
+const currentLang = lang || "es";
+const seoTitle = `${data.main.home.title} - Amanah Academia`;
+const seoDescription =
+  "Aprende idiomas online con profesores nativos. Cursos de árabe, inglés, francés y más en Amanah Academia.";
 ---
 
-<Layout>
+<Layout
+  lang={currentLang}
+  title={seoTitle}
+  description={seoDescription}
+  keywords="academia idiomas, árabe online, clases idiomas, profesores nativos"
+  structuredDataType="organization"
+  structuredData={{
+    name: "Amanah Academia",
+    description: seoDescription,
+  }}
+>
   <App data={data}>
     <Home data={data.main.home} />
   </App>

@@ -13,9 +13,9 @@
       "about_us": {
         "title": "Sobre Amanah",
         "description": [
-          "Amanah es la plataforma líder para aprender español de forma personalizada y efectiva. Conectamos estudiantes de todo el mundo con profesores nativos especializados en distintos métodos de enseñanza.",
-          "Nuestra plataforma cuenta con más de 50 profesores certificados de España y América Latina, cada uno con su especialidad y estilo de enseñanza. Puedes elegir al profesor que mejor se adapte a tus objetivos y horarios.",
-          "Tanto si buscas clases de conversación, preparación para exámenes oficiales, español de negocios o simplemente explorar la cultura hispanohablante, tenemos el profesor perfecto para ti."
+          "En Amanah Academia te ayudamos a aprender español de forma dinámica, efectiva y motivadora. Para nosotros, aprender un idioma no es solo memorizar reglas: es vivir una experiencia cultural que te conecta con nuevas personas, ideas y formas de ver el mundo.",
+          "¿Has estudiado español durante mucho tiempo pero todavía no hablas con fluidez? Aquí encontrarás la confianza y las herramientas para expresarte sin nervios y con naturalidad.",
+          "¿Eres principiante absoluto? No te preocupes: diseñamos clases a tu medida, adaptadas a tu ritmo, intereses y objetivos."
         ]
       },
       "info": {
@@ -28,15 +28,15 @@
         "cards": [
           {
             "title": "Profesores Diversos",
-            "description": "Elige entre más de 50 profesores navitos con diferentes especialidades, acentos y métodos de enseñanza"
+            "description": "Elige entre una amplia variedad de profesores, nativos y no nativos, de diferentes orígenes y con distintos acentos, personalidades y estilos de enseñanza. Todos siguen nuestro método para garantizar una experiencia de aprendizaje efectiva y enriquecedora."
           },
           {
             "title": "Clases personalizadas",
-            "description": "Cada profesor adapta tus clases a tu nivel objetivos y estilo de aprendizake para maximizar tu progreso."
+            "description": "Cada profesor adapta sus clases a tu nivel, a tus objetivos y a lo que más disfrutas. Aprenderás de la forma que mejor se ajusta a ti, potenciando tu progreso mientras te mantienes motivado."
           },
           {
             "title": "Horarios Flexibles",
-            "description": "Reserva clases cuando te convenga. Nuestros profesores están disponibles en diferentes zonas horarias."
+            "description": "Tú decides cuándo aprender. Reserva tus clases en los horarios que más te convengan: siempre encontrarás profesores disponibles en tu zona horaria."
           }
         ],
         "note": [
@@ -47,6 +47,10 @@
     },
     "articles": {
       "title": "Articulos",
+      "summary": [
+        "¿Quieres probar antes de decidirte? 📚",
+        "Aquí tienes muestras gratuitas de materiales para que veas cómo trabajamos y empieces a aprender desde ya. Ejercicios, explicaciones y actividades prácticas que te darán un adelanto de lo que vivirás en clase."
+      ],
       "articles": [
         {
           "title": "Cómo mejorar tu español rápidamente",
@@ -135,16 +139,139 @@
       ]
     },
     "pricing": {
-      "title": "Precios"
+      "title": "Precios",
+      "type": {
+        "estandar": {
+          "title": "Clases individuales estándar",
+          "description": "Un enfoque completo para trabajar gramática, vocabulario, comprensión y expresión. No nos limitamos a listas de verbos o palabras sueltas: todo se aprende en contexto, con ejemplos y expresiones reales. Siempre incluimos diálogos y actividades que hacen la clase práctica y entretenida.",
+          "price": {
+            "currency": "€",
+            "amount": 30,
+            "time": "/class"
+          },
+          "content": [
+            "Clases individuales de 1 hora",
+            "Acceso a profesores certificados",
+            "Material de apoyo básico",
+            "Reserva flexible de horarios",
+            "Soporte email"
+          ],
+          "time": "/class",
+          "button": "Reservar Clase"
+        },
+        "conversation": {
+          "title": "Clases individuales de conversación",
+          "description": "Diseñadas para quienes ya tienen un nivel intermedio-alto (B1+/B2) y quieren centrarse en hablar. Contamos con dinámicas, juegos y temas variados que harán que la conversación fluya. Aunque no profundizamos en gramática, corregimos y aclaramos dudas en el momento.",
+          "price": {
+            "currency": "€",
+            "amount": 20,
+            "time": "/class"
+          },
+          "content": [
+            "Clases grupales ilimitadas",
+            "Acceso a contenido premium",
+            "Certificación oficial",
+            "Soporte 24/7"
+          ],
+          "button": "Reservar Clase"
+        },
+        "grupales": {
+          "title": "Clases grupales",
+          "description": "La misma calidad de las clases estándar, pero en grupos reducidos de máximo 4 personas. Ideales si buscas una opción más económica y colaborativa. Incluyen debates, juegos y actividades de participación. Si no puedes asistir, recibirás un resumen con los contenidos y ejercicios trabajados.",
+          "price": {
+            "currency": "€",
+            "amount": 10,
+            "time": "/class"
+          },
+          "content": [
+            "Clases grupales ilimitadas",
+            "Acceso a contenido premium",
+            "Certificación oficial",
+            "Soporte 24/7"
+          ],
+          "time": "/class",
+          "button": "Reservar Clase"
+        }
+      },
+      "info": [
+        {
+          "title": "No estas seguro de que plan elegir",
+          "description": "¿Te intriga aprender con nosotros pero aún dudas en dar el paso? ¡No te quedes con la curiosidad! Prueba una clase gratuita (estándar o de conversación) con el profesor que tú elijas y descubre por qué aprender español con Amanah Academia es diferente.",
+          "button": "Reservar clase gratuita"
+        },
+        {
+          "title": "¿Quieres resolver tus dudas antes de empezar?",
+          "description": "Reserva una llamada gratuita y sin compromiso con nosotros. Te contaremos cómo funcionan nuestras clases, quiénes son nuestros profesores y responderemos todas tus preguntas sobre pagos, horarios y garantías."
+        }
+      ]
     },
     "courses": {
-      "title": "Cursos"
+      "title": "Cursos",
+      "summary": [
+        "¿Prefieres aprender a tu propio ritmo? ⏳",
+        "Nuestros cursos online te permiten estudiar desde casa, sin horarios fijos y con total flexibilidad.",
+        "No solo encontrarás cursos de idioma, también de cultura, gastronomía y otros temas que te conectarán con el mundo hispanohablante."
+      ],
+      "ideal_for": {
+        "title": "El curso es ideal para ti",
+        "title_color": "si eres",
+        "points": [
+          {
+            "title": "?????",
+            "description": "Te gusta aprender a tu propio ritmo. Eres autodidacta y valoras la libertad de estudiar cuando quieras, pero quieres contar con materiales de calidad que realmente impulsen tu progreso."
+          },
+          {
+            "title": "?????",
+            "description": "No puedes comprometerte a un horario fijo de clases y prefieres marcar tú mismo tu ritmo de aprendizaje."
+          },
+          {
+            "title": "?????",
+            "description": " Deseas aprender el idioma por tu cuenta, pero sientes que los materiales gratuitos de YouTube o los libros de texto tradicionales no te llevan a los resultados que buscas, así que quieres empezar con algo que realmente te ayude."
+          }
+        ]
+      },
+      "modules": {
+        "title": "Programa",
+        "title_color": "de los cursos",
+        "content": [
+          {
+            "title": "Módulos",
+            "description": "Cada curso se compone de varios módulos que abordan diferentes aspectos del idioma.",
+            "icons": {
+              "session": "Sesiones online",
+              "book": "Material de lectura"
+            }
+          }
+        ]
+      }
     },
     "comments": {
-      "title": "Comentarios"
+      "title": "Comentarios",
+      "summary": [
+        "¿Disfrutas de tus clases con nosotros? 💬",
+        "Déjanos tu comentario y ayúdanos a seguir mejorando cada día."
+      ]
     },
     "contact": {
-      "title": "Contacto"
+      "title": "Contacto",
+      "form": {
+        "name": "Nombre",
+        "subject": "Asunto",
+        "message": "Mensaje",
+        "button": "Contactar"
+      },
+      "etsy": {
+        "title": "Tienda Etsy",
+        "description": "En nuestra tienda de Etsy encontrarás mini cursos y materiales económicos: actividades, ejercicios y explicaciones visuales para seguir practicando tu español de manera sencilla y divertida."
+      },
+      "podcast": {
+        "title": "Descubre nuestro podcast",
+        "description": "Aprende español escuchando conversaciones reales, consejos prácticos y temas culturales que te harán mejorar tu comprensión mientras disfrutas del camino."
+      },
+      "call": {
+        "title": "¿Quieres resolver tus dudas antes de empezar?",
+        "description": "Reserva una llamada gratuita y sin compromiso con nosotros. Te contaremos cómo funcionan nuestras clases, quiénes son nuestros profesores y responderemos todas tus preguntas sobre pagos, horarios y garantías."
+      }
     }
   },
   "footer": {

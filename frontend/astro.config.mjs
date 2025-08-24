@@ -1,9 +1,11 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://amanahacademia.com',
   i18n: {
     defaultLocale: 'es',
     locales: ['es', 'en', 'fr', 'de', 'it', 'pt', 'ar'],
@@ -12,5 +14,22 @@ export default defineConfig({
     },
   },
   prefetch: true,
-  integrations: [tailwind()],
+  integrations: [
+    tailwind(),
+    sitemap({
+      i18n: {
+        defaultLocale: 'es',
+        locales: {
+          es: 'es',
+          en: 'en',
+          fr: 'fr',
+          de: 'de',
+          it: 'it',
+          pt: 'pt',
+          ar: 'ar'
+        }
+      },
+      filter: (page) => !page.includes('/admin/') && !page.includes('/404'),
+    })
+  ],
 });

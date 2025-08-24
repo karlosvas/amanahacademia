@@ -5,7 +5,7 @@
 /* @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"); */
 
 .dark {
-  background-color: var(--color-white, #fff);
+  background-color: var(--color-brown, #fff);
   color: var(--color-white, #fff);
   outline-color: var(--color-white, #fff);
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;

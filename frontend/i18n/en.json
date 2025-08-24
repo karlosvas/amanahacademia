@@ -1,6 +1,6 @@
 {
   "header": {
-    "about_us": "About us",
+    "about_us": "About Us",
     "articles": "Articles",
     "pricing": "Pricing",
     "courses": "Courses",
@@ -9,13 +9,13 @@
   },
   "main": {
     "home": {
-      "title": "About us",
+      "title": "About Us",
       "about_us": {
         "title": "About Amanah",
         "description": [
-          "Amanah is the leading platform for learning Spanish in a personalized and effective way. We connect students from all over the world with native teachers specialized in different teaching methods.",
-          "Our platform features more than 50 certified teachers from Spain and Latin America, each with their own specialty and teaching style. You can choose the teacher that best fits your goals and schedule.",
-          "Whether you are looking for conversation classes, preparation for official exams, business Spanish, or simply want to explore Hispanic culture, we have the perfect teacher for you."
+          "At Amanah Academy we help you learn Spanish in a dynamic, effective and motivating way. For us, learning a language is not just memorizing rules: it is a cultural experience that connects you with new people, ideas and ways of seeing the world.",
+          "Have you studied Spanish for a long time but still don't speak fluently? Here you'll find the confidence and tools to express yourself naturally and without nerves.",
+          "Are you a complete beginner? Don't worry: we design lessons tailored to you, adapted to your pace, interests and goals."
         ]
       },
       "info": {
@@ -24,73 +24,249 @@
         "satisfaction": "Satisfaction"
       },
       "focus": {
-        "title": "Our approach",
+        "title": "Our Approach",
         "cards": [
           {
             "title": "Diverse Teachers",
-            "description": "Choose from over 50 native teachers with different specialties, accents, and teaching methods."
+            "description": "Choose from a wide range of teachers, both native and non-native, from different backgrounds and with varied accents, personalities and teaching styles. All follow our method to ensure an effective and enriching learning experience."
           },
           {
             "title": "Personalized Classes",
-            "description": "Each teacher adapts your classes to your level, goals, and learning style to maximize your progress."
+            "description": "Each teacher adapts their lessons to your level, goals and what you enjoy most. You will learn in the way that suits you best, boosting your progress while staying motivated."
           },
           {
-            "title": "Flexible Schedules",
-            "description": "Book classes whenever it suits you. Our teachers are available across different time zones."
+            "title": "Flexible Scheduling",
+            "description": "You decide when to learn. Book your classes at times that suit you best: you will always find teachers available in your time zone."
           }
         ],
         "note": [
-          "“At Amanah Academia, we believe every student is unique. That’s why we give you the freedom to choose the teacher who connects with you best and helps you achieve your goals in Spanish.”",
-          "- Amanah Academia Team"
+          "\"At Amanah Academy we believe every student is unique. That's why we give you the freedom to choose the teacher who best connects with you and helps you reach your Spanish goals.\"",
+          "- Amanah Academy Team"
         ]
       }
     },
     "articles": {
       "title": "Articles",
+      "summary": [
+        "Want to try before you decide? 📚",
+        "Here are free samples of materials so you can see how we work and start learning right away. Exercises, explanations and practical activities that give you a preview of what you'll experience in class."
+      ],
       "articles": [
         {
-          "title": "How to improve your Spanish quickly",
+          "title": "How to Improve Your Spanish Quickly",
           "summary": [
-            "Practical tips to accelerate your Spanish learning.",
-            "Includes resources, study techniques, and teacher recommendations."
+            "Practical tips to speed up your Spanish learning.",
+            "Includes resources, study techniques and teacher recommendations."
           ]
         },
         {
-          "title": "The importance of cultural immersion",
+          "title": "The Importance of Cultural Immersion",
           "summary": [
-            "Explore how immersing yourself in Hispanic culture can improve your fluency.",
-            "Recommendations for Spanish-language movies, music, and literature."
+            "Explore how immersion in Hispanic culture can improve your fluency.",
+            "Recommendations for Spanish-language films, music and literature."
           ]
         },
         {
-          "title": "How to improve your Spanish quickly",
+          "title": "How to Improve Your Spanish Quickly",
           "summary": [
-            "Practical tips to accelerate your Spanish learning.",
-            "Includes resources, study techniques, and teacher recommendations."
+            "Practical tips to speed up your Spanish learning.",
+            "Includes resources, study techniques and teacher recommendations."
           ]
         },
         {
-          "title": "The importance of cultural immersion",
+          "title": "The Importance of Cultural Immersion",
           "summary": [
-            "Explore how immersing yourself in Hispanic culture can improve your fluency.",
-            "Recommendations for Spanish-language movies, music, and literature."
+            "Explore how immersion in Hispanic culture can improve your fluency.",
+            "Recommendations for Spanish-language films, music and literature."
+          ]
+        },
+        {
+          "title": "How to Improve Your Spanish Quickly",
+          "summary": [
+            "Practical tips to speed up your Spanish learning.",
+            "Includes resources, study techniques and teacher recommendations."
+          ]
+        },
+        {
+          "title": "The Importance of Cultural Immersion",
+          "summary": [
+            "Explore how immersion in Hispanic culture can improve your fluency.",
+            "Recommendations for Spanish-language films, music and literature."
+          ]
+        },
+        {
+          "title": "How to Improve Your Spanish Quickly",
+          "summary": [
+            "Practical tips to speed up your Spanish learning.",
+            "Includes resources, study techniques and teacher recommendations."
+          ]
+        },
+        {
+          "title": "The Importance of Cultural Immersion",
+          "summary": [
+            "Explore how immersion in Hispanic culture can improve your fluency.",
+            "Recommendations for Spanish-language films, music and literature."
+          ]
+        },
+        {
+          "title": "How to Improve Your Spanish Quickly",
+          "summary": [
+            "Practical tips to speed up your Spanish learning.",
+            "Includes resources, study techniques and teacher recommendations."
+          ]
+        },
+        {
+          "title": "The Importance of Cultural Immersion",
+          "summary": [
+            "Explore how immersion in Hispanic culture can improve your fluency.",
+            "Recommendations for Spanish-language films, music and literature."
+          ]
+        },
+        {
+          "title": "How to Improve Your Spanish Quickly",
+          "summary": [
+            "Practical tips to speed up your Spanish learning.",
+            "Includes resources, study techniques and teacher recommendations."
+          ]
+        },
+        {
+          "title": "The Importance of Cultural Immersion",
+          "summary": [
+            "Explore how immersion in Hispanic culture can improve your fluency.",
+            "Recommendations for Spanish-language films, music and literature."
           ]
         }
       ]
     },
+    "pricing": {
+      "title": "Pricing",
+      "type": {
+        "estandar": {
+          "title": "Standard One-to-One Classes",
+          "description": "A comprehensive approach to work on grammar, vocabulary, comprehension and production. We don't limit ourselves to verb lists or isolated words: everything is learned in context, with examples and real expressions. We always include dialogues and activities that make the lesson practical and engaging.",
+          "price": {
+            "currency": "€",
+            "amount": 30,
+            "time": "/class"
+          },
+          "content": [
+            "One-hour one-to-one classes",
+            "Access to certified teachers",
+            "Basic supporting materials",
+            "Flexible scheduling",
+            "Email support"
+          ],
+          "time": "/class",
+          "button": "Book Class"
+        },
+        "conversation": {
+          "title": "Conversation One-to-One Classes",
+          "description": "Designed for learners with an intermediate-high level (B1+/B2) who want to focus on speaking. We use dynamics, games and varied topics to keep conversation flowing. Although we don't dive deeply into grammar, we correct and clarify doubts in the moment.",
+          "price": {
+            "currency": "€",
+            "amount": 20,
+            "time": "/class"
+          },
+          "content": ["Unlimited group classes", "Access to premium content", "Official certification", "24/7 support"],
+          "button": "Book Class"
+        },
+        "grupales": {
+          "title": "Group Classes",
+          "description": "The same quality as the standard classes, but in small groups of up to 4 people. Ideal if you're looking for a more economical and collaborative option. They include debates, games and participatory activities. If you can't attend, you'll receive a summary with the content and exercises covered.",
+          "price": {
+            "currency": "€",
+            "amount": 10,
+            "time": "/class"
+          },
+          "content": ["Unlimited group classes", "Access to premium content", "Official certification", "24/7 support"],
+          "time": "/class",
+          "button": "Book Class"
+        }
+      },
+      "info": [
+        {
+          "title": "Not sure which plan to choose?",
+          "description": "Curious about learning with us but still hesitating? Don't stay wondering! Try a free class (standard or conversation) with the teacher of your choice and discover why learning Spanish with Amanah Academy is different.",
+          "button": "Book a Free Class"
+        },
+        {
+          "title": "Want to clear up questions before you start?",
+          "description": "Book a free, no-obligation call with us. We'll explain how our classes work, who our teachers are and answer all your questions about payments, scheduling and guarantees."
+        }
+      ]
+    },
     "courses": {
-      "title": "Courses"
+      "title": "Courses",
+      "summary": [
+        "Prefer to learn at your own pace? ⏳",
+        "Our online courses let you study from home, without fixed schedules and with total flexibility.",
+        "You will find not only language courses but also ones about culture, gastronomy and other topics that connect you with the Spanish-speaking world."
+      ],
+      "ideal_for": {
+        "title": "This course is ideal for you",
+        "title_color": "if you are",
+        "points": [
+          {
+            "title": "?????",
+            "description": "You like to learn at your own pace. You are self-taught and value the freedom to study whenever you want, but you want quality materials that truly drive your progress."
+          },
+          {
+            "title": "?????",
+            "description": "You can't commit to a fixed class schedule and prefer to set your own learning pace."
+          },
+          {
+            "title": "?????",
+            "description": "You want to learn the language on your own, but feel that free materials on YouTube or traditional textbooks don't lead to the results you seek, so you want to start with something that really helps."
+          }
+        ]
+      },
+      "modules": {
+        "title": "Program",
+        "title_color": "of the courses",
+        "content": [
+          {
+            "title": "Modules",
+            "description": "Each course is made up of several modules that address different aspects of the language.",
+            "icons": {
+              "session": "Online sessions",
+              "book": "Reading material"
+            }
+          }
+        ]
+      }
     },
     "comments": {
-      "title": "Comments"
+      "title": "Comments",
+      "summary": [
+        "Are you enjoying your classes with us? 💬",
+        "Leave us your feedback and help us keep improving every day."
+      ]
     },
     "contact": {
-      "title": "Contact"
+      "title": "Contact",
+      "form": {
+        "name": "Name",
+        "subject": "Subject",
+        "message": "Message",
+        "button": "Contact"
+      },
+      "etsy": {
+        "title": "Etsy Shop",
+        "description": "In our Etsy shop you'll find mini-courses and affordable materials: activities, exercises and visual explanations to keep practicing your Spanish in a simple and fun way."
+      },
+      "podcast": {
+        "title": "Discover Our Podcast",
+        "description": "Learn Spanish by listening to real conversations, practical tips and cultural topics that will improve your comprehension while you enjoy the journey."
+      },
+      "call": {
+        "title": "Want to clear up questions before you start?",
+        "description": "Book a free, no-obligation call with us. We'll explain how our classes work, who our teachers are and answer all your questions about payments, scheduling and guarantees."
+      }
     }
   },
   "footer": {
     "license": "License",
     "privacy_policy": "Privacy Policy",
-    "terms_of_service": "Terms of Service"
+    "terms_of_service": "Terms and Conditions"
   }
 }

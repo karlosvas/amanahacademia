@@ -1,3 +1,9 @@
+---
+import type { ContactI18n } from "@/types/types";
+
+const data = Astro.props.data as ContactI18n;
+---
+
 <img
   src="/coffe.webp"
   alt=""
@@ -13,37 +19,41 @@
   alt=""
   class="hidden md:block absolute w-80 h-80 left-10 top-30 rounded-full object-cover z-0 pointer-events-none"
 />
-<h2
-  class=`mt-24 text-center px-10 pb-1 text-[--color-red] font-bold text-2xl absolute left-40 md:left-28 -top-20 md:top-28 pointer-events-none`
->
-  Contacto
-</h2>
-<div
-  class=`bg-[--color-salmon] w-20 md:w-28 h-1 m-auto mb-10 absolute top-12 md:top-60 left-52 md:left-36 pointer-events-none`
->
-</div>
-<div class="w-full mt-20 z-20 relative">
-  <form
-    action="post"
-    class="flex flex-col z-10 pl-10 ml-0 md:ml-72 lg:ml-[500px] py-10 items-start md:border-2 md:border-gray-500 md:rounded-l-3xl mb-20 relative"
+
+<main>
+  <h2
+    class=`mt-24 text-center px-10 pb-1 text-[--color-red] font-bold text-2xl absolute left-40 md:left-28 -top-20 md:top-28 pointer-events-none`
   >
-    <label for="name" class="my-5 text-[--color-black]">
-      Name <br />
-      <input type="text" class="bg-transparent border-b-2 outline-none border-gray-500 w-96" />
-    </label>
-    <label for="name" class="my-5 text-[--color-black]">
-      Asunto
-      <br />
-      <input type="text" class="bg-transparent border-b-2 border-gray-500 w-96 outline-none" />
-    </label>
-    <label for="name" class="my-5 text-[--color-black]">
-      Message<br />
-      <input type="text" class="bg-transparent border-b-2 border-gray-500 w-96 outline-none" />
-    </label>
-    <button
-      type="submit"
-      class="text-white bg-[--color-salmon] w-3/4 m-auto md:m-0 md:ml-10 md:w-96 font-semibold rounded-xl mt-40 md:mt-10 p-3"
-      >Contactar</button
+    {data.title}
+  </h2>
+  <div
+    class=`bg-[--color-salmon] w-20 md:w-28 h-1 m-auto mb-10 absolute top-12 md:top-60 left-52 md:left-36 pointer-events-none`
+  >
+  </div>
+  <div class="w-full mt-20 z-20 relative">
+    <form
+      action="post"
+      class="flex flex-col z-10 pl-10 ml-0 md:ml-72 lg:ml-[500px] py-10 items-start md:border-2 md:border-gray-500 md:rounded-l-3xl mb-20 relative"
     >
-  </form>
-</div>
+      <label for="name" class="my-5 text-[--color-black]">
+        {data.form.name}
+        <br />
+        <input type="text" class="bg-transparent border-b-2 outline-none border-gray-500 w-96" />
+      </label>
+      <label for="name" class="my-5 text-[--color-black]">
+        {data.form.subject}
+        <br />
+        <input type="text" class="bg-transparent border-b-2 border-gray-500 w-96 outline-none" />
+      </label>
+      <label for="name" class="my-5 text-[--color-black]">
+        {data.form.message}<br />
+        <input type="text" class="bg-transparent border-b-2 border-gray-500 w-96 outline-none" />
+      </label>
+      <button
+        type="submit"
+        class="text-white bg-[--color-salmon] w-3/4 m-auto md:m-0 md:ml-10 md:w-96 font-semibold rounded-xl mt-40 md:mt-10 p-3"
+        >{data.form.button}</button
+      >
+    </form>
+  </div>
+</main>

@@ -1,11 +1,13 @@
 ---
-import type { FooterIn18 } from "@/types/types";
+import type { FooterI18n } from "@/types/types";
 
-const data = Astro.props.data as FooterIn18;
+const data = Astro.props.data as FooterI18n;
 ---
 
 <footer>
-  <div class="bg-[--color-brown] w-full h-28 flex justify-between items-center px-3 md:px-8 text-sm">
+  <div
+    class="bg-[--color-brown] w-full h-28 flex justify-between items-center px-3 md:px-8 text-sm text-[--color-black]"
+  >
     <div class="w-42">
       <ul>
         <li class="flex">
@@ -31,7 +33,7 @@ const data = Astro.props.data as FooterIn18;
               />
             </defs>
           </svg>
-          <p class="px-1">+34 675 979 915</p>
+          <a class="px-1" href="tel:+34644502077">+34 644 502 077</a>
         </li>
         <li class="flex">
           <svg
@@ -56,9 +58,7 @@ const data = Astro.props.data as FooterIn18;
               />
             </defs>
           </svg>
-          <p class="px-1">
-            anaortega@gmail.com<p></p>
-          </p>
+          <a class="px-2" href="mailto:anaortegagutierrez99@gmail.com">anaortegagutierrez99@gmail.com</a>
         </li>
         <li class="flex">
           <svg
@@ -83,7 +83,9 @@ const data = Astro.props.data as FooterIn18;
               />
             </defs>
           </svg>
-          <p class="px-1">@amanahacademia</p><br />
+          <a href="https://www.instagram.com/amanahacademia" class="px-2" target="_blank" rel="noopener noreferrer"
+            >@amanahacademia</a
+          ><br />
         </li>
       </ul>
     </div>

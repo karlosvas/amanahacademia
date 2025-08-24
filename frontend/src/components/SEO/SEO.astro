@@ -1,0 +1,43 @@
+---
+import MetaTags from "./MetaTags.astro";
+import StructuredData from "./StructuredData.astro";
+import HrefLang from "./HrefLang.astro";
+
+export interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  keywords?: string;
+  structuredDataType?: "organization" | "course" | "webpage";
+  structuredData?: Record<string, any>;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  ogImage,
+  noindex,
+  keywords,
+  structuredDataType = "webpage",
+  structuredData = {},
+} = Astro.props;
+---
+
+<!-- Meta Tags básicos y Open Graph -->
+<MetaTags
+  title={title}
+  description={description}
+  canonical={canonical}
+  ogImage={ogImage}
+  noindex={noindex}
+  keywords={keywords}
+/>
+
+<!-- Hreflang para multiidioma -->
+<HrefLang />
+
+<!-- Datos estructurados JSON-LD -->
+<StructuredData type={structuredDataType} data={structuredData} />

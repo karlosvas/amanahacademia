@@ -3,10 +3,11 @@ import App from "@/layouts/App.astro";
 import { getI18N } from "@/../i18n/index";
 import Layout from "@/layouts/Layout.astro";
 import CoursesPage from "@/components/Courses.astro";
+import type { i18nTranslations } from "@/types/types";
 
 // Obtenemos el idioma obtenido mediante la ruta
 const { lang } = Astro.params;
-const data = getI18N({ lang });
+const data = getI18N({ lang }) as i18nTranslations;
 
 export async function getStaticPaths() {
   return [
@@ -22,8 +23,6 @@ export async function getStaticPaths() {
 
 <Layout>
   <App data={data}>
-    <main>
-      <CoursesPage />
-    </main>
+    <CoursesPage data={data.main.courses} />
   </App>
 </Layout>

@@ -11,76 +11,272 @@
     "home": {
       "title": "Über uns",
       "about_us": {
-        "title": "Über Amanah",
+        "title": "Über die Amanah Akademie",
         "description": [
-          "Amanah ist die führende Plattform, um Spanisch auf eine personalisierte und effektive Weise zu lernen. Wir verbinden Schüler aus aller Welt mit muttersprachlichen Lehrern, die auf verschiedene Unterrichtsmethoden spezialisiert sind.",
-          "Unsere Plattform verfügt über mehr als 50 zertifizierte Lehrer aus Spanien und Lateinamerika, jeder mit seiner eigenen Spezialisierung und Lehrmethode. Du kannst den Lehrer wählen, der am besten zu deinen Zielen und deinem Zeitplan passt.",
-          "Egal ob du Konversationsunterricht, Vorbereitung auf offizielle Prüfungen, Wirtschaftsspanisch oder einfach nur die hispanische Kultur erkunden möchtest, wir haben den perfekten Lehrer für dich."
+          "In der Amanah Akademie helfen wir Ihnen, Spanisch auf eine dynamische, effektive und motivierende Weise zu lernen. Für uns bedeutet Sprachlernen nicht nur das Auswendiglernen von Regeln: es ist eine kulturelle Erfahrung, die Sie mit neuen Menschen, Ideen und Sichtweisen verbindet.",
+          "Haben Sie lange Spanisch gelernt, sprechen aber noch nicht fließend? Bei uns finden Sie das Selbstvertrauen und die Werkzeuge, um sich natürlich und ohne Nervosität auszudrücken.",
+          "Sind Sie absoluter Anfänger? Keine Sorge: wir gestalten Unterrichtsstunden nach Maß, angepasst an Ihr Tempo, Ihre Interessen und Ihre Ziele."
         ]
       },
-      "info": { "students": "Studenten", "teachers": "Lehrer", "satisfaction": "Zufriedenheit" },
+      "info": {
+        "students": "Lernende",
+        "teachers": "Lehrkräfte",
+        "satisfaction": "Zufriedenheit"
+      },
       "focus": {
         "title": "Unser Ansatz",
         "cards": [
           {
-            "title": "Vielfältige Lehrer",
-            "description": "Wählen Sie aus über 50 muttersprachlichen Lehrern mit unterschiedlichen Spezialitäten, Akzenten und Lehrmethoden."
+            "title": "Vielfältige Lehrkräfte",
+            "description": "Wählen Sie aus einer großen Auswahl an Lehrkräften, Muttersprachlern und Nicht-Muttersprachlern, aus unterschiedlichen Herkunftsländern mit verschiedenen Akzenten, Persönlichkeiten und Unterrichtsstilen. Alle folgen unserer Methode, um eine effektive und bereichernde Lernerfahrung sicherzustellen."
           },
           {
-            "title": "Personalisierte Kurse",
-            "description": "Jeder Lehrer passt den Unterricht an Ihr Niveau, Ihre Ziele und Ihren Lernstil an, um Ihren Fortschritt zu maximieren."
+            "title": "Personalisierter Unterricht",
+            "description": "Jede Lehrkraft passt den Unterricht an Ihr Niveau, Ihre Ziele und das, was Ihnen am meisten Spaß macht, an. Sie lernen auf die Weise, die am besten zu Ihnen passt, fördern so Ihren Fortschritt und bleiben motiviert."
           },
           {
-            "title": "Flexible Zeitpläne",
-            "description": "Buchen Sie Unterricht, wann es Ihnen passt. Unsere Lehrer sind in verschiedenen Zeitzonen verfügbar."
+            "title": "Flexible Terminwahl",
+            "description": "Sie entscheiden, wann Sie lernen. Buchen Sie Ihre Stunden zu Zeiten, die Ihnen am besten passen: Sie werden immer Lehrkräfte finden, die in Ihrer Zeitzone verfügbar sind."
           }
         ],
         "note": [
-          "“Bei Amanah Academia glauben wir, dass jeder Schüler einzigartig ist. Deshalb geben wir dir die Freiheit, den Lehrer zu wählen, der am besten zu dir passt und dir hilft, deine Ziele im Spanischen zu erreichen.”",
-          "- Team Amanah Academia"
+          "\"In der Amanah Akademie glauben wir, dass jede:r Lernende einzigartig ist. Deshalb geben wir Ihnen die Freiheit, die Lehrkraft zu wählen, die am besten zu Ihnen passt und Ihnen hilft, Ihre Spanisch-Ziele zu erreichen.\"",
+          "- Amanah Akademie Team"
         ]
       }
     },
     "articles": {
       "title": "Artikel",
+      "summary": [
+        "Möchten Sie vorab ausprobieren, bevor Sie sich entscheiden? 📚",
+        "Hier finden Sie kostenlose Muster von Materialien, damit Sie sehen, wie wir arbeiten, und sofort mit dem Lernen beginnen können. Übungen, Erklärungen und praktische Aktivitäten, die Ihnen einen Vorgeschmack auf den Unterricht geben."
+      ],
       "articles": [
         {
-          "title": "Wie man schnell Spanisch verbessert",
+          "title": "Wie Sie Ihr Spanisch schnell verbessern",
           "summary": [
-            "Praktische Tipps, um dein Spanisch schneller zu lernen.",
-            "Beinhaltet Ressourcen, Lerntechniken und Empfehlungen von Lehrern."
+            "Praktische Tipps, um Ihr Spanischlernen zu beschleunigen.",
+            "Enthält Ressourcen, Lerntechniken und Empfehlungen von Lehrkräften."
           ]
         },
         {
-          "title": "Die Bedeutung des kulturellen Eintauchens",
+          "title": "Die Bedeutung kultureller Immersion",
           "summary": [
-            "Erkunde, wie das Eintauchen in die spanische Kultur deine Sprachflüssigkeit verbessern kann.",
-            "Empfehlungen für Filme, Musik und Literatur auf Spanisch."
+            "Erfahren Sie, wie das Eintauchen in die hispanische Kultur Ihre Sprachflüssigkeit verbessern kann.",
+            "Empfehlungen zu spanischsprachigen Filmen, Musik und Literatur."
           ]
         },
         {
-          "title": "Wie man schnell Spanisch verbessert",
+          "title": "Wie Sie Ihr Spanisch schnell verbessern",
           "summary": [
-            "Praktische Tipps, um dein Spanisch schneller zu lernen.",
-            "Beinhaltet Ressourcen, Lerntechniken und Empfehlungen von Lehrern."
+            "Praktische Tipps, um Ihr Spanischlernen zu beschleunigen.",
+            "Enthält Ressourcen, Lerntechniken und Empfehlungen von Lehrkräften."
           ]
         },
         {
-          "title": "Die Bedeutung des kulturellen Eintauchens",
+          "title": "Die Bedeutung kultureller Immersion",
           "summary": [
-            "Erkunde, wie das Eintauchen in die spanische Kultur deine Sprachflüssigkeit verbessern kann.",
-            "Empfehlungen für Filme, Musik und Literatur auf Spanisch."
+            "Erfahren Sie, wie das Eintauchen in die hispanische Kultur Ihre Sprachflüssigkeit verbessern kann.",
+            "Empfehlungen zu spanischsprachigen Filmen, Musik und Literatur."
+          ]
+        },
+        {
+          "title": "Wie Sie Ihr Spanisch schnell verbessern",
+          "summary": [
+            "Praktische Tipps, um Ihr Spanischlernen zu beschleunigen.",
+            "Enthält Ressourcen, Lerntechniken und Empfehlungen von Lehrkräften."
+          ]
+        },
+        {
+          "title": "Die Bedeutung kultureller Immersion",
+          "summary": [
+            "Erfahren Sie, wie das Eintauchen in die hispanische Kultur Ihre Sprachflüssigkeit verbessern kann.",
+            "Empfehlungen zu spanischsprachigen Filmen, Musik und Literatur."
+          ]
+        },
+        {
+          "title": "Wie Sie Ihr Spanisch schnell verbessern",
+          "summary": [
+            "Praktische Tipps, um Ihr Spanischlernen zu beschleunigen.",
+            "Enthält Ressourcen, Lerntechniken und Empfehlungen von Lehrkräften."
+          ]
+        },
+        {
+          "title": "Die Bedeutung kultureller Immersion",
+          "summary": [
+            "Erfahren Sie, wie das Eintauchen in die hispanische Kultur Ihre Sprachflüssigkeit verbessern kann.",
+            "Empfehlungen zu spanischsprachigen Filmen, Musik und Literatur."
+          ]
+        },
+        {
+          "title": "Wie Sie Ihr Spanisch schnell verbessern",
+          "summary": [
+            "Praktische Tipps, um Ihr Spanischlernen zu beschleunigen.",
+            "Enthält Ressourcen, Lerntechniken und Empfehlungen von Lehrkräften."
+          ]
+        },
+        {
+          "title": "Die Bedeutung kultureller Immersion",
+          "summary": [
+            "Erfahren Sie, wie das Eintauchen in die hispanische Kultur Ihre Sprachflüssigkeit verbessern kann.",
+            "Empfehlungen zu spanischsprachigen Filmen, Musik und Literatur."
+          ]
+        },
+        {
+          "title": "Wie Sie Ihr Spanisch schnell verbessern",
+          "summary": [
+            "Praktische Tipps, um Ihr Spanischlernen zu beschleunigen.",
+            "Enthält Ressourcen, Lerntechniken und Empfehlungen von Lehrkräften."
+          ]
+        },
+        {
+          "title": "Die Bedeutung kultureller Immersion",
+          "summary": [
+            "Erfahren Sie, wie das Eintauchen in die hispanische Kultur Ihre Sprachflüssigkeit verbessern kann.",
+            "Empfehlungen zu spanischsprachigen Filmen, Musik und Literatur."
           ]
         }
       ]
     },
-    "courses": { "title": "Kurse" },
-    "comments": { "title": "Kommentare" },
-    "contact": { "title": "Kontakt" }
+    "pricing": {
+      "title": "Preise",
+      "type": {
+        "estandar": {
+          "title": "Standard Einzelunterricht",
+          "description": "Ein umfassender Ansatz zur Arbeit an Grammatik, Wortschatz, Verständnis und Ausdruck. Wir beschränken uns nicht auf Verblisten oder lose Wörter: alles wird im Kontext mit Beispielen und realen Ausdrücken gelernt. Wir schließen stets Dialoge und Aktivitäten ein, die die Stunde praktisch und unterhaltsam machen.",
+          "price": {
+            "currency": "€",
+            "amount": 30,
+            "time": "/Stunde"
+          },
+          "content": [
+            "Einzelstunden von 1 Stunde",
+            "Zugang zu zertifizierten Lehrkräften",
+            "Basis-Supportmaterial",
+            "Flexible Terminwahl",
+            "E-Mail-Support"
+          ],
+          "time": "/Stunde",
+          "button": "Unterricht buchen"
+        },
+        "conversation": {
+          "title": "Einzelunterricht Konversation",
+          "description": "Konzipiert für Lernende mit mittlerem bis hohem Niveau (B1+/B2), die sich auf das Sprechen konzentrieren möchten. Wir nutzen dynamische Übungen, Spiele und abwechslungsreiche Themen, die den Gesprächsfluss fördern. Obwohl wir nicht tief in die Grammatik eintauchen, korrigieren und klären wir Fragen unmittelbar.",
+          "price": {
+            "currency": "€",
+            "amount": 20,
+            "time": "/Stunde"
+          },
+          "content": [
+            "Unbegrenzte Gruppenstunden",
+            "Zugang zu Premium-Inhalten",
+            "Offizielle Zertifizierung",
+            "24/7-Support"
+          ],
+          "button": "Unterricht buchen"
+        },
+        "grupales": {
+          "title": "Gruppenunterricht",
+          "description": "Die gleiche Qualität wie im Standardunterricht, aber in kleinen Gruppen von maximal 4 Personen. Ideal, wenn Sie eine kostengünstigere und kollaborative Option suchen. Einschließlich Debatten, Spielen und interaktiven Aktivitäten. Wenn Sie nicht teilnehmen können, erhalten Sie eine Zusammenfassung der behandelten Inhalte und Übungen.",
+          "price": {
+            "currency": "€",
+            "amount": 10,
+            "time": "/Stunde"
+          },
+          "content": [
+            "Unbegrenzte Gruppenstunden",
+            "Zugang zu Premium-Inhalten",
+            "Offizielle Zertifizierung",
+            "24/7-Support"
+          ],
+          "time": "/Stunde",
+          "button": "Unterricht buchen"
+        }
+      },
+      "info": [
+        {
+          "title": "Unsicher, welchen Plan Sie wählen sollen?",
+          "description": "Neugierig, mit uns zu lernen, aber noch unschlüssig? Bleiben Sie nicht im Zweifel! Probieren Sie eine kostenlose Probestunde (Standard oder Konversation) mit der Lehrkraft Ihrer Wahl und entdecken Sie, warum Spanischlernen mit der Amanah Akademie anders ist.",
+          "button": "Kostenlose Probestunde buchen"
+        },
+        {
+          "title": "Möchten Sie Fragen klären, bevor Sie beginnen?",
+          "description": "Buchen Sie ein kostenloses, unverbindliches Gespräch mit uns. Wir erklären, wie unsere Unterrichtsstunden funktionieren, wer unsere Lehrkräfte sind, und beantworten alle Ihre Fragen zu Zahlungen, Zeitplänen und Garantien."
+        }
+      ]
+    },
+    "courses": {
+      "title": "Kurse",
+      "summary": [
+        "Möchten Sie lieber in Ihrem eigenen Tempo lernen? ⏳",
+        "Unsere Online-Kurse ermöglichen Ihnen das Lernen von zu Hause aus, ohne feste Zeiten und mit voller Flexibilität.",
+        "Sie finden nicht nur Sprachkurse, sondern auch Kurse zu Kultur, Gastronomie und weiteren Themen, die Sie mit der spanischsprachigen Welt verbinden."
+      ],
+      "ideal_for": {
+        "title": "Dieser Kurs ist ideal für Sie",
+        "title_color": "wenn Sie",
+        "points": [
+          {
+            "title": "?????",
+            "description": "Sie lernen gern in Ihrem eigenen Tempo. Sie sind autodidaktisch und schätzen die Freiheit, zu lernen, wann Sie möchten, möchten aber Materialien von hoher Qualität, die Ihren Fortschritt wirklich vorantreiben."
+          },
+          {
+            "title": "?????",
+            "description": "Sie können sich nicht auf einen festen Stundenplan festlegen und ziehen es vor, Ihr Lerntempo selbst zu bestimmen."
+          },
+          {
+            "title": "?????",
+            "description": "Sie möchten die Sprache eigenständig lernen, haben aber das Gefühl, dass kostenlose Materialien auf YouTube oder traditionelle Lehrbücher nicht die gewünschten Ergebnisse bringen, und möchten daher mit etwas beginnen, das Ihnen wirklich hilft."
+          }
+        ]
+      },
+      "modules": {
+        "title": "Programm",
+        "title_color": "der Kurse",
+        "content": [
+          {
+            "title": "Module",
+            "description": "Jeder Kurs besteht aus mehreren Modulen, die verschiedene Aspekte der Sprache behandeln.",
+            "icons": {
+              "session": "Online-Sitzungen",
+              "book": "Lesematerial"
+            }
+          }
+        ]
+      }
+    },
+    "comments": {
+      "title": "Kommentare",
+      "summary": [
+        "Genießen Sie Ihren Unterricht bei uns? 💬",
+        "Hinterlassen Sie uns Ihr Feedback und helfen Sie uns, uns täglich zu verbessern."
+      ]
+    },
+    "contact": {
+      "title": "Kontakt",
+      "form": {
+        "name": "Name",
+        "subject": "Betreff",
+        "message": "Nachricht",
+        "button": "Kontakt"
+      },
+      "etsy": {
+        "title": "Etsy-Shop",
+        "description": "In unserem Etsy-Shop finden Sie Mini-Kurse und erschwingliche Materialien: Aktivitäten, Übungen und visuelle Erklärungen, um Ihr Spanisch auf einfache und unterhaltsame Weise weiter zu üben."
+      },
+      "podcast": {
+        "title": "Entdecken Sie unseren Podcast",
+        "description": "Lernen Sie Spanisch, indem Sie echten Gesprächen, praktischen Tipps und kulturellen Themen zuhören, die Ihr Hörverständnis verbessern, während Sie die Reise genießen."
+      },
+      "call": {
+        "title": "Möchten Sie Fragen klären, bevor Sie beginnen?",
+        "description": "Buchen Sie ein kostenloses, unverbindliches Gespräch mit uns. Wir erklären, wie unsere Unterrichtsstunden funktionieren, wer unsere Lehrkräfte sind, und beantworten alle Ihre Fragen zu Zahlungen, Zeitplänen und Garantien."
+      }
+    }
   },
   "footer": {
     "license": "Lizenz",
-    "privacy_policy": "Datenschutzrichtlinie",
-    "terms_of_service": "Allgemeine Geschäftsbedingungen"
+    "privacy_policy": "Datenschutzerklärung",
+    "terms_of_service": "Nutzungsbedingungen"
   }
 }

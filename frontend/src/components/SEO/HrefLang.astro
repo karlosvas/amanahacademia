@@ -1,0 +1,23 @@
+---
+// Obtener idiomas de la configuración
+const languages = ["es", "en", "fr", "de", "it", "pt", "ar"];
+const currentLang = Astro.currentLocale || "es";
+const { pathname } = Astro.url;
+
+// Limpiar el pathname de idiomas existentes para generar URLs correctas
+const cleanPathname = pathname.replace(/^\/(en|fr|de|it|pt|ar)/, "") || "/";
+---
+
+<!-- Hreflang para cada idioma -->{
+  languages.map((lang) => {
+    const href =
+      lang === "es"
+        ? `https://amanahacademia.com${cleanPathname}`
+        : `https://amanahacademia.com/${lang}${cleanPathname}`;
+
+    return <link rel="alternate" hreflang={lang} href={href} />;
+  })
+}
+
+<!-- x-default apunta al español (idioma por defecto) -->
+<link rel="alternate" hreflang="x-default" href={`https://amanahacademia.com${cleanPathname}`} />

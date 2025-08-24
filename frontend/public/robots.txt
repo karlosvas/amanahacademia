@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://amanahacademia.com/sitemap.xml
+
+# Bloquear archivos no necesarios
+Disallow: /api/
+Disallow: /_astro/

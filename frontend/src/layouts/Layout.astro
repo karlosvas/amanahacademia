@@ -1,6 +1,30 @@
 ---
 import "@/styles/global.css";
-const { lang } = Astro.props;
+import SEO from "@/components/SEO/SEO.astro";
+
+export interface Props {
+  lang?: string;
+  title?: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  keywords?: string;
+  structuredDataType?: "organization" | "course" | "webpage";
+  structuredData?: Record<string, any>;
+}
+
+const {
+  lang = "es",
+  title = "Amanah Academia - Aprende idiomas online",
+  description = "Academia de idiomas online especializada en árabe y otros idiomas. Clases con profesores nativos.",
+  canonical,
+  ogImage,
+  noindex,
+  keywords,
+  structuredDataType,
+  structuredData,
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -30,7 +54,18 @@ const { lang } = Astro.props;
     <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png" sizes="180x180" />
     <!-- Manifest PWA -->
     <link rel="manifest" href="/favicon/site.webmanifest" />
-    <title>Amana Academia</title>
+
+    <!-- SEO Components -->
+    <SEO
+      title={title}
+      description={description}
+      canonical={canonical}
+      ogImage={ogImage}
+      noindex={noindex}
+      keywords={keywords}
+      structuredDataType={structuredDataType}
+      structuredData={structuredData}
+    />
   </head>
   <body class="m-0 w-full h-full bg-background">
     <slot />

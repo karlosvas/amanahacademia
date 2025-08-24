@@ -1,24 +1,29 @@
 ---
 import Title from "./Title.astro";
-import type { ArticleIn18 } from "@/types/types";
+import type { ArticleI18n } from "@/types/types";
 
-const data = Astro.props.data as ArticleIn18;
-console.log(data);
+const data = Astro.props.data as ArticleI18n;
 ---
 
-<Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-20">{data.title}</Title>
-<div id="articles" class="mb-20 columns-1 sm:columns-2 md:columns-3 gap-4 p-4 w-3/4 m-auto">
-  {
-    data.articles?.map((article, i) => (
-      <div
-        class="mb-4 break-inside-avoid rounded-lg bg-[--color-salmon] shadow p-4 overflow-hidden flex flex-col justify-between h-full"
-        style={`height: ${120 + Math.random() * 180}px; width: 100%`}
-      >
-        <h3 class="font-bold mb-2">{article.title}</h3>
-        <div class="mt-auto">
-          <p class="text-sm">{article.summary}</p>
+<main class="w-3/4 m-auto text-black">
+  <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-20">{data.title}</Title>
+  <div class="w-1/2 m-auto pb-3">
+    <p class="text-center font-semibold text-[--color-red]">{data.summary[0]}</p>
+    <p>{data.summary[1]}</p>
+  </div>
+  <div id="articles" class="mb-20 columns-1 sm:columns-2 md:columns-3 gap-4 p-4">
+    {
+      data.articles.map((article, _) => (
+        <div
+          class="mb-4 break-inside-avoid rounded-lg bg-[--color-salmon] shadow p-4 overflow-hidden flex flex-col justify-between h-full"
+          style={`height: ${120 + Math.random() * 180}px; width: 100%`}
+        >
+          <h3 class="font-bold mb-2">{article.title}</h3>
+          <div class="mt-auto">
+            <p class="text-sm">{article.summary}</p>
+          </div>
         </div>
-      </div>
-    ))
-  }
-</div>
+      ))
+    }
+  </div>
+</main>

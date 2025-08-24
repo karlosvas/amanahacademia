@@ -1,0 +1,71 @@
+---
+export interface Props {
+  type?: "organization" | "course" | "webpage";
+  data?: Record<string, any>;
+}
+
+const { type = "organization", data = {} } = Astro.props;
+
+// Schema base para la organización
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  name: "Amanah Academia",
+  url: "https://amanahacademia.com",
+  description: "Academia de idiomas especializada en árabe y otros idiomas",
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "ES",
+  },
+  sameAs: [
+    // Añade aquí tus redes sociales cuando las tengas
+  ],
+  offers: {
+    "@type": "Offer",
+    category: "Educación de idiomas",
+  },
+};
+
+// Schema para cursos
+const courseSchema = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  name: data.name || "Cursos de idiomas",
+  description: data.description || "Aprende idiomas con profesores nativos",
+  provider: {
+    "@type": "EducationalOrganization",
+    name: "Amanah Academia",
+    url: "https://amanahacademia.com",
+  },
+  courseMode: "online",
+  educationalCredentialAwarded: "Certificado de idiomas",
+};
+
+// Schema para páginas web
+const webpageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: data.title || "Amanah Academia",
+  description: data.description || "Academia de idiomas online",
+  url: data.url || Astro.url.href,
+  isPartOf: {
+    "@type": "WebSite",
+    name: "Amanah Academia",
+    url: "https://amanahacademia.com",
+  },
+};
+
+let schema;
+switch (type) {
+  case "course":
+    schema = { ...courseSchema, ...data };
+    break;
+  case "webpage":
+    schema = { ...webpageSchema, ...data };
+    break;
+  default:
+    schema = { ...organizationSchema, ...data };
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

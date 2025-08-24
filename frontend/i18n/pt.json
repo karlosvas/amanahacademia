@@ -13,45 +13,49 @@
       "about_us": {
         "title": "Sobre a Amanah",
         "description": [
-          "Amanah é a plataforma líder para aprender espanhol de forma personalizada e eficaz. Conectamos estudantes de todo o mundo com professores nativos especializados em diferentes métodos de ensino.",
-          "A nossa plataforma conta com mais de 50 professores certificados da Espanha e da América Latina, cada um com a sua especialidade e estilo de ensino. Você pode escolher o professor que melhor se adapte aos seus objetivos e horários.",
-          "Seja para aulas de conversação, preparação para exames oficiais, espanhol para negócios ou simplesmente para explorar a cultura hispânica, temos o professor perfeito para você."
+          "Na Amanah Academia ajudamos você a aprender espanhol de forma dinâmica, eficaz e motivadora. Para nós, aprender uma língua não é só memorizar regras: é viver uma experiência cultural que conecta você a novas pessoas, ideias e formas de ver o mundo.",
+          "Você estudou espanhol por muito tempo, mas ainda não fala com fluência? Aqui você encontrará a confiança e as ferramentas para se expressar de forma natural e sem nervosismo.",
+          "É um principiante absoluto? Não se preocupe: desenhamos aulas sob medida, adaptadas ao seu ritmo, interesses e objetivos."
         ]
       },
       "info": {
-        "students": "Estudantes",
+        "students": "Alunos",
         "teachers": "Professores",
         "satisfaction": "Satisfação"
       },
       "focus": {
-        "title": "Nosso enfoque",
+        "title": "Nossa abordagem",
         "cards": [
           {
-            "title": "Professores Diversos",
-            "description": "Escolha entre mais de 50 professores nativos com diferentes especialidades, sotaques e métodos de ensino."
+            "title": "Professores diversos",
+            "description": "Escolha entre uma ampla variedade de professores, nativos e não nativos, de diferentes origens e com sotaques, personalidades e estilos de ensino variados. Todos seguem nosso método para garantir uma experiência de aprendizagem eficaz e enriquecedora."
           },
           {
             "title": "Aulas personalizadas",
-            "description": "Cada professor adapta suas aulas ao seu nível, objetivos e estilo de aprendizagem para maximizar seu progresso."
+            "description": "Cada professor adapta suas aulas ao seu nível, aos seus objetivos e ao que você mais gosta. Você aprenderá da maneira que melhor se ajusta a você, impulsionando seu progresso enquanto se mantém motivado."
           },
           {
-            "title": "Horários Flexíveis",
-            "description": "Agende aulas quando quiser. Nossos professores estão disponíveis em diferentes fusos horários."
+            "title": "Horários flexíveis",
+            "description": "Você decide quando aprender. Agende suas aulas nos horários que mais lhe convêm: sempre encontrará professores disponíveis no seu fuso horário."
           }
         ],
         "note": [
-          "“Na Amanah Academia acreditamos que cada estudante é único. Por isso oferecemos a liberdade de escolher o professor que melhor se conecta com você e o ajuda a alcançar seus objetivos em espanhol.”",
-          "- Equipa Amanah Academia"
+          "\"Na Amanah Academia acreditamos que cada estudante é único. Por isso oferecemos a liberdade de escolher o professor que melhor se conecta com você e o ajuda a alcançar suas metas em espanhol.\"",
+          "- Equipe Amanah Academia"
         ]
       }
     },
     "articles": {
       "title": "Artigos",
+      "summary": [
+        "Quer experimentar antes de decidir? 📚",
+        "Aqui estão amostras gratuitas do material para que você veja como trabalhamos e comece a aprender imediatamente. Exercícios, explicações e atividades práticas que dão uma prévia do que você vivenciará em aula."
+      ],
       "articles": [
         {
-          "title": "Como melhorar rapidamente o seu espanhol",
+          "title": "Como melhorar seu espanhol rapidamente",
           "summary": [
-            "Dicas práticas para acelerar o seu aprendizado de espanhol.",
+            "Dicas práticas para acelerar seu aprendizado de espanhol.",
             "Inclui recursos, técnicas de estudo e recomendações de professores."
           ]
         },
@@ -59,13 +63,13 @@
           "title": "A importância da imersão cultural",
           "summary": [
             "Descubra como a imersão na cultura hispânica pode melhorar sua fluência.",
-            "Recomendações de filmes, música e literatura em espanhol."
+            "Recomendações de filmes, músicas e literatura em espanhol."
           ]
         },
         {
-          "title": "Como melhorar rapidamente o seu espanhol",
+          "title": "Como melhorar seu espanhol rapidamente",
           "summary": [
-            "Dicas práticas para acelerar o seu aprendizado de espanhol.",
+            "Dicas práticas para acelerar seu aprendizado de espanhol.",
             "Inclui recursos, técnicas de estudo e recomendações de professores."
           ]
         },
@@ -73,24 +77,196 @@
           "title": "A importância da imersão cultural",
           "summary": [
             "Descubra como a imersão na cultura hispânica pode melhorar sua fluência.",
-            "Recomendações de filmes, música e literatura em espanhol."
+            "Recomendações de filmes, músicas e literatura em espanhol."
+          ]
+        },
+        {
+          "title": "Como melhorar seu espanhol rapidamente",
+          "summary": [
+            "Dicas práticas para acelerar seu aprendizado de espanhol.",
+            "Inclui recursos, técnicas de estudo e recomendações de professores."
+          ]
+        },
+        {
+          "title": "A importância da imersão cultural",
+          "summary": [
+            "Descubra como a imersão na cultura hispânica pode melhorar sua fluência.",
+            "Recomendações de filmes, músicas e literatura em espanhol."
+          ]
+        },
+        {
+          "title": "Como melhorar seu espanhol rapidamente",
+          "summary": [
+            "Dicas práticas para acelerar seu aprendizado de espanhol.",
+            "Inclui recursos, técnicas de estudo e recomendações de professores."
+          ]
+        },
+        {
+          "title": "A importância da imersão cultural",
+          "summary": [
+            "Descubra como a imersão na cultura hispânica pode melhorar sua fluência.",
+            "Recomendações de filmes, músicas e literatura em espanhol."
+          ]
+        },
+        {
+          "title": "Como melhorar seu espanhol rapidamente",
+          "summary": [
+            "Dicas práticas para acelerar seu aprendizado de espanhol.",
+            "Inclui recursos, técnicas de estudo e recomendações de professores."
+          ]
+        },
+        {
+          "title": "A importância da imersão cultural",
+          "summary": [
+            "Descubra como a imersão na cultura hispânica pode melhorar sua fluência.",
+            "Recomendações de filmes, músicas e literatura em espanhol."
+          ]
+        },
+        {
+          "title": "Como melhorar seu espanhol rapidamente",
+          "summary": [
+            "Dicas práticas para acelerar seu aprendizado de espanhol.",
+            "Inclui recursos, técnicas de estudo e recomendações de professores."
+          ]
+        },
+        {
+          "title": "A importância da imersão cultural",
+          "summary": [
+            "Descubra como a imersão na cultura hispânica pode melhorar sua fluência.",
+            "Recomendações de filmes, músicas e literatura em espanhol."
           ]
         }
       ]
     },
+    "pricing": {
+      "title": "Preços",
+      "type": {
+        "estandar": {
+          "title": "Aulas individuais padrão",
+          "description": "Uma abordagem completa para trabalhar gramática, vocabulário, compreensão e expressão. Não nos limitamos a listas de verbos ou palavras isoladas: tudo é aprendido no contexto, com exemplos e expressões reais. Incluímos sempre diálogos e atividades que tornam a aula prática e envolvente.",
+          "price": {
+            "currency": "€",
+            "amount": 30,
+            "time": "/aula"
+          },
+          "content": [
+            "Aulas individuais de 1 hora",
+            "Acesso a professores certificados",
+            "Material de apoio básico",
+            "Agendamento flexível",
+            "Suporte por e-mail"
+          ],
+          "time": "/aula",
+          "button": "Reservar Aula"
+        },
+        "conversation": {
+          "title": "Aulas individuais de conversação",
+          "description": "Projetadas para quem já tem nível intermediário-alto (B1+/B2) e quer focar em falar. Contamos com dinâmicas, jogos e temas variados que fazem a conversa fluir. Embora não entremos profundamente na gramática, corrigimos e esclarecemos dúvidas no momento.",
+          "price": {
+            "currency": "€",
+            "amount": 20,
+            "time": "/aula"
+          },
+          "content": ["Aulas em grupo ilimitadas", "Acesso a conteúdo premium", "Certificação oficial", "Suporte 24/7"],
+          "button": "Reservar Aula"
+        },
+        "grupales": {
+          "title": "Aulas em grupo",
+          "description": "A mesma qualidade das aulas padrão, mas em grupos pequenos de no máximo 4 pessoas. Ideais se você busca uma opção mais econômica e colaborativa. Incluem debates, jogos e atividades participativas. Se você não puder comparecer, receberá um resumo com os conteúdos e exercícios trabalhados.",
+          "price": {
+            "currency": "€",
+            "amount": 10,
+            "time": "/aula"
+          },
+          "content": ["Aulas em grupo ilimitadas", "Acesso a conteúdo premium", "Certificação oficial", "Suporte 24/7"],
+          "time": "/aula",
+          "button": "Reservar Aula"
+        }
+      },
+      "info": [
+        {
+          "title": "Não tem certeza de qual plano escolher?",
+          "description": "Curioso para aprender conosco mas ainda em dúvida? Não fique na incerteza! Experimente uma aula gratuita (padrão ou de conversação) com o professor que você escolher e descubra por que aprender espanhol com a Amanah Academia é diferente.",
+          "button": "Agendar aula gratuita"
+        },
+        {
+          "title": "Quer esclarecer suas dúvidas antes de começar?",
+          "description": "Agende uma chamada gratuita e sem compromisso conosco. Contaremos como nossas aulas funcionam, quem são nossos professores e responderemos todas as suas perguntas sobre pagamentos, horários e garantias."
+        }
+      ]
+    },
     "courses": {
-      "title": "Cursos"
+      "title": "Cursos",
+      "summary": [
+        "Prefere aprender no seu próprio ritmo? ⏳",
+        "Nossos cursos online permitem estudar de casa, sem horários fixos e com total flexibilidade.",
+        "Você encontrará não só cursos de idioma, mas também sobre cultura, gastronomia e outros temas que conectam você ao mundo hispanofalante."
+      ],
+      "ideal_for": {
+        "title": "Este curso é ideal para você",
+        "title_color": "se você é",
+        "points": [
+          {
+            "title": "?????",
+            "description": "Você gosta de aprender no seu próprio ritmo. É autodidata e valoriza a liberdade de estudar quando quiser, mas quer materiais de qualidade que realmente impulsionem seu progresso."
+          },
+          {
+            "title": "?????",
+            "description": "Você não pode se comprometer com um horário fixo de aulas e prefere definir seu próprio ritmo de aprendizado."
+          },
+          {
+            "title": "?????",
+            "description": "Deseja aprender o idioma por conta própria, mas sente que os materiais gratuitos do YouTube ou os livros tradicionais não o levam aos resultados que procura, então quer começar com algo que realmente ajude."
+          }
+        ]
+      },
+      "modules": {
+        "title": "Programa",
+        "title_color": "dos cursos",
+        "content": [
+          {
+            "title": "Módulos",
+            "description": "Cada curso é composto por vários módulos que abordam diferentes aspectos da língua.",
+            "icons": {
+              "session": "Sessões online",
+              "book": "Material de leitura"
+            }
+          }
+        ]
+      }
     },
     "comments": {
-      "title": "Comentários"
+      "title": "Comentários",
+      "summary": [
+        "Você está gostando das suas aulas conosco? 💬",
+        "Deixe seu comentário e nos ajude a melhorar a cada dia."
+      ]
     },
     "contact": {
-      "title": "Contato"
+      "title": "Contato",
+      "form": {
+        "name": "Nome",
+        "subject": "Assunto",
+        "message": "Mensagem",
+        "button": "Enviar"
+      },
+      "etsy": {
+        "title": "Loja no Etsy",
+        "description": "Em nossa loja no Etsy você encontrará mini cursos e materiais acessíveis: atividades, exercícios e explicações visuais para continuar praticando seu espanhol de forma simples e divertida."
+      },
+      "podcast": {
+        "title": "Descubra nosso podcast",
+        "description": "Aprenda espanhol ouvindo conversas reais, dicas práticas e temas culturais que melhorarão sua compreensão enquanto você aproveita a jornada."
+      },
+      "call": {
+        "title": "Quer esclarecer suas dúvidas antes de começar?",
+        "description": "Agende uma chamada gratuita e sem compromisso conosco. Contaremos como nossas aulas funcionam, quem são nossos professores e responderemos todas as suas perguntas sobre pagamentos, horários e garantias."
+      }
     }
   },
   "footer": {
     "license": "Licença",
     "privacy_policy": "Política de Privacidade",
-    "terms_of_service": "Termos de Serviço"
+    "terms_of_service": "Termos e Condições"
   }
 }

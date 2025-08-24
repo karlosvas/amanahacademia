@@ -4,9 +4,9 @@ import CardInfo from "@/components/CardInfo.astro";
 import IconPeople from "@/assets/people.svg";
 import IconDiana from "@/assets/diana.svg";
 import IconClock from "@/assets/clock.svg";
-import type { HomeIn18 } from "@/types/types";
+import type { HomeI18n } from "@/types/types";
 
-const data = Astro.props.data as HomeIn18;
+const data = Astro.props.data as HomeI18n;
 ---
 
 <section>
@@ -15,7 +15,7 @@ const data = Astro.props.data as HomeIn18;
     <img src="/about_us.webp" alt="" class="w-full md:w-[300px] h-52 md:h-[400px] rounded-md object-cover" />
     <div class="p-5 flex-1">
       <h3 class="text-[--color-red] mb-5 font-semibold text-xl">{data.about_us.title}</h3>
-      <p class="text-xs">
+      <p class="text-xs text-black">
         {
           data.about_us.description.map((desc, i) => (
             <>
@@ -25,7 +25,7 @@ const data = Astro.props.data as HomeIn18;
           ))
         }
       </p>
-      <div class="flex gap-6 mt-4 text-[--color-red] text-xl">
+      <div class="flex gap-6 mt-4 text-red text-xl">
         <div class="text-center"><p>2500+</p><p class="text-sm">{data.info.students}</p></div>
         <div class="text-center"><p>50+</p> <p class="text-sm">{data.info.teachers}</p></div>
         <div class="text-center"><p>98%</p> <p class="text-sm">{data.info.satisfaction}</p></div>
@@ -35,17 +35,17 @@ const data = Astro.props.data as HomeIn18;
   <div class="w-full max-w-3xl mx-auto px-4 mb-20">
     <h3 class="mt-24 text-center text-[--color-red] font-semibold mb-5">{data.focus.title}</h3>
     <div class="flex flex-col md:flex-row gap-6 mb-10 justify-center">
-      <CardInfo colourRectangle="bg-[--color-salmon]">
+      <CardInfo colourRectangle="bg-salmon">
         <span slot="icon"><IconPeople /></span>
         <span slot="title">{data.focus.cards[0].title}</span>
         <span slot="description"> {data.focus.cards[0].description}</span>
       </CardInfo>
-      <CardInfo colourRectangle="bg-[--color-red]">
+      <CardInfo colourRectangle="bg-lightRed">
         <span slot="icon"><IconDiana /></span>
         <span slot="title">{data.focus.cards[1].title}</span>
         <span slot="description"> {data.focus.cards[1].description}</span>
       </CardInfo>
-      <CardInfo colourRectangle="bg-[--color-light-brown]">
+      <CardInfo colourRectangle="bg-lightBrown">
         <span slot="icon"><IconClock /></span>
         <span slot="title">{data.focus.cards[2].title}</span>
         <span slot="description"> {data.focus.cards[2].description}</span>
