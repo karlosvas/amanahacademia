@@ -4,24 +4,25 @@ import { getI18N } from "@/../i18n/index";
 import Layout from "@/layouts/Layout.astro";
 import CoursesPage from "@/components/Courses.astro";
 import type { i18nTranslations } from "@/types/types";
+import { getSEOData } from "@/utils/seo";
 
 // Obtenemos el idioma obtenido mediante la ruta
 const { lang } = Astro.params;
 const data = getI18N({ lang }) as i18nTranslations;
 
-export async function getStaticPaths() {
-  return [
-    { params: { lang: "en" } },
-    { params: { lang: "fr" } },
-    { params: { lang: "de" } },
-    { params: { lang: "it" } },
-    { params: { lang: "pt" } },
-    { params: { lang: "ar" } },
-  ];
-}
+// SEO data usando el helper
+const currentLang = lang || "es";
+const seoData = getSEOData("courses", currentLang);
 ---
 
-<Layout>
+<Layout
+  lang={currentLang}
+  title={seoData.title}
+  description={seoData.description}
+  keywords={seoData.keywords}
+  structuredDataType={seoData.structuredDataType}
+  structuredData={seoData.structuredData}
+>
   <App data={data}>
     <CoursesPage data={data.main.courses} />
   </App>

@@ -2,6 +2,8 @@
 import "@/styles/global.css";
 import SEO from "@/components/SEO/SEO.astro";
 
+const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+
 export interface Props {
   lang?: string;
   title?: string;
@@ -41,6 +43,7 @@ const {
         }
       })();
     </script>
+    <!-- Codificacion -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
@@ -54,7 +57,6 @@ const {
     <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png" sizes="180x180" />
     <!-- Manifest PWA -->
     <link rel="manifest" href="/favicon/site.webmanifest" />
-
     <!-- SEO Components -->
     <SEO
       title={title}
@@ -66,8 +68,85 @@ const {
       structuredDataType={structuredDataType}
       structuredData={structuredData}
     />
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer is:inline></script>
+    <style>
+      html {
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+      }
+      html::-webkit-scrollbar {
+        width: 0.5rem;
+        background-color: var(--color-light-brown);
+      }
+
+      html::-webkit-scrollbar-thumb {
+        background-color: var(--color-salmon);
+        border-radius: 100px;
+      }
+
+      body {
+        overflow-x: hidden;
+        font-family: "Roboto", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
   </head>
   <body class="m-0 w-full h-full bg-background">
     <slot />
+
+    <!-- Solo renderizar Turnstile si tenemos la site key -->
+    {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="invisible" />}
+
+    <script is:inline define:vars={{ TURNSTILE_SITE_KEY }}>
+      // Solo inicializar si tenemos la site key
+      if (TURNSTILE_SITE_KEY) {
+        let turnstileInitialized = false; // Bandera para evitar múltiples inicializaciones
+
+        // Función para inicializar Turnstile (solo una vez)
+        function initTurnstile() {
+          if (turnstileInitialized) return; // Ya se inicializó, salir
+
+          if (typeof turnstile !== "undefined") {
+            try {
+              turnstile.render(".cf-turnstile", {
+                sitekey: TURNSTILE_SITE_KEY,
+                size: "invisible",
+                callback: function (token) {
+                  console.log("Cloudflare Turnstile verificado correctamente!");
+                },
+                "error-callback": function (error) {
+                  console.error("Error de Turnstile:", error);
+                },
+              });
+              turnstileInitialized = true; // Marcar como inicializado
+            } catch (error) {
+              console.error("Error al renderizar Turnstile:", error);
+            }
+          } else {
+            console.warn("Turnstile no está disponible aún");
+          }
+        }
+
+        // Estrategia única: solo usar DOMContentLoaded o ejecutar inmediatamente
+        if (document.readyState === "loading") {
+          // Página cargando: esperar a que termine
+          document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(initTurnstile, 500); // Reducido a 500ms
+          });
+        } else {
+          // Página ya cargada: ejecutar inmediatamente
+          setTimeout(initTurnstile, 100); // Solo 100ms de delay
+        }
+      } else {
+        console.warn("PUBLIC_TURNSTILE_SITE_KEY no está configurada");
+      }
+    </script>
   </body>
 </html>

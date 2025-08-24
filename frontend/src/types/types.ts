@@ -96,15 +96,15 @@ export type ContactI18n = {
   };
   etsy: {
     title: string;
-    description: string[];
+    description: string;
   };
   podcast: {
     title: string;
-    description: string[];
+    description: string;
   };
   call: {
     title: string;
-    description: string[];
+    description: string;
   };
 };
 

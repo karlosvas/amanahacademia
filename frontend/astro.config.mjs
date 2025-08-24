@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 
@@ -32,4 +32,13 @@ export default defineConfig({
       filter: (page) => !page.includes('/admin/') && !page.includes('/404'),
     })
   ],
+  env: {
+    schema: {
+      PUBLIC_TURNSTILE_SITE_KEY: envField.string({
+        context: "client",
+        access: "public",
+        optional: false
+      })
+    }
+  }
 });
