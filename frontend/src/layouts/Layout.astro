@@ -135,14 +135,11 @@ const {
         }
 
         // Estrategia única: solo usar DOMContentLoaded o ejecutar inmediatamente
-        if (document.readyState === "loading") {
-          // Página cargando: esperar a que termine
-          document.addEventListener("DOMContentLoaded", function () {
-            setTimeout(initTurnstile, 500); // Reducido a 500ms
-          });
+        // Ejecutar solo cuando el documento esté completamente cargado
+        if (document.readyState === "complete") {
+          initTurnstile();
         } else {
-          // Página ya cargada: ejecutar inmediatamente
-          setTimeout(initTurnstile, 100); // Solo 100ms de delay
+          window.addEventListener("load", initTurnstile);
         }
       } else {
         console.warn("PUBLIC_TURNSTILE_SITE_KEY no está configurada");

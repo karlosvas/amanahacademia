@@ -10,7 +10,7 @@ const { lang } = Astro.params;
 
 <header class="h-20 w-full bg-background flex items-center justify-between">
   <Hamburger />
-  <img src="/logo_amanah.webp" alt="" class="h-full hidden md:block" />
+  <img src="/img/logo_amanah.webp" alt="" class="h-full hidden md:block" />
   <nav class="hidden md:block z-10">
     <ul class="flex flex-row gap-6 items-center color-red text-[--color-red] font-jomolhari justify-center">
       <li><a href={!lang ? "/" : `/${lang}/`}>{data.about_us}</a></li>

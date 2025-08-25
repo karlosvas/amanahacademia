@@ -17,7 +17,7 @@ const data = Astro.props.data as CourseI18n;
         <h1 class="text-[--color-red] font-semibold text-2xl">
           {data.ideal_for.title}<br /><span class="text-[--color-salmon]">{data.ideal_for.title_color}</span>
         </h1>
-        <img src="/salmon.webp" alt="" class="w-96 h-auto min-h-32 sm:min-h-40 my-2 object-cover" />
+        <img src="/img/salmon.webp" alt="" class="w-96 h-auto min-h-32 sm:min-h-40 my-2 object-cover" />
       </div>
       <div class="flex flex-col justify-center items-center">
         {
@@ -37,7 +37,7 @@ const data = Astro.props.data as CourseI18n;
       <h1 class="text-[--color-red]">
         <span class="text-[--color-salmon] font-bold">{data.modules.title}</span>{" "}{data.modules.title_color}
       </h1>
-      <CardModule sessons={9} homeworks={8} modulo={1} content={["Pon aqui lo que quieras"]} url={"/curso.webp"} />
+      <CardModule sessons={9} homeworks={8} modulo={1} content={["Pon aqui lo que quieras"]} url={"/img/curso.webp"} />
       <CardModule
         sessons={4}
         homeworks={1}
