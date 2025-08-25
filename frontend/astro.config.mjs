@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://amanahacademia.com',
+  output: 'static',
   i18n: {
     defaultLocale: 'es',
     locales: ['es', 'en', 'fr', 'de', 'it', 'pt', 'ar'],

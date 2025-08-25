@@ -1,0 +1,212 @@
+---
+import "@/styles/identification.css";
+---
+
+<dialog
+  id="authModal"
+  class="modal border-0 rounded-2xl p-0 max-w-md w-[90%] shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-md bg-gradient-to-br from-white to-smoothBrown overflow-hidden"
+>
+  <div class="p-8 relative">
+    <!-- Close Button -->
+    <button
+      class="absolute top-4 right-4 w-10 h-10 rounded-full bg-lightSalmon hover:bg-red text-brown hover:text-white transition-all duration-300 flex items-center justify-center text-xl font-light border-0 cursor-pointer shadow-sm hover:shadow-md transform hover:scale-110"
+      aria-label="Cerrar modal"
+    >
+      ×
+    </button>
+
+    <!-- Header -->
+    <div class="text-center mb-8 mt-4">
+      <div
+        class="w-16 h-16 bg-gradient-to-br from-salmon to-brown rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg"
+      >
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-brown mb-2">¡Bienvenido!</h2>
+      <p class="text-lightBrown text-sm">Inicia sesión para continuar</p>
+    </div>
+
+    <!-- Form -->
+    <form class="space-y-6" id="loginForm">
+      <!-- Email Input -->
+      <div class="relative">
+        <input
+          type="email"
+          placeholder="Email"
+          name="email"
+          required
+          class="w-full px-4 py-3 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
+        />
+        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+          <svg class="w-5 h-5 text-lightBrown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
+            ></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Password Input -->
+      <div class="relative">
+        <input
+          type="password"
+          placeholder="Contraseña"
+          name="password"
+          required
+          class="w-full px-4 py-3 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
+        />
+        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+          <svg class="w-5 h-5 text-lightBrown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            ></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="w-full bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2"
+      >
+        Iniciar Sesión
+      </button>
+
+      <!-- Loading indicator -->
+      <div id="loading" class="hidden text-center text-lightBrown text-sm mt-2">Iniciando sesión...</div>
+
+      <!-- Divider -->
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-lightSalmon"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-white text-lightBrown">o</span>
+        </div>
+      </div>
+
+      <!-- Register Link -->
+      <div class="text-center">
+        <a
+          href="#"
+          class="text-salmon hover:text-brown font-medium text-sm hover:underline transition-colors duration-200"
+        >
+          ¿No tienes cuenta? Regístrate aquí
+        </a>
+      </div>
+
+      <!-- Forgot Password -->
+      <div class="text-center">
+        <a href="#" class="text-lightBrown hover:text-brown text-xs hover:underline transition-colors duration-200">
+          ¿Olvidaste tu contraseña?
+        </a>
+      </div>
+    </form>
+  </div>
+</dialog>
+<script>
+  import { auth } from "@/lib/firebase.js";
+  import { signInWithEmailAndPassword } from "firebase/auth";
+
+  // Función auxiliar para cerrar el modal con animación
+  function closeModalWithAnimation(modal: HTMLDialogElement) {
+    if (!modal) return;
+    modal.setAttribute("closing", "");
+    setTimeout(() => {
+      modal.close();
+      modal.removeAttribute("closing");
+    }, 200);
+  }
+
+  // Submit del formulario
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = document.getElementById("loginForm");
+    const loadingDiv = document.getElementById("loading");
+
+    if (!loginForm || !loadingDiv) return;
+
+    // Evento de enviar el formulario
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault(); // Prevenir submit por defecto
+
+      // Datos introducidos
+      const formData = new FormData(e.target as HTMLFormElement);
+      const credentials = {
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+      };
+
+      // Mostrar loading, ocultar errores
+      loadingDiv.classList.remove("hidden");
+      console.log("Submitting login form:", credentials);
+
+      try {
+        console.log(JSON.stringify(credentials));
+        // TODO:: Usar variables de entorno para funcionamiento en produccion
+        // 1. Validar credenciales en backend
+        const backendResponse = await fetch("http://localhost:3000/user/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(credentials),
+        });
+
+        if (backendResponse.ok) {
+          // 2. Si backend dice OK, hacer login directo en Firebase
+          await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
+
+          // 3. Cerrar modal
+          const modal = document.getElementById("authModal") as HTMLDialogElement;
+          modal.close();
+        } else {
+          const errorData = await backendResponse.json();
+          throw new Error(errorData.error || "Credenciales inválidas");
+        }
+      } catch (error: Error | unknown) {
+        console.error("Error al iniciar sesión:", error);
+      } finally {
+        loadingDiv.classList.add("hidden");
+      }
+    });
+  });
+
+  // Event delegation para cerrar modal (backdrop y botón)
+  document.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+
+    // Cerrar al hacer clic en el backdrop
+    if (target instanceof HTMLDialogElement && target.open) {
+      closeModalWithAnimation(target);
+    }
+
+    // Cerrar con el botón
+    if (target.getAttribute("aria-label") === "Cerrar modal") {
+      const modal = target.closest("dialog") as HTMLDialogElement;
+      closeModalWithAnimation(modal);
+    }
+  });
+
+  // Cerrar con tecla Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      const modal = document.querySelector("dialog[open]") as HTMLDialogElement;
+      if (modal) {
+        modal.addEventListener("cancel", (e) => {
+          e.preventDefault();
+          closeModalWithAnimation(modal);
+        });
+      }
+    }
+  });
+</script>

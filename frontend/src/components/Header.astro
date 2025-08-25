@@ -1,18 +1,22 @@
 ---
-import type { HeaderIn18 } from "@/types/types";
+import type { HeaderI18n } from "@/types/types";
 import Hamburger from "@/components/Hamburger.astro";
 import Traductor from "./Traductor.astro";
 import Theme from "./Theme.astro";
+import Identification from "./Identification.astro";
 
-const data = Astro.props.data as HeaderIn18;
+// Obtener las traduccciones
+const data = Astro.props.data as HeaderI18n;
 const { lang } = Astro.params;
 ---
 
-<header class="h-20 w-full bg-background flex items-center justify-between">
+<header class="h-20 w-full bg-background flex items-center justify-between px-5 md:px-10">
   <Hamburger />
-  <img src="/img/logo_amanah.webp" alt="" class="h-full hidden md:block" />
-  <nav class="hidden md:block z-10">
-    <ul class="flex flex-row gap-6 items-center color-red text-[--color-red] font-jomolhari justify-center">
+  <img src="/img/logo_amanah.webp" alt="" class="h-full hidden lg:block" id="logo_amanah" />
+  <nav class="hidden lg:block z-10">
+    <ul
+      class="flex flex-row gap-6 items-center color-red text-[--color-red] font-jomolhari justify-center whitespace-nowrap"
+    >
       <li><a href={!lang ? "/" : `/${lang}/`}>{data.about_us}</a></li>
       <li><a href={!lang ? "/articles" : `/${lang}/articles`}>{data.articles}</a></li>
       <li><a href={!lang ? "/pricing" : `/${lang}/pricing`}>{data.pricing}</a></li>
@@ -22,7 +26,52 @@ const { lang } = Astro.params;
     </ul>
   </nav>
   <div class="flex z-10">
+    <button
+      id="login-button"
+      class="bg-lightRed hover:bg-salmon transition-colors rounded-lg text-gray-50 font-semibold py-2 mr-3 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-xs px-3"
+      onclick="document.getElementById('authModal').showModal()"
+    >
+      <span id="login-button-text">Identificate</span>
+    </button>
+    <Identification />
     <Theme />
     <Traductor />
   </div>
 </header>
+
+<script>
+  import { auth } from "@/lib/firebase.js";
+  import { onAuthStateChanged } from "firebase/auth";
+
+  const loginButton = document.getElementById("login-button");
+
+  // Firebase auth state
+  onAuthStateChanged(auth, (user) => {
+    const loginButtonText = document.getElementById("login-button-text");
+    if (loginButton && loginButtonText) {
+      if (user) {
+        loginButtonText.textContent = "Cerrar sesión";
+        loginButton.onclick = async () => {
+          await auth.signOut();
+        };
+      } else {
+        loginButtonText.textContent = "Identificate";
+        loginButton.onclick = () => {
+          const authModal = document.getElementById("authModal") as HTMLDialogElement;
+          if (authModal) authModal.showModal();
+        };
+      }
+    }
+  });
+
+  window.addEventListener("themeChange", (event: Event) => {
+    const theme = (event as CustomEvent).detail.theme;
+    const img_log = document.getElementById("logo_amanah") as HTMLImageElement;
+    // Aquí puedes ejecutar cualquier acción según el tema
+    if (theme === "dark") {
+      if (img_log) img_log.src = "/img/logo_amanah_dark.webp";
+    } else {
+      if (img_log) img_log.src = "/img/logo_amanah.webp";
+    }
+  });
+</script>

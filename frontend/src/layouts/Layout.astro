@@ -69,40 +69,12 @@ const {
       structuredData={structuredData}
     />
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer is:inline></script>
-    <style>
-      html {
-        overflow-x: hidden;
-        scroll-behavior: smooth;
-      }
-      html::-webkit-scrollbar {
-        width: 0.5rem;
-        background-color: var(--color-light-brown);
-      }
-
-      html::-webkit-scrollbar-thumb {
-        background-color: var(--color-salmon);
-        border-radius: 100px;
-      }
-
-      body {
-        overflow-x: hidden;
-        font-family: "Roboto", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        html {
-          scroll-behavior: auto;
-        }
-      }
-    </style>
   </head>
   <body class="m-0 w-full h-full bg-background">
     <slot />
 
     <!-- Solo renderizar Turnstile si tenemos la site key -->
-    {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="invisible" />}
+    <!-- {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="invisible" />}
 
     <script is:inline define:vars={{ TURNSTILE_SITE_KEY }}>
       // Solo inicializar si tenemos la site key
@@ -144,6 +116,6 @@ const {
       } else {
         console.warn("PUBLIC_TURNSTILE_SITE_KEY no está configurada");
       }
-    </script>
+    </script> -->
   </body>
 </html>

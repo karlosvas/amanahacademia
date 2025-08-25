@@ -4,38 +4,55 @@ import StarGroup from "./StarGroup.astro";
 import Stadistics from "./Stadistics.astro";
 ---
 
-<main>
-  <div class="mt-10 lg:mt-0 mb-20 flex flex-col lg:flex-row m-auto w-full 2xl:w-3/4 justify-center">
-    <div class="m-auto">
-      <div class="text-center">
-        <p class="text-7xl font-bold">3.75</p>
-        <StarGroup star={4} />
-      </div>
-      <h5 class="text-[--color-red] ml-3 mt-10">Comentarios con mas me gusta</h5>
-      <div>
-        <CardComment name="ana.banana" fecha="12 ago 2025" />
-        <CardComment name="carmen_ortega" fecha="15 apr 2023" />
-      </div>
+<main
+  class="py-10 lg:mt-0 mb-20 m-auto w-full 2xl:w-3/4
+              grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+              gap-6 lg:gap-8 items-start justify-items-center"
+>
+  <!-- Sección 1: Estadísticas y comentarios destacados -->
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-6">
+      <p class="text-7xl font-bold">3.75</p>
+      <StarGroup star={4} />
     </div>
-    <div class="p-10 mx-5 bg-[--color-brown] rounded-2xl w-80 mt-20 lg:mt-0 self-center">
-      <h5 class="text-[--color-salmon] text-xl font-semibold">Elementos de evaluacion</h5>
+    <h5 class="text-salmon ml-3 mb-4 font-semibold">Comentarios con mas me gusta</h5>
+    <div class="space-y-4">
+      <CardComment name="ana.banana" fecha="12 ago 2025" />
+      <CardComment name="carmen_ortega" fecha="15 apr 2023" />
+    </div>
+  </div>
+
+  <!-- Sección 2: Elementos de evaluación -->
+  <div class="p-6 bg-[--color-brown] rounded-2xl w-full max-w-sm">
+    <h5 class="text-[--color-salmon] text-xl font-semibold mb-4">Elementos de evaluacion</h5>
+    <div class="space-y-3">
       <Stadistics title="Profesionalismo" percentage="70" />
       <Stadistics title="Eficiencia" percentage="50" />
       <Stadistics title="Respuesta de tiempo de los servicios" percentage="90" />
       <Stadistics title="Tiempo de contacto administrativo" percentage="60" />
       <Stadistics title="Satisfacción del usuario" percentage="89" />
     </div>
-    <div class="m-auto flex flex-col justify-center items-center">
-      <button
-        class="bg-[--color-brown] hover:bg-[--color-salmon] transition-colors duration-300 rounded-lg text-white text-xl font-semibold w-56 mt-20 lg:mt-32 py-3 px-6 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-      >
-        Comentar
-      </button>
-      <div class="mt-8">
-        <CardComment name="carlos.vasquez" fecha="12 ago 2025" />
-        <CardComment name="gillermo.duran" fecha="12 ago 2025" />
-        <CardComment name="miguel.perez" fecha="12 ago 2025" />
-      </div>
+  </div>
+
+  <!-- Sección 3: Botón comentar y más comentarios -->
+  <div
+    class="w-full max-w-none md:col-span-2 lg:col-span-1 lg:max-w-sm flex flex-col items-center justify-self-center lg:justify-self-auto"
+  >
+    <button
+      class="bg-[--color-brown] hover:bg-[--color-salmon] transition-colors duration-300
+           rounded-lg text-white text-xl font-semibold w-full max-w-56
+           py-3 px-6 shadow-lg hover:shadow-xl transform hover:scale-105
+           transition-all duration-200 mb-6 mt-10 lg:mt-0"
+    >
+      Comentar
+    </button>
+    <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
+      <CardComment name="carlos.vasquez" fecha="12 ago 2025" />
+      <CardComment name="gillermo.duran" fecha="12 ago 2025" />
+      <CardComment name="gillermo.duran" fecha="12 ago 2025" />
+      <CardComment name="gillermo.duran" fecha="12 ago 2025" />
+      <CardComment name="gillermo.duran" fecha="12 ago 2025" />
+      <CardComment name="miguel.perez" fecha="12 ago 2025" />
     </div>
   </div>
 </main>
