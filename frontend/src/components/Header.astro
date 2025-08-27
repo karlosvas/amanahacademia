@@ -1,17 +1,18 @@
 ---
 import type { HeaderI18n } from "@/types/types";
 import Hamburger from "@/components/Hamburger.astro";
-import Traductor from "./Traductor.astro";
-import Theme from "./Theme.astro";
-import Identification from "./Identification.astro";
+import Traductor from "@/components/Traductor.astro";
+import Theme from "@/components/Theme.astro";
+import Identification from "@/components/Identification.astro";
 
 // Obtener las traduccciones
 const data = Astro.props.data as HeaderI18n;
 const { lang } = Astro.params;
 ---
 
-<header class="h-20 w-full bg-background flex items-center justify-between px-5 md:px-10">
-  <Hamburger />
+<header class="fixed top-0 left-0 w-full z-50 h-20 bg-background flex items-center justify-between px-5 md:px-10">
+  <Identification />
+  <Hamburger data={data} />
   <img src="/img/logo_amanah.webp" alt="" class="h-full hidden lg:block" id="logo_amanah" />
   <nav class="hidden lg:block z-10">
     <ul
@@ -27,13 +28,11 @@ const { lang } = Astro.params;
   </nav>
   <div class="flex z-10">
     <button
-      id="login-button"
-      class="bg-lightRed hover:bg-salmon transition-colors rounded-lg text-gray-50 font-semibold py-2 mr-3 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-xs px-3"
-      onclick="document.getElementById('authModal').showModal()"
+      id="identification"
+      class="bg-lightRed hover:bg-salmon transition-colors rounded-lg text-gray-50 font-semibold py-2 mr-3 shadow-lg hover:shadow-xl transition-all duration-200 text-xs px-3 hidden lg:block"
     >
-      <span id="login-button-text">Identificate</span>
+      <span>Identificate</span>
     </button>
-    <Identification />
     <Theme />
     <Traductor />
   </div>
@@ -42,36 +41,31 @@ const { lang } = Astro.params;
 <script>
   import { auth } from "@/lib/firebase.js";
   import { onAuthStateChanged } from "firebase/auth";
+  import { updateIdentificationButton } from "@/utils/identifications";
 
-  const loginButton = document.getElementById("login-button");
+  // Referencias al modal de login y register
+  const authModalLogin = document.getElementById("authModalLogin") as HTMLDialogElement;
+  const authModalRegister = document.getElementById("authModalRegister") as HTMLDialogElement;
+  const formLogin = authModalLogin.querySelector("form") as HTMLFormElement;
+  // Imagen del logo
+  const img_log = document.getElementById("logo_amanah") as HTMLImageElement;
+
+  // Actualizamos segun el tamaño de la ventana
+  document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("resize", () => {
+      updateIdentificationButton(auth.currentUser, authModalLogin, formLogin, auth);
+    });
+  });
 
   // Firebase auth state
   onAuthStateChanged(auth, (user) => {
-    const loginButtonText = document.getElementById("login-button-text");
-    if (loginButton && loginButtonText) {
-      if (user) {
-        loginButtonText.textContent = "Cerrar sesión";
-        loginButton.onclick = async () => {
-          await auth.signOut();
-        };
-      } else {
-        loginButtonText.textContent = "Identificate";
-        loginButton.onclick = () => {
-          const authModal = document.getElementById("authModal") as HTMLDialogElement;
-          if (authModal) authModal.showModal();
-        };
-      }
-    }
+    updateIdentificationButton(user, authModalLogin, formLogin, auth);
   });
 
+  // Cambiar el logo en función al tema de la web dark o light
   window.addEventListener("themeChange", (event: Event) => {
-    const theme = (event as CustomEvent).detail.theme;
-    const img_log = document.getElementById("logo_amanah") as HTMLImageElement;
-    // Aquí puedes ejecutar cualquier acción según el tema
-    if (theme === "dark") {
-      if (img_log) img_log.src = "/img/logo_amanah_dark.webp";
-    } else {
-      if (img_log) img_log.src = "/img/logo_amanah.webp";
-    }
+    if ((event as CustomEvent).detail.theme === "dark" && img_log) img_log.src = "/img/logo_amanah_dark.webp";
+    else if (img_log) img_log.src = "/img/logo_amanah.webp";
+    else console.error("No se encontró el logo");
   });
 </script>

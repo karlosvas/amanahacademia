@@ -48,7 +48,7 @@
     "articles": {
       "title": "Articulos",
       "summary": [
-        "¿Quieres probar antes de decidirte? 📚",
+        "¿Quieres probar antes de decidirte? ",
         "Aquí tienes muestras gratuitas de materiales para que veas cómo trabajamos y empieces a aprender desde ya. Ejercicios, explicaciones y actividades prácticas que te darán un adelanto de lo que vivirás en clase."
       ],
       "articles": [
@@ -171,7 +171,8 @@
             "Clases grupales ilimitadas",
             "Acceso a contenido premium",
             "Certificación oficial",
-            "Soporte 24/7"
+            "Soporte 24/7",
+            "Soporte email"
           ],
           "button": "Reservar Clase"
         },
@@ -187,7 +188,8 @@
             "Clases grupales ilimitadas",
             "Acceso a contenido premium",
             "Certificación oficial",
-            "Soporte 24/7"
+            "Soporte 24/7",
+            "Soporte email"
           ],
           "time": "/class",
           "button": "Reservar Clase"
@@ -208,7 +210,7 @@
     "courses": {
       "title": "Cursos",
       "summary": [
-        "¿Prefieres aprender a tu propio ritmo? ⏳",
+        "¿Prefieres aprender a tu propio ritmo? ",
         "Nuestros cursos online te permiten estudiar desde casa, sin horarios fijos y con total flexibilidad.",
         "No solo encontrarás cursos de idioma, también de cultura, gastronomía y otros temas que te conectarán con el mundo hispanohablante."
       ],
@@ -248,7 +250,7 @@
     "comments": {
       "title": "Comentarios",
       "summary": [
-        "¿Disfrutas de tus clases con nosotros? 💬",
+        "¿Disfrutas de tus clases con nosotros?",
         "Déjanos tu comentario y ayúdanos a seguir mejorando cada día."
       ]
     },

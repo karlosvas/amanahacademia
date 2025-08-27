@@ -1,19 +1,12 @@
 ---
 import "@/styles/global.css";
 import SEO from "@/components/SEO/SEO.astro";
+import { Toaster } from "solid-toast";
 
-const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
-
-export interface Props {
-  lang?: string;
-  title?: string;
-  description?: string;
-  canonical?: string;
-  ogImage?: string;
-  noindex?: boolean;
-  keywords?: string;
-  structuredDataType?: "organization" | "course" | "webpage";
-  structuredData?: Record<string, any>;
+declare global {
+  interface Window {
+    JustValidate: any;
+  }
 }
 
 const {
@@ -33,14 +26,14 @@ const {
 <html lang={lang} class="m-0 w-full h-full">
   <head>
     <!-- Antes de cargar la pagina verificamos is ya teniamos tema previo -->
-    <script is:inline>
+    <script>
       (function () {
-        try {
-          const savedTheme = localStorage.getItem("theme") || "light";
-          document.documentElement.className = savedTheme;
-        } catch (e) {
-          document.documentElement.className = "light";
-        }
+        var theme =
+          document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("theme="))
+            ?.split("=")[1] || "light";
+        document.documentElement.classList.add(theme);
       })();
     </script>
     <!-- Codificacion -->
@@ -72,50 +65,23 @@ const {
   </head>
   <body class="m-0 w-full h-full bg-background">
     <slot />
-
-    <!-- Solo renderizar Turnstile si tenemos la site key -->
-    <!-- {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="invisible" />}
-
-    <script is:inline define:vars={{ TURNSTILE_SITE_KEY }}>
-      // Solo inicializar si tenemos la site key
-      if (TURNSTILE_SITE_KEY) {
-        let turnstileInitialized = false; // Bandera para evitar múltiples inicializaciones
-
-        // Función para inicializar Turnstile (solo una vez)
-        function initTurnstile() {
-          if (turnstileInitialized) return; // Ya se inicializó, salir
-
-          if (typeof turnstile !== "undefined") {
-            try {
-              turnstile.render(".cf-turnstile", {
-                sitekey: TURNSTILE_SITE_KEY,
-                size: "invisible",
-                callback: function (token) {
-                  console.log("Cloudflare Turnstile verificado correctamente!");
-                },
-                "error-callback": function (error) {
-                  console.error("Error de Turnstile:", error);
-                },
-              });
-              turnstileInitialized = true; // Marcar como inicializado
-            } catch (error) {
-              console.error("Error al renderizar Turnstile:", error);
-            }
-          } else {
-            console.warn("Turnstile no está disponible aún");
-          }
-        }
-
-        // Estrategia única: solo usar DOMContentLoaded o ejecutar inmediatamente
-        // Ejecutar solo cuando el documento esté completamente cargado
-        if (document.readyState === "complete") {
-          initTurnstile();
-        } else {
-          window.addEventListener("load", initTurnstile);
-        }
-      } else {
-        console.warn("PUBLIC_TURNSTILE_SITE_KEY no está configurada");
-      }
-    </script> -->
+    <Toaster
+      client:load
+      position="bottom-right"
+      gutter={64}
+      toastOptions={{
+        duration: 5000,
+        style: {
+          "z-index": 9999,
+        },
+      }}
+    />
   </body>
 </html>
+
+<script>
+  import toast from "solid-toast";
+  document.getElementById("b")?.addEventListener("click", function () {
+    toast.success("Button clicked!");
+  });
+</script>

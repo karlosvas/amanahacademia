@@ -5,13 +5,31 @@ import AboutUs from "./AboutUs.astro";
 const data = Astro.props.data as HomeI18n;
 ---
 
-<main>
-  <section>
-    <h1 class="text-center px-10 pt-10 pb-1 text-[--color-red] font-bold text-5xl">Amanah Academia</h1>
-    <div class="bg-[--color-salmon] h-2 m-auto mb-10 w-80 mt-1"></div>
-    <div class="w-full h-96 overflow-hidden">
-      <img src="/img/desert.webp" alt="" class="w-full" />
+<section>
+  <h1 class="text-center px-10 pt-10 pb-1 text-[--color-red] font-bold text-5xl">Amanah Academia</h1>
+  <div class="bg-[--color-salmon] h-2 m-auto mb-10 w-80 mt-1"></div>
+  <div class="relative w-full h-[25rem] overflow-hidden rounded-none shadow-[0_0_60px_0_rgba(255,120,60,0.5)] m-0 p-0">
+    <img src="/img/banner.webp" alt="" class="w-full h-full object-cover object-top m-0 p-0" />
+    <div
+      class="absolute inset-0 pointer-events-none"
+      style="background: radial-gradient(circle at center, rgba(255,120,60,0.35) 0%, transparent 70%);"
+    >
     </div>
-  </section>
-  <AboutUs data={data} />
-</main>
+  </div>
+  <!-- <div
+    class="relative w-full h-[20rem] overflow-hidden rounded-none shadow-[0_0_60px_0_rgba(255,120,60,0.5)] m-0 p-0"
+    style="
+    background-image: url('/img/banner3.webp');
+    background-size: cover;
+    background-position: bottom;
+    background-attachment: fixed;
+  "
+  >
+    <div
+      class="absolute inset-0 pointer-events-none m-0 p-0"
+      style="background: radial-gradient(circle at center, rgba(255,120,60,0.35) 0%, transparent 70%);"
+    >
+    </div>
+  </div> -->
+</section>
+<AboutUs data={data} />

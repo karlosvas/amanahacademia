@@ -2,6 +2,7 @@
 import { defineConfig, envField } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
+import solidJs from '@astrojs/solid-js';
 
 // https://astro.build/config
 export default defineConfig({
@@ -17,6 +18,7 @@ export default defineConfig({
   prefetch: true,
   integrations: [
     tailwind(),
+    solidJs(),
     sitemap({
       i18n: {
         defaultLocale: 'es',

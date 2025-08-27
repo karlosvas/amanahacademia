@@ -1,33 +1,32 @@
 ---
 import CardPricing from "./CardPricing.astro";
 import Title from "./Title.astro";
-import IconShell from "@/assets/shell.svg";
 import type { PricingI18n } from "@/types/types";
 
 const data = Astro.props.data as PricingI18n;
 ---
 
-<main class="relative mb-20 text-black">
-  <div class="w-full lg:w-3/4 m-auto">
+<main class="relative text-black">
+  <div class="w-full lg:w-3/4 m-auto px-2 md:px-0 max-w-[1000px]">
     <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-24">{data.title}</Title>
-    <div class="flex flex-col md:flex-row justify-center items-stretch h-[550px] xl:h-[450px] gap-4 m-4">
+    <div class="flex flex-col md:flex-row justify-center items-stretch h-[600px] xl:h-[550px] gap-4 m-4">
       <CardPricing data={data.type.estandar} />
       <CardPricing data={data.type.conversation} />
       <CardPricing data={data.type.grupales} />
     </div>
-    <div class="w-full md:w-4/6 flex text-sm mt-20 m-auto pb-20 p-10 md:p-0">
-      <div class="mx-3">
+    <div class="w-full flex flex-col md:flex-row text-sm mt-10 md:mt-20 m-auto pb-10 md:pb-20 p-4 md:p-0 gap-6">
+      <div class="mx-0 md:mx-3">
         <h4 class="text-[--color-salmon] text-lg font-semibold">
           {data.info[0].title}
         </h4>
         <p class="mt-2">
           {data.info[0].description}
         </p>
-        <button class="bg-[--color-red] text-[--color-salmon] py-2 px-10 rounded-full mt-5 text-xs md:text-sm">
-          {data.info[0].button}</button
-        >
+        <button class="bg-[--color-red] text-[--color-salmon] py-2 px-6 md:px-10 rounded-full mt-5 text-xs md:text-sm">
+          {data.info[0].button}
+        </button>
       </div>
-      <div class="mx-3 mb-20">
+      <div class="mx-0 md:mx-3 mb-10 md:mb-20">
         <h4 class="text-[--color-salmon] text-lg font-semibold">
           {data.info[1].title}
         </h4>

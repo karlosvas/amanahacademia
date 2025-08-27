@@ -8,55 +8,58 @@ import ThemeIcon from "@/assets/theme.svg";
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  // Función para obtener tema desde cookie
+  function getThemeFromCookie() {
+    const cookieValue = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("theme="))
+      ?.split("=")[1];
+
+    return cookieValue || "light"; // Default a light si no existe
+  }
+
+  // Función para establecer tema
+  function setTheme(newTheme: string, body: HTMLBodyElement) {
+    // Aplicar al DOM
+    body.className = newTheme;
+
+    // Guardar en cookie
+    document.cookie = `theme=${newTheme}; path=/; max-age=31536000; SameSite=Lax`;
+
+    // Aplicar clases CSS
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    }
+    return newTheme;
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
     const themeButton = document.getElementById("theme");
-    const body = document.body;
+    const body = document.body as HTMLBodyElement;
 
-    // Función para obtener tema desde cookie
-    function getThemeFromCookie() {
-      const cookieValue = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("theme="))
-        ?.split("=")[1];
+    const newTheme = setTheme(getThemeFromCookie(), body);
 
-      return cookieValue || "light"; // Default a light si no existe
-    }
-
-    // Función para establecer tema
-    function setTheme(newTheme: string) {
-      // Aplicar al DOM
-      body.className = newTheme;
-
-      // Guardar en cookie
-      document.cookie = `theme=${newTheme}; path=/; max-age=31536000; SameSite=Lax`;
-
-      // Aplicar clases CSS
-      if (newTheme === "dark") {
-        document.documentElement.classList.add("dark");
-        document.documentElement.classList.remove("light");
-      } else {
-        document.documentElement.classList.add("light");
-        document.documentElement.classList.remove("dark");
-      }
-
-      // Evento personalizado
-      window.dispatchEvent(
-        new CustomEvent("themeChange", {
-          detail: { theme: newTheme },
-        })
-      );
-    }
+    // Evento personalizado
+    window.dispatchEvent(
+      new CustomEvent("themeChange", {
+        detail: { theme: newTheme },
+      })
+    );
 
     // Inicializar tema al cargar
     const currentTheme = getThemeFromCookie();
-    setTheme(currentTheme);
+    setTheme(currentTheme, body);
 
     // Event listener del botón
     if (themeButton) {
       themeButton.addEventListener("click", function () {
         const currentTheme = body.className;
         const newTheme = currentTheme === "light" ? "dark" : "light";
-        setTheme(newTheme);
+        setTheme(newTheme, body);
       });
     }
   });

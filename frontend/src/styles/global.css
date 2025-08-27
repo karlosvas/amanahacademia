@@ -21,6 +21,7 @@
   --color-smooth-brown: #3a2b2b; /* Fondo marrón oscuro muy suave */
   --color-white: #131313; /* Blanco cálido (no puro) */
   --color-black: #f3f3f3; /* Fondo base casi negro */
+  --color-background: #593737;
 }
 
 .light {
@@ -40,6 +41,7 @@
   --color-smooth-brown: #fee8d6;
   --color-white: #fff4e1;
   --color-black: #000;
+  --color-background: #fff4e1;
 }
 
 body {
@@ -57,11 +59,11 @@ html {
 }
 html::-webkit-scrollbar {
   width: 0.5rem;
-  background-color: var(--color-red);
+  background-color: #ffbba8;
 }
 
 html::-webkit-scrollbar-thumb {
-  background-color: var(--color-brown);
+  background-color: #d89c8d;
   border-radius: 100px;
 }
 
@@ -76,4 +78,8 @@ body {
   html {
     scroll-behavior: auto;
   }
+}
+
+input[type="checkbox"] {
+  accent-color: #ff4d4f;
 }

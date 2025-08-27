@@ -48,7 +48,7 @@
     "articles": {
       "title": "Articoli",
       "summary": [
-        "Vuoi provare prima di decidere? 📚",
+        "Vuoi provare prima di decidere? ",
         "Ecco campioni gratuiti dei materiali, così puoi vedere come lavoriamo e iniziare a imparare subito. Esercizi, spiegazioni e attività pratiche che ti daranno un'anteprima di ciò che vivrai in classe."
       ],
       "articles": [
@@ -208,7 +208,7 @@
     "courses": {
       "title": "Corsi",
       "summary": [
-        "Preferisci imparare al tuo ritmo? ⏳",
+        "Preferisci imparare al tuo ritmo? ",
         "I nostri corsi online ti permettono di studiare da casa, senza orari fissi e con totale flessibilità.",
         "Non troverai solo corsi linguistici, ma anche corsi su cultura, gastronomia e altri argomenti che ti avvicineranno al mondo ispanofono."
       ],
@@ -247,10 +247,7 @@
     },
     "comments": {
       "title": "Commenti",
-      "summary": [
-        "Ti stanno piacendo le lezioni con noi? 💬",
-        "Lasciaci un commento e aiutaci a migliorare ogni giorno."
-      ]
+      "summary": ["Ti stanno piacendo le lezioni con noi?", "Lasciaci un commento e aiutaci a migliorare ogni giorno."]
     },
     "contact": {
       "title": "Contatti",

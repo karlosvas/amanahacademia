@@ -1,0 +1,85 @@
+<main class="bg-gray-800 py-20">
+  <div class="max-w-4xl mx-auto p-8">
+    <div class="mb-10 text-center">
+      <h1 class="text-5xl font-extrabold text-green-300 mb-2">🔒 Security Hall of Fame</h1>
+      <p class="subtitle text-green-100 text-lg">Reconociendo las valiosas contribuciones de nuestra comunidad</p>
+    </div>
+
+    <p class="text-gray-100 text-center text-base px-10 pb-10">
+      En Amanah Academia, valoramos enormemente los esfuerzos de quienes ayudan a proteger nuestra plataforma y
+      usuarios.<br />
+      Esta página reconoce a quienes han reportado vulnerabilidades y mejoras de forma responsable.
+    </p>
+
+    <div class="hall-of-fame grid gap-8">
+      <!-- Researcher 2 -->
+      <div class="researcher-card rounded-xl shadow-lg border-2 border-light-brown bg-white/90">
+        <div class="card-header flex items-center gap-3 px-6 py-4 rounded-t-xl">
+          <span class="w-4 h-4 rounded-full bg-green-400 glow-shadow"></span>
+          <h2 class="researcher-name text-2xl font-bold text-green-200">Carlos Pérez</h2>
+          <span class="badge bg-blue-400 text-gray-100 px-3 py-1 rounded-full text-xs font-semibold ml-auto"
+            >Mediana Severidad</span
+          >
+        </div>
+        <div class="card-content px-6 py-4">
+          <p class="researcher-title text-green-100 font-medium mb-2">Especialista en UI/UX</p>
+          <div class="finding-title text-green-200 font-semibold mb-1"><i>🔍</i> Mejora en interfaz de seguridad</div>
+          <p class="finding-desc text-gray-100 mb-2">
+            Propuso una reorganización de la configuración de privacidad que mejoró significativamente la comprensión y
+            uso por parte de los usuarios.
+          </p>
+        </div>
+      </div>
+
+      <!-- Researcher 3 -->
+      <div class="researcher-card rounded-xl shadow-lg border-2 border-light-brown bg-white/90">
+        <div class="card-header flex items-center gap-3 px-6 py-4 rounded-t-xl">
+          <span class="w-4 h-4 rounded-full bg-green-400 glow-shadow"></span>
+          <h2 class="researcher-name text-2xl font-bold text-green-200">María Gómez</h2>
+          <span class="badge bg-blue-400 text-gray-100 px-3 py-1 rounded-full text-xs font-semibold ml-auto"
+            >Mediana Severidad</span
+          >
+        </div>
+        <div class="card-content px-6 py-4">
+          <p class="researcher-title text-green-100 font-medium mb-2">Auditora Web</p>
+          <div class="finding-title text-green-200 font-semibold mb-1"><i>🔍</i> Enlaces rotos y redirecciones</div>
+          <p class="finding-desc text-gray-100 mb-2">
+            Identificó múltiples enlaces rotos que podrían haber sido utilizados para ataques de phishing o confusión de
+            usuarios.
+          </p>
+        </div>
+      </div>
+
+      <div class="thank-you mt-12 text-center">
+        <h2 class="text-3xl font-bold text-green-300 mb-2">¡Gracias por hacer Amanah Academia más segura!</h2>
+        <p class="text-gray-100 text-base">
+          Valoramos profundamente el tiempo, esfuerzo y experiencia que nuestros investigadores han dedicado para
+          mejorar nuestra plataforma.<br />
+          Su trabajo responsable ha prevenido potenciales incidentes y ha mejorado la experiencia para todos nuestros usuarios.
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<style>
+  .card-header {
+    box-shadow: 0 2px 8px 0 rgba(90, 55, 55, 0.08);
+  }
+  .badge {
+    font-family: inherit;
+    letter-spacing: 0.03em;
+  }
+  .researcher-card {
+    transition:
+      transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.2s;
+  }
+  .researcher-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 32px 0 rgba(90, 55, 55, 0.18);
+  }
+  .glow-shadow {
+    box-shadow: 0 0 8px 2px rgba(122, 255, 151, 0.5);
+  }
+</style>

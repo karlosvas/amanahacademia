@@ -4,6 +4,7 @@ export const content = [
 export const theme = {
     extend: {
         colors: {
+            background: "var(--color-background)",
             red: "var(--color-red)",
             lightRed: "var(--color-light-red)",
             salmon: "var(--color-salmon)",

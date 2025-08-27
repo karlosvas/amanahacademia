@@ -1,5 +1,123 @@
-<div class="h-5 w-7 group lg:hidden">
+---
+import type { HeaderI18n } from "@/types/types";
+
+const data = Astro.props.data as HeaderI18n;
+const { lang } = Astro.params;
+---
+
+<div id="hamburger" class="h-5 w-7 group lg:hidden">
   <div class="h-1 w-full bg-black group-hover:bg-[--color-salmon]"></div>
   <div class="h-1 w-full bg-black my-1 group-hover:bg-[--color-salmon]"></div>
   <div class="h-1 w-full bg-black group-hover:bg-[--color-salmon]"></div>
 </div>
+<dialog
+  id="menu"
+  class="fixed top-20 left-0 w-80 max-w-[90vw] h-[calc(100vh-5rem)] bg-background shadow-xl z-10 transition-all duration-300 text-black m-0"
+>
+  <div class="flex flex-col h-full p-6">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-2xl font-bold text-red">Menú</h2>
+      <button id="closeMenu" class="text-2xl text-lightSalmon hover:text-red font-bold">&times;</button>
+    </div>
+    <nav class="flex flex-col gap-6">
+      <ul>
+        <li>
+          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/" : `/${lang}/`}
+            >{data.about_us}</a
+          >
+        </li>
+        <li>
+          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/articles" : `/${lang}/articles`}
+            >{data.articles}</a
+          >
+        </li>
+        <li>
+          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/pricing" : `/${lang}/pricing`}
+            >{data.pricing}</a
+          >
+        </li>
+        <li>
+          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/courses" : `/${lang}/courses`}
+            >{data.courses}</a
+          >
+        </li>
+        <li>
+          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/comments" : `/${lang}/comments`}
+            >{data.comments}</a
+          >
+        </li>
+        <li>
+          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/contact" : `/${lang}/contact`}
+            >{data.contact}</a
+          >
+        </li>
+      </ul>
+    </nav>
+    <div class="mt-auto flex flex-col gap-3">
+      <button
+        id="identification-menu"
+        class="w-full py-2 rounded-xl font-semibold bg-lightRed hover:bg-lightSalmon transition">Identifícate</button
+      >
+    </div>
+  </div>
+</dialog>
+<script>
+  import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
+  document.addEventListener("DOMContentLoaded", () => {
+    const hamburger = document.getElementById("hamburger") as HTMLElement;
+    const menu = document.getElementById("menu") as HTMLDialogElement;
+    const closeMenu = document.getElementById("closeMenu") as HTMLButtonElement;
+
+    if (!hamburger || !menu || !closeMenu) return;
+
+    // Abrimos o cerramos el menú según corresponda, al ahcer click en el hamburger
+    hamburger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (menu instanceof HTMLDialogElement) {
+        if (menu.open) closeModalAnimation(menu);
+        else showModalAnimation(menu, null, false);
+      }
+    });
+
+    // Al presionar el boton de cerrarr se cierra
+    closeMenu.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeModalAnimation(menu);
+    });
+
+    // Cerrar al ahcer fuera del menu
+  });
+</script>
+<style>
+  /* Animación de apertura */
+  dialog#menu.modal-opening {
+    animation: menuSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Animación de cierre */
+  dialog#menu[closing] {
+    animation: menuSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes menuSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes menuSlideOut {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+  }
+</style>

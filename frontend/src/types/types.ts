@@ -166,3 +166,16 @@ export interface CardModuleProps {
   content: string[];
   url: string;
 }
+
+// Props para SEO de los componentes
+export interface Props {
+  lang: string;
+  title: string;
+  description: string;
+  canonical: string;
+  ogImage: string;
+  noindex: boolean;
+  keywords: string;
+  structuredDataType: "organization" | "course" | "webpage";
+  structuredData: Record<string, any>;
+}

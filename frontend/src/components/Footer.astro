@@ -2,12 +2,11 @@
 import type { FooterI18n } from "@/types/types";
 
 const data = Astro.props.data as FooterI18n;
+const customStyle = (Astro.props.customStyle as string) || "bg-brown";
 ---
 
 <footer>
-  <div
-    class="bg-[--color-brown] w-full h-28 flex justify-between items-center px-3 md:px-8 text-sm text-[--color-black]"
-  >
+  <div class={`${customStyle} w-full h-28 flex justify-between items-center px-3 md:px-8 text-sm text-[--color-black]`}>
     <div class="w-42">
       <ul>
         <li class="flex">
@@ -92,9 +91,9 @@ const data = Astro.props.data as FooterI18n;
     <p class="text-xs md:text-sm text-center px-2">© Amanah Academia 2025</p>
     <div>
       <ul>
-        <li><a href="#">{data.license}</a></li>
-        <li><a href="#">{data.privacy_policy}</a></li>
-        <li><a href="#">{data.terms_of_service}</a></li>
+        <li><a href="/info">{data.license}</a></li>
+        <li><a href="/info">{data.privacy_policy}</a></li>
+        <li><a href="/info">{data.terms_of_service}</a></li>
       </ul>
     </div>
   </div>

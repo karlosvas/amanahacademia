@@ -1,5 +1,7 @@
 ---
 import TraductorIcon from "@/assets/traductor.svg";
+
+const customStyle = (Astro.props.customStyle || "bg-salmon") as string;
 ---
 
 <button id="btnTraductor">
@@ -7,7 +9,7 @@ import TraductorIcon from "@/assets/traductor.svg";
 </button>
 <div
   id="bocadilloTraductor"
-  class="bg-[--color-salmon] h-40 w-32 absolute text-sm top-16 right-4 rounded-md flex items-center justify-center text-white hidden z-50"
+  class={`${customStyle} h-40 w-32 absolute text-sm top-16 right-4 rounded-md flex items-center justify-center text-white hidden z-50`}
 >
   <ul>
     <li><a href="#" data-lang="ar">Árabe</a></li>
@@ -22,11 +24,9 @@ import TraductorIcon from "@/assets/traductor.svg";
 <div
   id="trianguloTraductor"
   class="absolute top-[3.5rem] right-8 w-0 h-0 hidden z-50"
-  style="
-    border-left: 12px solid transparent;
-    border-right: 12px solid transparent;
-    border-bottom: 12px solid var(--color-salmon); 
-  "
+  style={customStyle == "bg-salmon"
+    ? "border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 12px solid var(--color-salmon);"
+    : "border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 12px solid #374151;"}
 >
 </div>
 <script>

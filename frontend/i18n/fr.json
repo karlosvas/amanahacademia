@@ -48,7 +48,7 @@
     "articles": {
       "title": "Articles",
       "summary": [
-        "Vous voulez essayer avant de vous décider ? 📚",
+        "Vous voulez essayer avant de vous décider ? ",
         "Voici des échantillons gratuits de nos supports pour que vous puissiez voir comment nous travaillons et commencer à apprendre dès maintenant. Exercices, explications et activités pratiques qui vous donneront un aperçu de ce que vous vivrez en cours."
       ],
       "articles": [
@@ -208,7 +208,7 @@
     "courses": {
       "title": "Cours",
       "summary": [
-        "Vous préférez apprendre à votre rythme ? ⏳",
+        "Vous préférez apprendre à votre rythme ? ",
         "Nos cours en ligne vous permettent d'étudier depuis chez vous, sans horaires fixes et avec une flexibilité totale.",
         "Vous trouverez non seulement des cours de langue, mais aussi des cours sur la culture, la gastronomie et d'autres sujets qui vous rapprocheront du monde hispanophone."
       ],
@@ -248,7 +248,7 @@
     "comments": {
       "title": "Commentaires",
       "summary": [
-        "Vous appréciez vos cours avec nous ? 💬",
+        "Vous appréciez vos cours avec nous ?",
         "Laissez-nous votre avis et aidez-nous à nous améliorer chaque jour."
       ]
     },

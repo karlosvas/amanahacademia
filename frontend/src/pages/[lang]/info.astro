@@ -1,12 +1,12 @@
 ---
 import { getI18N } from "@/../i18n/index";
 import Layout from "@/layouts/Layout.astro";
-import SecurityHallOfFamePage from "@/components/security/SecurityHallOfFame.astro";
+import InfoPage from "@/components/security/Info.astro";
 import type { i18nTranslations } from "@/types/types";
 import { getSEOData } from "@/utils/seo";
 import Footer from "@/components/Footer.astro";
-import Traductor from "@/components/Traductor.astro";
 import Theme from "@/components/Theme.astro";
+import Traductor from "@/components/Traductor.astro";
 
 // Obtenemos el idioma obtenido mediante la ruta
 const { lang } = Astro.params;
@@ -37,9 +37,10 @@ const seoData = getSEOData("index", currentLang);
   structuredDataType={seoData.structuredDataType}
   structuredData={seoData.structuredData}
 >
-  <header class="flex w-full items-center align-middle justify-end p-5 bg-gray-800 fixed">
-    <Traductor customStyle={"bg-gray-700"} />
+  <header class="flex w-full items-center align-middle justify-end p-5">
+    <Theme />
+    <Traductor />
   </header>
-  <SecurityHallOfFamePage content={data} />
-  <Footer data={data.footer} customStyle={"bg-gray-700"} />
+  <InfoPage data={data.main.home} />
+  <Footer data={data.footer} />
 </Layout>
