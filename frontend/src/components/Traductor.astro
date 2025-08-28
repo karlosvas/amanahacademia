@@ -9,16 +9,16 @@ const customStyle = (Astro.props.customStyle || "bg-salmon") as string;
 </button>
 <div
   id="bocadilloTraductor"
-  class={`${customStyle} h-40 w-32 absolute text-sm top-16 right-4 rounded-md flex items-center justify-center text-white hidden z-50`}
+  class={`${customStyle} h-40 w-32 absolute text-sm top-16 right-4 rounded-md flex items-center justify-center text-white hidden z-50 `}
 >
   <ul>
-    <li><a href="#" data-lang="ar">Árabe</a></li>
-    <li><a href="#" data-lang="de">Alemán</a></li>
-    <li><a href="#" data-lang="en">Inglés</a></li>
-    <li><a href="#" data-lang="es">Español</a></li>
-    <li><a href="#" data-lang="fr">Francés</a></li>
-    <li><a href="#" data-lang="it">Italiano</a></li>
-    <li><a href="#" data-lang="pt">Portugués</a></li>
+    <li><a href="#" data-lang="ar" class="hover:text-red">Árabe</a></li>
+    <li><a href="#" data-lang="de" class="hover:text-red">Alemán</a></li>
+    <li><a href="#" data-lang="en" class="hover:text-red">Inglés</a></li>
+    <li><a href="#" data-lang="es" class="hover:text-red">Español</a></li>
+    <li><a href="#" data-lang="fr" class="hover:text-red">Francés</a></li>
+    <li><a href="#" data-lang="it" class="hover:text-red">Italiano</a></li>
+    <li><a href="#" data-lang="pt" class="hover:text-red">Portugués</a></li>
   </ul>
 </div>
 <div

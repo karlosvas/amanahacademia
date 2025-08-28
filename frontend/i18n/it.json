@@ -5,7 +5,43 @@
     "pricing": "Prezzi",
     "courses": "Corsi",
     "comments": "Commenti",
-    "contact": "Contatti"
+    "contact": "Contatti",
+    "identification": {
+      "button": {
+        "login": "Accedi",
+        "logout": "Disconnetti"
+      },
+      "modal": {
+        "login": {
+          "title": "Benvenuto!",
+          "subtitle": "Accedi per continuare",
+          "button": "Accedi",
+          "email": "Email",
+          "password": "Password",
+          "toggleModal": "Non hai un account? Registrati qui",
+          "forgot_password": "Hai dimenticato la password?"
+        },
+        "register": {
+          "title": "Unisciti a noi!",
+          "subtitle": "Crea un account per iniziare",
+          "info": [
+            "Accetto l’informativa sulla privacy.",
+            "Accetto i termini e le condizioni.",
+            "Accetto di ricevere novità e comunicazioni via email (newsletter)."
+          ],
+          "button": "Registrati",
+          "toggleModal": "Hai già un account? Accedi qui"
+        },
+        "utils": {
+          "loading": "Caricamento...",
+          "labels": {
+            "email": "Email",
+            "password": "Password",
+            "name": "Nome"
+          }
+        }
+      }
+    }
   },
   "main": {
     "home": {
@@ -141,7 +177,7 @@
     "pricing": {
       "title": "Prezzi",
       "type": {
-        "estandar": {
+        "standard": {
           "title": "Lezioni individuali standard",
           "description": "Un approccio completo per lavorare su grammatica, vocabolario, comprensione ed espressione. Non ci limitiamo a liste di verbi o parole isolate: tutto si impara nel contesto, con esempi ed espressioni reali. Includiamo sempre dialoghi e attività che rendono la lezione pratica e coinvolgente.",
           "price": {
@@ -175,7 +211,7 @@
           ],
           "button": "Prenota lezione"
         },
-        "grupales": {
+        "group": {
           "title": "Lezioni di gruppo",
           "description": "La stessa qualità delle lezioni standard, ma in gruppi ristretti di massimo 4 persone. Ideali se cerchi un'opzione più economica e collaborativa. Includono dibattiti, giochi e attività partecipative. Se non puoi partecipare, riceverai un riassunto con i contenuti e gli esercizi svolti.",
           "price": {

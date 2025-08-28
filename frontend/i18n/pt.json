@@ -5,7 +5,43 @@
     "pricing": "Preços",
     "courses": "Cursos",
     "comments": "Comentários",
-    "contact": "Contato"
+    "contact": "Contato",
+    "identification": {
+      "button": {
+        "login": "Entrar",
+        "logout": "Sair"
+      },
+      "modal": {
+        "login": {
+          "title": "Bem-vindo!",
+          "subtitle": "Faça login para continuar",
+          "button": "Entrar",
+          "email": "E-mail",
+          "password": "Senha",
+          "toggleModal": "Não tem uma conta? Cadastre-se aqui",
+          "forgot_password": "Esqueceu sua senha?"
+        },
+        "register": {
+          "title": "Junte-se a nós!",
+          "subtitle": "Crie uma conta para começar",
+          "info": [
+            "Aceito a política de privacidade.",
+            "Aceito os termos e condições.",
+            "Concordo em receber novidades e comunicações por e-mail (newsletter)."
+          ],
+          "button": "Cadastrar",
+          "toggleModal": "Já tem uma conta? Faça login aqui"
+        },
+        "utils": {
+          "loading": "Carregando...",
+          "labels": {
+            "email": "E-mail",
+            "password": "Senha",
+            "name": "Nome"
+          }
+        }
+      }
+    }
   },
   "main": {
     "home": {
@@ -141,7 +177,7 @@
     "pricing": {
       "title": "Preços",
       "type": {
-        "estandar": {
+        "standard": {
           "title": "Aulas individuais padrão",
           "description": "Uma abordagem completa para trabalhar gramática, vocabulário, compreensão e expressão. Não nos limitamos a listas de verbos ou palavras isoladas: tudo é aprendido no contexto, com exemplos e expressões reais. Incluímos sempre diálogos e atividades que tornam a aula prática e envolvente.",
           "price": {
@@ -170,7 +206,7 @@
           "content": ["Aulas em grupo ilimitadas", "Acesso a conteúdo premium", "Certificação oficial", "Suporte 24/7"],
           "button": "Reservar Aula"
         },
-        "grupales": {
+        "group": {
           "title": "Aulas em grupo",
           "description": "A mesma qualidade das aulas padrão, mas em grupos pequenos de no máximo 4 pessoas. Ideais se você busca uma opção mais econômica e colaborativa. Incluem debates, jogos e atividades participativas. Se você não puder comparecer, receberá um resumo com os conteúdos e exercícios trabalhados.",
           "price": {

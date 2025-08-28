@@ -3,9 +3,11 @@ import PersoneIcon from "@/assets/person.svg";
 import AtSignIcon from "@/assets/at-sign.svg";
 import EmailIcon from "@/assets/email.svg";
 import PasswordIcon from "@/assets/password.svg";
+import type { ModalI18n } from "@/types/types";
 import "@/styles/identification.css";
 
 const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+const data = Astro.props.data as ModalI18n;
 ---
 
 <!-- Login -->
@@ -29,8 +31,8 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
       >
         <PersoneIcon />
       </div>
-      <h2 class="text-2xl font-bold text-brown mb-2">¡Bienvenido!</h2>
-      <p class="text-lightBrown text-sm">Inicia sesión para continuar</p>
+      <h2 class="text-2xl font-bold text-brown mb-2">{data.login.title}</h2>
+      <p class="text-lightBrown text-sm">{data.login.subtitle}</p>
     </div>
     <!-- Form -->
     <form class="space-y-6" id="loginForm">
@@ -59,16 +61,15 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
           <PasswordIcon />
         </div>
       </div>
-
       <!-- Submit Button -->
       <button
         type="submit"
         class="w-full bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2"
       >
-        Iniciar Sesión
+        {data.login.button}
       </button>
       <!-- Loading indicator -->
-      <div id="loginLoading" class="hidden text-center text-lightBrown text-sm mt-2">Cargando...</div>
+      <div id="loginLoading" class="hidden text-center text-lightBrown text-sm mt-2">{data.utils.loading}</div>
       <!-- Divider -->
       <div class="relative my-6">
         <div class="absolute inset-0 flex items-center">
@@ -84,7 +85,7 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
           href="#"
           class="toggleLoginToRegister text-salmon hover:text-brown font-medium text-sm hover:underline transition-colors duration-200"
         >
-          ¿No tienes cuenta? Regístrate aquí
+          {data.login.toggleModal}
         </a>
       </div>
       <!-- Forgot Password -->
@@ -93,7 +94,7 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
           href="/profile"
           class="text-lightBrown hover:text-brown text-xs hover:underline transition-colors duration-200"
         >
-          ¿Olvidaste tu contraseña?
+          {data.login.forgot_password}
         </a>
       </div>
     </form>
@@ -119,8 +120,8 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
       >
         <PersoneIcon />
       </div>
-      <h2 class="text-2xl font-bold text-brown mb-2">¡Bienvenido!</h2>
-      <p class="text-lightBrown text-sm">Regístrate para continuar</p>
+      <h2 class="text-2xl font-bold text-brown mb-2">{data.register.title}</h2>
+      <p class="text-lightBrown text-sm">{data.register.subtitle}</p>
     </div>
     <!-- Form -->
     <form class="space-y-6" id="registerForm">
@@ -161,30 +162,18 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
       </div>
       <!-- Terminos y condiciones, politica de privacidad, newsletter -->
       <ul>
-        <li>
-          <label class="flex items-center">
-            <input type="checkbox" name="privacy" class="mr-2" />
-            <a href="/info" target="_blank" class="text-lightBrown text-xs hover:underline hover:text-red"
-              >Acepto las políticas de privacidad.</a
-            >
-          </label>
-        </li>
-        <li>
-          <label class="flex items-center">
-            <input type="checkbox" name="terms" class="mr-2" />
-            <a href="/info" target="_blank" class="text-lightBrown text-xs hover:underline hover:text-red"
-              >Acepto los términos y condiciones.</a
-            >
-          </label>
-        </li>
-        <li>
-          <label class="flex items-center">
-            <input type="checkbox" name="terms" class="mr-2" />
-            <a href="/info" target="_blank" class="text-lightBrown text-xs hover:underline hover:text-red">
-              Acepto recibir novedades y comunicaciones por email (newsletter).</a
-            >
-          </label>
-        </li>
+        {
+          data.register.info.map((item: string) => (
+            <li>
+              <label class="flex items-center">
+                <input type="checkbox" name={item} class="mr-2" />
+                <a href="/info" target="_blank" class="text-lightBrown text-xs hover:underline hover:text-red">
+                  {item}
+                </a>
+              </label>
+            </li>
+          ))
+        }
       </ul>
       <!-- Submit Button -->
       <button

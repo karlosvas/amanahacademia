@@ -5,7 +5,43 @@
     "pricing": "Pricing",
     "courses": "Courses",
     "comments": "Comments",
-    "contact": "Contact"
+    "contact": "Contact",
+    "identification": {
+      "button": {
+        "login": "Login",
+        "logout": "Logout"
+      },
+      "modal": {
+        "login": {
+          "title": "Welcome!",
+          "subtitle": "Sign in to continue",
+          "button": "Sign in",
+          "email": "Email",
+          "password": "Password",
+          "toggleModal": "Don't have an account? Register here",
+          "forgot_password": "Forgot your password?"
+        },
+        "register": {
+          "title": "Join us!",
+          "subtitle": "Create an account to get started",
+          "info": [
+            "I accept the privacy policy.",
+            "I accept the terms and conditions.",
+            "I agree to receive news and updates by email (newsletter)."
+          ],
+          "button": "Register",
+          "toggleModal": "Already have an account? Sign in here"
+        },
+        "utils": {
+          "loading": "Loading...",
+          "labels": {
+            "email": "Email",
+            "password": "Password",
+            "name": "Name"
+          }
+        }
+      }
+    }
   },
   "main": {
     "home": {
@@ -141,7 +177,7 @@
     "pricing": {
       "title": "Pricing",
       "type": {
-        "estandar": {
+        "standard": {
           "title": "Standard One-to-One Classes",
           "description": "A comprehensive approach to work on grammar, vocabulary, comprehension and production. We don't limit ourselves to verb lists or isolated words: everything is learned in context, with examples and real expressions. We always include dialogues and activities that make the lesson practical and engaging.",
           "price": {
@@ -170,7 +206,7 @@
           "content": ["Unlimited group classes", "Access to premium content", "Official certification", "24/7 support"],
           "button": "Book Class"
         },
-        "grupales": {
+        "group": {
           "title": "Group Classes",
           "description": "The same quality as the standard classes, but in small groups of up to 4 people. Ideal if you're looking for a more economical and collaborative option. They include debates, games and participatory activities. If you can't attend, you'll receive a summary with the content and exercises covered.",
           "price": {

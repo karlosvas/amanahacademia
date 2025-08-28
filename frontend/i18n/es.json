@@ -5,7 +5,43 @@
     "pricing": "Precios",
     "courses": "Cursos",
     "comments": "Comentarios",
-    "contact": "Contacto"
+    "contact": "Contacto",
+    "identification": {
+      "button": {
+        "login": "Identificatión",
+        "logout": "Cerrar sesión"
+      },
+      "modal": {
+        "login": {
+          "title": "¡Bienvenido!",
+          "subtitle": "Inicia sesión para continuar",
+          "button": "Iniciar sesión",
+          "email": "Email",
+          "password": "Contraseña",
+          "toggleModal": "¿No tienes cuenta? Regístrate aquí",
+          "forgot_password": "¿Has olvidado tu contraseña?"
+        },
+        "register": {
+          "title": "¡Únete a nosotros!",
+          "subtitle": "Crea una cuenta para empezar",
+          "info": [
+            "Acepto las políticas de privacidad.",
+            "Acepto los términos y condiciones.",
+            "Acepto recibir novedades y comunicaciones por email (newsletter)."
+          ],
+          "button": "Registrarse",
+          "toggleModal": "¿Ya tienes cuenta? Inicia sesión aquí"
+        },
+        "utils": {
+          "loading": "Cargando...",
+          "labels": {
+            "email": "Email",
+            "password": "Contraseña",
+            "name": "Nombre"
+          }
+        }
+      }
+    }
   },
   "main": {
     "home": {
@@ -142,7 +178,7 @@
     "pricing": {
       "title": "Precios",
       "type": {
-        "estandar": {
+        "standard": {
           "title": "Clases individuales estándar",
           "description": "Un enfoque completo para trabajar gramática, vocabulario, comprensión y expresión. No nos limitamos a listas de verbos o palabras sueltas: todo se aprende en contexto, con ejemplos y expresiones reales. Siempre incluimos diálogos y actividades que hacen la clase práctica y entretenida.",
           "price": {
@@ -177,7 +213,7 @@
           ],
           "button": "Reservar Clase"
         },
-        "grupales": {
+        "group": {
           "title": "Clases grupales",
           "description": "La misma calidad de las clases estándar, pero en grupos reducidos de máximo 4 personas. Ideales si buscas una opción más económica y colaborativa. Incluyen debates, juegos y actividades de participación. Si no puedes asistir, recibirás un resumen con los contenidos y ejercicios trabajados.",
           "price": {

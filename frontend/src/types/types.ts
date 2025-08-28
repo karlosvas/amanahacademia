@@ -12,6 +12,44 @@ export type HeaderI18n = {
   courses: string;
   comments: string;
   contact: string;
+  identification: {
+    identification: IdentificationI18n;
+    modal: ModalI18n;
+  };
+};
+
+export type IdentificationI18n = {
+  button: {
+    login: string;
+    logout: string;
+  };
+};
+
+export type ModalI18n = {
+  login: {
+    title: string;
+    subtitle: string;
+    button: string;
+    email: string;
+    password: string;
+    toggleModal: string;
+    forgot_password: string;
+  };
+  register: {
+    title: string;
+    subtitle: string;
+    info: string[];
+    button: string;
+    toggleModal: string;
+  };
+  utils: {
+    loading: string;
+    labels: {
+      email: string;
+      password: string;
+      name: string;
+    };
+  };
 };
 
 export type MainI18n = {
@@ -69,9 +107,9 @@ export type CardPricingType = {
 export type PricingI18n = {
   title: string;
   type: {
-    estandar: CardPricingType;
+    standard: CardPricingType;
     conversation: CardPricingType;
-    grupales: CardPricingType;
+    group: CardPricingType;
   };
   info: [
     {

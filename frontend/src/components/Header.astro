@@ -11,13 +11,11 @@ const { lang } = Astro.params;
 ---
 
 <header class="fixed top-0 left-0 w-full z-50 h-20 bg-background flex items-center justify-between px-5 md:px-10">
-  <Identification />
+  <Identification data={data.identification.modal} />
   <Hamburger data={data} />
   <img src="/img/logo_amanah.webp" alt="" class="h-full hidden lg:block" id="logo_amanah" />
   <nav class="hidden lg:block z-10">
-    <ul
-      class="flex flex-row gap-6 items-center color-red text-[--color-red] font-jomolhari justify-center whitespace-nowrap"
-    >
+    <ul class="flex flex-row gap-6 items-center color-red text-red font-jomolhari justify-center whitespace-nowrap">
       <li><a href={!lang ? "/" : `/${lang}/`}>{data.about_us}</a></li>
       <li><a href={!lang ? "/articles" : `/${lang}/articles`}>{data.articles}</a></li>
       <li><a href={!lang ? "/pricing" : `/${lang}/pricing`}>{data.pricing}</a></li>
@@ -30,8 +28,8 @@ const { lang } = Astro.params;
     <button
       id="identification"
       class="bg-lightRed hover:bg-salmon transition-colors rounded-lg text-gray-50 font-semibold py-2 mr-3 shadow-lg hover:shadow-xl transition-all duration-200 text-xs px-3 hidden lg:block"
+      data-header={JSON.stringify(data.identification)}
     >
-      <span>Identificate</span>
     </button>
     <Theme />
     <Traductor />
@@ -46,11 +44,13 @@ const { lang } = Astro.params;
   // Referencias al modal de login y register
   const authModalLogin = document.getElementById("authModalLogin") as HTMLDialogElement;
   const formLogin = authModalLogin.querySelector("form") as HTMLFormElement;
+  const btnIdentification = document.getElementById("identification") as HTMLButtonElement;
+  const headerData = JSON.parse(btnIdentification.dataset.header || "");
 
   // Actualizamos segun el tamaño de la ventana
   document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", () => {
-      updateIdentificationButton(auth.currentUser, authModalLogin, formLogin, auth);
+      updateIdentificationButton(auth.currentUser, authModalLogin, formLogin, auth, headerData);
     });
 
     // Imagen del logo
@@ -65,6 +65,6 @@ const { lang } = Astro.params;
 
   // Firebase auth state
   onAuthStateChanged(auth, (user) => {
-    updateIdentificationButton(user, authModalLogin, formLogin, auth);
+    updateIdentificationButton(user, authModalLogin, formLogin, auth, headerData);
   });
 </script>

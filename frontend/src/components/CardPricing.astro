@@ -3,6 +3,7 @@ import IconCheck from "@/assets/check.svg";
 import type { CardPricingType } from "@/types/types";
 
 const data = Astro.props.data as CardPricingType;
+const buttonID = Astro.props.buttonID as string;
 ---
 
 <div class="text-center text--black bg-smoothBrown rounded-xl py-10 px-5 flex flex-col h-full m-5 md:m-0">
@@ -23,7 +24,7 @@ const data = Astro.props.data as CardPricingType;
       }
     </ul>
   </div>
-  <button class="bg-salmon rounded-md py-3 px-5 xl:px-10 text-white font-semibold mt-auto">
+  <button class="reserve-class bg-salmon rounded-md py-3 px-5 xl:px-10 text-white font-semibold mt-auto" id={buttonID}>
     {data.button}
   </button>
 </div>

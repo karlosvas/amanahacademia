@@ -5,7 +5,43 @@
     "pricing": "Preise",
     "courses": "Kurse",
     "comments": "Kommentare",
-    "contact": "Kontakt"
+    "contact": "Kontakt",
+    "identification": {
+      "button": {
+        "login": "Anmelden",
+        "logout": "Abmelden"
+      },
+      "modal": {
+        "login": {
+          "title": "Willkommen!",
+          "subtitle": "Melde dich an, um fortzufahren",
+          "button": "Anmelden",
+          "email": "E-Mail",
+          "password": "Passwort",
+          "toggleModal": "Noch kein Konto? Hier registrieren",
+          "forgot_password": "Passwort vergessen?"
+        },
+        "register": {
+          "title": "Mach mit!",
+          "subtitle": "Erstelle ein Konto, um zu starten",
+          "info": [
+            "Ich akzeptiere die Datenschutzrichtlinien.",
+            "Ich akzeptiere die allgemeinen Geschäftsbedingungen.",
+            "Ich stimme zu, Neuigkeiten und Mitteilungen per E-Mail (Newsletter) zu erhalten."
+          ],
+          "button": "Registrieren",
+          "toggleModal": "Du hast bereits ein Konto? Hier anmelden"
+        },
+        "utils": {
+          "loading": "Lädt...",
+          "labels": {
+            "email": "E-Mail",
+            "password": "Passwort",
+            "name": "Name"
+          }
+        }
+      }
+    }
   },
   "main": {
     "home": {
@@ -141,7 +177,7 @@
     "pricing": {
       "title": "Preise",
       "type": {
-        "estandar": {
+        "standard": {
           "title": "Standard Einzelunterricht",
           "description": "Ein umfassender Ansatz zur Arbeit an Grammatik, Wortschatz, Verständnis und Ausdruck. Wir beschränken uns nicht auf Verblisten oder lose Wörter: alles wird im Kontext mit Beispielen und realen Ausdrücken gelernt. Wir schließen stets Dialoge und Aktivitäten ein, die die Stunde praktisch und unterhaltsam machen.",
           "price": {

@@ -5,7 +5,43 @@
     "pricing": "Tarifs",
     "courses": "Cours",
     "comments": "Commentaires",
-    "contact": "Contact"
+    "contact": "Contact",
+    "identification": {
+      "button": {
+        "login": "Connexion",
+        "logout": "Déconnexion"
+      },
+      "modal": {
+        "login": {
+          "title": "Bienvenue !",
+          "subtitle": "Connectez-vous pour continuer",
+          "button": "Se connecter",
+          "email": "E-mail",
+          "password": "Mot de passe",
+          "toggleModal": "Pas de compte ? Inscrivez-vous ici",
+          "forgot_password": "Mot de passe oublié ?"
+        },
+        "register": {
+          "title": "Rejoignez-nous !",
+          "subtitle": "Créez un compte pour commencer",
+          "info": [
+            "J’accepte la politique de confidentialité.",
+            "J’accepte les termes et conditions.",
+            "J’accepte de recevoir des nouveautés et communications par e-mail (newsletter)."
+          ],
+          "button": "S’inscrire",
+          "toggleModal": "Vous avez déjà un compte ? Connectez-vous ici"
+        },
+        "utils": {
+          "loading": "Chargement...",
+          "labels": {
+            "email": "E-mail",
+            "password": "Mot de passe",
+            "name": "Nom"
+          }
+        }
+      }
+    }
   },
   "main": {
     "home": {
@@ -141,7 +177,7 @@
     "pricing": {
       "title": "Tarifs",
       "type": {
-        "estandar": {
+        "standard": {
           "title": "Cours particuliers standard",
           "description": "Une approche complète pour travailler la grammaire, le vocabulaire, la compréhension et l'expression. Nous ne nous contentons pas de listes de verbes ou de mots isolés : tout s'apprend dans le contexte, avec des exemples et des expressions réelles. Nous incluons toujours des dialogues et des activités rendant la leçon pratique et agréable.",
           "price": {
@@ -175,7 +211,7 @@
           ],
           "button": "Réserver un cours"
         },
-        "grupales": {
+        "group": {
           "title": "Cours en groupe",
           "description": "La même qualité que les cours standard, mais en petits groupes de maximum 4 personnes. Idéal si vous cherchez une option plus économique et collaborative. Ils incluent débats, jeux et activités participatives. Si vous ne pouvez pas assister, vous recevrez un résumé avec les contenus et exercices travaillés.",
           "price": {

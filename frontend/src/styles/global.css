@@ -42,10 +42,6 @@
   --color-background: #fff4e1;
 }
 
-.font-jomolhari {
-  font-family: "Jomolhari", serif;
-}
-
 html {
   overflow-x: hidden;
   scroll-behavior: smooth;

@@ -3,21 +3,23 @@ import toast from "solid-toast";
 import { toastErrorFirebase } from "./toast";
 import { showModalAnimation } from "./modals";
 import { auth } from "@/lib/firebase";
+import type { IdentificationI18n } from "@/types/types";
 
 // Actualiza el botón de identificación
 export function updateIdentificationButton(
   user: User | null,
   authModalLogin: HTMLDialogElement,
   formLogin: HTMLFormElement,
-  auth: any
+  auth: any,
+  headerData: IdentificationI18n
 ) {
   const identificationButton = getIdentificationButton();
   if (!identificationButton) return;
   if (user) {
-    identificationButton.textContent = "Cerrar sesión";
+    identificationButton.textContent = headerData.button.logout;
     identificationButton.onclick = async () => await auth.signOut();
   } else {
-    identificationButton.textContent = "Identificate";
+    identificationButton.textContent = headerData.button.login;
     identificationButton.onclick = () => {
       if (authModalLogin && !authModalLogin.classList.contains("hidden") && formLogin)
         showModalAnimation(authModalLogin, formLogin, true);
