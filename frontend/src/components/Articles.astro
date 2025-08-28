@@ -5,11 +5,11 @@ import type { ArticleI18n } from "@/types/types";
 const data = Astro.props.data as ArticleI18n;
 ---
 
-<main class="w-3/4 m-auto text-black">
+<main class="w-11/12 md:w-3/4 m-auto text-black">
   <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-20">{data.title}</Title>
   <div class="w-full lg:w-1/2 m-auto pb-3">
-    <p class="text-center font-semibold text-[--color-red]">{data.summary[0]}</p>
-    <p>{data.summary[1]}</p>
+    <p class="text-center font-semibold text-red">{data.summary[0]}</p>
+    <p class="px-10 pb-5">{data.summary[1]}</p>
   </div>
   <div id="articles" class="mb-20 columns-1 sm:columns-2 md:columns-3 gap-4 p-4">
     {

@@ -45,27 +45,26 @@ const { lang } = Astro.params;
 
   // Referencias al modal de login y register
   const authModalLogin = document.getElementById("authModalLogin") as HTMLDialogElement;
-  const authModalRegister = document.getElementById("authModalRegister") as HTMLDialogElement;
   const formLogin = authModalLogin.querySelector("form") as HTMLFormElement;
-  // Imagen del logo
-  const img_log = document.getElementById("logo_amanah") as HTMLImageElement;
 
   // Actualizamos segun el tamaño de la ventana
   document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", () => {
       updateIdentificationButton(auth.currentUser, authModalLogin, formLogin, auth);
     });
+
+    // Imagen del logo
+    // Cambiar el logo en función al tema de la web dark o light
+    window.addEventListener("themeChange", (event: Event) => {
+      const img_log = document.getElementById("logo_amanah") as HTMLImageElement;
+      if ((event as CustomEvent).detail.theme === "dark" && img_log) img_log.src = "/img/logo_amanah_dark.webp";
+      else if (img_log) img_log.src = "/img/logo_amanah.webp";
+      else console.error("No se encontró el logo");
+    });
   });
 
   // Firebase auth state
   onAuthStateChanged(auth, (user) => {
     updateIdentificationButton(user, authModalLogin, formLogin, auth);
-  });
-
-  // Cambiar el logo en función al tema de la web dark o light
-  window.addEventListener("themeChange", (event: Event) => {
-    if ((event as CustomEvent).detail.theme === "dark" && img_log) img_log.src = "/img/logo_amanah_dark.webp";
-    else if (img_log) img_log.src = "/img/logo_amanah.webp";
-    else console.error("No se encontró el logo");
   });
 </script>

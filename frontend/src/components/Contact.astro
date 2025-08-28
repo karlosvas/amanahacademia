@@ -8,13 +8,13 @@ const data = Astro.props.data as ContactI18n;
 <img
   src="/img/coffe.webp"
   alt=""
-  class="absolute w-full md:w-3/12 h-[550px] md:h-72 right-0 top-36 md:top-0 md:rounded-bl-2xl object-cover z-0 pointer-events-none"
+  class="absolute w-full md:w-3/12 h-[550px] md:h-72 right-0 top-36 md:top-0 md:rounded-bl-2xl object-cover z-0 pointer-events-none rounded-3xl md:rounded-none"
 />
 <!-- Circulo1 -->
 <img
   src="/img/coffe.webp"
   alt=""
-  class="hidden md:block absolute w-28 h-28 left-[440px] top-28 rounded-full object-cover z-0 pointer-events-none"
+  class="hidden md:block absolute w-28 h-28 left-[440px] top-40 md:top-20 rounded-full object-cover z-0 pointer-events-none"
 />
 <!-- Circulo2 -->
 <img
@@ -31,28 +31,27 @@ const data = Astro.props.data as ContactI18n;
   </h2>
   <div class=`bg-salmon w-20 md:w-28 h-1 m-auto mb-10 relative md:absolute md:top-60 md:left-36 pointer-events-none`>
   </div>
-  <div class="w-full mt-20 z-0 relative">
+  <div class="w-full mt-20 md:mt-32 z-0 relative">
     <form
-      action="post"
       class="flex flex-col z-10 px-10 ml-0 md:ml-72 lg:ml-[500px] lg:py-10 items-center md:items-start md:border-2 md:border-gray-500 md:rounded-l-3xl mb-20 relative"
     >
-      <label for="name" class="my-5 text-[--color-black]">
+      <label for="name" class="my-5 text-[--color-black] w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
         {data.form.name}
         <br />
-        <input type="text" class="bg-transparent border-b-2 outline-none border-gray-500 w-96" />
+        <input type="text" class="bg-transparent border-b-2 outline-none border-gray-500 w-full" />
       </label>
-      <label for="name" class="my-5 text-[--color-black]">
+      <label for="subject" class="my-5 text-[--color-black] w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
         {data.form.subject}
         <br />
-        <input type="text" class="bg-transparent border-b-2 border-gray-500 w-96 outline-none" />
+        <input type="text" class="bg-transparent border-b-2 border-gray-500 w-full outline-none" />
       </label>
-      <label for="name" class="my-5 text-[--color-black]">
+      <label for="message" class="my-5 text-[--color-black] w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
         {data.form.message}<br />
-        <input type="text" class="bg-transparent border-b-2 border-gray-500 w-96 outline-none" />
+        <input type="text" class="bg-transparent border-b-2 border-gray-500 w-full outline-none" />
       </label>
       <button
         type="submit"
-        class="text-white bg-lightRed hover:bg-salmon transition-all duration-200 w-3/4 m-auto md:m-0 md:ml-10 md:w-96 font-semibold rounded-xl mt-10 md:my-10 lg:my-0 lg:mt-20 p-3"
+        class="text-white bg-lightRed hover:bg-salmon transition-all duration-200 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg font-semibold rounded-xl mt-10 md:my-10 lg:my-0 lg:mt-20 p-3"
         >{data.form.button}</button
       >
     </form>

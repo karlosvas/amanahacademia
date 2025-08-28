@@ -5,7 +5,7 @@ import type { CardPricingType } from "@/types/types";
 const data = Astro.props.data as CardPricingType;
 ---
 
-<div class="text-center text-[--color-black] bg-[--color-smooth-brown] rounded-xl py-10 px-5 flex flex-col h-full">
+<div class="text-center text--black bg-smoothBrown rounded-xl py-10 px-5 flex flex-col h-full m-5 md:m-0">
   <h2 class="font-semibold text-[--color-red]">{data.title}</h2>
   <div class="flex-1 flex flex-col">
     <p class="my-3 text-xs px-5">{data.description}</p>
@@ -23,7 +23,7 @@ const data = Astro.props.data as CardPricingType;
       }
     </ul>
   </div>
-  <button class="bg-[--color-salmon] rounded-md py-3 px-5 xl:px-10 text-[--color-white] font-semibold mt-auto">
+  <button class="bg-salmon rounded-md py-3 px-5 xl:px-10 text-white font-semibold mt-auto">
     {data.button}
   </button>
 </div>

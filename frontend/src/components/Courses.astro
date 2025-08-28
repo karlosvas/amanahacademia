@@ -8,25 +8,29 @@ const data = Astro.props.data as CourseI18n;
 
 <main class="mb-20 text-black">
   <div>
-    <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-10">{data.title}</Title>
-    <div class="m-auto w-1/2">
+    <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-16">{data.title}</Title>
+    <div class="text-center m-auto w-3/4 xl:w-1/2">
       {data.summary.map((data, _) => <p>{data}</p>)}
     </div>
     <div class="flex flex-col md:flex-row w-full xl:w-3/4 m-auto px-0 md:px-10 lg:px-0">
       <div class="min-w-96 p-10 flex flex-col justify-center align-middle items-center">
-        <h1 class="text-[--color-red] font-semibold text-2xl">
+        <h1 class="text-red font-semibold text-2xl">
           {data.ideal_for.title}<br /><span class="text-[--color-salmon]">{data.ideal_for.title_color}</span>
         </h1>
         <img src="/img/salmon.webp" alt="" class="w-96 h-auto min-h-32 sm:min-h-40 my-2 object-cover" />
       </div>
-      <div class="flex flex-col justify-center items-center">
+      <div class="flex flex-col justify-center items-start px-5 md:px-0">
         {
           data.ideal_for.points.map((data, i) => (
-            <div class="m-3 flex justify-center items-center">
-              <div class="bg-[--color-salmon] min-w-6 min-h-6 rounded-full m-3 text-white flex justify-center align-middle">
-                {i + 1}
+            <div class="m-3 flex justify-center items-start flex-col md:flex-row ">
+              <div class="flex justify-center items-center">
+                <div class="bg-salmon min-w-6 h-6 rounded-full m-3 text-white flex justify-center align-middle">
+                  {i + 1}
+                </div>
+                <h2 class="font-semibold text-red min-w-20 lg:min-w-36 text-sm lg:text-base max-w-96 lg:max-w-36">
+                  {data.title}
+                </h2>
               </div>
-              <h2 class="font-semibold text-[--color-red] min-w-20 lg:min-w-36 text-sm lg:text-base">{data.title}</h2>
               <p class="text-sm text-[--color-black]">{data.description}</p>
             </div>
           ))

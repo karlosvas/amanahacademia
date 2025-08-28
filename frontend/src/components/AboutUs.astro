@@ -9,17 +9,20 @@ import type { HomeI18n } from "@/types/types";
 const data = Astro.props.data as HomeI18n;
 ---
 
-<section>
-  <Title sizeText="text-2xl" sizeLine="w-20">{data.title}</Title>
-  <div class="flex flex-col md:flex-row w-full max-w-3xl mx-auto px-4 items-center">
+<section >
+  <h2 class=`select-none mt-10 lg:mt-24 text-center px-10  text-red font-bold text-2xl`>{data.title}</h2>
+  <div class=`bg-salmon  h-1 m-auto w-36`></div>
+  <div
+    class="flex flex-col md:flex-row w-full max-w-3xl mx-auto px-2 sm:px-4 items-center gap-8 md:gap-0 mt-10 md:mt-0"
+  >
     <div
-      class="bg-red w-full h-52 md:w-[500px] md:h-[400px] rounded-md overflow-hidden flex items-center justify-center"
+      class="w-full max-w-md h-52 md:w-[400px] md:h-[350px] rounded-md overflow-hidden flex items-center justify-center mx-auto md:mx-0"
     >
       <img src="/img/pink_house.webp" alt="" class="w-full h-full object-cover" />
     </div>
-    <div class="p-10 flex-1">
-      <h3 class="text-[--color-red] mb-5 font-semibold text-xl">{data.about_us.title}</h3>
-      <p class="text-xs text-black">
+    <div class="py-6 px-4 sm:px-6 md:px-10 flex-1 w-full">
+      <h3 class="text-red mb-5 font-semibold text-xl">{data.about_us.title}</h3>
+      <p class="text-sm text-black">
         {
           data.about_us.description.map((desc, i) => (
             <>
@@ -37,7 +40,7 @@ const data = Astro.props.data as HomeI18n;
     </div>
   </div>
   <div class="w-full xl:w-8/12 2xl:w-1/2 mx-auto px-4 mb-20">
-    <h3 class="mt-24 text-center text-[--color-red] font-semibold mb-5">{data.focus.title}</h3>
+    <h3 class="mt-24 text-center text-red font-semibold mb-5">{data.focus.title}</h3>
     <div class="flex flex-col md:flex-row gap-6 mb-10 justify-center">
       <CardInfo colourRectangle="bg-salmon">
         <span slot="icon"><IconPeople /></span>
@@ -55,9 +58,8 @@ const data = Astro.props.data as HomeI18n;
         <span slot="description"> {data.focus.cards[2].description}</span>
       </CardInfo>
     </div>
-    <p class="m-10 px-10 text-[--color-red] text-center text-sm">
-      <span slot="title">{data.focus.note[0]}</span><br />
-      <span slot="description">{data.focus.note[1]}</span>
+    <p class="m-0 md:m-10 px-10 text-red text-center text-sm">
+      {data.focus.note.map((note, i) => <span key={i}>{note}</span> <br />)}
     </p>
   </div>
 </section>

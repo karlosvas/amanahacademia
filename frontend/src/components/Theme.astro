@@ -38,21 +38,19 @@ import ThemeIcon from "@/assets/theme.svg";
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    const themeButton = document.getElementById("theme");
+    // Obtenemos las referencias
+    const themeButton = document.getElementById("theme") as HTMLDivElement;
     const body = document.body as HTMLBodyElement;
+    const currentTheme = setTheme(getThemeFromCookie(), body) as "light" | "dark";
 
-    const newTheme = setTheme(getThemeFromCookie(), body);
-
-    // Evento personalizado
-    window.dispatchEvent(
-      new CustomEvent("themeChange", {
-        detail: { theme: newTheme },
-      })
-    );
-
-    // Inicializar tema al cargar
-    const currentTheme = getThemeFromCookie();
-    setTheme(currentTheme, body);
+    // Espera a que todo el DOM esté listo (incluido el logo)
+    setTimeout(() => {
+      window.dispatchEvent(
+        new CustomEvent("themeChange", {
+          detail: { theme: currentTheme },
+        })
+      );
+    }, 50);
 
     // Event listener del botón
     if (themeButton) {
@@ -60,6 +58,12 @@ import ThemeIcon from "@/assets/theme.svg";
         const currentTheme = body.className;
         const newTheme = currentTheme === "light" ? "dark" : "light";
         setTheme(newTheme, body);
+        // Evento personalizado
+        window.dispatchEvent(
+          new CustomEvent("themeChange", {
+            detail: { theme: newTheme },
+          })
+        );
       });
     }
   });

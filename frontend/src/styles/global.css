@@ -2,13 +2,11 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 @import url("https://fonts.cdnfonts.com/css/jomolhari");
-/* @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"); */
 
 .dark {
   background-color: var(--color-brown, #fff);
   color: var(--color-white, #fff);
   outline-color: var(--color-white, #fff);
-  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
   .glow-shadow {
     box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.8);
   }
@@ -44,11 +42,6 @@
   --color-background: #fff4e1;
 }
 
-body {
-  font-family: "Onest Variable", system-ui, sans-serif;
-  /* font-family: "Inter", system-ui, sans-serif; */
-}
-
 .font-jomolhari {
   font-family: "Jomolhari", serif;
 }
@@ -69,9 +62,9 @@ html::-webkit-scrollbar-thumb {
 
 body {
   overflow-x: hidden;
-  font-family: "Roboto", sans-serif;
   font-weight: 400;
   font-style: normal;
+  font-family: "Segoe UI", system-ui, sans-serif;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -82,4 +75,13 @@ body {
 
 input[type="checkbox"] {
   accent-color: #ff4d4f;
+}
+
+::selection {
+  background-color: var(--color-light-red);
+  color: white;
+}
+
+* {
+  transition: all 0.2s ease-in-out, color 0.2s ease-in-out;
 }

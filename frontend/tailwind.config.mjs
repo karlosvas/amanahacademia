@@ -3,6 +3,9 @@ export const content = [
 ];
 export const theme = {
     extend: {
+        fontFamily: {
+            'jomolhari': ['"Jomolhari"', 'serif'],
+        },
         colors: {
             background: "var(--color-background)",
             red: "var(--color-red)",

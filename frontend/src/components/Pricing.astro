@@ -8,13 +8,15 @@ const data = Astro.props.data as PricingI18n;
 
 <main class="relative text-black">
   <div class="w-full lg:w-3/4 m-auto px-2 md:px-0 max-w-[1000px]">
-    <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-24">{data.title}</Title>
-    <div class="flex flex-col md:flex-row justify-center items-stretch h-[600px] xl:h-[550px] gap-4 m-4">
+    <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-16">{data.title}</Title>
+    <div
+      class="flex flex-col md:flex-row justify-center items-stretch h-auto md:h-[600px] xl:h-[550px] gap-4 md:gap-6 m-2 md:m-4"
+    >
       <CardPricing data={data.type.estandar} />
       <CardPricing data={data.type.conversation} />
       <CardPricing data={data.type.grupales} />
     </div>
-    <div class="w-full flex flex-col md:flex-row text-sm mt-10 md:mt-20 m-auto pb-10 md:pb-20 p-4 md:p-0 gap-6">
+    <div class="w-full flex flex-col md:flex-row text-sm mt-8 md:mt-20 m-auto pb-8 md:pb-20 p-5 md:p-0 gap-4 md:gap-6">
       <div class="mx-0 md:mx-3">
         <h4 class="text-[--color-salmon] text-lg font-semibold">
           {data.info[0].title}

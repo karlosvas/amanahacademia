@@ -7,7 +7,7 @@ const { sessons, homeworks, modulo, content, url } = Astro.props as CardModulePr
 ---
 
 <div
-  class="border border-gray-300 p-5 min-w-[400px] rounded-2xl mt-10 mb-[-20px] cursor-pointer transition-all duration-300 hover:shadow-lg"
+  class="m-auto border border-gray-300 p-5 w-full max-w-md sm:max-w-lg lg:max-w-2xl xl:max-w-3xl rounded-2xl mt-10 mb-[-20px] cursor-pointer transition-all duration-300 hover:shadow-lg"
   id=`module-${modulo}`
 >
   <div class="flex justify-between items-center">
@@ -39,7 +39,7 @@ const { sessons, homeworks, modulo, content, url } = Astro.props as CardModulePr
   </div>
 </div>
 <div
-  class="text-[--color-black] w-full border border-[--color-light-salmon] border-t-0 border-b-0 rounded-b-xl overflow-hidden transition-all duration-500 ease-in-out pt-5"
+  class="text-[--color-black] w-full max-w-md sm:max-w-lg lg:max-w-2xl xl:max-w-3xl m-auto border border-[--color-light-salmon] border-t-0 border-b-0 rounded-b-xl overflow-hidden transition-all duration-500 ease-in-out pt-5"
   id=`showcourse-${modulo}`
   style="max-height: 0;"
 >

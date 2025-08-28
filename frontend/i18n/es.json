@@ -40,8 +40,9 @@
           }
         ],
         "note": [
-          "“En Amanah Academia creemos que cada estudianto es único. Por eso te ofrcrmos la libertad de elegir el profesor que mejor conecte contigo y te ayude a alnanzar tus metas en español”",
-          "- Equipo Amanah Academia"
+          "“Si le hablas a un hombre en un idioma que entiende, eso le llega a la cabeza.",
+          "Si le hablas en su propio idioma, eso le llega al corazón”",
+          "- Nelson Mandela"
         ]
       }
     },
@@ -219,15 +220,15 @@
         "title_color": "si eres",
         "points": [
           {
-            "title": "?????",
+            "title": "Autodidacta",
             "description": "Te gusta aprender a tu propio ritmo. Eres autodidacta y valoras la libertad de estudiar cuando quieras, pero quieres contar con materiales de calidad que realmente impulsen tu progreso."
           },
           {
-            "title": "?????",
+            "title": "Alguien con horarios flexibles",
             "description": "No puedes comprometerte a un horario fijo de clases y prefieres marcar tú mismo tu ritmo de aprendizaje."
           },
           {
-            "title": "?????",
+            "title": "Quien busca resultados reales",
             "description": " Deseas aprender el idioma por tu cuenta, pero sientes que los materiales gratuitos de YouTube o los libros de texto tradicionales no te llevan a los resultados que buscas, así que quieres empezar con algo que realmente te ayude."
           }
         ]
