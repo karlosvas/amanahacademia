@@ -1,14 +1,4 @@
-interface SEOTranslations {
-  [key: string]: {
-    [page: string]: {
-      title: string;
-      description: string;
-      keywords: string;
-      structuredDataType: "organization" | "course" | "webpage";
-      structuredData: Record<string, any>;
-    };
-  };
-}
+import type { SEOTranslations } from "@/types/types";
 
 // Función helper para generar SEO data por página
 export function getSEOData(page: string, lang: string = "es") {

@@ -1,10 +1,7 @@
 ---
-export interface Props {
-  type?: "organization" | "course" | "webpage";
-  data?: Record<string, any>;
-}
+import type { StructureDataTypes } from "@/types/types";
 
-const { type = "organization", data = {} } = Astro.props;
+const { type = "organization", data = {} } = Astro.props as StructureDataTypes;
 
 // Schema base para la organización
 const organizationSchema = {

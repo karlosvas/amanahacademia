@@ -196,7 +196,7 @@
           "button": "Unterricht buchen"
         },
         "conversation": {
-          "title": "Einzelunterricht Konversation",
+          "title": "Konversationsunterricht",
           "description": "Konzipiert für Lernende mit mittlerem bis hohem Niveau (B1+/B2), die sich auf das Sprechen konzentrieren möchten. Wir nutzen dynamische Übungen, Spiele und abwechslungsreiche Themen, die den Gesprächsfluss fördern. Obwohl wir nicht tief in die Grammatik eintauchen, korrigieren und klären wir Fragen unmittelbar.",
           "price": {
             "currency": "€",
@@ -204,14 +204,15 @@
             "time": "/Stunde"
           },
           "content": [
-            "Unbegrenzte Gruppenstunden",
-            "Zugang zu Premium-Inhalten",
-            "Offizielle Zertifizierung",
-            "24/7-Support"
+            "Fokus auf mündliche Praxis und Aussprache",
+            "Dynamische Sprechübungen und Rollenspiele",
+            "Sofortige Fehlerkorrektur",
+            "Gezielte Themen zur Konversationsförderung",
+            "E-Mail-Support"
           ],
           "button": "Unterricht buchen"
         },
-        "grupales": {
+        "group": {
           "title": "Gruppenunterricht",
           "description": "Die gleiche Qualität wie im Standardunterricht, aber in kleinen Gruppen von maximal 4 Personen. Ideal, wenn Sie eine kostengünstigere und kollaborative Option suchen. Einschließlich Debatten, Spielen und interaktiven Aktivitäten. Wenn Sie nicht teilnehmen können, erhalten Sie eine Zusammenfassung der behandelten Inhalte und Übungen.",
           "price": {
@@ -220,15 +221,17 @@
             "time": "/Stunde"
           },
           "content": [
-            "Unbegrenzte Gruppenstunden",
+            "Gruppenstunden (max. 4 Personen)",
             "Zugang zu Premium-Inhalten",
-            "Offizielle Zertifizierung",
-            "24/7-Support"
+            "Gemeinsame Aktivitäten und Debatten",
+            "Zusammenfassungen bei Abwesenheit",
+            "E-Mail-Support"
           ],
           "time": "/Stunde",
           "button": "Unterricht buchen"
         }
       },
+
       "info": [
         {
           "title": "Unsicher, welchen Plan Sie wählen sollen?",

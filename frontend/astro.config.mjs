@@ -1,13 +1,16 @@
 // @ts-check
-import { defineConfig, envField } from 'astro/config';
+import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import solidJs from '@astrojs/solid-js';
+import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://amanahacademia.com',
-  output: 'static',
+  output: 'server',
+  adapter: cloudflare({
+  }),
   i18n: {
     defaultLocale: 'es',
     locales: ['es', 'en', 'fr', 'de', 'it', 'pt', 'ar'],
@@ -34,14 +37,5 @@ export default defineConfig({
       },
       filter: (page) => !page.includes('/admin/') && !page.includes('/404'),
     })
-  ],
-  env: {
-    schema: {
-      PUBLIC_TURNSTILE_SITE_KEY: envField.string({
-        context: "client",
-        access: "public",
-        optional: false
-      })
-    }
-  }
+  ]
 });

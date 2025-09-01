@@ -1,0 +1,305 @@
+---
+import Title from "../Title.astro";
+
+const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_API_KEY;
+const BACKEND_URL = import.meta.env.PUBLIC_BACKEND_URL;
+---
+
+<div id="app-config" class="container h-screen" data-stripe-key={STRIPE_PUBLIC_KEY} data-backend-url={BACKEND_URL}>
+  <div class="card">
+    <Title sizeText="text-lg" sizeLine="h-1" sizeWidth="w-20"> Completa tu pago</Title>
+
+    <!-- Mensajes de estado -->
+    <div id="success-message" class="message success"></div>
+    <div id="error-message" class="message error-message"></div>
+
+    <!-- Contenedor para los elementos de pago -->
+    <div id="payment-element-container">
+      <div class="loading">Inicializando pasarela de pago...</div>
+      <div id="payment-element"></div>
+    </div>
+
+    <button id="submit-button" type="button" disabled>
+      <span id="button-text">Pagar ahora</span>
+    </button>
+  </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script type="module">
+  // Obtener  la cookie de la sesion de Firebase
+  function getStoredTokenFromCookies() {
+    const tokenCookie = document.cookie.split(";").find((cookie) => cookie.trim().startsWith("tokenUser="));
+    return tokenCookie ? tokenCookie.split("=")[1] : null;
+  }
+
+  function getCarryFromCookies() {
+    const carryCookie = document.cookie.split(";").find((cookie) => cookie.trim().startsWith("carry="));
+    if (carryCookie) {
+      const carryValue = carryCookie.split("=")[1];
+      try {
+        return JSON.parse(decodeURIComponent(carryValue));
+      } catch (error) {
+        console.error("Error parsing carry cookie:", error);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // Obtenemos la configuracion inicial
+  const config = document.getElementById("app-config");
+  const STRIPE_PUBLIC_KEY = config.dataset.stripeKey;
+  const url_backend = config.dataset.backendUrl;
+  let stripe;
+  let elements;
+  let paymentElement;
+  async function initializeStripe() {
+    try {
+      if (!STRIPE_PUBLIC_KEY || !url_backend)
+        throw new Error("Configuración incompleta para el .env. Por favor, contacta al soporte.");
+
+      // Inicializar Stripe, obtenemos el token JWT de Firebase
+      stripe = Stripe(STRIPE_PUBLIC_KEY);
+      const token = getStoredTokenFromCookies();
+      if (!token) throw new Error("Usuario no autenticado. Por favor, inicia sesión.");
+
+      const carry = {
+        amount: 5000,
+        currency: "eur",
+        payment_method: "pm_card_visa",
+      };
+      console.log("Carry obtenido de cookies:", carry);
+      if (!carry) throw new Error("No se pudo obtener el pedido.");
+
+      // Crear Payment Intent en el backend
+      const response = await fetch(`${url_backend}/payment/generic`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(carry),
+      });
+
+      // Comprobamos que la respuesta sea válida
+      if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+      // Obtenemos el secreto de cliente
+      const { client_secret, status, error } = await response.json();
+      if (error) throw new Error(error);
+
+      console.log(status);
+      // 2Crear Stripe Elements
+      const appearance = {
+        theme: "stripe",
+        variables: {
+          // Colores principales
+          colorPrimary: "#6d0006", // Rojo oscuro
+          colorBackground: "#fff4e1", // Fondo general
+          colorText: "#000", // Texto principal
+          colorTextSecondary: "#8a4141", // Texto secundario / placeholders
+          colorIcon: "#b2443a", // Iconos dentro de los inputs
+          colorDanger: "#fa8072", // Mensajes de error
+          colorSuccess: "#8a4141", // Mensajes correctos (puede ser marrón oscuro)
+
+          // // Tipografía
+          // fontFamily: "Arial, sans-serif",
+          fontSizeBase: "16px",
+
+          // Bordes y sombras
+          borderRadius: "8px",
+          borderWidth: "2px",
+          boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+
+          // Hover y focus (sobrescribiendo con variables de la paleta)
+          colorPrimaryText: "#fff4e1", // Color del texto dentro del botón primario
+          colorPrimaryBackground: "#6d0006", // Fondo del botón primario
+          colorPrimaryHover: "#b2443a", // Hover del botón
+        },
+      };
+
+      elements = stripe.elements({
+        clientSecret: client_secret,
+        appearance,
+      });
+
+      // Crear y montar el Payment Element
+      paymentElement = elements.create("payment");
+
+      // Ocultar loading y mostrar el elemento de pago
+      document.querySelector(".loading").style.display = "none";
+      await paymentElement.mount("#payment-element");
+
+      // 4️Habilitar el botón de pago
+      const submitButton = document.getElementById("submit-button");
+      submitButton.disabled = false;
+
+      // 5️Manejar cambios en el elemento de pago
+      paymentElement.on("change", (event) => {
+        if (event.error) {
+          showError(event.error.message);
+        } else {
+          clearMessages();
+        }
+      });
+    } catch (error) {
+      console.error("Error inicializando Stripe:", error);
+      showError(`Error de inicialización: ${error.message}`);
+    }
+  }
+
+  // Función para procesar el pago
+  async function handlePayment() {
+    if (!stripe || !elements) {
+      showError("Stripe no está inicializado correctamente");
+      return;
+    }
+
+    const submitButton = document.getElementById("submit-button");
+    const buttonText = document.getElementById("button-text");
+
+    // Deshabilitar botón y mostrar loading
+    submitButton.disabled = true;
+    buttonText.textContent = "Procesando...";
+    clearMessages();
+
+    try {
+      // Confirmar el pago
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: window.location.origin + "/payment-success",
+        },
+        redirect: "if_required",
+      });
+
+      if (error) {
+        // Error en el pago
+        if (error.type === "card_error" || error.type === "validation_error") {
+          showError(error.message);
+        } else {
+          showError("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+        }
+      } else if (paymentIntent && paymentIntent.status === "succeeded") {
+        // Pago exitoso
+        showSuccess("¡Pago realizado con éxito! 🎉");
+
+        // Opcional: redirigir después de unos segundos
+        setTimeout(() => {
+          window.location.href = "/payment-success";
+        }, 2000);
+      } else {
+        showError("El estado del pago es incierto. Por favor, verifica tu cuenta.");
+      }
+    } catch (error) {
+      console.error("Error procesando pago:", error);
+      showError("Error de conexión. Inténtalo de nuevo.");
+    } finally {
+      // Rehabilitar el botón
+      submitButton.disabled = false;
+      buttonText.textContent = "Pagar ahora";
+    }
+  }
+
+  // Funciones de utilidad para mostrar mensajes
+  function showError(message) {
+    clearMessages();
+    const errorDiv = document.getElementById("error-message");
+    errorDiv.textContent = message;
+    errorDiv.style.display = "block";
+  }
+
+  function showSuccess(message) {
+    clearMessages();
+    const successDiv = document.getElementById("success-message");
+    successDiv.textContent = message;
+    successDiv.style.display = "block";
+  }
+
+  function clearMessages() {
+    document.getElementById("error-message").style.display = "none";
+    document.getElementById("success-message").style.display = "none";
+  }
+
+  // Inicializar cuando el DOM esté listo
+  document.addEventListener("DOMContentLoaded", initializeStripe);
+
+  // Agregar event listener al botón de pago
+  document.addEventListener("DOMContentLoaded", () => {
+    const submitButton = document.getElementById("submit-button");
+    submitButton.addEventListener("click", handlePayment);
+  });
+</script>
+<style>
+  .container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+
+  .card {
+    border-radius: 8px;
+    padding: 30px;
+  }
+
+  h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+  }
+
+  .message {
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  #payment-element {
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-height: 40px;
+  }
+
+  .loading {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+  }
+
+  #submit-button {
+    width: 100%;
+    background-color: var(--color-salmon);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+
+  #submit-button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+
+  #submit-button:hover:not(:disabled) {
+    background-color: var(--color-light-brown);
+  }
+</style>

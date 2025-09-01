@@ -1,13 +1,4 @@
 ---
-export interface Props {
-  title: string;
-  description: string;
-  canonical?: string;
-  ogImage?: string;
-  noindex?: boolean;
-  keywords?: string;
-}
-
 const { title, description, canonical, ogImage = "/logo_amanah.webp", noindex = false, keywords } = Astro.props;
 
 const canonicalURL = canonical || new URL(Astro.url.pathname, Astro.site);

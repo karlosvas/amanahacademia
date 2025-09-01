@@ -9,13 +9,16 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^12.6.7",
     "@astrojs/sitemap": "^3.5.1",
     "@astrojs/solid-js": "^5.1.0",
     "@astrojs/tailwind": "^6.0.2",
+    "@stripe/stripe-js": "^7.9.0",
     "astro": "^5.13.3",
     "firebase": "^12.1.0",
     "i18next": "^25.3.4",
-    "solid-toast": "^0.5.0"
+    "solid-toast": "^0.5.0",
+    "stripe": "^18.5.0"
   },
   "devDependencies": {
     "@types/node": "^24.3.0"

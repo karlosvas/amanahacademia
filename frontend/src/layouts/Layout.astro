@@ -2,10 +2,13 @@
 import "@/styles/global.css";
 import SEO from "@/components/SEO/SEO.astro";
 import { Toaster } from "solid-toast";
+import type { PropsSEO } from "@/types/types";
 
 declare global {
   interface Window {
-    JustValidate: any;
+    turnstile?: any;
+    JustValidate?: any;
+    handlePaymentSubmission: () => Promise<void>;
   }
 }
 
@@ -19,7 +22,7 @@ const {
   keywords,
   structuredDataType,
   structuredData,
-} = Astro.props;
+} = Astro.props as PropsSEO;
 ---
 
 <!doctype html>
@@ -61,7 +64,6 @@ const {
       structuredDataType={structuredDataType}
       structuredData={structuredData}
     />
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer is:inline></script>
   </head>
   <body class="m-0 w-full h-full bg-background">
     <slot />
@@ -78,10 +80,3 @@ const {
     />
   </body>
 </html>
-
-<script>
-  import toast from "solid-toast";
-  document.getElementById("b")?.addEventListener("click", function () {
-    toast.success("Button clicked!");
-  });
-</script>

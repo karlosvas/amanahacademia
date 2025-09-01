@@ -1,5 +1,6 @@
 ---
 import CardPricing from "./CardPricing.astro";
+import ModalPracing from "./ModalPracing.astro";
 import Title from "./Title.astro";
 import type { PricingI18n } from "@/types/types";
 
@@ -12,9 +13,9 @@ const data = Astro.props.data as PricingI18n;
     <div
       class="flex flex-col md:flex-row justify-center items-stretch h-auto md:h-[600px] xl:h-[550px] gap-4 md:gap-6 m-2 md:m-4"
     >
-      <CardPricing data={data.type.standard} buttonID="estandar" />
-      <CardPricing data={data.type.conversation} buttonID="conversation" />
-      <CardPricing data={data.type.group} buttonID="group" />
+      <CardPricing data={data.type.standard} buttonID="button-estandar" />
+      <CardPricing data={data.type.conversation} buttonID="button-conversation" />
+      <CardPricing data={data.type.group} buttonID="button-group" />
     </div>
     <div class="w-full flex flex-col md:flex-row text-sm mt-8 md:mt-20 m-auto pb-8 md:pb-20 p-5 md:p-0 gap-4 md:gap-6">
       <div class="mx-0 md:mx-3">
@@ -38,36 +39,21 @@ const data = Astro.props.data as PricingI18n;
       </div>
     </div>
   </div>
-  <dialog id="reserve-estandar">
-    <form method="dialog">
-      <p>Reserva realizada con éxito</p>
-      <button class="bg-red text-salmon py-2 px-6 md:px-10 rounded-full mt-5 text-xs md:text-sm"> Cerrar </button>
-    </form>
-  </dialog>
-  <dialog id="reserve-conversation">
-    <form method="dialog">
-      <p>Reserva realizada con éxito</p>
-      <button class="bg-red text-salmon py-2 px-6 md:px-10 rounded-full mt-5 text-xs md:text-sm"> Cerrar </button>
-    </form>
-  </dialog>
-  <dialog id="reserve-group">
-    <form method="dialog">
-      <p>Reserva realizada con éxito</p>
-      <button class="bg-red text-salmon py-2 px-6 md:px-10 rounded-full mt-5 text-xs md:text-sm"> Cerrar </button>
-    </form>
-  </dialog>
+  <ModalPracing id="modal-estandar" name="Clase Estándar" />
+  <ModalPracing id="modal-conversation" name="Clase de Conversación" />
+  <ModalPracing id="modal-group" name="Clase en Grupo" />
 </main>
 <script>
-  import { closeModalAnimation } from "@/utils/modals";
-
   document.addEventListener("DOMContentLoaded", () => {
     const reserveButton = document.querySelectorAll(".reserve-class") as NodeListOf<HTMLButtonElement>;
-
     reserveButton.forEach((button) => {
       button.addEventListener("click", () => {
-        console.log(button.id);
-        const dialog = document.getElementById(`reserve-${button.id}`) as HTMLDialogElement;
-        dialog.showModal();
+        // Obtenemos que modal pertenece
+        const modalId = button.id.replace("button-", "modal-");
+        const modal = document.getElementById(modalId) as HTMLDialogElement;
+        if (modal) {
+          modal.showModal();
+        }
       });
     });
   });

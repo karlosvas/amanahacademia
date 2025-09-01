@@ -64,7 +64,15 @@ const { lang } = Astro.params;
   });
 
   // Firebase auth state
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     updateIdentificationButton(user, authModalLogin, formLogin, auth, headerData);
+    if (user) {
+      const idToken = await user.getIdToken();
+      // Guardamos la session id en las cookies
+      document.cookie = `tokenUser=${idToken}; path=/; Secure; SameSite=Strict`;
+    } else {
+      // Eliminamos la session id de las cookies
+      document.cookie = `tokenUser=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+    }
   });
 </script>

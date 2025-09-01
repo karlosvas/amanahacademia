@@ -1,9 +1,10 @@
 import { signInWithEmailAndPassword, type User } from "firebase/auth";
 import toast from "solid-toast";
-import { toastErrorFirebase } from "./toast";
+// import { toastErrorFirebase } from "./toast";
 import { showModalAnimation } from "./modals";
 import { auth } from "@/lib/firebase";
 import type { IdentificationI18n } from "@/types/types";
+import { FirebaseError } from "firebase/app";
 
 // Actualiza el botón de identificación
 export function updateIdentificationButton(
@@ -49,6 +50,8 @@ export function toggleLoginToRegister(
   const hideModal = isRegister ? authModalLogin : authModalRegister;
   const form = isRegister ? formRegister : formLogin;
 
+  // Reseteamos el formulario
+  form.reset();
   // Cierra el modal anterior, sin ocultarlo con hidden
   hideModal.close();
   // Elimina animaciones de cierre previas y muestra el nuevo modal
@@ -57,11 +60,12 @@ export function toggleLoginToRegister(
   return isRegister;
 }
 
-export function setupValidation(
+export function submitForm(
   modal: HTMLDialogElement,
   loading: HTMLElement,
-  form: HTMLFormElement,
-  isRegister: boolean
+  form: string,
+  isRegister: boolean,
+  errorMessage: HTMLElement
 ) {
   // Inicialización de la validación
   const validation = new window.JustValidate(form, {
@@ -101,34 +105,64 @@ export function setupValidation(
     // Mostrar loading, ocultar errores
     loading.classList.remove("hidden");
 
-    // Mostrar toast de carga
-    const loadingToastId = toast.loading("Cargando...");
     try {
+      // Cloudlflare Turnstile
+      const formHTML = document.getElementById(form.startsWith("#") ? form.slice(1) : form) as HTMLFormElement;
+      const turnstileDiv = formHTML.querySelector(".cf-turnstile");
+      if (typeof window.turnstile !== "undefined" && turnstileDiv) {
+        window.turnstile.execute(turnstileDiv, {
+          async callback(token: string) {
+            console.log("Token Turnstile:", token);
+          },
+          "error-callback": function (error: any) {
+            console.error("Error de Turnstile:", error);
+            throw new Error("Error en la verificación, por favor recarga la página.");
+          },
+        });
+      }
+
       // URL de la petición
       let url = import.meta.env.PUBLIC_BACKEND_URL;
       if (!url) throw new Error("PUBLIC_BACKEND_URL no definida");
       if (isRegister) url += "/user/register";
       else url += "/user/login";
 
-      // 1. Validar credenciales en backend
+      // Validar credenciales en backend, registrandonos o logeandonos segun corresponda
       const backendResponse = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
 
-      // 3. Cerrar modal
       if (backendResponse.ok && credentials.email && credentials.password && form) {
-        // 2. Si todo salió bien, hacer login directo en Firebase
+        // Si todo salió bien, hacer login directo en Firebase, con email y contraseña
         await signInWithEmailAndPassword(auth, credentials.email as string, credentials.password as string);
         modal.close();
+        // Esperamos a que se cierre para mostrar el mensaje de exito
+        setTimeout(() => {
+          toast.success(
+            isRegister ? "¡Registro exitoso! Vamos a empezar con tu primer curso." : "¡Bienvenido de vuelta!"
+          );
+          formHTML.reset();
+          errorMessage.classList.add("hidden");
+        }, 300);
       } else {
         const errorData = await backendResponse.json();
-        await toastErrorFirebase(errorData, loadingToastId, backendResponse);
-        throw new Error(errorData.error || "Credenciales inválidas");
+        console.error(errorData);
+        throw new Error("Credenciales inválidas");
       }
     } catch (error: Error | unknown) {
       console.error("Error en la autenticación:", error);
+      errorMessage.classList.remove("hidden");
+      let message = "*Error desconocido";
+      if (error instanceof Error) {
+        message = "*" + error.message;
+      } else if (typeof error === "string") {
+        message = "*" + error;
+      } else if (typeof error === "object" && error !== null && "message" in error) {
+        message = "*" + String((error as any).message);
+      }
+      errorMessage.textContent = message;
     } finally {
       // Finalmente quitamos la carga
       loading.classList.add("hidden");

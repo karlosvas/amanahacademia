@@ -206,14 +206,37 @@ export interface CardModuleProps {
 }
 
 // Props para SEO de los componentes
-export interface Props {
+export interface PropsSEO {
   lang: string;
   title: string;
   description: string;
   canonical: string;
   ogImage: string;
-  noindex: boolean;
+  noindex: boolean; // true para páginas legales/internas
   keywords: string;
-  structuredDataType: "organization" | "course" | "webpage";
-  structuredData: Record<string, any>;
+  structuredDataType?: "organization" | "course" | "webpage";
+  structuredData?: Record<string, any>;
+}
+
+export interface StructureDataTypes {
+  type: "organization" | "course" | "webpage";
+  data: Record<string, any>;
+}
+
+export type PaymentPayload = {
+  amount: number;
+  currency: string;
+  payment_method: string;
+};
+
+export interface SEOTranslations {
+  [key: string]: {
+    [page: string]: {
+      title: string;
+      description: string;
+      keywords: string;
+      structuredDataType: "organization" | "course" | "webpage";
+      structuredData: Record<string, any>;
+    };
+  };
 }

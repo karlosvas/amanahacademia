@@ -1,41 +1,42 @@
 ---
+export const prerender = true;
+
 import App from "@/layouts/App.astro";
 import { getI18N } from "@/../i18n/index";
 import Layout from "@/layouts/Layout.astro";
-import PracingPage from "@/components/Pricing.astro";
-import type { i18nTranslations } from "@/types/types";
+import PricingPage from "@/components/Pricing.astro";
 import { getSEOData } from "@/utils/seo";
+import type { i18nTranslations, PropsSEO } from "@/types/types";
+import { LANGS } from "@/utils/constants";
 
 // Obtenemos el idioma obtenido mediante la ruta
 const { lang } = Astro.params;
 const data = getI18N({ lang }) as i18nTranslations;
 
-// Generamos las rutas
-export async function getStaticPaths() {
-  return [
-    { params: { lang: "en" } },
-    { params: { lang: "fr" } },
-    { params: { lang: "de" } },
-    { params: { lang: "it" } },
-    { params: { lang: "pt" } },
-    { params: { lang: "ar" } },
-  ];
-}
-
 // SEO data usando el helper
 const currentLang = lang || "es";
-const seoData = getSEOData("pricing", currentLang);
+const seoData = getSEOData("pricing", currentLang) as PropsSEO;
+
+// Generamos las rutas
+export async function getStaticPaths() {
+  return LANGS.map((lang) => ({
+    params: { lang },
+  }));
+}
 ---
 
 <Layout
   lang={currentLang}
   title={seoData.title}
   description={seoData.description}
+  canonical={seoData.canonical}
+  ogImage={seoData.ogImage}
+  noindex={seoData.noindex}
   keywords={seoData.keywords}
   structuredDataType={seoData.structuredDataType}
   structuredData={seoData.structuredData}
 >
   <App data={data}>
-    <PracingPage data={data.main.pricing} />
+    <PricingPage data={data.main.pricing} />
   </App>
 </Layout>

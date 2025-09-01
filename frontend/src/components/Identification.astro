@@ -3,6 +3,7 @@ import PersoneIcon from "@/assets/person.svg";
 import AtSignIcon from "@/assets/at-sign.svg";
 import EmailIcon from "@/assets/email.svg";
 import PasswordIcon from "@/assets/password.svg";
+import { TERMNS } from "@/utils/constants";
 import type { ModalI18n } from "@/types/types";
 import "@/styles/identification.css";
 
@@ -62,6 +63,8 @@ const data = Astro.props.data as ModalI18n;
         </div>
       </div>
       <!-- Submit Button -->
+      <!-- Mensajes de error -->
+      <div id="loginError" class="hidden text-center text-lightRed text-sm mt-2 p-3 bg-slate-50"></div>
       <button
         type="submit"
         class="w-full bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2"
@@ -83,7 +86,7 @@ const data = Astro.props.data as ModalI18n;
       <div class="text-center">
         <a
           href="#"
-          class="toggleLoginToRegister text-salmon hover:text-brown font-medium text-sm hover:underline transition-colors duration-200"
+          class="toggleIdentification text-salmon hover:text-brown font-medium text-sm hover:underline transition-colors duration-200"
         >
           {data.login.toggleModal}
         </a>
@@ -163,10 +166,10 @@ const data = Astro.props.data as ModalI18n;
       <!-- Terminos y condiciones, politica de privacidad, newsletter -->
       <ul>
         {
-          data.register.info.map((item: string) => (
+          data.register.info?.map((item: string, index: number) => (
             <li>
               <label class="flex items-center">
-                <input type="checkbox" name={item} class="mr-2" />
+                <input type="checkbox" name={TERMNS[index]} class="mr-2" />
                 <a href="/info" target="_blank" class="text-lightBrown text-xs hover:underline hover:text-red">
                   {item}
                 </a>
@@ -175,15 +178,17 @@ const data = Astro.props.data as ModalI18n;
           ))
         }
       </ul>
+      <!-- Mensajes de error -->
+      <div id="registerError" class="hidden text-center text-lightRed text-sm mt-2 p-3 bg-slate-50"></div>
       <!-- Submit Button -->
       <button
         type="submit"
         class="w-full bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2"
       >
-        Registrarse
+        {data.register.title}
       </button>
       <!-- Loading indicator -->
-      <div id="registerLoading" class="hidden text-center text-lightBrown text-sm mt-2">Cargando...</div>
+      <div id="registerLoading" class="hidden text-center text-lightBrown text-sm mt-2">{data.utils.loading}</div>
       <!-- Divider -->
       <div class="relative my-6">
         <div class="absolute inset-0 flex items-center">
@@ -198,91 +203,70 @@ const data = Astro.props.data as ModalI18n;
       <div class="text-center">
         <a
           href="#"
-          class="toggleLoginToRegister text-salmon hover:text-brown font-medium text-sm hover:underline transition-colors duration-200"
+          class="toggleIdentification text-salmon hover:text-brown font-medium text-sm hover:underline transition-colors duration-200"
         >
-          ¿Tienes cuenta? Inicia sesión aquí
+          {data.register.toggleModal}
         </a>
       </div>
     </form>
   </div>
-
-  <!-- Validacion de entrada -->
-  <script src="https://unpkg.com/just-validate@latest/dist/just-validate.production.min.js"></script>
-  <!-- Logica de registro y login -->
-  <script>
-    import { toggleLoginToRegister, setupValidation } from "@/utils/identifications";
-    import { closeModalAnimation } from "@/utils/modals";
-
-    // Estado actual de registro o Login
-    let isRegister: boolean = false;
-
-    // Submit del formulario, nos aseguramos que el DOOM haya cargado
-    document.addEventListener("DOMContentLoaded", () => {
-      // Referencias a elementos del doom
-      const authModalRegister = document.getElementById("authModalRegister") as HTMLDialogElement;
-      const authModalLogin = document.getElementById("authModalLogin") as HTMLDialogElement;
-      const formLogin = document.getElementById("loginForm") as HTMLFormElement;
-      const formRegister = document.getElementById("registerForm") as HTMLFormElement;
-      const changeModalButtons = document.querySelectorAll(".toggleLoginToRegister") as NodeListOf<HTMLAnchorElement>;
-      const registerLoading = document.getElementById("registerLoading") as HTMLElement;
-      const loginLoading = document.getElementById("loginLoading") as HTMLElement;
-
-      // Cambiamos de login a register viceversa
-      changeModalButtons.forEach((link) => {
-        link.addEventListener("click", (e) => {
-          e.preventDefault();
-          isRegister = toggleLoginToRegister(authModalLogin, authModalRegister, formLogin, formRegister, isRegister);
-          if (isRegister) setupValidation(authModalRegister, registerLoading, formRegister, isRegister);
-          else setupValidation(authModalLogin, loginLoading, formLogin, isRegister);
-        });
-      });
-
-      // Event delegation para cerrar modal (backdrop y botón)
-      document.addEventListener("click", (e) => {
-        const target = e.target as HTMLElement;
-        const modal = target.closest("dialog") as HTMLDialogElement;
-
-        // Cerrar al hacer clic en el backdrop
-        if (target instanceof HTMLDialogElement && target.open) closeModalAnimation(target);
-
-        // Cerrar con el botón
-        if (target.getAttribute("aria-label") === "close-modal" && modal) closeModalAnimation(modal);
-      });
-
-      // Cerrar con el botón de cancelar
-      document.querySelectorAll("dialog").forEach((modal) => {
-        modal.addEventListener("cancel", (e) => {
-          e.preventDefault();
-          closeModalAnimation(modal as HTMLDialogElement);
-        });
-      });
-    });
-  </script>
-  <!-- Lógica de Turnstile, Cloudflare -->
-  <script is:inline define:vars={{ TURNSTILE_SITE_KEY }}>
-    function setupTurnstile(formId) {
-      const form = document.getElementById(formId);
-      if (!form) return;
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        const turnstileDiv = form.querySelector(".cf-turnstile");
-        if (typeof turnstile !== "undefined" && turnstileDiv) {
-          turnstile.execute(turnstileDiv, {
-            async callback(token) {
-              console.log("Token Turnstile:", token);
-              form.submit();
-            },
-            "error-callback": function (error) {
-              console.error("Error de Turnstile:", error);
-            },
-          });
-        }
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      setupTurnstile("loginForm");
-      setupTurnstile("registerForm");
-    });
-  </script>
 </dialog>
+
+<!-- Validacion de entrada -->
+<script src="https://unpkg.com/just-validate@latest/dist/just-validate.production.min.js"></script>
+<!-- Cloudflare Turnstile -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer is:inline></script>
+<!-- Logica de registro y login -->
+<script>
+  import { toggleLoginToRegister, submitForm } from "@/utils/identifications";
+  import { closeModalAnimation } from "@/utils/modals";
+
+  // Estado actual de registro o Login
+  let isRegister: boolean = false;
+
+  // Esperamos a que el DOM esté completamente cargado
+  document.addEventListener("DOMContentLoaded", () => {
+    // Referencias a elementos del DOM
+    const authModalRegister = document.getElementById("authModalRegister") as HTMLDialogElement;
+    const authModalLogin = document.getElementById("authModalLogin") as HTMLDialogElement;
+    const formLogin = document.getElementById("loginForm") as HTMLFormElement;
+    const formRegister = document.getElementById("registerForm") as HTMLFormElement;
+    const changeModalButtons = document.querySelectorAll(".toggleIdentification") as NodeListOf<HTMLAnchorElement>;
+    const registerLoading = document.getElementById("registerLoading") as HTMLElement;
+    const loginLoading = document.getElementById("loginLoading") as HTMLElement;
+    const loginError = document.getElementById("loginError") as HTMLElement;
+    const registerError = document.getElementById("registerError") as HTMLElement;
+
+    // Cambiamos de login a register viceversa
+    changeModalButtons.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        isRegister = toggleLoginToRegister(authModalLogin, authModalRegister, formLogin, formRegister, isRegister);
+      });
+    });
+
+    // Gestiona los formularios, las validaciones y los envios
+    submitForm(authModalLogin, loginLoading, "#loginForm", false, loginError);
+    submitForm(authModalRegister, registerLoading, "#registerForm", true, registerError);
+
+    // Event delegation para cerrar modal (backdrop y botón)
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      const modal = target.closest("dialog") as HTMLDialogElement;
+
+      // Cerrar al hacer clic en el backdrop
+      if (target instanceof HTMLDialogElement && target.open) closeModalAnimation(target);
+
+      // Cerrar con el botón
+      if (target.getAttribute("aria-label") === "close-modal" && modal) closeModalAnimation(modal);
+    });
+
+    // Cerrar con el botón de cancelar
+    document.querySelectorAll("dialog").forEach((modal) => {
+      modal.addEventListener("cancel", (e) => {
+        e.preventDefault();
+        closeModalAnimation(modal as HTMLDialogElement);
+      });
+    });
+  });
+</script>
