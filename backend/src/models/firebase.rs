@@ -1,5 +1,4 @@
 use {
-    crate::models::comments::Comment,
     serde::{Deserialize, Serialize},
     std::collections::HashMap,
 };

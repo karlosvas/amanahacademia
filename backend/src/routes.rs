@@ -1,3 +1,3 @@
 pub mod comments;
-pub mod payment;
+pub mod payments;
 pub mod user;

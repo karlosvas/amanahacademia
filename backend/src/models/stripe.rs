@@ -21,12 +21,11 @@ pub struct PaymentResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProductPayload {
-    pub name: String,
-    pub description: String,
-    pub images: Vec<String>,
-    pub metadata: HashMap<String, String>,
-    pub active: bool,
-    pub caption: String,
+    pub name: String,        // Nombre del producto (ejemplo: "Curso de Inglés").
+    pub description: String, // Descripción del producto (ejemplo: "Un curso de inglés para principiantes").
+    pub images: Vec<String>, // Imágenes del producto (ejemplo: ["http://example.com/image.png"]).
+    pub metadata: HashMap<String, String>, // Metadatos del producto (ejemplo: {"category": "digital", "tags": ["tag1", "tag2"]}).
+    pub active: bool,                      // Indica si el producto está activo o no.
 }
 
 #[derive(Debug, Serialize, Deserialize)]
