@@ -180,53 +180,51 @@
       "type": {
         "standard": {
           "title": "Clases individuales estándar",
-          "description": "Un enfoque completo para trabajar gramática, vocabulario, comprensión y expresión. No nos limitamos a listas de verbos o palabras sueltas: todo se aprende en contexto, con ejemplos y expresiones reales. Siempre incluimos diálogos y actividades que hacen la clase práctica y entretenida.",
           "price": {
             "currency": "€",
             "amount": 30,
             "time": "/class"
           },
           "content": [
-            "Clases individuales de 1 hora",
-            "Acceso a profesores certificados",
-            "Material de apoyo básico",
-            "Reserva flexible de horarios",
-            "Soporte email"
+            "Un enfoque completo para trabajar gramática, vocabulario, comprensión y expresión.",
+            "No nos limitamos a listas de verbos o palabras sueltas.",
+            "Todo se aprende en contexto, con ejemplos y expresiones reales.",
+            "Siempre incluimos diálogos y actividades prácticas.",
+            "Las clases son prácticas y entretenidas."
           ],
           "time": "/class",
           "button": "Reservar Clase"
         },
         "conversation": {
           "title": "Clases individuales de conversación",
-          "description": "Diseñadas para quienes ya tienen un nivel intermedio-alto (B1+/B2) y quieren centrarse en hablar. Contamos con dinámicas, juegos y temas variados que harán que la conversación fluya. Aunque no profundizamos en gramática, corregimos y aclaramos dudas en el momento.",
           "price": {
             "currency": "€",
             "amount": 20,
             "time": "/class"
           },
           "content": [
-            "Clases grupales ilimitadas",
-            "Acceso a contenido premium",
-            "Certificación oficial",
-            "Soporte 24/7",
-            "Soporte email"
+            "Clases diseñadas para niveles intermedio-altos (B1+/B2).",
+            "Enfoque principal en la práctica de la conversación.",
+            "Uso de dinámicas, juegos y temas variados.",
+            "Corrección y aclaración de dudas en el momento.",
+            "No se profundiza en lecciones de gramática."
           ],
           "button": "Reservar Clase"
         },
         "group": {
           "title": "Clases grupales",
-          "description": "La misma calidad de las clases estándar, pero en grupos reducidos de máximo 4 personas. Ideales si buscas una opción más económica y colaborativa. Incluyen debates, juegos y actividades de participación. Si no puedes asistir, recibirás un resumen con los contenidos y ejercicios trabajados.",
           "price": {
             "currency": "€",
             "amount": 10,
             "time": "/class"
           },
           "content": [
-            "Clases grupales ilimitadas",
-            "Acceso a contenido premium",
-            "Certificación oficial",
-            "Soporte 24/7",
-            "Soporte email"
+            "Misma calidad que las clases estándar.",
+            "Grupos reducidos de máximo 4 personas.",
+            "Opción más económica.",
+            "Enfoque colaborativo.",
+            "Incluye debates, juegos y actividades de participación.",
+            "Envío de un resumen con contenidos y ejercicios en caso de inasistencia."
           ],
           "time": "/class",
           "button": "Reservar Clase"

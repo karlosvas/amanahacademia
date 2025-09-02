@@ -39,7 +39,7 @@ const data = Astro.props.data as HomeI18n;
       </div>
     </div>
   </div>
-  <div class="w-full xl:w-8/12 2xl:w-1/2 mx-auto px-4 mb-20">
+  <div class="w-full xl:w-8/12 2xl:w-3/4 mx-auto px-4 mb-20">
     <h3 class="mt-24 text-center text-red font-semibold mb-5">{data.focus.title}</h3>
     <div class="flex flex-col md:flex-row gap-6 mb-10 justify-center">
       <CardInfo colourRectangle="bg-salmon">
@@ -58,8 +58,8 @@ const data = Astro.props.data as HomeI18n;
         <span slot="description"> {data.focus.cards[2].description}</span>
       </CardInfo>
     </div>
-    <p class="m-0 md:m-10 px-10 text-red text-center text-sm">
-      {data.focus.note.map((note, i) => <span key={i}>{note}</span> <br />)}
+    <p class="m-0 md:m-10 px-10 text-red text-center text-sm font-jomolhari">
+      {data.focus.note.map((note, i) => <span >{note}</span> <br />)}
     </p>
   </div>
 </section>

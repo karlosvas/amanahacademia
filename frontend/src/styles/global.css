@@ -10,6 +10,7 @@
   .glow-shadow {
     box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.8);
   }
+  --color-custom-gray: #4b5563; /* Color personalizado */
   --color-red: #ff4d4f; /* Rojo acento más vivo */
   --color-light-red: #ff6b6b; /* Rojo suave brillante */
   --color-salmon: #ff8c7a; /* Salmón adaptado */
@@ -30,6 +31,7 @@
   .glow-shadow {
     box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.8);
   }
+  --color-custom-gray: #f1faff; /* Color personalizado */
   --color-red: #6d0006;
   --color-light-red: #b2443a;
   --color-salmon: #fa8072;

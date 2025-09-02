@@ -6,25 +6,29 @@ const data = Astro.props.data as CardPricingType;
 const buttonID = Astro.props.buttonID as string;
 ---
 
-<div class="text-center text--black bg-smoothBrown rounded-xl py-10 px-5 flex flex-col h-full m-5 md:m-0">
-  <h2 class="font-semibold text-[--color-red]">{data.title}</h2>
-  <div class="flex-1 flex flex-col">
-    <p class="my-3 text-xs px-5">{data.description}</p>
-    <h3 class="font-semibold text-[--color-red] mb-5 text-lg">
-      {data.price.amount}{data.price.currency}<span class="text-sm">{data.price.time}</span>
-    </h3>
+<div
+  class="w-3/4 m-auto md:max-w-72 min-h-[500px] relative text-center text-black bg-smoothBrown rounded-xl py-10 px-5 flex flex-col md:m-0 h-full containter-pricing"
+>
+  <h2 class="font-semibold text-red px-5">{data.title}</h2>
+  <div class="flex-1 flex flex-col items-center">
     <ul class="text-start text-xs mb-5 flex-1 flex flex-col items-start justify-center">
       {
         (data.content ?? []).map((item: string) => (
           <li class="flex my-2 gap-x-2">
-            <IconCheck />
+            <IconCheck style="width:15px; height:15px; min-width:15px; min-height:15px; max-width:15px; max-height:15px;" />
             {item}
           </li>
         ))
       }
     </ul>
+    <h3 class="font-semibold text-red mb-5 text-lg">
+      {data.price.amount}{data.price.currency}<span class="text-sm">{data.price.time}</span>
+    </h3>
   </div>
-  <button class="reserve-class bg-salmon rounded-md py-3 px-5 xl:px-10 text-white font-semibold mt-auto" id={buttonID}>
+  <button
+    class="reserve-class bg-lightRed hover:bg-salmon rounded-md py-3 px-5 xl:px-10 text-white font-semibold mt-auto"
+    id={buttonID}
+  >
     {data.button}
   </button>
 </div>

@@ -94,7 +94,6 @@ export type HomeI18n = {
 
 export type CardPricingType = {
   title: string;
-  description: string;
   price: {
     currency: string;
     amount: number;

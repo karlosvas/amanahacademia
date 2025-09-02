@@ -8,18 +8,18 @@ const data = Astro.props.data as PricingI18n;
 ---
 
 <main class="relative text-black">
-  <div class="w-full lg:w-3/4 m-auto px-2 md:px-0 max-w-[1000px]">
+  <div class="w-full xl:w-3/4 m-auto">
     <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-16">{data.title}</Title>
-    <div
-      class="flex flex-col md:flex-row justify-center items-stretch h-auto md:h-[600px] xl:h-[550px] gap-4 md:gap-6 m-2 md:m-4"
-    >
+    <div class="flex flex-col md:flex-row justify-center items-stretch h-auto gap-4 w-full px-3">
       <CardPricing data={data.type.standard} buttonID="button-estandar" />
       <CardPricing data={data.type.conversation} buttonID="button-conversation" />
       <CardPricing data={data.type.group} buttonID="button-group" />
     </div>
-    <div class="w-full flex flex-col md:flex-row text-sm mt-8 md:mt-20 m-auto pb-8 md:pb-20 p-5 md:p-0 gap-4 md:gap-6">
+    <div
+      class="w-full md:w-3/4 flex flex-col md:flex-row text-sm mt-8 md:mt-20 m-auto pb-8 md:pb-20 p-5 md:p-0 gap-4 md:gap-6"
+    >
       <div class="mx-0 md:mx-3">
-        <h4 class="text-[--color-salmon] text-lg font-semibold">
+        <h4 class="text-salmon text-lg font-semibold">
           {data.info[0].title}
         </h4>
         <p class="mt-2">
@@ -30,7 +30,7 @@ const data = Astro.props.data as PricingI18n;
         </button>
       </div>
       <div class="mx-0 md:mx-3 mb-10 md:mb-20">
-        <h4 class="text-[--color-salmon] text-lg font-semibold">
+        <h4 class="text-salmon text-lg font-semibold">
           {data.info[1].title}
         </h4>
         <p class="mt-2">

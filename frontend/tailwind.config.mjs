@@ -2,6 +2,7 @@ export const content = [
     "./src/**/*.{astro,js,ts,jsx,tsx}"
 ];
 export const theme = {
+    darkMode: 'class',
     extend: {
         fontFamily: {
             'jomolhari': ['"Jomolhari"', 'serif'],
