@@ -252,39 +252,33 @@ pub async fn basic_class_payment(
 }
 
 // Consultar un payment para saber su estado actual
-pub async fn get_payment_status(
-    Path(id): Path<String>,
-    State(state): State<Arc<AppState>>,
+pub async fn get_payment_status(// Path(id): Path<String>,
+    // State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
     StatusCode::NO_CONTENT.into_response()
 }
 
 // Cancelar un payment
-pub async fn cancel_payment(
-    Path(id): Path<String>,
-    State(state): State<Arc<AppState>>,
+pub async fn cancel_payment(// Path(id): Path<String>,
+    // State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
     StatusCode::NO_CONTENT.into_response()
 }
 
 // Devolver el pago
-pub async fn refund_payment(
-    Path(id): Path<String>,
-    State(state): State<Arc<AppState>>,
+pub async fn refund_payment(// Path(id): Path<String>,
+    // State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
     StatusCode::NO_CONTENT.into_response()
 }
 
 // Consultar el historial de pagos del usuario
-pub async fn get_payment_history(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+pub async fn get_payment_history() -> impl IntoResponse {
     StatusCode::NO_CONTENT.into_response()
 }
 
 // Webhook para recibir eventos de Stripe
-pub async fn webhook_handler(
-    Path(id): Path<String>,
-    State(state): State<Arc<AppState>>,
-) -> impl IntoResponse {
+pub async fn webhook_handler() -> impl IntoResponse {
     StatusCode::NO_CONTENT.into_response()
 }
 
@@ -515,7 +509,7 @@ pub async fn delete_price(
     }
 }
 
-// Convierte una cadena a una divisa
-fn convert_string_to_currency(currency: &str) -> Currency {
-    Currency::from_str(currency).unwrap_or(Currency::EUR)
-}
+// // Convierte una cadena a una divisa
+// fn convert_string_to_currency(currency: &str) -> Currency {
+//     Currency::from_str(currency).unwrap_or(Currency::EUR)
+// }

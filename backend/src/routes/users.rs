@@ -1,7 +1,7 @@
 use {
     crate::{
-        controllers::user::{
-            create_user, delete_me, get_all_users, login_user, refresh_token, update_user,
+        controllers::users::{
+            delete_me, get_all_users, login_user, refresh_token, register_user, update_user,
         },
         middleware::auth::firebase_auth_middleware,
         state::AppState,
@@ -15,11 +15,11 @@ use {
 
 pub fn router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     let public_routes = Router::new()
-        .route("/register", post(create_user)) // POST /user/register
+        .route("/register", post(register_user)) // POST /user/register
         .route("/login", post(login_user)); // GET /user/login
 
     let protected_routes = Router::new()
-        .route("/me", put(update_user)) // PUT /user/
+        .route("/update/me", put(update_user)) // PUT /user/
         .route("/del/me", delete(delete_me)) // DELETE /user/me
         .route("/all", get(get_all_users)) // GET /user/all
         .route("/refresh_token", put(refresh_token)) // PUT /user/refresh_token

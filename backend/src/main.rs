@@ -70,9 +70,11 @@ async fn main() {
 
     // Configurar el enrutador de la aplicación
     let app: Router = Router::new()
-        .nest("/user", routes::user::router(state.clone())) // FB Auth, FB Realtime DB
+        .nest("/users", routes::users::router(state.clone())) // FB Auth, FB Realtime DB
         .nest("/comments", routes::comments::router(state.clone())) // FB Auth, FB Realtime DB
-        .nest("/payment", routes::payments::router(state.clone())) //
+        .nest("/payment", routes::payments::router(state.clone())) // Stripe
+        .nest("/teachers", routes::teachers::router(state.clone())) // FB Auth, FB Realtime DB
+        .nest("/webhook", routes::webhooks::router(state.clone())) // Webhooks
         .layer(cors) // CORS abierto
         .layer(TraceLayer::new_for_http()) // Logging básico
         .with_state(state);

@@ -1,3 +1,5 @@
 pub mod comments;
 pub mod payments;
-pub mod user;
+pub mod teachers;
+pub mod users;
+pub mod webhook;

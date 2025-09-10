@@ -1,6 +1,6 @@
 use {
     crate::{
-        controllers::user::get_user_data,
+        controllers::users::get_user_data_db,
         models::{
             comments::{Comment, CommentRequest, FirebaseCommentResponse},
             firebase::UserAuthentication,
@@ -79,7 +79,7 @@ pub async fn get_all_comments(
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
     // Nos aseguramos que quien accede a estos datos es un administrador
-    let actual_user_db: UserDB = match get_user_data(&user_claims, &id_token, &state).await {
+    let actual_user_db: UserDB = match get_user_data_db(&user_claims, &id_token, &state).await {
         Some(user_data) => user_data,
         None => {
             return (

@@ -2,8 +2,8 @@ use {
     crate::{
         models::{
             firebase::{
-                FirebaseAdminLookupResponse, FirebaseAuthResponse, FirebaseUserInfo, RefreshToken,
-                UserAuth, UserAuthentication,
+                FirebaseAdminLookupResponse, FirebaseAuthResponse, RefreshToken, UserAuth,
+                UserAuthentication,
             },
             user::{UserDB, UserRequest},
         },
@@ -24,10 +24,29 @@ use {
 
 // Creación del usuario conn firebase
 #[debug_handler]
-pub async fn create_user(
+pub async fn register_user(
     State(state): State<Arc<AppState>>,
     Json(user): Json<UserRequest>,
 ) -> impl IntoResponse {
+    // Comprobamos si quiere hacer cosas que solo podria hacer un admin como tener un rol, o asiganr permisos o tier de subscripción
+    match &user.role {
+        Some(role) if role == "admin" => {
+            return (
+                StatusCode::FORBIDDEN,
+                Json(json!({ "error": "You do not have permission to assign this role" })),
+            )
+                .into_response();
+        }
+        _ => {}
+    }
+    if user.permissions.as_ref().is_some() || user.subscription_tier.as_ref().is_some() {
+        return (
+            StatusCode::FORBIDDEN,
+            Json(json!({ "error": "You do not have permission to assign these permissions or subscription tier" })),
+        )
+            .into_response();
+    }
+
     // Obtenemos la URL de registro de usuario con Firebase
     let url_register_auth: String = format!(
         "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={}",
@@ -72,7 +91,10 @@ pub async fn create_user(
     // Creamos el usuario que se va a crear en la DB
     let user_db: UserDB = UserDB {
         email: auth_response.email.clone(),
-        role: user.role,
+        role: Some(match user.role {
+            Some(role) => role.to_string(),
+            None => "student".to_string(),
+        }),
         subscription_tier: user.subscription_tier,
         permissions: user.permissions,
     };
@@ -155,6 +177,7 @@ pub async fn update_user(
     State(state): State<Arc<AppState>>,
     Json(user_request): Json<UserRequest>,
 ) -> impl IntoResponse {
+    println!("User request: {:?}", user_request);
     // URL para la actualización de usuario en Firebase
     let url_firebase_auth_update: String = format!(
         "https://identitytoolkit.googleapis.com/v1/accounts:update?key={}",
@@ -163,7 +186,7 @@ pub async fn update_user(
 
     // Cuerpo de la solicitud para la actualización de usuario
     let user_payload: UserAuth = UserAuth {
-        id_token: Some(id_token.clone()),
+        id_token: Some(id_token.clone()), // <-- Aquí va el token de sesión del usuario
         email: user_request.email.clone(), // El email es obligatorio darlo en la request
         password: user_request.password.clone(), // La contraseña es obligatoria darle en la request
         return_secure_token: true,
@@ -195,7 +218,7 @@ pub async fn update_user(
     );
 
     // Obtener los datos del usuario actual
-    let actual_user_db: UserDB = match get_user_data(&user_claims, &id_token, &state).await {
+    let actual_user_db: UserDB = match get_user_data_db(&user_claims, &id_token, &state).await {
         Some(user_db) => user_db,
         None => {
             return (
@@ -210,7 +233,10 @@ pub async fn update_user(
     let user_db: UserDB = UserDB {
         email: user_request.email, // El email es obligatorio darlo en la request
         // Preguntamos si en la request se ha dado un nuevo role, si no lo dejamos como estaba
-        role: user_request.role.or(actual_user_db.role),
+        role: user_request
+            .role
+            .map(|r| r.to_string())
+            .or_else(|| actual_user_db.role.map(|r| r.to_string())),
         // Preguntamos si en la request se ha proporcionado un nuevo subscription_tier, si no lo dejamos como estaba
         subscription_tier: user_request
             .subscription_tier
@@ -314,7 +340,7 @@ pub async fn get_all_users(
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
     // Obtenemos de la base de datos el usuario actual
-    let actual_user_db: UserDB = match get_user_data(&user_claims, &id_token, &state).await {
+    let actual_user_db: UserDB = match get_user_data_db(&user_claims, &id_token, &state).await {
         Some(user_db) => user_db,
         None => {
             return (
@@ -332,6 +358,9 @@ pub async fn get_all_users(
             Json(json!({ "error": "You do not have permission to access this resource" })),
         )
             .into_response();
+    } else {
+        println!("Actual user db: {:?}", actual_user_db);
+        println!("User claims: {:?}", "admin".to_string());
     }
 
     // URL para obtener todos los usuarios de Firebase Realtime Database
@@ -362,7 +391,7 @@ pub async fn get_all_users(
                 }
                 Err(_) => HashMap::new(),
             },
-            Ok(response) => {
+            Ok(_) => {
                 return (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(json!({ "error": "Error retrieving users from database" })),
@@ -415,8 +444,8 @@ pub async fn get_all_users(
         Json(json!({
             "success": true,
             "body": { "users": {
-                "firebase": user_data_auth,
-                "database": user_data_db
+                "firebase_auth": user_data_auth,
+                "firebase_database": user_data_db
             }, "message": "Users retrieved successfully" }
         })),
     )
@@ -463,8 +492,8 @@ pub async fn refresh_token(
     }
 }
 
-// Obtener datos del usuario según su sesión
-pub async fn get_user_data(
+// Obtener datos del usuario según su sesión de Firebase DB
+pub async fn get_user_data_db(
     user_claims: &UserAuthentication,
     id_token: &str,
     state: &Arc<AppState>,
@@ -479,6 +508,42 @@ pub async fn get_user_data(
     match state.firebase_client.get(url_firebase_db).send().await {
         Ok(response) => match handle_firebase_response::<UserDB>(response).await {
             Ok(user) => Some(user),
+            Err(_) => None,
+        },
+        Err(_) => None,
+    }
+}
+
+// Obtener datos del usuario según su sesión de Firebase Auth
+pub async fn get_user_data_auth(
+    state: &Arc<AppState>,
+    login: &UserRequest,
+) -> Option<FirebaseAuthResponse> {
+    // URL de Firebase Realtime Database para obtener los datos del usuario
+    // Construir la URL para la autenticación
+    let url_login_firebase: String = format!(
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={}",
+        state.firebase.firebase_api_key
+    );
+
+    // Crear el cuerpo de la solicitud para el login de usuario
+    let login_payload: UserAuth = UserAuth {
+        id_token: None,
+        email: login.email.clone(),
+        password: login.password.clone(),
+        return_secure_token: true,
+    };
+
+    // Enviar la solicitud a Firebase Auth
+    match state
+        .firebase_client
+        .post(&url_login_firebase)
+        .json(&login_payload)
+        .send()
+        .await
+    {
+        Ok(response) => match handle_firebase_response::<FirebaseAuthResponse>(response).await {
+            Ok(auth_response) => Some(auth_response),
             Err(_) => None,
         },
         Err(_) => None,
