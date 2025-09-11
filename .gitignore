@@ -54,3 +54,4 @@ rustfmt.toml
 # Test
 http
 amanahacademia.code-workspace
+develop

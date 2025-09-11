@@ -80,7 +80,7 @@ async fn main() {
         .with_state(state);
 
     // Inicializar el listener TCP y el servidor
-    let addr: SocketAddr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr: SocketAddr = SocketAddr::from(([0, 0, 0, 0], 3000));
     let listener: TcpListener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
     println!("Servidor escuchando en http://{}", addr);
