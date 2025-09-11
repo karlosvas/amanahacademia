@@ -4,10 +4,9 @@ import toast from "solid-toast";
 import { showModalAnimation } from "./modals";
 import { auth } from "@/lib/firebase";
 import type { IdentificationI18n } from "@/types/types";
-import { FirebaseError } from "firebase/app";
 
 // Actualiza el botón de identificación
-export function updateIdentificationButton(
+export function openIdentificationModalOrLoggout(
   user: User | null,
   authModalLogin: HTMLDialogElement,
   formLogin: HTMLFormElement,
@@ -29,7 +28,7 @@ export function updateIdentificationButton(
 }
 
 // Obtener el botón de identificación segun el tamaño de la pantalla
-function getIdentificationButton() {
+export function getIdentificationButton() {
   if (window.matchMedia("(min-width: 1024px)").matches) return document.getElementById("identification");
   else return document.getElementById("identification-menu");
 }

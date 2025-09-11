@@ -5,7 +5,6 @@ import EmailIcon from "@/assets/email.svg";
 import PasswordIcon from "@/assets/password.svg";
 import { TERMNS } from "@/utils/constants";
 import type { ModalI18n } from "@/types/types";
-import "@/styles/identification.css";
 
 const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 const data = Astro.props.data as ModalI18n;
@@ -219,7 +218,6 @@ const data = Astro.props.data as ModalI18n;
 <!-- Logica de registro y login -->
 <script>
   import { toggleLoginToRegister, submitForm } from "@/utils/identifications";
-  import { closeModalAnimation } from "@/utils/modals";
 
   // Estado actual de registro o Login
   let isRegister: boolean = false;
@@ -248,25 +246,5 @@ const data = Astro.props.data as ModalI18n;
     // Gestiona los formularios, las validaciones y los envios
     submitForm(authModalLogin, loginLoading, "#loginForm", false, loginError);
     submitForm(authModalRegister, registerLoading, "#registerForm", true, registerError);
-
-    // Event delegation para cerrar modal (backdrop y botón)
-    document.addEventListener("click", (e) => {
-      const target = e.target as HTMLElement;
-      const modal = target.closest("dialog") as HTMLDialogElement;
-
-      // Cerrar al hacer clic en el backdrop
-      if (target instanceof HTMLDialogElement && target.open) closeModalAnimation(target);
-
-      // Cerrar con el botón
-      if (target.getAttribute("aria-label") === "close-modal" && modal) closeModalAnimation(modal);
-    });
-
-    // Cerrar con el botón de cancelar
-    document.querySelectorAll("dialog").forEach((modal) => {
-      modal.addEventListener("cancel", (e) => {
-        e.preventDefault();
-        closeModalAnimation(modal as HTMLDialogElement);
-      });
-    });
   });
 </script>

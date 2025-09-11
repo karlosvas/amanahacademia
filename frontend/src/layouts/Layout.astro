@@ -9,6 +9,8 @@ declare global {
     turnstile?: any;
     JustValidate?: any;
     handlePaymentSubmission: () => Promise<void>;
+    Cal?: any;
+    api?: any;
   }
 }
 
@@ -30,12 +32,9 @@ const {
   <head>
     <!-- Antes de cargar la pagina verificamos is ya teniamos tema previo -->
     <script>
+      import { getTheme } from "@/utils/cookie";
       (function () {
-        var theme =
-          document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("theme="))
-            ?.split("=")[1] || "light";
+        let theme = getTheme();
         document.documentElement.classList.add(theme);
       })();
     </script>
@@ -53,6 +52,7 @@ const {
     <link rel="apple-touch-icon" href="/favicon/apple-touch-icon.png" sizes="180x180" />
     <!-- Manifest PWA -->
     <link rel="manifest" href="/favicon/site.webmanifest" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <!-- SEO Components -->
     <SEO
       title={title}
@@ -73,10 +73,59 @@ const {
       gutter={64}
       toastOptions={{
         duration: 5000,
-        style: {
-          "z-index": 9999,
-        },
       }}
     />
   </body>
 </html>
+<style>
+  .back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: var(--lightRed);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .back-to-top:hover {
+    background: var(--salmon);
+    transform: translateY(-5px);
+  }
+</style>
+
+<script>
+  import { closeModalsEvents } from "@/utils/modals";
+
+  closeModalsEvents();
+  // Botón para volver al inicio
+  const backToTopButton = document.getElementById("backToTop");
+
+  if (backToTopButton) {
+    window.addEventListener("scroll", () => {
+      if (window.pageYOffset > 300) {
+        backToTopButton.classList.remove("opacity-0", "invisible");
+        backToTopButton.classList.add("opacity-100", "visible");
+      } else {
+        backToTopButton.classList.remove("opacity-100", "visible");
+        backToTopButton.classList.add("opacity-0", "invisible");
+      }
+    });
+
+    backToTopButton.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    });
+  }
+</script>

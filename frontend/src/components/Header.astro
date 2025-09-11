@@ -39,7 +39,7 @@ const { lang } = Astro.params;
 <script>
   import { auth } from "@/lib/firebase.js";
   import { onAuthStateChanged } from "firebase/auth";
-  import { updateIdentificationButton } from "@/utils/identifications";
+  import { openIdentificationModalOrLoggout } from "@/utils/identifications";
 
   // Referencias al modal de login y register
   const authModalLogin = document.getElementById("authModalLogin") as HTMLDialogElement;
@@ -50,7 +50,7 @@ const { lang } = Astro.params;
   // Actualizamos segun el tamaño de la ventana
   document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", () => {
-      updateIdentificationButton(auth.currentUser, authModalLogin, formLogin, auth, headerData);
+      openIdentificationModalOrLoggout(auth.currentUser, authModalLogin, formLogin, auth, headerData);
     });
 
     // Imagen del logo
@@ -65,7 +65,7 @@ const { lang } = Astro.params;
 
   // Firebase auth state
   onAuthStateChanged(auth, async (user) => {
-    updateIdentificationButton(user, authModalLogin, formLogin, auth, headerData);
+    openIdentificationModalOrLoggout(user, authModalLogin, formLogin, auth, headerData);
     if (user) {
       const idToken = await user.getIdToken();
       // Guardamos la session id en las cookies

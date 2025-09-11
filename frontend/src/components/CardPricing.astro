@@ -1,9 +1,11 @@
 ---
 import IconCheck from "@/assets/check.svg";
+import ModalPracing from "./ModalPracing.astro";
 import type { CardPricingType } from "@/types/types";
+import type { Class } from "@/enum/enums";
 
 const data = Astro.props.data as CardPricingType;
-const buttonID = Astro.props.buttonID as string;
+const id = Astro.props.id as Class;
 ---
 
 <div
@@ -26,9 +28,10 @@ const buttonID = Astro.props.buttonID as string;
     </h3>
   </div>
   <button
-    class="reserve-class bg-lightRed hover:bg-salmon rounded-md py-3 px-5 xl:px-10 text-white font-semibold mt-auto"
-    id={buttonID}
+    data-modal-id={id}
+    class="reserve-class bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red rounded-md py-3 px-5 xl:px-10 text-white font-semibold mt-auto transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2"
   >
     {data.button}
   </button>
 </div>
+<ModalPracing id={id} />

@@ -8,15 +8,7 @@ import ThemeIcon from "@/assets/theme.svg";
 </div>
 
 <script>
-  // Función para obtener tema desde cookie
-  function getThemeFromCookie() {
-    const cookieValue = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("theme="))
-      ?.split("=")[1];
-
-    return cookieValue || "light"; // Default a light si no existe
-  }
+  import { getTheme } from "@/utils/cookie";
 
   // Función para establecer tema
   function setTheme(newTheme: string, body: HTMLBodyElement) {
@@ -41,7 +33,7 @@ import ThemeIcon from "@/assets/theme.svg";
     // Obtenemos las referencias
     const themeButton = document.getElementById("theme") as HTMLDivElement;
     const body = document.body as HTMLBodyElement;
-    const currentTheme = setTheme(getThemeFromCookie(), body) as "light" | "dark";
+    const currentTheme = setTheme(getTheme() as string, body) as "light" | "dark";
 
     // Espera a que todo el DOM esté listo (incluido el logo)
     setTimeout(() => {

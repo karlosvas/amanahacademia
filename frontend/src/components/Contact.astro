@@ -11,7 +11,7 @@ const data = Astro.props.data as ContactI18n;
 <img
   src="/img/coffe.webp"
   alt=""
-  class="absolute w-full md:w-5/12 h-[600px] right-0 top-36 md:top-0 md:rounded-bl-2xl object-cover z-0 pointer-events-none rounded-3xl md:rounded-none md:hidden xl:block"
+  class="absolute w-full md:w-5/12 h-[600px] right-0 top-36 md:top-0 md:rounded-bl-2xl object-cover z-0 pointer-events-none rounded-3xl md:rounded-none hidden xl:block"
 />
 <!-- Circulo1 -->
 <img
@@ -28,7 +28,7 @@ const data = Astro.props.data as ContactI18n;
 
 <main class="md:pb-20 min-h-screen pb-80">
   <h2
-    class=`mt-24 text-center px-10 pb-1 text-red font-bold text-2xl relative md:absolute md:left-28 top-0 md:top-28 pointer-events-none`
+    class=`mt-10 md:mt-24 text-center px-10 pb-1 text-red font-bold text-2xl relative md:absolute md:left-28 top-0 md:top-28 pointer-events-none`
   >
     {data.title}
   </h2>
@@ -38,8 +38,9 @@ const data = Astro.props.data as ContactI18n;
     <form
       class="flex flex-col z-10 px-10 ml-0 md:ml-72 lg:ml-[400px] lg:py-10 items-center md:items-start md:border-2 md:border-gray-700 md:rounded-l-3xl mb-20 relative"
     >
-      <div class="absolute w-7/12 px-20 right-6/12 md:right-0 top-[500px] md:top-5 2xl:pt-10">
-        <div class="py-2">
+      <div class="absolute w-full md:w-7/12 px-20 right-6/12 md:right-0 top-[500px] md:top-5 2xl:pt-10">
+        <!-- TODO:: Agregar Etsy -->
+        <!-- <div class="py-2">
           <div class="flex items-center">
             <EtsyIcon
               style="width:25px; height:25px; min-width:25px; min-height:25px; max-width:25px; max-height:25px;"
@@ -47,7 +48,7 @@ const data = Astro.props.data as ContactI18n;
             <h1 class="px-3 text-red font-semibold">{data.etsy.title}</h1>
           </div>
           <p class="text-xs md:hidden lg:block text-black">{data.etsy.description}</p>
-        </div>
+        </div> -->
         <div class="py-2">
           <div class="flex items-center">
             <SpotifyIcon

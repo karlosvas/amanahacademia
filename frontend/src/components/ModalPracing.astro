@@ -1,57 +1,12 @@
 ---
-const { id, name } = Astro.props;
+import Carrousel from "./Carrousel.astro";
+
+const { id } = Astro.props;
 ---
 
-<dialog id={id} class="border-0 rounded-2xl shadow-2xl max-w-md w-[90%] mx-auto p-0 overflow-hidden">
-  <form method="dialog" class="p-8 bg-gray-100">
-    <h1 class="text-2xl font-bold text-brown mb-4 text-center">{name}</h1>
-    <ul class="list-inside text-lightBrown text-base mb-6 space-y-2">
-      <li>Elige con quién quieres aprender.</li>
-      <select name="">
-        <option value="">Profesor 1</option>
-        <option value="">Profesor 2</option>
-        <option value="">Profesor 3</option>
-      </select>
-      <li>Seleciona cuantas clases deseas.</li>
-      <select name="">
-        <option value="">1 clase</option>
-        <option value="">2 clases</option>
-        <option value="">1 mes</option>
-        <option value="">3 meses</option>
-        <option value="">1 año</option>
-      </select>
-      <li>Escoge el horario que mejor se adapte a ti.</li>
-      <select name="">
-        <option value="">Lunes 10:00 - 11:00</option>
-        <option value="">Martes 14:00 - 15:00</option>
-        <option value="">Miércoles 16:00 - 17:00</option>
-      </select>
-    </ul>
-    <div class="bg-light-salmon/30 rounded-xl p-4 text-center mb-6">
-      <span class="text-salmon font-semibold text-lg">¡Listo! Tu clase ha sido reservada con éxito.</span>
-    </div>
-    <button
-      id={`button-${id}`}
-      class="bg-red text-white py-2 px-8 rounded-full mt-2 text-sm font-semibold shadow hover:bg-light-red transition-all duration-300"
-    >
-      Pagar
-    </button>
-  </form>
+<dialog
+  id={id}
+  class="modal border-0 rounded-2xl shadow-2xl max-w-2xl w-[95%] mx-auto p-0 overflow-hidden bg-background] p-8 bg-brown dark:bg-background"
+>
+  <Carrousel id={id} />
 </dialog>
-
-<script define:vars={{ id }}>
-  document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.getElementById(`button-${id}`);
-    if (btn) {
-      btn.addEventListener("click", () => {
-        const selectedItems = {
-          clases: 1,
-          precio: 30,
-          currency: "EUR",
-        };
-        sessionStorage.setItem("paymentData", JSON.stringify(selectedItems));
-        window.location.href = "/payment";
-      });
-    }
-  });
-</script>

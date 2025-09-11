@@ -34,3 +34,27 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
     modal.classList.remove("modal-opening");
   }, 350);
 }
+
+export function closeModalsEvents() {
+  // Eventos para cerrar los modales
+  document.addEventListener("mousedown", (e) => {
+    // Obtenemos el elementos al que le hemos echo click y obtenemos el modal
+    const target = e.target as HTMLElement;
+    const modal = target.closest("dialog") as HTMLDialogElement;
+    // Cerrar al hacer clic en cualquier parte del carrusel (incluida la imagen), al hacer clic en el backdrop, el botón de cancelar
+    if (
+      (target.closest(".embla__container") && modal) ||
+      (target instanceof HTMLDialogElement && target.open) ||
+      (target.getAttribute("aria-label") === "close-modal" && modal)
+    )
+      closeModalAnimation(modal);
+  });
+
+  // Cerrar con el botón de cancelar
+  document.querySelectorAll("dialog").forEach((modal) => {
+    modal.addEventListener("cancel", (e) => {
+      e.preventDefault();
+      closeModalAnimation(modal as HTMLDialogElement);
+    });
+  });
+}

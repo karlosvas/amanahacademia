@@ -1,0 +1,295 @@
+---
+import type { Teacher, ResponseAPI } from "../types/types";
+const images = Array.from({ length: 4 }).map((_, i) => `/img/professor${i + 1}.jpg`);
+
+const id = Astro.props.id as string;
+const teachers = ["anaortega", "anaortega", "anaortega", "anaortega", "anaortega"];
+
+// Server-side fetch: el token de admin solo está en el backend
+const url_api = import.meta.env.PUBLIC_BACKEND_URL;
+
+const data: ResponseAPI<Teacher[]> = await fetch(`${url_api}/teachers/all`, {
+  method: "GET",
+  headers: {
+    "Content-Type": "application/json",
+  },
+}).then((res) => res.json());
+
+console.log(data);
+---
+
+<div class="max-w-2xl mx-auto py-8">
+  <h1 class="header text-red text-center text-2xl font-semibold font-jomolhari">Selecciona tu profesor</h1>
+  <div class="relative flex items-center justify-center">
+    <button
+      type="button"
+      class="absolute left-0 top-1/2 -translate-y-1/2 bg-red text-white rounded-xl w-10 h-10 flex items-center justify-center z-10 user-select-none text-xl carousel-button"
+      id="carousel-prev"
+      aria-label="Anterior"
+    >
+      &#8592;
+    </button>
+    <div
+      class="overflow-hidden w-full h-80 flex items-center justify-center relative bg-red mx-10 p-3"
+      id="carousel-track"
+    >
+      {
+        images.map((src, i) => (
+          <div
+            class={`carousel-slide absolute top-1/2 left-1/2 flex items-center transition-all duration-500 ${i === 0 ? "active" : ""}`}
+            style="transform: translate(-50%, -50%); width: 100%; height: 100%;"
+            data-index={i}
+          >
+            <img
+              src={src}
+              alt={`Profesor ${i + 1}`}
+              class="carousel-img w-64 h-64 rounded-3xl object-cover"
+              data-index={i}
+              data-cal-teacher={teachers[i]}
+              data-cal-namespace={id}
+            />
+            <p class="text-white text-xl font-semibold absolute right-10">{teachers[i]}</p>
+          </div>
+        ))
+      }
+    </div>
+    <button
+      type="button"
+      class="absolute right-0 top-1/2 -translate-y-1/2 bg-red text-white rounded-xl w-10 h-10 flex items-center justify-center z-10 user-select-none text-xl carousel-button"
+      id="carousel-next"
+      aria-label="Siguiente"
+    >
+      &#8594;
+    </button>
+  </div>
+  <div class="flex justify-center gap-2 mt-4" id="carousel-dots">
+    {
+      images.map((_, i) => (
+        <button
+          type="button"
+          class="carousel-dot w-3 h-3 rounded-full bg-gray-300"
+          data-index={i}
+          aria-label={`Ir a profesor ${i + 1}`}
+        />
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const carrousel = document.getElementById("carousel-track");
+    const carrouselDots = document.getElementById("carousel-dots");
+
+    if (!carrousel || !carrouselDots) return;
+
+    const images = Array.from(carrousel.querySelectorAll(".carousel-img"));
+    const dots = Array.from(carrouselDots.querySelectorAll(".carousel-dot"));
+    let current = 0;
+
+    function showSlide(idx: number, direction = "right") {
+      // Si es el mismo índice, no hacer nada
+      if (idx === current) return;
+
+      // Remover clases de animación existentes
+      images.forEach((img) => {
+        img.classList.remove("active", "exit-right", "exit-left", "enter-right", "enter-left");
+      });
+
+      // Aplicar animación de salida a la imagen actual según la dirección
+      if (direction === "right") {
+        images[current].classList.add("exit-left");
+      } else {
+        images[current].classList.add("exit-right");
+      }
+
+      // Aplicar animación de entrada a la nueva imagen según la dirección
+      if (direction === "right") {
+        images[idx].classList.add("enter-right");
+      } else {
+        images[idx].classList.add("enter-left");
+      }
+
+      // Después de la animación, establecer la nueva imagen como activa
+      setTimeout(() => {
+        images.forEach((img) => img.classList.remove("exit-right", "exit-left", "enter-right", "enter-left"));
+        images[idx].classList.add("active");
+        current = idx;
+
+        // Actualizar dots
+        dots.forEach((dot, i) => {
+          dot.classList.toggle("active", i === idx);
+          dot.classList.toggle("bg-gray-300", i !== idx);
+          if (i === idx) {
+            (dot as HTMLElement).style.backgroundColor = "#ef4444";
+          } else {
+            (dot as HTMLElement).style.backgroundColor = "#d1d5db";
+          }
+        });
+      }, 600); // Duración de la animación
+    }
+
+    const carrouselPrev = document.getElementById("carousel-prev");
+    const carrouselNext = document.getElementById("carousel-next");
+
+    if (!carrouselPrev || !carrouselNext) return;
+
+    carrouselPrev.addEventListener("click", () => {
+      showSlide((current - 1 + images.length) % images.length, "left");
+    });
+
+    carrouselNext.addEventListener("click", () => {
+      showSlide((current + 1) % images.length, "right");
+    });
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener("click", () => {
+        // Determinar dirección basada en la posición relativa
+        const direction = i > current ? "right" : "left";
+        showSlide(i, direction);
+      });
+    });
+
+    // Inicializar con la primera imagen activa
+    images[0].classList.add("active");
+    dots[0].classList.add("active");
+    (dots[0] as HTMLElement).style.backgroundColor = "#ef4444";
+  });
+</script>
+
+<style>
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translate(50%, -50%) scale(0.9) rotateY(-10deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+  }
+
+  @keyframes slideInFromLeft {
+    from {
+      opacity: 0;
+      transform: translate(-150%, -50%) scale(0.9) rotateY(10deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+  }
+
+  @keyframes slideOutToLeft {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-150%, -50%) scale(0.9) rotateY(10deg);
+    }
+  }
+
+  @keyframes slideOutToRight {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translate(50%, -50%) scale(0.9) rotateY(-10deg);
+    }
+  }
+
+  .carousel-img {
+    position: absolute;
+    left: 30%;
+    top: 50%;
+    width: 16rem;
+    height: 16rem;
+    object-fit: cover;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    filter: brightness(0.85);
+    transition:
+      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.85);
+  }
+
+  .carousel-img.active {
+    opacity: 1;
+    z-index: 30;
+    pointer-events: auto;
+    filter: brightness(1);
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .carousel-img.exit-right {
+    animation: slideOutToRight 0.6s forwards;
+    z-index: 20;
+  }
+
+  .carousel-img.exit-left {
+    animation: slideOutToLeft 0.6s forwards;
+    z-index: 20;
+  }
+
+  .carousel-img.enter-right {
+    animation: slideInFromRight 0.6s forwards;
+    z-index: 30;
+  }
+
+  .carousel-img.enter-left {
+    animation: slideInFromLeft 0.6s forwards;
+    z-index: 30;
+  }
+
+  .carousel-dot {
+    transition: all 0.3s ease;
+    transform: scale(1);
+  }
+
+  .carousel-dot.active {
+    transform: scale(1.4);
+    background-color: #ef4444;
+  }
+
+  .carousel-dot:hover {
+    transform: scale(1.2);
+  }
+
+  .carousel-button {
+    transition: all 0.3s ease;
+    opacity: 0.8;
+  }
+
+  .carousel-button:hover {
+    opacity: 1;
+  }
+
+  .pulse-ring {
+    position: absolute;
+    border: 2px solid #ef4444;
+    border-radius: 50%;
+    height: 100%;
+    width: 100%;
+    animation: pulse 2s infinite;
+    box-sizing: border-box;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+</style>

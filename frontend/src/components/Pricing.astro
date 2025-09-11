@@ -1,8 +1,8 @@
 ---
 import CardPricing from "./CardPricing.astro";
-import ModalPracing from "./ModalPracing.astro";
 import Title from "./Title.astro";
 import type { PricingI18n } from "@/types/types";
+import { Class } from "@/enum/enums";
 
 const data = Astro.props.data as PricingI18n;
 ---
@@ -11,12 +11,12 @@ const data = Astro.props.data as PricingI18n;
   <div class="w-full xl:w-3/4 m-auto">
     <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-16">{data.title}</Title>
     <div class="flex flex-col md:flex-row justify-center items-stretch h-auto gap-4 w-full px-3">
-      <CardPricing data={data.type.standard} buttonID="button-estandar" />
-      <CardPricing data={data.type.conversation} buttonID="button-conversation" />
-      <CardPricing data={data.type.group} buttonID="button-group" />
+      <CardPricing data={data.type.standard} id={Class.Standard} />
+      <CardPricing data={data.type.conversation} id={Class.Conversacion} />
+      <CardPricing data={data.type.group} id={Class.Grupales} />
     </div>
     <div
-      class="w-full md:w-3/4 flex flex-col md:flex-row text-sm mt-8 md:mt-20 m-auto pb-8 md:pb-20 p-5 md:p-0 gap-4 md:gap-6"
+      class="w-full md:w-3/4 flex flex-col md:flex-row text-sm mt-8 md:mt-20 m-auto pb-8 md:pb-20 p-20 md:p-0 gap-4 md:gap-6"
     >
       <div class="mx-0 md:mx-3">
         <h4 class="text-salmon text-lg font-semibold">
@@ -25,7 +25,11 @@ const data = Astro.props.data as PricingI18n;
         <p class="mt-2">
           {data.info[0].description}
         </p>
-        <button class="bg-red text-salmon py-2 px-6 md:px-10 rounded-full mt-5 text-xs md:text-sm">
+        <button
+          data-cal-namespace={Class.Free}
+          data-cal-teacher="carlos-vasquez-sanchez"
+          class="select-schedule transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 bg-red text-salmon py-2 px-6 md:px-10 rounded-full mt-5 text-xs md:text-sm cal-btn font-semibold"
+        >
           {data.info[0].button}
         </button>
       </div>
@@ -39,21 +43,66 @@ const data = Astro.props.data as PricingI18n;
       </div>
     </div>
   </div>
-  <ModalPracing id="modal-estandar" name="Clase Estándar" />
-  <ModalPracing id="modal-conversation" name="Clase de Conversación" />
-  <ModalPracing id="modal-group" name="Clase en Grupo" />
 </main>
 <script>
+  import { getTheme } from "@/utils/cookie";
+  import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
+  import { initCalendar, getTeacherURL } from "@/services/calendar";
+  import { Class } from "@/enum/enums";
+  import { URL_BAKEND } from "@/utils/constants";
+
+  // Iniciamos el calendario de clases gratuitas por defecto
+  initCalendar(Class.Free);
+
+  // Evento al cargar el DOM
   document.addEventListener("DOMContentLoaded", () => {
-    const reserveButton = document.querySelectorAll(".reserve-class") as NodeListOf<HTMLButtonElement>;
-    reserveButton.forEach((button) => {
+    // Obtenemos todos los botones de reservar clase
+    const reserveButtons = document.querySelectorAll(".reserve-class") as NodeListOf<HTMLButtonElement>;
+    // Por cada botón obtenemos que modal pertenece, para abrir el que le corresponde al hacer click
+    if (!reserveButtons) return;
+    reserveButtons.forEach((button) => {
       button.addEventListener("click", () => {
-        // Obtenemos que modal pertenece
-        const modalId = button.id.replace("button-", "modal-");
-        const modal = document.getElementById(modalId) as HTMLDialogElement;
-        if (modal) {
-          modal.showModal();
+        // Obtenemos el modal correspondiente al botón
+        const modalID: string | null = button.getAttribute("data-modal-id");
+        if (!modalID) return;
+
+        const modal = document.getElementById(modalID) as HTMLDialogElement | null;
+
+        if (modal && modal.id && Object.values(Class).includes(modal.id as Class)) {
+          initCalendar(modal.id as Class);
+          showModalAnimation(modal, null, true);
         }
+      });
+    });
+
+    // Obtenemos todos los enlaces de seleccionar horario, button o img
+    const scheduleCalendar = document.querySelectorAll(".select-schedule") as NodeListOf<
+      HTMLButtonElement | HTMLImageElement
+    >;
+    // Por cada botón seteamos el tema actual al atributo data-cal-config
+    scheduleCalendar.forEach((element) => {
+      element.addEventListener("click", async () => {
+        const modal = document.querySelector("dialog[open]") as HTMLDialogElement | null;
+        if (modal) closeModalAnimation(modal);
+
+        // Obtenemos el tema y el namespace o tipo de clase, y el profesor
+        const theme = getTheme();
+        const namespace = element.getAttribute("data-cal-namespace");
+        const teacher = element.getAttribute("data-cal-teacher");
+
+        // Obtenemos la url del calendario
+        if (!teacher) return;
+        let url_teacher = "";
+        try {
+          url_teacher = await getTeacherURL(URL_BAKEND, teacher);
+        } catch (error) {
+          console.error("Error fetching teacher URL:", error);
+          return;
+        }
+
+        // carlos-vasquez-sanchez-prjw1j
+        element.setAttribute("data-cal-link", `${url_teacher}/${namespace}`);
+        element.setAttribute("data-cal-config", `{"theme":"${theme}"}`);
       });
     });
   });

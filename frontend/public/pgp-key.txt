@@ -1,4 +1,3 @@
-cat pgp-key.txt 
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
 mQINBGirl1sBEADtA9dUdDNd7E1SvDqFmN58qIZ/KlFJbVCOSU6ay6/2n6Q84QX2
