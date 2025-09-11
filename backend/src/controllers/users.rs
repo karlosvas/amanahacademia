@@ -3,8 +3,9 @@ use {
         models::{
             firebase::{
                 FirebaseAdminLookupResponse, FirebaseAuthResponse, RefreshToken, UserAuth,
-                UserAuthentication,
+                UserAuthentication, UserMerged,
             },
+            response::ResponseAPI,
             user::{UserDB, UserRequest},
         },
         services::firebase::handle_firebase_response,
@@ -33,7 +34,9 @@ pub async fn register_user(
         Some(role) if role == "admin" => {
             return (
                 StatusCode::FORBIDDEN,
-                Json(json!({ "error": "You do not have permission to assign this role" })),
+                Json(ResponseAPI::<()>::error(
+                    "You do not have permission to assign this role".to_string(),
+                )),
             )
                 .into_response();
         }
@@ -42,7 +45,10 @@ pub async fn register_user(
     if user.permissions.as_ref().is_some() || user.subscription_tier.as_ref().is_some() {
         return (
             StatusCode::FORBIDDEN,
-            Json(json!({ "error": "You do not have permission to assign these permissions or subscription tier" })),
+            Json(ResponseAPI::<()>::error(
+                "You do not have permission to assign these permissions or subscription tier"
+                    .to_string(),
+            )),
         )
             .into_response();
     }
@@ -76,7 +82,9 @@ pub async fn register_user(
         Err(_) => {
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({ "error": "Error connecting to Firebase" })),
+                Json(ResponseAPI::<()>::error(
+                    "Error connecting to Firebase".to_string(),
+                )),
             )
                 .into_response();
         }
@@ -109,19 +117,24 @@ pub async fn register_user(
     {
         Ok(response) if response.status().is_success() => (
             StatusCode::CREATED,
-            Json(json!({ "success": true, "body": { "token": auth_response.id_token, "message": "User created successfully" } })),
+            Json(ResponseAPI::<String>::success(
+                "User created successfully".to_string(),
+                auth_response.id_token,
+            )),
         )
             .into_response(),
         // Si algo ha fallado avisamos de que el usuario no se pudo crear en la base de datos pero
         // el usuario fue creado en Firebase Auth
         Ok(_) => (
             StatusCode::PARTIAL_CONTENT,
-            Json(json!({ "success": false, "warning": "User created in Firebase Auth but error saving profile in database"})),
+            Json(ResponseAPI::<()>::error(
+                "User created in Firebase Auth but error saving profile in database".to_string(),
+            )),
         )
             .into_response(),
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({"success": false, "warning": "Error saving profile"})),
+            Json(ResponseAPI::<()>::error("Error saving profile".to_string())),
         )
             .into_response(),
     }
@@ -156,14 +169,21 @@ pub async fn login_user(
         .await
     {
         Ok(response) => match handle_firebase_response::<FirebaseAuthResponse>(response).await {
-            Ok(auth_response) => {
-                (StatusCode::OK, Json(json!({ "success": true, "body": { "token": auth_response.id_token, "message": "Login successful" } }))).into_response()
-            }
+            Ok(auth_response) => (
+                StatusCode::OK,
+                Json(ResponseAPI::<String>::success(
+                    "Login successful".to_string(),
+                    auth_response.id_token,
+                )),
+            )
+                .into_response(),
             Err((status, error)) => return (status, Json(error)).into_response(),
         },
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({ "error": "Error connecting to Firebase" })),
+            Json(ResponseAPI::<()>::error(
+                "Error connecting to Firebase".to_string(),
+            )),
         )
             .into_response(),
     }
@@ -206,7 +226,9 @@ pub async fn update_user(
         },
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({ "error": "Error connecting to Firebase" })),
+            Json(ResponseAPI::<()>::error(
+                "Error connecting to Firebase".to_string(),
+            )),
         )
             .into_response(),
     };
@@ -223,7 +245,9 @@ pub async fn update_user(
         None => {
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({ "error": "Error getting user data" })),
+                Json(ResponseAPI::<()>::error(
+                    "Error getting user data".to_string(),
+                )),
             )
                 .into_response();
         }
@@ -262,16 +286,21 @@ pub async fn update_user(
         .await
     {
         Ok(response) => match handle_firebase_response::<UserDB>(response).await {
-            Ok(_) => (
+            Ok(user) => (
                 StatusCode::OK,
-                Json(json!({ "success": true, "message": "User updated successfully" })),
+                Json(ResponseAPI::<UserDB>::success(
+                    "User updated successfully".to_string(),
+                    user,
+                )),
             )
                 .into_response(),
             Err((status, error)) => (status, Json(error)).into_response(),
         },
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({ "error": "Error connecting to Firebase" })),
+            Json(ResponseAPI::<()>::error(
+                "Error connecting to Firebase".to_string(),
+            )),
         )
             .into_response(),
     }
@@ -305,7 +334,9 @@ pub async fn delete_me(
         },
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({ "error": "Error connecting to Firebase" })),
+            Json(ResponseAPI::<()>::error(
+                "Error connecting to Firebase".to_string(),
+            )),
         )
             .into_response(),
     };
@@ -321,12 +352,14 @@ pub async fn delete_me(
         Ok(response) if response.status().is_success() => (StatusCode::NO_CONTENT).into_response(),
         Ok(_) => (
             StatusCode::BAD_REQUEST,
-            Json(json!({ "error": "Invalid credential" })),
+            Json(ResponseAPI::<()>::error("Invalid credential".to_string())),
         )
             .into_response(),
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({ "error": "Error connecting to Firebase" })),
+            Json(ResponseAPI::<()>::error(
+                "Error connecting to Firebase".to_string(),
+            )),
         )
             .into_response(),
     }
@@ -345,7 +378,9 @@ pub async fn get_all_users(
         None => {
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({ "error": "Error getting user data" })),
+                Json(ResponseAPI::<()>::error(
+                    "Error getting user data".to_string(),
+                )),
             )
                 .into_response();
         }
@@ -355,7 +390,9 @@ pub async fn get_all_users(
     if actual_user_db.role != Some("admin".to_string()) {
         return (
             StatusCode::FORBIDDEN,
-            Json(json!({ "error": "You do not have permission to access this resource" })),
+            Json(ResponseAPI::<()>::error(
+                "You do not have permission to access this resource".to_string(),
+            )),
         )
             .into_response();
     } else {
@@ -382,7 +419,9 @@ pub async fn get_all_users(
                             Err(_) => {
                                 return (
                                     StatusCode::INTERNAL_SERVER_ERROR,
-                                    Json(json!({ "error": "Error parsing database users data" })),
+                                    Json(ResponseAPI::<()>::error(
+                                        "Error parsing database users data".to_string(),
+                                    )),
                                 )
                                     .into_response();
                             }
@@ -394,14 +433,18 @@ pub async fn get_all_users(
             Ok(_) => {
                 return (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(json!({ "error": "Error retrieving users from database" })),
+                    Json(ResponseAPI::<()>::error(
+                        "Error retrieving users from database".to_string(),
+                    )),
                 )
                     .into_response();
             }
             Err(_) => {
                 return (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(json!({ "error": "Error connecting to Firebase" })),
+                    Json(ResponseAPI::<()>::error(
+                        "Error connecting to Firebase".to_string(),
+                    )),
                 )
                     .into_response();
             }
@@ -433,21 +476,21 @@ pub async fn get_all_users(
         Err(_) => {
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({ "error": "Error connecting to Firebase" })),
+                Json(ResponseAPI::<()>::error(
+                    "Error connecting to Firebase".to_string(),
+                )),
             )
                 .into_response();
         }
     };
 
+    let merged_users: Vec<UserMerged> = user_data_auth.merge(user_data_db);
     (
         StatusCode::OK,
-        Json(json!({
-            "success": true,
-            "body": { "users": {
-                "firebase_auth": user_data_auth,
-                "firebase_database": user_data_db
-            }, "message": "Users retrieved successfully" }
-        })),
+        Json(ResponseAPI::<Vec<UserMerged>>::success(
+            "Users retrieved successfully".to_string(),
+            merged_users,
+        )),
     )
         .into_response()
 }
@@ -475,18 +518,25 @@ pub async fn refresh_token(
         Ok(response) => match handle_firebase_response::<FirebaseAuthResponse>(response).await {
             Ok(auth_response) => (
                 StatusCode::OK,
-                Json(json!({ "success": true, "body": auth_response })),
+                Json(ResponseAPI::<String>::success(
+                    "Token refreshed successfully".to_string(),
+                    auth_response.id_token,
+                )),
             )
                 .into_response(),
             Err(_) => (
                 StatusCode::UNAUTHORIZED,
-                Json(json!({ "error": "Invalid refresh token" })),
+                Json(ResponseAPI::<()>::error(
+                    "Invalid refresh token".to_string(),
+                )),
             )
                 .into_response(),
         },
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({ "error": "Error refreshing token" })),
+            Json(ResponseAPI::<()>::error(
+                "Error refreshing token".to_string(),
+            )),
         )
             .into_response(),
     }
@@ -508,42 +558,6 @@ pub async fn get_user_data_db(
     match state.firebase_client.get(url_firebase_db).send().await {
         Ok(response) => match handle_firebase_response::<UserDB>(response).await {
             Ok(user) => Some(user),
-            Err(_) => None,
-        },
-        Err(_) => None,
-    }
-}
-
-// Obtener datos del usuario según su sesión de Firebase Auth
-pub async fn get_user_data_auth(
-    state: &Arc<AppState>,
-    login: &UserRequest,
-) -> Option<FirebaseAuthResponse> {
-    // URL de Firebase Realtime Database para obtener los datos del usuario
-    // Construir la URL para la autenticación
-    let url_login_firebase: String = format!(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={}",
-        state.firebase.firebase_api_key
-    );
-
-    // Crear el cuerpo de la solicitud para el login de usuario
-    let login_payload: UserAuth = UserAuth {
-        id_token: None,
-        email: login.email.clone(),
-        password: login.password.clone(),
-        return_secure_token: true,
-    };
-
-    // Enviar la solicitud a Firebase Auth
-    match state
-        .firebase_client
-        .post(&url_login_firebase)
-        .json(&login_payload)
-        .send()
-        .await
-    {
-        Ok(response) => match handle_firebase_response::<FirebaseAuthResponse>(response).await {
-            Ok(auth_response) => Some(auth_response),
             Err(_) => None,
         },
         Err(_) => None,

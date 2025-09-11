@@ -16,7 +16,7 @@ use {
     reqwest::Client as HttpClient,
     state::{AppState, CustomFirebase},
     std::{env, net::SocketAddr, sync::Arc},
-    stripe::Client as StripeClient,
+    // stripe::Client as StripeClient,
     tokio::net::TcpListener,
     tower_http::{
         cors::{AllowOrigin, CorsLayer},
@@ -48,14 +48,14 @@ async fn main() {
     };
 
     // Cliente de stripe
-    let stripe_client: StripeClient =
-        StripeClient::new(env::var("STRIPE_API_KEY").expect("STRIPE_API_KEY must be set"));
+    // let stripe_client: StripeClient =
+    //     StripeClient::new(env::var("STRIPE_API_KEY").expect("STRIPE_API_KEY must be set"));
 
     // Inicializar el estado de la aplicación y el enrutador
     let state: Arc<AppState> = Arc::new(AppState {
         firebase,
         firebase_client: HttpClient::new(),
-        stripe_client,
+        // stripe_client,
     });
 
     let cors: CorsLayer = CorsLayer::new()
@@ -72,7 +72,7 @@ async fn main() {
     let app: Router = Router::new()
         .nest("/users", routes::users::router(state.clone())) // FB Auth, FB Realtime DB
         .nest("/comments", routes::comments::router(state.clone())) // FB Auth, FB Realtime DB
-        .nest("/payment", routes::payments::router(state.clone())) // Stripe
+        // .nest("/payment", routes::payments::router(state.clone())) // Stripe
         .nest("/teachers", routes::teachers::router(state.clone())) // FB Auth, FB Realtime DB
         .nest("/webhook", routes::webhooks::router(state.clone())) // Webhooks
         .layer(cors) // CORS abierto

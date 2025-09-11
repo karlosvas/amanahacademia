@@ -35,23 +35,6 @@ impl PartialEq<str> for ROLE {
         }
     }
 }
-// impl ROLE {
-//     pub fn as_str(&self) -> &'static str {
-//         match self {
-//             ROLE::ADMIN => "admin",
-//             ROLE::STUDENT => "student",
-//             ROLE::TEACHER => "teacher",
-//         }
-//     }
-//     pub fn from_str(s: &str) -> Option<ROLE> {
-//         match s {
-//             "admin" => Some(ROLE::ADMIN),
-//             "student" => Some(ROLE::STUDENT),
-//             "teacher" => Some(ROLE::TEACHER),
-//             _ => None,
-//         }
-//     }
-// }
 
 impl std::fmt::Display for ROLE {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

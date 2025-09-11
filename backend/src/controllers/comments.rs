@@ -1,19 +1,15 @@
 use {
     crate::{
-        controllers::users::get_user_data_db,
-        models::{
-            comments::{Comment, CommentRequest, FirebaseCommentResponse},
-            firebase::UserAuthentication,
-            user::UserDB,
-        },
+        models::{comments::Comment, firebase::UserAuthentication, response::ResponseAPI},
         services::firebase::handle_firebase_response,
         state::AppState,
     },
     axum::{
-        Extension, Json, debug_handler, extract::Path, extract::State, http::StatusCode,
+        Extension, Json, debug_handler,
+        extract::{Path, State},
+        http::StatusCode,
         response::IntoResponse,
     },
-    serde_json::json,
     std::{collections::HashMap, sync::Arc},
 };
 
@@ -23,7 +19,7 @@ pub async fn add_comment(
     Extension(user_claims): Extension<UserAuthentication>,
     Extension(id_token): Extension<String>,
     State(state): State<Arc<AppState>>,
-    Json(comment): Json<CommentRequest>,
+    Json(comment): Json<Comment>,
 ) -> impl IntoResponse {
     // URL de para crear usuario en la DB
     let url_firebase_db: String = format!(
@@ -33,9 +29,9 @@ pub async fn add_comment(
 
     // Creamos el usuario que se va a crear en la DB
     let new_comment: Comment = Comment {
-        uid: user_claims.sub.clone(),
+        author_uid: Some(user_claims.user_id.clone()),
         name: comment.name.clone(),
-        fecha: comment.fecha.clone(),
+        timestamp: comment.timestamp.clone(),
         content: comment.content.clone(),
         url_img: comment.url_img.clone(),
         like: 0,
@@ -51,21 +47,24 @@ pub async fn add_comment(
         .send()
         .await
     {
-        Ok(response) => match handle_firebase_response::<FirebaseCommentResponse>(response).await {
+        Ok(response) => match handle_firebase_response::<HashMap<String, String>>(response).await {
             Ok(data_response) => (
                 StatusCode::CREATED,
-                Json(json!({
-                    "success": true,
-                    "comment_id": data_response.name,
-                    "message": "Comments fetched successfully"
-                })),
+                Json(ResponseAPI::<HashMap<String, String>>::success(
+                    "Comment created successfully".to_string(),
+                    data_response,
+                )),
             )
                 .into_response(),
-            Err((status, error)) => return (status, Json(error)).into_response(),
+            Err((status, error)) => {
+                return (status, Json(ResponseAPI::<()>::error(error))).into_response();
+            }
         },
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({"error": "Failed to add comment"})),
+            Json(ResponseAPI::<()>::error(
+                "Failed to add comment".to_string(),
+            )),
         )
             .into_response(),
     }
@@ -73,62 +72,62 @@ pub async fn add_comment(
 
 // Obtener todos los comentarios
 #[debug_handler]
-pub async fn get_all_comments(
-    Extension(user_claims): Extension<UserAuthentication>,
-    Extension(id_token): Extension<String>,
-    State(state): State<Arc<AppState>>,
-) -> impl IntoResponse {
-    // Nos aseguramos que quien accede a estos datos es un administrador
-    let actual_user_db: UserDB = match get_user_data_db(&user_claims, &id_token, &state).await {
-        Some(user_data) => user_data,
-        None => {
-            return (
-                StatusCode::UNAUTHORIZED,
-                Json(json!({"error": "Unauthorized"})),
-            )
-                .into_response();
-        }
-    };
-
-    // Solo podemos obtener todos los usuarios si es administrador
-    if actual_user_db.role != Some("admin".to_string()) {
-        return (
-            StatusCode::FORBIDDEN,
-            Json(json!({ "error": "You do not have permission to access this resource" })),
-        )
-            .into_response();
-    }
-
+pub async fn get_all_comments(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     // URL para obtener todos los comentarios de la DB
     let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/comments.json?auth={}",
-        state.firebase.firebase_project_id, id_token
+        "https://{}.firebasedatabase.app/comments.json",
+        state.firebase.firebase_project_id
     );
 
     // Realizamos la petición a la base de datos
     match state.firebase_client.get(&url_firebase_db).send().await {
         Ok(response) => {
-            let response_text = response.text().await.unwrap_or_default();
+            let response_text: String = response.text().await.unwrap_or_default();
 
             if response_text == "null" || response_text.is_empty() {
                 // No hay comentarios, devolver HashMap vacío
-                let empty_comments: HashMap<String, Comment> = HashMap::new();
-                return (StatusCode::OK, Json(json!(empty_comments))).into_response();
+                return (
+                    StatusCode::OK,
+                    Json(ResponseAPI::<HashMap<String, Comment>>::success(
+                        "No comments found".to_string(),
+                        HashMap::new(),
+                    )),
+                )
+                    .into_response();
             }
 
             match serde_json::from_str::<HashMap<String, Comment>>(&response_text) {
-                Ok(comments) => (StatusCode::OK, Json(json!(comments))).into_response(),
-                Err(e) => {
+                Ok(comments) => {
+                    let hidden_comments: HashMap<String, Comment> = comments
+                        .into_iter()
+                        .map(|(id, mut c)| {
+                            c.author_uid = None; // Ocultamos el uid
+                            (id, c)
+                        })
+                        .collect();
                     (
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        Json(json!({"error": "Error parsing Firebase response", "details": e.to_string()})),
-                    ).into_response()
+                        StatusCode::OK,
+                        Json(ResponseAPI::<HashMap<String, Comment>>::success(
+                            "Comments fetched successfully".to_string(),
+                            hidden_comments,
+                        )),
+                    )
+                        .into_response()
                 }
+                Err(_) => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ResponseAPI::<()>::error(
+                        "Error parsing Firebase response".to_string(),
+                    )),
+                )
+                    .into_response(),
             }
         }
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({"error": "Failed to fetch comments"})),
+            Json(ResponseAPI::<()>::error(
+                "Failed to fetch comments".to_string(),
+            )),
         )
             .into_response(),
     }
@@ -153,7 +152,7 @@ pub async fn delete_comment(
         None => {
             return (
                 StatusCode::NOT_FOUND,
-                Json(json!({"message": "Comment not found"})),
+                Json(ResponseAPI::<()>::error("Comment not found".to_string())),
             )
                 .into_response();
         }
@@ -163,42 +162,28 @@ pub async fn delete_comment(
     match state.firebase_client.delete(&url_firebase_db).send().await {
         Ok(response) => {
             if response.status().is_success() {
-                (StatusCode::NO_CONTENT, Json(json!({}))).into_response()
+                (
+                    StatusCode::NO_CONTENT,
+                    Json(ResponseAPI::<()>::success_no_data()),
+                )
+                    .into_response()
             } else {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(json!({"error": "Failed to delete comment"})),
+                    Json(ResponseAPI::<()>::error(
+                        "Failed to delete comment".to_string(),
+                    )),
                 )
                     .into_response()
             }
         }
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({"error": "Failed to delete comment"})),
+            Json(ResponseAPI::<()>::error(
+                "Failed to delete comment".to_string(),
+            )),
         )
             .into_response(),
-    }
-}
-
-// Obtener un comentario
-async fn get_comment_data(
-    comment_id: &str,
-    id_token: &str,
-    state: &Arc<AppState>,
-) -> Option<Comment> {
-    // URL de Firebase Realtime Database para obtener los datos del comentario
-    let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/comments/{}.json?auth={}",
-        state.firebase.firebase_project_id, comment_id, id_token
-    );
-
-    // Realizamos la petición a Firebase Realtime Database
-    match state.firebase_client.get(url_firebase_db).send().await {
-        Ok(response) => match handle_firebase_response::<Comment>(response).await {
-            Ok(comment) => Some(comment),
-            Err(_) => None,
-        },
-        Err(_) => None,
     }
 }
 
@@ -206,6 +191,7 @@ async fn get_comment_data(
 #[debug_handler]
 pub async fn toggle_like(
     Path(comment_id): Path<String>,
+    Extension(user_claims): Extension<UserAuthentication>,
     Extension(id_token): Extension<String>,
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
@@ -215,7 +201,7 @@ pub async fn toggle_like(
         None => {
             return (
                 StatusCode::NOT_FOUND,
-                Json(json!({"message": "Comment not found"})),
+                Json(ResponseAPI::<()>::error("Comment not found".to_string())),
             )
                 .into_response();
         }
@@ -228,7 +214,7 @@ pub async fn toggle_like(
     );
 
     // Comprobamos si ya le habiamos dado like
-    let is_liked: bool = comment.users_liked.contains(&comment.uid);
+    let is_liked: bool = comment.users_liked.contains(&user_claims.user_id);
     let new_comment: Comment = Comment {
         like: if is_liked {
             comment.like.saturating_sub(1)
@@ -237,11 +223,11 @@ pub async fn toggle_like(
         },
         users_liked: if is_liked {
             let mut users_liked: Vec<String> = comment.users_liked.clone();
-            users_liked.retain(|uid| uid != &comment.uid);
+            users_liked.retain(|uid| uid != &user_claims.user_id);
             users_liked
         } else {
             let mut users_liked: Vec<String> = comment.users_liked.clone();
-            users_liked.push(comment.uid.clone());
+            users_liked.push(user_claims.user_id.clone());
             users_liked
         },
         ..comment
@@ -256,24 +242,39 @@ pub async fn toggle_like(
         .await
     {
         Ok(response) => match handle_firebase_response::<Comment>(response).await {
-            Ok(comment) => (StatusCode::OK, Json(json!({"comment": comment}))).into_response(),
-            Err((status, error)) => (status, Json(error)).into_response(),
+            Ok(comment) => {
+                (
+                    StatusCode::OK,
+                    Json(ResponseAPI::<Comment>::success(
+                        "Comment updated successfully".to_string(),
+                        Comment {
+                            author_uid: None,
+                            ..comment
+                        },
+                    )),
+                )
+            }
+            .into_response(),
+            Err((status, error)) => (status, Json(ResponseAPI::<()>::error(error))).into_response(),
         },
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({"error": "Failed to update comment"})),
+            Json(ResponseAPI::<()>::error(
+                "Failed to update comment".to_string(),
+            )),
         )
             .into_response(),
     }
 }
 
+// Añadir respuesta a un comentario
 #[debug_handler]
 pub async fn add_reply(
     Path(comment_id): Path<String>,
     State(state): State<Arc<AppState>>,
     Extension(id_token): Extension<String>,
     Extension(user_claims): Extension<UserAuthentication>,
-    Json(reply_comment): Json<CommentRequest>,
+    Json(reply_comment): Json<Comment>,
 ) -> impl IntoResponse {
     // Obtenemos el comentario al que se va a responder
     let comment: Comment = match get_comment_data(&comment_id, &id_token, &state).await {
@@ -281,7 +282,7 @@ pub async fn add_reply(
         None => {
             return (
                 StatusCode::NOT_FOUND,
-                Json(json!({"message": "Comment not found"})),
+                Json(ResponseAPI::<()>::error("Comment not found".to_string())),
             )
                 .into_response();
         }
@@ -298,9 +299,9 @@ pub async fn add_reply(
         reply: {
             let mut replies: Vec<Comment> = comment.reply.clone();
             replies.push(Comment {
-                uid: user_claims.sub.clone(),
+                author_uid: Some(user_claims.user_id.clone()),
                 name: reply_comment.name.clone(),
-                fecha: reply_comment.fecha.clone(),
+                timestamp: reply_comment.timestamp.clone(),
                 content: reply_comment.content.clone(),
                 url_img: reply_comment.url_img.clone(),
                 like: 0,
@@ -321,13 +322,47 @@ pub async fn add_reply(
         .await
     {
         Ok(response) => match handle_firebase_response::<Comment>(response).await {
-            Ok(comment) => (StatusCode::CREATED, Json(json!({"comment": comment}))).into_response(),
-            Err((status, error)) => (status, Json(error)).into_response(),
+            Ok(comment) => (
+                StatusCode::CREATED,
+                Json(ResponseAPI::<Comment>::success(
+                    "Comment added successfully".to_string(),
+                    Comment {
+                        author_uid: None,
+                        ..comment
+                    },
+                )),
+            )
+                .into_response(),
+            Err((status, error)) => (status, Json(ResponseAPI::<()>::error(error))).into_response(),
         },
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({"error": "Failed to add comment"})),
+            Json(ResponseAPI::<()>::error(
+                "Failed to add comment".to_string(),
+            )),
         )
             .into_response(),
+    }
+}
+
+// Servicio para obtener un comentario de la base de datos
+async fn get_comment_data(
+    comment_id: &str,
+    id_token: &str,
+    state: &Arc<AppState>,
+) -> Option<Comment> {
+    // URL de Firebase Realtime Database para obtener los datos del comentario
+    let url_firebase_db: String = format!(
+        "https://{}.firebasedatabase.app/comments/{}.json?auth={}",
+        state.firebase.firebase_project_id, comment_id, id_token
+    );
+
+    // Realizamos la petición a Firebase Realtime Database
+    match state.firebase_client.get(url_firebase_db).send().await {
+        Ok(response) => match handle_firebase_response::<Comment>(response).await {
+            Ok(comment) => Some(comment),
+            Err(_) => None,
+        },
+        Err(_) => None,
     }
 }
