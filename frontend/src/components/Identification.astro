@@ -5,6 +5,7 @@ import EmailIcon from "@/assets/email.svg";
 import PasswordIcon from "@/assets/password.svg";
 import { TERMNS } from "@/utils/constants";
 import type { ModalI18n } from "@/types/types";
+import GoogleIcon from "@/assets/google.svg";
 
 const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 const data = Astro.props.data as ModalI18n;
@@ -69,6 +70,16 @@ const data = Astro.props.data as ModalI18n;
         class="w-full bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2"
       >
         {data.login.button}
+      </button>
+      <!-- Google Login Button Minimalista -->
+      <button
+        type="button"
+        id="googleLoginBtn"
+        class="w-full flex items-center justify-center gap-2 bg-blue-50 border border-gray-300 rounded-xl py-3 px-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+        style="font-weight: 500;"
+      >
+        <GoogleIcon />
+        <span class="text-gray-700">Continuar con Google</span>
       </button>
       <!-- Loading indicator -->
       <div id="loginLoading" class="hidden text-center text-lightBrown text-sm mt-2">{data.utils.loading}</div>
@@ -217,10 +228,10 @@ const data = Astro.props.data as ModalI18n;
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer is:inline></script>
 <!-- Logica de registro y login -->
 <script>
-  import { toggleLoginToRegister, submitForm } from "@/utils/identifications";
+  import { toggleLoginToRegister, submitForm, handleLogGoogleProvider } from "@/services/firebase";
 
   // Estado actual de registro o Login
-  let isRegister: boolean = false;
+  let isRegister = false;
 
   // Esperamos a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", () => {
@@ -230,10 +241,10 @@ const data = Astro.props.data as ModalI18n;
     const formLogin = document.getElementById("loginForm") as HTMLFormElement;
     const formRegister = document.getElementById("registerForm") as HTMLFormElement;
     const changeModalButtons = document.querySelectorAll(".toggleIdentification") as NodeListOf<HTMLAnchorElement>;
-    const registerLoading = document.getElementById("registerLoading") as HTMLElement;
-    const loginLoading = document.getElementById("loginLoading") as HTMLElement;
-    const loginError = document.getElementById("loginError") as HTMLElement;
-    const registerError = document.getElementById("registerError") as HTMLElement;
+    const registerLoading = document.getElementById("registerLoading") as HTMLDivElement;
+    const loginLoading = document.getElementById("loginLoading") as HTMLDivElement;
+    const loginError = document.getElementById("loginError") as HTMLDivElement;
+    const registerError = document.getElementById("registerError") as HTMLDivElement;
 
     // Cambiamos de login a register viceversa
     changeModalButtons.forEach((link) => {
@@ -246,5 +257,18 @@ const data = Astro.props.data as ModalI18n;
     // Gestiona los formularios, las validaciones y los envios
     submitForm(authModalLogin, loginLoading, "#loginForm", false, loginError);
     submitForm(authModalRegister, registerLoading, "#registerForm", true, registerError);
+
+    const googleBtn = document.getElementById("googleLoginBtn") as HTMLButtonElement;
+    googleBtn.addEventListener("click", async () => {
+      if (isRegister) {
+        handleLogGoogleProvider(authModalRegister, formRegister, isRegister, loginError).catch((error) =>
+          console.error("Error al iniciar sesión con Google:", error)
+        );
+      } else {
+        handleLogGoogleProvider(authModalLogin, formLogin, isRegister, loginError).catch((error) =>
+          console.error("Error al iniciar sesión con Google:", error)
+        );
+      }
+    });
   });
 </script>

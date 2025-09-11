@@ -1,8 +1,7 @@
-import { signInWithEmailAndPassword, type User } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, type User } from "firebase/auth";
 import toast from "solid-toast";
-// import { toastErrorFirebase } from "./toast";
-import { showModalAnimation } from "./modals";
-import { auth } from "@/lib/firebase";
+import { showModalAnimation } from "../utils/modals";
+import { auth, googleProvider } from "@/config/firebase";
 import type { IdentificationI18n } from "@/types/types";
 
 // Actualiza el botón de identificación
@@ -167,4 +166,26 @@ export function submitForm(
       loading.classList.add("hidden");
     }
   });
+}
+
+// Logeo con firebase
+export async function handleLogGoogleProvider(
+  modal: HTMLDialogElement,
+  formHTML: HTMLFormElement,
+  isRegister: boolean,
+  loginError: HTMLDivElement
+) {
+  try {
+    await signInWithPopup(auth, googleProvider);
+    modal.close();
+    setTimeout(() => {
+      toast.success(isRegister ? "¡Registro exitoso! Vamos a empezar con tu primer curso." : "¡Bienvenido de vuelta!");
+      formHTML.reset();
+      loginError.classList.add("hidden");
+    }, 300);
+  } catch (error) {
+    console.error("Error during Google sign-in:", error);
+    loginError.textContent = "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo.";
+    loginError.classList.remove("hidden");
+  }
 }

@@ -37,9 +37,9 @@ const { lang } = Astro.params;
 </header>
 
 <script>
-  import { auth } from "@/lib/firebase.js";
+  import { auth } from "@/config/firebase.js";
   import { onAuthStateChanged } from "firebase/auth";
-  import { openIdentificationModalOrLoggout } from "@/utils/identifications";
+  import { openIdentificationModalOrLoggout } from "@/services/firebase";
 
   // Referencias al modal de login y register
   const authModalLogin = document.getElementById("authModalLogin") as HTMLDialogElement;

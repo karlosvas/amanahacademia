@@ -1,5 +1,5 @@
 ---
-import type { Teacher, ResponseAPI } from "../types/types";
+// import type { Teacher, ResponseAPI } from "../types/types";
 const images = Array.from({ length: 4 }).map((_, i) => `/img/professor${i + 1}.jpg`);
 
 const id = Astro.props.id as string;
@@ -29,10 +29,7 @@ const url_api = import.meta.env.PUBLIC_BACKEND_URL;
     >
       &#8592;
     </button>
-    <div
-      class="overflow-hidden w-full h-80 flex items-center justify-center relative bg-red mx-10 p-3"
-      id="carousel-track"
-    >
+    <div class="overflow-hidden w-full h-80 flex items-center justify-center relative mx-10 p-3" id="carousel-track">
       {
         images.map((src, i) => (
           <div
