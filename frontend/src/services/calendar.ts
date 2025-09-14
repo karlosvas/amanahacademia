@@ -1,4 +1,4 @@
-import type { Class } from "@/enum/enums";
+import type { Class } from "@/enums/enums";
 
 /**
  * Inicializa y configura el calendario embebido de Cal.com para el namespace dado.

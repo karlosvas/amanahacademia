@@ -314,5 +314,29 @@
     "license": "Licence",
     "privacy_policy": "Politique de confidentialité",
     "terms_of_service": "Conditions générales"
+  },
+  "security": {
+    "title": "Temple de la Renommée de la Sécurité",
+    "subtitle": "Reconnaissant les contributions précieuses de notre communauté",
+    "intro": "Chez Amanah Academia, nous valorisons grandement les efforts de ceux qui aident à protéger notre plateforme et nos utilisateurs. Cette page reconnaît ceux qui ont signalé de manière responsable des vulnérabilités et des améliorations.",
+    "examples_title": "Exemples non réels",
+    "researchers": [
+      {
+        "name": "Carlos Pérez",
+        "severity": "Sévérité Moyenne",
+        "title": "Spécialiste UI/UX",
+        "finding_title": "Amélioration de l'interface de sécurité",
+        "finding_desc": "A proposé une réorganisation des paramètres de confidentialité qui a considérablement amélioré la compréhension et l'utilisation par les utilisateurs."
+      },
+      {
+        "name": "María Gómez",
+        "severity": "Sévérité Moyenne",
+        "title": "Auditrice Web",
+        "finding_title": "Liens brisés et redirections",
+        "finding_desc": "A identifié plusieurs liens brisés qui auraient pu être utilisés pour des attaques de phishing ou pour semer la confusion chez les utilisateurs."
+      }
+    ],
+    "thank_you_title": "Merci de rendre Amanah Academia plus sûre !",
+    "thank_you_desc": "Nous apprécions profondément le temps, les efforts et l'expertise que nos chercheurs ont consacrés à l'amélioration de notre plateforme. Leur travail responsable a permis de prévenir des incidents potentiels et d'améliorer l'expérience de tous nos utilisateurs."
   }
 }

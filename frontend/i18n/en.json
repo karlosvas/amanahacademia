@@ -304,5 +304,29 @@
     "license": "License",
     "privacy_policy": "Privacy Policy",
     "terms_of_service": "Terms and Conditions"
+  },
+  "security": {
+    "title": "Security Hall of Fame",
+    "subtitle": "Recognizing the valuable contributions of our community",
+    "intro": "At Amanah Academia, we greatly value the efforts of those who help protect our platform and users. This page recognizes those who have responsibly reported vulnerabilities and improvements.",
+    "examples_title": "Non-real examples",
+    "researchers": [
+      {
+        "name": "Carlos Pérez",
+        "severity": "Medium Severity",
+        "title": "UI/UX Specialist",
+        "finding_title": "Security interface improvement",
+        "finding_desc": "Proposed a reorganization of privacy settings that significantly improved user understanding and usage."
+      },
+      {
+        "name": "María Gómez",
+        "severity": "Medium Severity",
+        "title": "Web Auditor",
+        "finding_title": "Broken links and redirects",
+        "finding_desc": "Identified multiple broken links that could have been used for phishing attacks or user confusion."
+      }
+    ],
+    "thank_you_title": "Thank you for making Amanah Academia safer!",
+    "thank_you_desc": "We deeply appreciate the time, effort, and expertise our researchers have dedicated to improving our platform. Their responsible work has prevented potential incidents and improved the experience for all our users."
   }
 }

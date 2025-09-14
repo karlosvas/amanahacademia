@@ -14,12 +14,12 @@ const data = Astro.props.data as ModalI18n;
 <!-- Login -->
 <dialog
   id="authModalLogin"
-  class="modal border-0 rounded-2xl p-0 max-w-md w-[90%] shadow-2xl bg-gradient-to-br from-white to-smoothBrown overflow-hidden"
+  class="modal border-0 rounded-2xl p-0 max-w-md w-[90%] shadow-2xl bg-gradient-to-br from-white to-smoothBrown overflow-hidden font-normal text-sm"
 >
   <div class="p-8 relative">
     <!-- Close Button -->
     <button
-      class="absolute top-4 right-4 w-10 h-10 rounded-full bg-lightSalmon hover:bg-red text-brown hover:text-white transition-all duration-300 flex items-center justify-center text-xl font-light border-0 cursor-pointer shadow-sm hover:shadow-md transform hover:scale-110"
+      class="absolute top-4 right-4 w-10 h-10 rounded-full bg-lightSalmon hover:bg-red text-brown hover:text-white transition-all duration-300 flex items-center justify-center font-light border-0 cursor-pointer shadow-sm hover:shadow-md transform hover:scale-110"
       aria-label="close-modal"
     >
       ×
@@ -32,11 +32,11 @@ const data = Astro.props.data as ModalI18n;
       >
         <PersoneIcon />
       </div>
-      <h2 class="text-2xl font-bold text-brown mb-2">{data.login.title}</h2>
-      <p class="text-lightBrown text-sm">{data.login.subtitle}</p>
+      <h2 class="text-xl font-bold text-brown mb-2">{data.login.title}</h2>
+      <p class="text-lightBrown text-xs">{data.login.subtitle}</p>
     </div>
     <!-- Form -->
-    <form class="space-y-6" id="loginForm">
+    <form class="space-y-4" id="loginForm">
       {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="invisible" />}
       <!-- Email Input -->
       <div class="relative">
@@ -44,7 +44,7 @@ const data = Astro.props.data as ModalI18n;
           type="email"
           placeholder="Email"
           name="email"
-          class="w-full px-4 py-3 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
+          class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown font-normal"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
           <EmailIcon />
@@ -56,7 +56,7 @@ const data = Astro.props.data as ModalI18n;
           type="password"
           placeholder="Contraseña"
           name="password"
-          class="w-full px-4 py-3 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
+          class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
           <PasswordIcon />
@@ -64,31 +64,30 @@ const data = Astro.props.data as ModalI18n;
       </div>
       <!-- Submit Button -->
       <!-- Mensajes de error -->
-      <div id="loginError" class="hidden text-center text-lightRed text-sm mt-2 p-3 bg-slate-50"></div>
+      <div id="loginError" class="hidden text-center text-lightRed mt-2 p-3 bg-slate-50"></div>
       <button
         type="submit"
-        class="w-full bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2"
+        class="w-full bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2"
       >
         {data.login.button}
       </button>
       <!-- Google Login Button Minimalista -->
       <button
         type="button"
-        id="googleLoginBtn"
-        class="w-full flex items-center justify-center gap-2 bg-blue-50 border border-gray-300 rounded-xl py-3 px-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+        class="googleLoginBtn w-full flex items-center justify-center gap-2 bg-blue-50 border border-gray-300 rounded-xl py-2 px-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
         style="font-weight: 500;"
       >
         <GoogleIcon />
-        <span class="text-gray-700">Continuar con Google</span>
+        <span class="text-gray-700">Google</span>
       </button>
       <!-- Loading indicator -->
-      <div id="loginLoading" class="hidden text-center text-lightBrown text-sm mt-2">{data.utils.loading}</div>
+      <div id="loginLoading" class="hidden text-center text-lightBrownmt-2">{data.utils.loading}</div>
       <!-- Divider -->
       <div class="relative my-6">
         <div class="absolute inset-0 flex items-center">
           <div class="w-full border-t border-lightSalmon"></div>
         </div>
-        <div class="relative flex justify-center text-sm">
+        <div class="relative flex justify-center">
           <span class="px-2 bg-white text-lightBrown">o</span>
         </div>
       </div>
@@ -96,7 +95,7 @@ const data = Astro.props.data as ModalI18n;
       <div class="text-center">
         <a
           href="#"
-          class="toggleIdentification text-salmon hover:text-brown font-medium text-sm hover:underline transition-colors duration-200"
+          class="toggleIdentification text-salmon hover:text-brown font-medium hover:underline transition-colors duration-200"
         >
           {data.login.toggleModal}
         </a>
@@ -116,7 +115,7 @@ const data = Astro.props.data as ModalI18n;
 <!-- Register -->
 <dialog
   id="authModalRegister"
-  class="modal border-0 rounded-2xl p-0 max-w-md w-[90%] shadow-2xl bg-gradient-to-br from-white to-smoothBrown overflow-hidden"
+  class="modal border-0 rounded-2xl p-0 max-w-md w-[90%] shadow-2xl bg-gradient-to-br from-white to-smoothBrown overflow-hidden font-normal text-sm"
 >
   <div class="p-8 relative">
     <!-- Close Button -->
@@ -133,11 +132,11 @@ const data = Astro.props.data as ModalI18n;
       >
         <PersoneIcon />
       </div>
-      <h2 class="text-2xl font-bold text-brown mb-2">{data.register.title}</h2>
-      <p class="text-lightBrown text-sm">{data.register.subtitle}</p>
+      <h2 class="text-xl font-bold text-brown mb-2">{data.register.title}</h2>
+      <p class="text-lightBrown text-xs">{data.register.subtitle}</p>
     </div>
     <!-- Form -->
-    <form class="space-y-6" id="registerForm">
+    <form class="space-y-4" id="registerForm">
       {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="invisible" />}
       <!-- Nombre Input -->
       <div class="relative">
@@ -145,7 +144,7 @@ const data = Astro.props.data as ModalI18n;
           type="text"
           placeholder="Nombre"
           name="name"
-          class="w-full px-4 py-3 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
+          class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"></div>
       </div>
@@ -155,7 +154,7 @@ const data = Astro.props.data as ModalI18n;
           type="email"
           placeholder="Email"
           name="email"
-          class="w-full px-4 py-3 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
+          class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
           <AtSignIcon />
@@ -167,7 +166,7 @@ const data = Astro.props.data as ModalI18n;
           type="password"
           placeholder="Contraseña"
           name="password"
-          class="w-full px-4 py-3 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
+          class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
           <PasswordIcon />
@@ -180,7 +179,7 @@ const data = Astro.props.data as ModalI18n;
             <li>
               <label class="flex items-center">
                 <input type="checkbox" name={TERMNS[index]} class="mr-2" />
-                <a href="/info" target="_blank" class="text-lightBrown text-xs hover:underline hover:text-red">
+                <a href="/info" target="_blank" class="text-lightBrown text-xs  hover:underline hover:text-red">
                   {item}
                 </a>
               </label>
@@ -189,22 +188,31 @@ const data = Astro.props.data as ModalI18n;
         }
       </ul>
       <!-- Mensajes de error -->
-      <div id="registerError" class="hidden text-center text-lightRed text-sm mt-2 p-3 bg-slate-50"></div>
-      <!-- Submit Button -->
+      <div id="registerError" class="hidden text-center text-lightRed mt-2 p-3 bg-slate-50"></div>
+      <!-- Register Button -->
       <button
         type="submit"
-        class="w-full bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2"
+        class="w-full bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2"
       >
         {data.register.title}
       </button>
+      <!-- Google Login Button -->
+      <button
+        type="button"
+        class="googleLoginBtn w-full flex items-center justify-center gap-2 bg-blue-50 border border-gray-300 rounded-xl py-2 px-4 shadow-sm hover:shadow-md transition-all duration-200 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+        style="font-weight: 500;"
+      >
+        <GoogleIcon />
+        <span class="text-gray-700">Google</span>
+      </button>
       <!-- Loading indicator -->
-      <div id="registerLoading" class="hidden text-center text-lightBrown text-sm mt-2">{data.utils.loading}</div>
+      <div id="registerLoading" class="hidden text-center text-lightBrown mt-2">{data.utils.loading}</div>
       <!-- Divider -->
       <div class="relative my-6">
         <div class="absolute inset-0 flex items-center">
           <div class="w-full border-t border-lightSalmon"></div>
         </div>
-        <div class="relative flex justify-center text-sm">
+        <div class="relative flex justify-center">
           <span class="px-2 bg-white text-lightBrown">o</span>
         </div>
       </div>
@@ -213,7 +221,7 @@ const data = Astro.props.data as ModalI18n;
       <div class="text-center">
         <a
           href="#"
-          class="toggleIdentification text-salmon hover:text-brown font-medium text-sm hover:underline transition-colors duration-200"
+          class="toggleIdentification text-salmon hover:text-brown font-medium hover:underline transition-colors duration-200"
         >
           {data.register.toggleModal}
         </a>
@@ -258,17 +266,19 @@ const data = Astro.props.data as ModalI18n;
     submitForm(authModalLogin, loginLoading, "#loginForm", false, loginError);
     submitForm(authModalRegister, registerLoading, "#registerForm", true, registerError);
 
-    const googleBtn = document.getElementById("googleLoginBtn") as HTMLButtonElement;
-    googleBtn.addEventListener("click", async () => {
-      if (isRegister) {
-        handleLogGoogleProvider(authModalRegister, formRegister, isRegister, loginError).catch((error) =>
-          console.error("Error al iniciar sesión con Google:", error)
-        );
-      } else {
-        handleLogGoogleProvider(authModalLogin, formLogin, isRegister, loginError).catch((error) =>
-          console.error("Error al iniciar sesión con Google:", error)
-        );
-      }
+    const googleBtns = document.querySelectorAll(".googleLoginBtn") as NodeListOf<HTMLButtonElement>;
+    googleBtns.forEach((googleBtn) => {
+      googleBtn.addEventListener("click", async () => {
+        if (isRegister) {
+          handleLogGoogleProvider(authModalRegister, formRegister, isRegister, loginError).catch((error) =>
+            console.error("Error al iniciar sesión con Google:", error)
+          );
+        } else {
+          handleLogGoogleProvider(authModalLogin, formLogin, isRegister, loginError).catch((error) =>
+            console.error("Error al iniciar sesión con Google:", error)
+          );
+        }
+      });
     });
   });
 </script>

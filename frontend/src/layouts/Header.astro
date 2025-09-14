@@ -8,13 +8,25 @@ import Identification from "@/components/Identification.astro";
 // Obtener las traduccciones
 const data = Astro.props.data as HeaderI18n;
 const { lang } = Astro.params;
+const theme = Astro.cookies.get("theme")?.value ?? "light";
 ---
 
-<header class="fixed top-0 left-0 w-full z-50 h-20 bg-background flex items-center justify-between px-5 md:px-10">
+<header
+  class="font-semibold fixed top-0 left-0 w-full z-50 h-20 bg-background flex items-center justify-between px-5 md:px-10 relative"
+>
   <Identification data={data.identification.modal} />
   <Hamburger data={data} />
-  <img src="/img/logo_amanah.webp" alt="" class="h-full hidden lg:block" id="logo_amanah" />
-  <nav class="hidden lg:block z-10">
+  {
+    (
+      <img
+        src={theme === "dark" ? "/img/logo_amanah_dark.webp" : "/img/logo_amanah.webp"}
+        alt=""
+        class="h-full hidden lg:block"
+        id="logo_amanah"
+      />
+    )
+  }
+  <nav class="hidden lg:block absolute left-1/2 top-8 h-full flex items-center z-10 -translate-x-1/2">
     <ul class="flex flex-row gap-6 items-center color-red text-red font-jomolhari justify-center whitespace-nowrap">
       <li><a href={!lang ? "/" : `/${lang}/`}>{data.about_us}</a></li>
       <li><a href={!lang ? "/articles" : `/${lang}/articles`}>{data.articles}</a></li>
@@ -30,6 +42,7 @@ const { lang } = Astro.params;
       class="bg-lightRed hover:bg-salmon transition-colors rounded-lg text-gray-50 font-semibold py-2 mr-3 shadow-lg hover:shadow-xl transition-all duration-200 text-xs px-3 hidden lg:block"
       data-header={JSON.stringify(data.identification)}
     >
+      {data.identification.button.login}
     </button>
     <Theme />
     <Traductor />
@@ -39,7 +52,7 @@ const { lang } = Astro.params;
 <script>
   import { auth } from "@/config/firebase.js";
   import { onAuthStateChanged } from "firebase/auth";
-  import { openIdentificationModalOrLoggout } from "@/services/firebase";
+  import { setupAuth } from "@/services/firebase";
 
   // Referencias al modal de login y register
   const authModalLogin = document.getElementById("authModalLogin") as HTMLDialogElement;
@@ -50,22 +63,13 @@ const { lang } = Astro.params;
   // Actualizamos segun el tamaño de la ventana
   document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", () => {
-      openIdentificationModalOrLoggout(auth.currentUser, authModalLogin, formLogin, auth, headerData);
-    });
-
-    // Imagen del logo
-    // Cambiar el logo en función al tema de la web dark o light
-    window.addEventListener("themeChange", (event: Event) => {
-      const img_log = document.getElementById("logo_amanah") as HTMLImageElement;
-      if ((event as CustomEvent).detail.theme === "dark" && img_log) img_log.src = "/img/logo_amanah_dark.webp";
-      else if (img_log) img_log.src = "/img/logo_amanah.webp";
-      else console.error("No se encontró el logo");
+      setupAuth(auth.currentUser, authModalLogin, formLogin, auth, headerData);
     });
   });
 
   // Firebase auth state
   onAuthStateChanged(auth, async (user) => {
-    openIdentificationModalOrLoggout(user, authModalLogin, formLogin, auth, headerData);
+    setupAuth(user, authModalLogin, formLogin, auth, headerData);
     if (user) {
       const idToken = await user.getIdToken();
       // Guardamos la session id en las cookies

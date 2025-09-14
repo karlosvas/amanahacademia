@@ -1,8 +1,8 @@
 ---
+import { Class } from "@/enums/enums";
 import CardPricing from "./CardPricing.astro";
 import Title from "./Title.astro";
 import type { PricingI18n } from "@/types/types";
-import { Class } from "@/enum/enums";
 
 const data = Astro.props.data as PricingI18n;
 ---
@@ -16,7 +16,7 @@ const data = Astro.props.data as PricingI18n;
       <CardPricing data={data.type.group} id={Class.Grupales} />
     </div>
     <div
-      class="w-full md:w-3/4 flex flex-col md:flex-row text-sm mt-8 md:mt-20 m-auto pb-8 md:pb-20 p-20 md:p-0 gap-4 md:gap-6"
+      class="w-full md:w-3/4 flex flex-col md:flex-row text-sm mt-8 md:mt-20 m-auto pb-8 md:pb-20 p-20 md:p-0 gap-4 md:gap-6 scroll-fade-in"
     >
       <div class="mx-0 md:mx-3">
         <h4 class="text-salmon text-lg font-semibold">
@@ -48,7 +48,7 @@ const data = Astro.props.data as PricingI18n;
   import { getTheme } from "@/utils/cookie";
   import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
   import { initCalendar, getTeacherURL } from "@/services/calendar";
-  import { Class } from "@/enum/enums";
+  import { Class } from "@/enums/enums";
   import { URL_BAKEND } from "@/utils/constants";
 
   // Iniciamos el calendario de clases gratuitas por defecto

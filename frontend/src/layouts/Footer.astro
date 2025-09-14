@@ -5,18 +5,17 @@ import GmailIcon from "@/assets/gmail.svg";
 import InstagramIcon from "@/assets/instagram.svg";
 
 const data = Astro.props.data as FooterI18n;
-const customStyle = (Astro.props.customStyle as string) || "bg-brown";
 ---
 
 <!-- Botón para volver al inicio -->
 <div
   id="backToTop"
-  class="fixed bottom-20 right-8 w-14 h-14 bg-lightRed text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:bg-salmon transition-all duration-300 hover:-translate-y-1 opacity-0 invisible"
+  class="fixed bottom-20 right-8 w-14 h-14 bg-salmon hover:bg-lightSalmon text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1 opacity-0 invisible"
 >
   <i class="fas fa-arrow-up text-xl"></i>
 </div>
 <footer class="text-xs md:text-sm">
-  <div class={`${customStyle} w-full h-28 flex justify-between items-center px-3 md:px-8  text-gray-100`}>
+  <div class="bg-brown w-full h-28 flex justify-between items-center px-3 md:px-8 text-gray-100">
     <div class="w-42">
       <ul>
         <li class="flex">
@@ -25,7 +24,7 @@ const customStyle = (Astro.props.customStyle as string) || "bg-brown";
         </li>
         <li class="flex">
           <GmailIcon />
-          <a class="px-2" href="mailto:anaortegagutierrez99@gmail.com">anaortegagutierrez99@gmail.com</a>
+          <a class="px-2" href="mailto:anaortegagutierrez99@gmail.com">support@amanahacademia.com</a>
         </li>
         <li class="flex">
           <InstagramIcon />
@@ -35,7 +34,7 @@ const customStyle = (Astro.props.customStyle as string) || "bg-brown";
         </li>
       </ul>
     </div>
-    <p class="text-center px-2">© Amanah Academia 2025</p>
+    <p class="text-[8px] md:text-sm text-center px-2">© Amanah Academia 2025</p>
     <div>
       <ul>
         <li><a href="/info">{data.license}</a></li>

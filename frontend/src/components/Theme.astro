@@ -8,54 +8,43 @@ import ThemeIcon from "@/assets/theme.svg";
 </div>
 
 <script>
-  import { getTheme } from "@/utils/cookie";
+  document.addEventListener("DOMContentLoaded", async () => {
+    const body = document.body;
+    const html = document.documentElement;
+    const themeButton = document.getElementById("theme");
 
-  // Función para establecer tema
-  function setTheme(newTheme: string, body: HTMLBodyElement) {
-    // Aplicar al DOM
-    body.className = newTheme;
-
-    // Guardar en cookie
-    document.cookie = `theme=${newTheme}; path=/; max-age=31536000; SameSite=Lax`;
-
-    // Aplicar clases CSS
-    if (newTheme === "dark") {
-      document.documentElement.classList.add("dark");
-      document.documentElement.classList.remove("light");
-    } else {
-      document.documentElement.classList.add("light");
-      document.documentElement.classList.remove("dark");
+    // Sincroniza body con html al cargar
+    if (html.classList.contains("dark")) {
+      body.className = "dark";
+    } else if (html.classList.contains("light")) {
+      body.className = "light";
     }
-    return newTheme;
-  }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    // Obtenemos las referencias
-    const themeButton = document.getElementById("theme") as HTMLDivElement;
-    const body = document.body as HTMLBodyElement;
-    const currentTheme = setTheme(getTheme() as string, body) as "light" | "dark";
+    function applyTheme(newTheme: "dark" | "light") {
+      body.className = newTheme;
+      html.classList.toggle("dark", newTheme === "dark");
+      html.classList.toggle("light", newTheme === "light");
 
-    // Espera a que todo el DOM esté listo (incluido el logo)
-    setTimeout(() => {
-      window.dispatchEvent(
-        new CustomEvent("themeChange", {
-          detail: { theme: currentTheme },
-        })
-      );
-    }, 50);
+      // Opcional: recargar el logo si depende del tema
+      const logo = document.getElementById("logo_amanah");
+      if (logo && logo instanceof HTMLImageElement) {
+        logo.src = newTheme === "dark" ? "/img/logo_amanah_dark.webp" : "/img/logo_amanah.webp";
+      }
+    }
 
-    // Event listener del botón
     if (themeButton) {
-      themeButton.addEventListener("click", function () {
-        const currentTheme = body.className;
+      themeButton.addEventListener("click", async () => {
+        // Usa body.className para saber el tema actual
+        const currentTheme = body.className === "dark" ? "dark" : "light";
         const newTheme = currentTheme === "light" ? "dark" : "light";
-        setTheme(newTheme, body);
-        // Evento personalizado
-        window.dispatchEvent(
-          new CustomEvent("themeChange", {
-            detail: { theme: newTheme },
-          })
-        );
+        applyTheme(newTheme);
+
+        // Guardar en Astro cookies vía endpoint SSR
+        await fetch("/api/set-theme", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ theme: newTheme }),
+        });
       });
     }
   });

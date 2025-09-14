@@ -25,18 +25,23 @@ const {
   structuredDataType,
   structuredData,
 } = Astro.props as PropsSEO;
+
+const theme = Astro.cookies.get("theme")?.value;
+console.log(theme);
 ---
 
 <!doctype html>
-<html lang={lang} class="m-0 w-full h-full">
+<html lang={lang} class={`m-0 w-full h-full ${theme ? ` ${theme}` : ""}`}>
   <head>
-    <!-- Antes de cargar la pagina verificamos is ya teniamos tema previo -->
     <script>
-      import { getTheme } from "@/utils/cookie";
-      (function () {
-        let theme = getTheme();
-        document.documentElement.classList.add(theme);
-      })();
+      // Solo aplica si no hay cookie de tema
+      if (
+        !document.documentElement.classList.contains("dark") &&
+        !document.documentElement.classList.contains("light")
+      ) {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.classList.add(prefersDark ? "dark" : "light");
+      }
     </script>
     <!-- Codificacion -->
     <meta charset="UTF-8" />
@@ -77,55 +82,43 @@ const {
     />
   </body>
 </html>
-<style>
-  .back-to-top {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 50px;
-    height: 50px;
-    background: var(--lightRed);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.2rem;
-    box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 1000;
-  }
-
-  .back-to-top:hover {
-    background: var(--salmon);
-    transform: translateY(-5px);
-  }
-</style>
-
 <script>
   import { closeModalsEvents } from "@/utils/modals";
 
-  closeModalsEvents();
-  // Botón para volver al inicio
-  const backToTopButton = document.getElementById("backToTop");
+  document.addEventListener("DOMContentLoaded", () => {
+    closeModalsEvents();
+    // Botón para volver al inicio
+    const backToTopButton = document.getElementById("backToTop");
 
-  if (backToTopButton) {
-    window.addEventListener("scroll", () => {
-      if (window.pageYOffset > 300) {
-        backToTopButton.classList.remove("opacity-0", "invisible");
-        backToTopButton.classList.add("opacity-100", "visible");
-      } else {
-        backToTopButton.classList.remove("opacity-100", "visible");
-        backToTopButton.classList.add("opacity-0", "invisible");
-      }
-    });
-
-    backToTopButton.addEventListener("click", () => {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
+    if (backToTopButton) {
+      window.addEventListener("scroll", () => {
+        if (window.pageYOffset > 300) {
+          backToTopButton.classList.remove("opacity-0", "invisible");
+          backToTopButton.classList.add("opacity-100", "visible");
+        } else {
+          backToTopButton.classList.remove("opacity-100", "visible");
+          backToTopButton.classList.add("opacity-0", "invisible");
+        }
       });
-    });
-  }
+
+      backToTopButton.addEventListener("click", () => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      });
+    }
+    // Animacion de fade-in al hacer scroll
+    const elements = document.querySelectorAll(".scroll-fade-in");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add("visible");
+        });
+      },
+      { threshold: 0 }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+  });
 </script>

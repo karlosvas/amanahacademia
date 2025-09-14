@@ -2,18 +2,18 @@ import { signInWithEmailAndPassword, signInWithPopup, type User } from "firebase
 import toast from "solid-toast";
 import { showModalAnimation } from "../utils/modals";
 import { auth, googleProvider } from "@/config/firebase";
-import type { IdentificationI18n } from "@/types/types";
 
 // Actualiza el botón de identificación
-export function openIdentificationModalOrLoggout(
+export function setupAuth(
   user: User | null,
   authModalLogin: HTMLDialogElement,
   formLogin: HTMLFormElement,
   auth: any,
-  headerData: IdentificationI18n
+  headerData: { button: { login: string; logout: string } }
 ) {
   const identificationButton = getIdentificationButton();
   if (!identificationButton) return;
+
   if (user) {
     identificationButton.textContent = headerData.button.logout;
     identificationButton.onclick = async () => await auth.signOut();

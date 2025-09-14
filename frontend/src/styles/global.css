@@ -2,6 +2,7 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 @import url("https://fonts.cdnfonts.com/css/jomolhari");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap");
 
 .dark {
   background-color: var(--color-brown, #fff);
@@ -56,14 +57,14 @@
 }
 
 .light {
-  background-color: var(--color-white, #fff);
+  background-color: var(--color-background);
   color: var(--color-black, #000);
   outline-color: var(--color-black, #000);
   transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
   .glow-shadow {
     box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.8);
   }
-  --color-custom-gray: #f1faff; /* Color personalizado */
+  --color-custom-gray: #f1faff;
   --color-red: #6d0006;
   --color-light-red: #b2443a;
   --color-salmon: #fa8072;
@@ -123,10 +124,12 @@ html::-webkit-scrollbar-thumb {
 }
 
 body {
-  overflow-x: hidden;
-  font-weight: 400;
+  font-family: "Inter", system-ui, sans-serif;
   font-style: normal;
-  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.font-jomolhari {
+  font-family: "Jomolhari", serif;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -148,6 +151,7 @@ input[type="checkbox"] {
   transition: all 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
+/* Modales */
 dialog.modal.modal-opening {
   animation: modalAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
@@ -211,4 +215,39 @@ dialog.modal::backdrop {
     opacity: 0;
     backdrop-filter: blur(0px) brightness(1);
   }
+}
+
+.scroll-fade-in {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
+}
+.scroll-fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background: var(--lightRed);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  box-shadow: 0 5px 15px rgba(230, 57, 70, 0.4);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.back-to-top:hover {
+  background: var(--salmon);
+  transform: translateY(-5px);
 }

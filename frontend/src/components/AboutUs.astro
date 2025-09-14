@@ -1,5 +1,4 @@
 ---
-import Title from "./Title.astro";
 import CardInfo from "@/components/CardInfo.astro";
 import IconPeople from "@/assets/people.svg";
 import IconDiana from "@/assets/diana.svg";
@@ -9,7 +8,7 @@ import type { HomeI18n } from "@/types/types";
 const data = Astro.props.data as HomeI18n;
 ---
 
-<section >
+<section class="font-raleway scroll-fade-in">
   <h2 class=`select-none mt-10 lg:mt-24 text-center px-10  text-red font-bold text-2xl`>{data.title}</h2>
   <div class=`bg-salmon  h-1 m-auto w-36`></div>
   <div
@@ -39,9 +38,9 @@ const data = Astro.props.data as HomeI18n;
       </div>
     </div>
   </div>
-  <div class="w-full xl:w-8/12 2xl:w-3/4 mx-auto px-4 mb-20">
+  <div class="w-full xl:w-8/12 2xl:w-3/4 mx-auto px-4 mb-20 scroll-fade-in">
     <h3 class="mt-24 text-center text-red font-semibold mb-5">{data.focus.title}</h3>
-    <div class="flex flex-col md:flex-row gap-6 mb-10 justify-center">
+    <div class="flex flex-col md:flex-row gap-6 mb-10 justify-center ">
       <CardInfo colourRectangle="bg-salmon">
         <span slot="icon"><IconPeople /></span>
         <span slot="title">{data.focus.cards[0].title}</span>

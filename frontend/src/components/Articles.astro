@@ -15,7 +15,7 @@ const data = Astro.props.data as ArticleI18n;
     {
       data.articles.map((article, _) => (
         <div
-          class="mb-4 break-inside-avoid rounded-lg bg-[--color-salmon] shadow p-4 overflow-hidden flex flex-col justify-between h-full"
+          class="scroll-fade-in mb-4 break-inside-avoid rounded-lg bg-[--color-salmon] shadow p-4 overflow-hidden flex flex-col justify-between h-full"
           style={`height: ${120 + Math.random() * 180}px; width: 100%`}
         >
           <h3 class="font-bold mb-2">{article.title}</h3>

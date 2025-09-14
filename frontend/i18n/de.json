@@ -317,5 +317,29 @@
     "license": "Lizenz",
     "privacy_policy": "Datenschutzerklärung",
     "terms_of_service": "Nutzungsbedingungen"
+  },
+  "security": {
+    "title": "🔒 Sicherheits-Ehrenhalle",
+    "subtitle": "Anerkennung der wertvollen Beiträge unserer Community",
+    "intro": "Bei Amanah Academia schätzen wir die Bemühungen derjenigen sehr, die dazu beitragen, unsere Plattform und Nutzer zu schützen. Diese Seite würdigt diejenigen, die verantwortungsvoll Schwachstellen und Verbesserungen gemeldet haben.",
+    "examples_title": "Nicht-reale Beispiele",
+    "researchers": [
+      {
+        "name": "Carlos Pérez",
+        "severity": "Mittlere Schwere",
+        "title": "UI/UX-Spezialist",
+        "finding_title": "Verbesserung der Sicherheitsoberfläche",
+        "finding_desc": "Schlug eine Reorganisation der Datenschutzeinstellungen vor, die das Verständnis und die Nutzung durch die Benutzer erheblich verbesserte."
+      },
+      {
+        "name": "María Gómez",
+        "severity": "Mittlere Schwere",
+        "title": "Web-Auditorin",
+        "finding_title": "Defekte Links und Weiterleitungen",
+        "finding_desc": "Identifizierte mehrere defekte Links, die für Phishing-Angriffe oder zur Verwirrung der Benutzer hätten genutzt werden können."
+      }
+    ],
+    "thank_you_title": "Danke, dass Sie Amanah Academia sicherer machen!",
+    "thank_you_desc": "Wir schätzen die Zeit, Mühe und Expertise, die unsere Forscher der Verbesserung unserer Plattform gewidmet haben. Ihre verantwortungsvolle Arbeit hat potenzielle Vorfälle verhindert und die Erfahrung für alle unsere Nutzer verbessert."
   }
 }

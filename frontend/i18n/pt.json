@@ -304,5 +304,29 @@
     "license": "Licença",
     "privacy_policy": "Política de Privacidade",
     "terms_of_service": "Termos e Condições"
+  },
+  "security": {
+    "title": "Hall da Fama de Segurança",
+    "subtitle": "Reconhecendo as valiosas contribuições da nossa comunidade",
+    "intro": "Na Amanah Academia, valorizamos muito os esforços daqueles que ajudam a proteger nossa plataforma e usuários. Esta página reconhece aqueles que relataram responsavelmente vulnerabilidades e melhorias.",
+    "examples_title": "Exemplos não reais",
+    "researchers": [
+      {
+        "name": "Carlos Pérez",
+        "severity": "Gravidade Média",
+        "title": "Especialista UI/UX",
+        "finding_title": "Melhoria da interface de segurança",
+        "finding_desc": "Propus uma reorganização das configurações de privacidade que melhorou significativamente a compreensão e o uso pelos usuários."
+      },
+      {
+        "name": "María Gómez",
+        "severity": "Gravidade Média",
+        "title": "Auditora Web",
+        "finding_title": "Links quebrados e redirecionamentos",
+        "finding_desc": "Identificou vários links quebrados que poderiam ter sido usados para ataques de phishing ou confusão de usuários."
+      }
+    ],
+    "thank_you_title": "Obrigado por tornar a Amanah Academia mais segura!",
+    "thank_you_desc": "Apreciamos profundamente o tempo, esforço e expertise que nossos pesquisadores dedicaram para melhorar nossa plataforma. Seu trabalho responsável preveniu incidentes potenciais e melhorou a experiência para todos os nossos usuários."
   }
 }

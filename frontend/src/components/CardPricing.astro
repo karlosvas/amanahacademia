@@ -2,14 +2,14 @@
 import IconCheck from "@/assets/check.svg";
 import ModalPracing from "./ModalPracing.astro";
 import type { CardPricingType } from "@/types/types";
-import type { Class } from "@/enum/enums";
+import type { Class } from "@/enums/enums";
 
 const data = Astro.props.data as CardPricingType;
 const id = Astro.props.id as Class;
 ---
 
 <div
-  class="w-3/4 m-auto md:max-w-72 min-h-[500px] relative text-center text-black bg-smoothBrown rounded-xl py-10 px-5 flex flex-col md:m-0 h-full containter-pricing"
+  class="scroll-fade-in w-3/4 m-auto md:max-w-72 min-h-[500px] relative text-center text-black bg-smoothBrown rounded-xl py-10 px-5 flex flex-col md:m-0 h-full containter-pricing"
 >
   <h2 class="font-semibold text-red px-5">{data.title}</h2>
   <div class="flex-1 flex flex-col items-center">
