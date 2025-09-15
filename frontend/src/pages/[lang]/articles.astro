@@ -14,13 +14,6 @@ const data = getI18N({ lang }) as i18nTranslations;
 // SEO data usando el helper
 const currentLang = lang || "es";
 const seoData = getSEOData("articles", currentLang) as PropsSEO;
-
-// Generamos las rutas
-export async function getStaticPaths() {
-  return LANGS.map((lang) => ({
-    params: { lang },
-  }));
-}
 ---
 
 <Layout

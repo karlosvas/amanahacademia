@@ -16,7 +16,7 @@ use {
     reqwest::Client as HttpClient,
     state::{AppState, CustomFirebase},
     std::{env, net::SocketAddr, sync::Arc},
-    // stripe::Client as StripeClient,
+    stripe::Client as StripeClient,
     tokio::net::TcpListener,
     tower_http::{
         cors::{AllowOrigin, CorsLayer},
@@ -28,6 +28,9 @@ use {
 async fn main() {
     // Cargar variables de entorno desde un archivo .env
     dotenvy::dotenv().ok();
+
+    // Inicializar tracing
+    tracing_subscriber::fmt::init();
 
     // Obtener las claves públicas de Firebase
     let firebase_keys = reqwest::get(
@@ -48,19 +51,19 @@ async fn main() {
     };
 
     // Cliente de stripe
-    // let stripe_client: StripeClient =
-    //     StripeClient::new(env::var("STRIPE_API_KEY").expect("STRIPE_API_KEY must be set"));
+    let stripe_client: StripeClient =
+        StripeClient::new(env::var("STRIPE_API_KEY").expect("STRIPE_API_KEY must be set"));
 
     // Inicializar el estado de la aplicación y el enrutador
     let state: Arc<AppState> = Arc::new(AppState {
         firebase,
         firebase_client: HttpClient::new(),
-        // stripe_client,
+        stripe_client,
     });
 
+    // Configurar CORS
     let cors: CorsLayer = CorsLayer::new()
         .allow_origin(AllowOrigin::list(vec![
-            "http://localhost:3000".parse().unwrap(), // Redirecciones internas
             "http://localhost:4321".parse().unwrap(), // Frontend desarrollo
             "https://amanahacademia.com".parse().unwrap(), // Dominio de producción
         ])) // Origenes Permitidos
@@ -72,7 +75,7 @@ async fn main() {
     let app: Router = Router::new()
         .nest("/users", routes::users::router(state.clone())) // FB Auth, FB Realtime DB
         .nest("/comments", routes::comments::router(state.clone())) // FB Auth, FB Realtime DB
-        // .nest("/payment", routes::payments::router(state.clone())) // Stripe
+        .nest("/payment", routes::payments::router(state.clone())) // Stripe
         .nest("/teachers", routes::teachers::router(state.clone())) // FB Auth, FB Realtime DB
         .nest("/webhook", routes::webhooks::router(state.clone())) // Webhooks
         .layer(cors) // CORS abierto
@@ -83,9 +86,9 @@ async fn main() {
     let addr: SocketAddr = SocketAddr::from(([0, 0, 0, 0], 3000));
     let listener: TcpListener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
-    println!("Servidor escuchando en http://{}", addr);
+    println!("Server listening on http://{}", addr);
     match axum::serve(listener, app).await {
-        Ok(_) => println!("Servidor detenido"),
-        Err(err) => eprintln!("Error en el servidor: {}", err),
+        Ok(_) => println!("Server finalized"),
+        Err(err) => eprintln!("Error in server: {}", err),
     };
 }

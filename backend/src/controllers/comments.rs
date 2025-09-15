@@ -29,11 +29,12 @@ pub async fn add_comment(
 
     // Creamos el usuario que se va a crear en la DB
     let new_comment: Comment = Comment {
-        author_uid: Some(user_claims.user_id.clone()),
-        name: comment.name.clone(),
-        timestamp: comment.timestamp.clone(),
-        content: comment.content.clone(),
-        url_img: comment.url_img.clone(),
+        author_uid: Some(user_claims.user_id),
+        name: comment.name,
+        timestamp: comment.timestamp,
+        content: comment.content,
+        url_img: comment.url_img,
+        stars: comment.stars,
         like: 0,
         reply: Vec::new(),
         users_liked: Vec::new(),
@@ -215,20 +216,25 @@ pub async fn toggle_like(
 
     // Comprobamos si ya le habiamos dado like
     let is_liked: bool = comment.users_liked.contains(&user_claims.user_id);
+
     let new_comment: Comment = Comment {
         like: if is_liked {
             comment.like.saturating_sub(1)
         } else {
             comment.like + 1
         },
-        users_liked: if is_liked {
-            let mut users_liked: Vec<String> = comment.users_liked.clone();
-            users_liked.retain(|uid| uid != &user_claims.user_id);
-            users_liked
-        } else {
-            let mut users_liked: Vec<String> = comment.users_liked.clone();
-            users_liked.push(user_claims.user_id.clone());
-            users_liked
+        users_liked: {
+            if is_liked {
+                comment
+                    .users_liked
+                    .into_iter()
+                    .filter(|uid| uid != &user_claims.user_id)
+                    .collect()
+            } else {
+                let mut users = comment.users_liked.clone();
+                users.push(user_claims.user_id.clone());
+                users
+            }
         },
         ..comment
     };
@@ -299,11 +305,12 @@ pub async fn add_reply(
         reply: {
             let mut replies: Vec<Comment> = comment.reply.clone();
             replies.push(Comment {
-                author_uid: Some(user_claims.user_id.clone()),
-                name: reply_comment.name.clone(),
-                timestamp: reply_comment.timestamp.clone(),
-                content: reply_comment.content.clone(),
-                url_img: reply_comment.url_img.clone(),
+                author_uid: Some(user_claims.user_id),
+                name: reply_comment.name,
+                timestamp: reply_comment.timestamp,
+                content: reply_comment.content,
+                url_img: reply_comment.url_img,
+                stars: reply_comment.stars,
                 like: 0,
                 reply: Vec::new(),
                 users_liked: Vec::new(),

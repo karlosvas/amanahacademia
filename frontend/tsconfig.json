@@ -10,5 +10,10 @@
       "@/*": ["src/*"]
     },
     "strict": true
-  }
+  },
+  "plugins": [
+    {
+      "name": "@astrojs/ts-plugin"
+    }
+  ]
 }

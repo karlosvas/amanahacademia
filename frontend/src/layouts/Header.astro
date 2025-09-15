@@ -12,7 +12,7 @@ const theme = Astro.cookies.get("theme")?.value ?? "light";
 ---
 
 <header
-  class="font-semibold fixed top-0 left-0 w-full z-50 h-20 bg-background flex items-center justify-between px-5 md:px-10 relative"
+  class="font-semibold fixed top-0 left-0 w-full z-50 h-20 bg-background flex items-center justify-between px-5 md:px-10"
 >
   <Identification data={data.identification.modal} />
   <Hamburger data={data} />
@@ -72,8 +72,12 @@ const theme = Astro.cookies.get("theme")?.value ?? "light";
     setupAuth(user, authModalLogin, formLogin, auth, headerData);
     if (user) {
       const idToken = await user.getIdToken();
-      // Guardamos la session id en las cookies
-      document.cookie = `tokenUser=${idToken}; path=/; Secure; SameSite=Strict`;
+      await fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: idToken }),
+        credentials: "include", // Permite que el backend envíe cookies
+      });
     } else {
       // Eliminamos la session id de las cookies
       document.cookie = `tokenUser=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;

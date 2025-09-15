@@ -1,5 +1,4 @@
-use axum::response::IntoResponse;
-
-pub async fn health_check() -> impl IntoResponse {
+// Health check endpoint
+pub async fn health_check() -> &'static str {
     "OK"
 }

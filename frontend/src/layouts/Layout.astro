@@ -1,8 +1,8 @@
 ---
 import "@/styles/global.css";
-import SEO from "@/components/SEO/SEO.astro";
+import SEO from "../components/SEO/SEO.astro";
 import { Toaster } from "solid-toast";
-import type { PropsSEO } from "@/types/types";
+import type { PropsSEO } from "../types/types";
 
 declare global {
   interface Window {
@@ -27,7 +27,6 @@ const {
 } = Astro.props as PropsSEO;
 
 const theme = Astro.cookies.get("theme")?.value;
-console.log(theme);
 ---
 
 <!doctype html>
@@ -43,6 +42,12 @@ console.log(theme);
         document.documentElement.classList.add(prefersDark ? "dark" : "light");
       }
     </script>
+    <!-- Preloads -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://challenges.cloudflare.com" />
+    <link rel="dns-prefetch" href="https://apis.google.com" />
+
     <!-- Codificacion -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -83,7 +88,7 @@ console.log(theme);
   </body>
 </html>
 <script>
-  import { closeModalsEvents } from "@/utils/modals";
+  import { closeModalsEvents } from "../utils/modals";
 
   document.addEventListener("DOMContentLoaded", () => {
     closeModalsEvents();

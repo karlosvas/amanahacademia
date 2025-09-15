@@ -1,4 +1,4 @@
-use {axum::http::StatusCode, serde::de::DeserializeOwned};
+use {axum::http::StatusCode, serde::de::DeserializeOwned, serde_json::Value};
 
 /// Maneja la respuesta de Firebase
 pub async fn handle_firebase_response<T>(
@@ -21,14 +21,26 @@ where
             .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
         let error_text: String = response.text().await.unwrap_or_default();
 
-        // Si el error es JSON, intenta extraer el campo "error" como texto
-        let error_msg = match serde_json::from_str::<serde_json::Value>(&error_text) {
-            Ok(json) => json
-                .get("error")
-                .and_then(|e| e.as_str())
-                .unwrap_or(&error_text)
-                .to_string(),
-            Err(_) => error_text,
+        // Intenta parsear el JSON de error de Firebase
+        let error_msg = match serde_json::from_str::<Value>(&error_text) {
+            Ok(json) => {
+                // Firebase devuelve errores en formato: {"error": {"message": "...", "code": 400}}
+                if let Some(error_obj) = json.get("error") {
+                    if let Some(message) = error_obj.get("message") {
+                        message.as_str().unwrap_or(&error_text).to_string()
+                    } else {
+                        // Si no hay message, devuelve el objeto error completo como string
+                        error_obj.to_string()
+                    }
+                } else {
+                    // Si no hay campo "error", devuelve todo el JSON
+                    error_text
+                }
+            }
+            Err(_) => {
+                // Si no es JSON válido, devuelve el texto raw
+                error_text
+            }
         };
 
         Err((status, error_msg))

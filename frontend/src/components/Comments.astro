@@ -1,7 +1,34 @@
 ---
-import CardComment from "@/components/CardComment.astro";
+import CardComment from "./CardComment.astro";
 import StarGroup from "./StarGroup.astro";
 import Stadistics from "./Stadistics.astro";
+import type { Comment } from "@/types/types";
+import { toast } from "solid-toast";
+
+const url_backend = import.meta.env.PUBLIC_BACKEND_URL as string;
+let comments: Comment[] = [];
+
+try {
+  const res = await fetch(url_backend + "/comments/all", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!res.ok) throw new Error();
+
+  const response = await res.json();
+  if (response.success) {
+    comments = Object.entries(response.data).map(([key, value]) => ({
+      author_uid: key,
+      ...(typeof value === "object" && value !== null ? value : {}),
+    }));
+  } else {
+    throw new Error();
+  }
+} catch (err) {
+  toast.error("Error al cargar los comentarios");
+}
 ---
 
 <main
@@ -39,20 +66,74 @@ import Stadistics from "./Stadistics.astro";
     class="w-full max-w-none md:col-span-2 lg:col-span-1 lg:max-w-sm flex flex-col items-center justify-self-center lg:justify-self-auto"
   >
     <button
-      class="bg-[--color-brown] hover:bg-[--color-salmon] transition-colors duration-300
-           rounded-lg text-white text-xl font-semibold w-full max-w-56
-           py-3 px-6 shadow-lg hover:shadow-xl transform hover:scale-105
-           transition-all duration-200 mb-6 mt-10 lg:mt-0"
+      class="bg-lightRed hover:bg-salmon transition-colors duration-300
+           rounded-lg text-gray-100 text-xl font-semibold w-full max-w-56
+           py-3 px-6 shadow-lg hover:shadow-xl transform
+           transition-all duration-200 mb-6 mt-10 lg:mt-0 hover:bg-salmon"
     >
       Comentar
     </button>
     <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6 px-2 sm:px-0 justify-items-center">
-      <CardComment name="carlos.vasquez" fecha="12 ago 2025" />
-      <CardComment name="gillermo.duran" fecha="12 ago 2025" />
-      <CardComment name="gillermo.duran" fecha="12 ago 2025" />
-      <CardComment name="gillermo.duran" fecha="12 ago 2025" />
-      <CardComment name="gillermo.duran" fecha="12 ago 2025" />
-      <CardComment name="miguel.perez" fecha="12 ago 2025" />
+      {comments && comments.length > 0 && comments.map((comment: Comment) => <CardComment data={comment} />)}
     </div>
   </div>
 </main>
+
+<script>
+  import { submitLike } from "@/services/comments";
+  import { getAuth } from "firebase/auth";
+  import toast from "solid-toast";
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const likeIcons = document.querySelectorAll(".like-icon");
+
+    likeIcons.forEach(async (icon) => {
+      const svg = icon.querySelector(".like-svg");
+      const likeCountSpan = icon.querySelector("span");
+      let isLiked = icon.classList.contains("liked");
+      icon.addEventListener("click", async () => {
+        const actualUser = getAuth().currentUser;
+
+        if (!actualUser) {
+          // El usuario no está autenticado
+          console.error("You are not logged in");
+          toast.error("You are not logged in");
+          return;
+        }
+
+        if (svg && likeCountSpan) {
+          // Añadir animación de pulso al hacer click
+          svg.classList.add("pulse");
+
+          try {
+            // Llamar a la función de submitLike que maneja el backend
+            await submitLike(icon as HTMLDivElement, likeCountSpan as HTMLSpanElement);
+
+            // Toggle del estado visual después del éxito
+            isLiked = !isLiked;
+
+            if (isLiked) {
+              // Agregar like: aplicar estilos rojos
+              icon.classList.add("liked");
+              svg.classList.add("liked");
+              console.log("Like added - red styles applied");
+            } else {
+              // Quitar like: volver a estilos grises por defecto
+              icon.classList.remove("liked");
+              svg.classList.remove("liked");
+              console.log("Like removed - default gray styles applied");
+            }
+          } catch (error) {
+            console.error("Error submitting like:", error);
+            // En caso de error, no cambiar el estado visual
+          }
+
+          // ✅ Remover animación de pulso después de 300ms
+          setTimeout(() => {
+            svg.classList.remove("pulse");
+          }, 300);
+        }
+      });
+    });
+  });
+</script>

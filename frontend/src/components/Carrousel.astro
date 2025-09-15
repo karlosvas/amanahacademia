@@ -4,18 +4,6 @@ const images = Array.from({ length: 4 }).map((_, i) => `/img/professor${i + 1}.j
 
 const id = Astro.props.id as string;
 const teachers = ["anaortega", "anaortega", "anaortega", "anaortega", "anaortega"];
-
-// Server-side fetch: el token de admin solo está en el backend
-const url_api = import.meta.env.PUBLIC_BACKEND_URL;
-
-// const data: ResponseAPI<Teacher[]> = await fetch(`${url_api}/teachers/all`, {
-//   method: "GET",
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-// }).then((res) => res.json());
-
-// console.log(data);
 ---
 
 <div class="max-w-2xl mx-auto py-8">

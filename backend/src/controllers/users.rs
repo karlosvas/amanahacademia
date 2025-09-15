@@ -77,7 +77,10 @@ pub async fn register_user(
     {
         Ok(response) => match handle_firebase_response::<FirebaseAuthResponse>(response).await {
             Ok(parsed_response) => parsed_response,
-            Err((status, error)) => return (status, Json(error)).into_response(),
+            Err((status, error)) => {
+                println!("Error creating user in Firebase: {}", error);
+                return (status, Json(ResponseAPI::<()>::error(error))).into_response();
+            }
         },
         Err(_) => {
             return (
@@ -177,7 +180,9 @@ pub async fn login_user(
                 )),
             )
                 .into_response(),
-            Err((status, error)) => return (status, Json(error)).into_response(),
+            Err((status, error)) => {
+                return (status, Json(ResponseAPI::<()>::error(error))).into_response();
+            }
         },
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,

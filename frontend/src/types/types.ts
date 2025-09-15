@@ -1,5 +1,5 @@
-// I18n
-export interface i18nTranslations {
+// I18n traducciones
+export interface I18nTranslations {
   header: HeaderI18n;
   main: MainI18n;
   footer: FooterI18n;
@@ -7,6 +7,7 @@ export interface i18nTranslations {
   info: InfoI18n;
 }
 
+// Seccion del header
 export type HeaderI18n = {
   about_us: string;
   articles: string;
@@ -84,7 +85,7 @@ export type HomeI18n = {
       {
         title: string;
         description: string;
-      }
+      },
     ];
     note: string[];
   };
@@ -117,7 +118,7 @@ export type PricingI18n = {
     {
       title: string;
       description: string;
-    }
+    },
   ];
 };
 
@@ -150,7 +151,7 @@ export type ArticleI18n = {
     {
       title: string;
       summary: string[];
-    }
+    },
   ];
 };
 
@@ -164,7 +165,7 @@ export type CourseI18n = {
       {
         title: string;
         description: string;
-      }
+      },
     ];
   };
   modules: {
@@ -178,7 +179,7 @@ export type CourseI18n = {
           session: string;
           book: string;
         };
-      }
+      },
     ];
   };
 };

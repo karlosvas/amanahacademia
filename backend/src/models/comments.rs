@@ -7,7 +7,9 @@ pub struct Comment {
     pub name: String,
     pub timestamp: String,
     pub content: String,
-    pub url_img: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url_img: Option<String>,
+    pub stars: f32,
     #[serde(default)]
     pub like: u32,
     #[serde(default)]

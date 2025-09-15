@@ -14,16 +14,32 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build --release --bin amanahacademia
 
-# Runtime
+# Runtime stage optimizada
 FROM debian:bookworm-slim AS runtime
-WORKDIR /app
 
-# Instalar librerías necesarias
+# Crear usuario no-root para seguridad
+RUN useradd -r -s /bin/false amanahapp
+
+# Instalar dependencias y limpiar en una sola capa
 RUN apt-get update && apt-get install -y \
     libssl3 \
     ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
+# Crear directorio y copiar binario
 WORKDIR /app
-COPY --from=builder /app/target/release/amanahacademia /usr/local/bin
-ENTRYPOINT ["/usr/local/bin/amanahacademia"] 
+COPY --from=builder /app/target/release/amanahacademia ./amanahacademia
+
+# Cambiar permisos y propietario
+RUN chown amanahapp:amanahapp /app/amanahacademia && \
+    chmod +x /app/amanahacademia
+
+# Cambiar a usuario no-root
+USER amanahapp
+
+# Usar EXPOSE si tu app tiene un puerto específico
+EXPOSE 3000
+
+# Usar CMD en lugar de ENTRYPOINT para mayor flexibilidad
+CMD ["./amanahacademia"]

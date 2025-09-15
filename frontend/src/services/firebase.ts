@@ -109,8 +109,8 @@ export function submitForm(
       const turnstileDiv = formHTML.querySelector(".cf-turnstile");
       if (typeof window.turnstile !== "undefined" && turnstileDiv) {
         window.turnstile.execute(turnstileDiv, {
-          async callback(token: string) {
-            console.log("Token Turnstile:", token);
+          async callback() {
+            console.log("Turnstile verification successful");
           },
           "error-callback": function (error: any) {
             console.error("Error de Turnstile:", error);
@@ -122,8 +122,8 @@ export function submitForm(
       // URL de la petición
       let url = import.meta.env.PUBLIC_BACKEND_URL;
       if (!url) throw new Error("PUBLIC_BACKEND_URL no definida");
-      if (isRegister) url += "/user/register";
-      else url += "/user/login";
+      if (isRegister) url += "/users/register";
+      else url += "/users/login";
 
       // Validar credenciales en backend, registrandonos o logeandonos segun corresponda
       const backendResponse = await fetch(url, {

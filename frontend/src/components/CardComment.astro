@@ -1,19 +1,126 @@
 ---
-import LikeIcon from "@/assets/like.svg";
-import CommentIcon from "@/assets/coment.svg";
-const { name, fecha } = Astro.props;
+import type { Comment } from "@/types/types";
+import PersonIcon from "@/assets/person.svg";
+import StarGroup from "./StarGroup.astro";
+import Like from "@/assets/like.svg";
+
+const comment = Astro.props.data as Comment;
+if (!comment) return;
+console.log(comment);
+
+// Recuperar y parsear la cookie de sesión
+const sessionCookie = Astro.cookies.get("session")?.value;
+let currentUserId: string | null = null;
+type SessionData = {
+  jwt: string;
+  localId: string;
+  email?: string;
+  name?: string;
+  exp: number;
+  picture?: string;
+  emailVerified?: boolean;
+  provider?: string;
+};
+
+let sessionData: SessionData | null = null;
+if (sessionCookie) {
+  try {
+    sessionData = JSON.parse(sessionCookie) as SessionData;
+    if (sessionData) currentUserId = sessionData.localId; // Firebase UID del usuario
+  } catch (error) {
+    console.error("Error parsing session cookie:", error);
+  }
+}
+
+// Verificar si el usuario actual ha dado like a este comentario
+const isLiked = currentUserId && comment.users_liked ? comment.users_liked.includes(currentUserId) : false;
 ---
 
-<div class="bg-[--color-light-salmon] max-w-96 m-3 p-2 rounded-md scroll-fade-in">
-  <div class="p-5"><img src="" alt="" /><div><p>{name}</p> <p class="text-xs">{fecha}</p></div></div>
-  <p>
-    Lorem ipsum dolor sit amet consectetur, adipisicing elit. Eum labore voluptatibus quo soluta id aut dolores dolorem
-    eius veritatis, error unde veniam esse reprehenderit adipisci voluptates, vitae ratione! Corporis, id!
+<div class="bg-lightSalmon max-w-96 m-3 p-2 rounded-md scroll-fade-in min-w-80">
+  <div class="p-5">
+    <div class="flex items-center space-x-3 mb-2">
+      {
+        sessionData?.provider === "password" ? (
+          <PersonIcon class="w-7 h-7" />
+        ) : (
+          <img src={sessionData?.picture} alt="User Icon" class="w-7 h-7 rounded-full" />
+        )
+      }
+      <div>
+        <p class="text-xs">@{comment.name}</p>
+        <StarGroup star={comment.stars} size={"16px"} />
+      </div>
+    </div>
+    <p class="text-xs">{comment.fecha}</p>
+  </div>
+  <p class="pl-5">
+    {comment.content}
   </p>
-  <div class="flex justify-end">
-    <LikeIcon />
-    10K
-    <CommentIcon />
-    10K
+  <div class="flex justify-end space-x-2">
+    <!-- Like principal -->
+    <div
+      class=`flex justify-end space-x-1 cursor-pointer like-icon ${isLiked ? "liked" : ""}`
+      data-id={comment.author_uid}
+    >
+      <Like />
+      <span class="min-w-5 text-center">{comment.like > 0 ? comment.like : 0}</span>
+    </div>
   </div>
 </div>
+<style>
+  .like-svg {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #6b7280; /* ✅ Gray por defecto (sin like) */
+    fill: #cbcbcb; /* ✅ Sin relleno por defecto */
+  }
+
+  /* Cuando tiene like */
+  .like-icon.liked .like-svg,
+  .like-svg.liked {
+    color: var(--color-red); /* Rojo con like */
+    fill: var(--color-light-red); /* Relleno rojo */
+    animation: likeAnimation 0.6s ease-in-out;
+  }
+
+  .like-svg:hover {
+    color: var(--color-red);
+    transform: scale(1.1);
+  }
+
+  @keyframes likeAnimation {
+    0% {
+      transform: scale(1);
+    }
+    15% {
+      transform: scale(1.2);
+    }
+    30% {
+      transform: scale(0.95);
+    }
+    45% {
+      transform: scale(1.1);
+    }
+    60% {
+      transform: scale(0.98);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .like-svg.pulse {
+    animation: pulseEffect 0.3s ease-out;
+  }
+
+  @keyframes pulseEffect {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.3);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+</style>

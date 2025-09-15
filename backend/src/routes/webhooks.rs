@@ -5,6 +5,6 @@ use {
 };
 
 pub fn router(state: Arc<AppState>) -> Router<Arc<AppState>> {
-    let public_routes = Router::new().route("/healthcheck", get(health_check)); // GET /healthcheck
+    let public_routes = Router::new().route("/health", get(health_check)); // GET /healthcheck
     Router::new().merge(public_routes).with_state(state)
 }
