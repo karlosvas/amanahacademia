@@ -1,4 +1,4 @@
-import { ApiErrorType } from "@/types/bakend-types";
+import { ApiErrorType } from "@/enums/enums";
 
 export class ApiError extends Error {
   constructor(

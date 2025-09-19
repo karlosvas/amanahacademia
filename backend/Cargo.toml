@@ -23,5 +23,4 @@ async-stripe = { version = "0.41.0", features = ["runtime-tokio-hyper"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 tracing-appender = "0.2"
-tower-cookies = "0.10"
 time = "0.3"

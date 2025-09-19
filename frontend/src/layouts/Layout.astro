@@ -1,8 +1,8 @@
 ---
 import "@/styles/global.css";
-import SEO from "../components/SEO/SEO.astro";
+import SEO from "@/components/layout/SEO/SEO.astro";
 import { Toaster } from "solid-toast";
-import type { PropsSEO } from "../types/types";
+import type { PropsSEO } from "@/types/types";
 
 declare global {
   interface Window {
@@ -42,6 +42,48 @@ const theme = Astro.cookies.get("theme")?.value;
         document.documentElement.classList.add(prefersDark ? "dark" : "light");
       }
     </script>
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="unsafe-none" />
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+    default-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval'
+      https://www.gstatic.com 
+      https://apis.google.com 
+      https://accounts.google.com 
+      https://www.googleapis.com
+      https://cdnjs.cloudflare.com
+      https://challenges.cloudflare.com
+      https://unpkg.com
+      *;
+    style-src 'self' 'unsafe-inline'
+      https://fonts.googleapis.com
+      https://fonts.cdnfonts.com
+      https://cdnjs.cloudflare.com
+      *;
+    font-src 'self'
+      https://fonts.gstatic.com
+      https://fonts.cdnfonts.com
+      https://cdnjs.cloudflare.com
+      *;
+    connect-src 'self' 
+      https://identitytoolkit.googleapis.com 
+      https://securetoken.googleapis.com 
+      https://accounts.google.com
+      https://challenges.cloudflare.com
+      https://amanahacademia.fly.dev
+      http://localhost:3000
+      ws://localhost:*
+      *;
+    frame-src *;
+    img-src * data: blob:;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+  "
+    />
+
     <!-- Preloads -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -88,7 +130,7 @@ const theme = Astro.cookies.get("theme")?.value;
   </body>
 </html>
 <script>
-  import { closeModalsEvents } from "../utils/modals";
+  import { closeModalsEvents } from "@/utils/modals";
 
   document.addEventListener("DOMContentLoaded", () => {
     closeModalsEvents();

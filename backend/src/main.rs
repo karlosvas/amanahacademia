@@ -20,7 +20,6 @@ use {
     tokio::net::TcpListener,
     tower_http::{
         cors::{AllowOrigin, CorsLayer},
-        set_header::SetResponseHeaderLayer,
         trace::TraceLayer,
     },
     tracing::{debug, error, info},
@@ -130,8 +129,7 @@ async fn main() {
             "https://amanahacademia.com".parse().unwrap(), // Dominio de producción
         ])) // Origenes Permitidos
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE]) // Métodos permitidos
-        .allow_headers([CONTENT_TYPE, AUTHORIZATION]) // Encabezados permitidos
-        .allow_credentials(true); // Permitir cookies y credenciales
+        .allow_headers([CONTENT_TYPE, AUTHORIZATION]); // Encabezados permitidos
 
     // Configurar el enrutador de la aplicación
     let app: Router = Router::new()
@@ -140,17 +138,7 @@ async fn main() {
         .nest("/payment", routes::payments::router(state.clone())) // Stripe
         .nest("/teachers", routes::teachers::router(state.clone())) // FB Auth, FB Realtime DB
         .nest("/webhook", routes::webhooks::router(state.clone())) // Webhooks
-        .nest("/cookies", routes::cookies::router(state.clone())) // Cookies
         .layer(cors) // CORS abierto
-        // Añadir los headers COOP/COEP
-        .layer(SetResponseHeaderLayer::overriding(
-            axum::http::header::HeaderName::from_static("cross-origin-opener-policy"),
-            axum::http::HeaderValue::from_static("same-origin"),
-        ))
-        .layer(SetResponseHeaderLayer::overriding(
-            axum::http::header::HeaderName::from_static("cross-origin-embedder-policy"),
-            axum::http::HeaderValue::from_static("require-corp"),
-        ))
         .layer(TraceLayer::new_for_http()) // Logging básico
         .with_state(state);
 

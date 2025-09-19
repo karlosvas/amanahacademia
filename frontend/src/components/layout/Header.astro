@@ -1,9 +1,9 @@
 ---
 import type { HeaderI18n } from "@/types/types";
-import Hamburger from "@/components/Hamburger.astro";
-import Traductor from "@/components/Traductor.astro";
-import Theme from "@/components/Theme.astro";
-import Identification from "@/components/Identification.astro";
+import Hamburger from "@/components/common/Hamburger.astro";
+import Traductor from "@/components/common/Traductor.astro";
+import Theme from "@/components/common/Theme.astro";
+import AuthModal from "@/components/common/AuthModal.astro";
 
 // Obtener las traduccciones
 const data = Astro.props.data as HeaderI18n;
@@ -14,7 +14,7 @@ const theme = Astro.cookies.get("theme")?.value ?? "light";
 <header
   class="font-semibold fixed top-0 left-0 w-full z-50 h-20 bg-background flex items-center justify-between px-5 md:px-10"
 >
-  <Identification data={data.identification.modal} />
+  <AuthModal data={data.identification.modal} />
   <Hamburger data={data} />
   {
     (
@@ -51,11 +51,8 @@ const theme = Astro.cookies.get("theme")?.value ?? "light";
 
 <script>
   import { auth } from "@/config/firebase.js";
-  import { getRedirectResult, onAuthStateChanged } from "firebase/auth";
+  import { onAuthStateChanged } from "firebase/auth";
   import { setupAuth } from "@/services/firebase";
-  import { ApiService } from "@/services/helper";
-  import type { Result } from "@/types/bakend-types";
-  import toast from "solid-toast";
 
   // Referencias al modal de login y register
   const authModalLogin = document.getElementById("authModalLogin") as HTMLDialogElement;
@@ -65,19 +62,6 @@ const theme = Astro.cookies.get("theme")?.value ?? "light";
 
   // Actualizamos segun el tamaño de la ventana
   document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      // Verificar si hay resultado de redirect - SOLO para activar onAuthStateChanged
-      console.log("🔍 Checking for redirect result...");
-      const result = await getRedirectResult(auth);
-
-      if (result) {
-        console.log("✅ Usuario autenticado desde redirect:", result.user.email);
-        toast.success("¡Bienvenido de vuelta!");
-        // onAuthStateChanged se disparará automáticamente
-      }
-    } catch (error) {
-      console.error("Error handling redirect:", error);
-    }
     window.addEventListener("resize", () => {
       setupAuth(auth.currentUser, authModalLogin, formLogin, headerData);
     });
@@ -86,11 +70,5 @@ const theme = Astro.cookies.get("theme")?.value ?? "light";
   // Firebase auth state
   onAuthStateChanged(auth, async (user) => {
     setupAuth(user, authModalLogin, formLogin, headerData);
-
-    if (user) {
-      const helper = new ApiService();
-      const idToken = await user.getIdToken();
-      helper.createSession(idToken);
-    }
   });
 </script>

@@ -1,4 +1,5 @@
-import { ApiErrorType, type ResponseAPI, type SessionData, type Result, type Comment } from "@/types/bakend-types";
+import { type ResponseAPI, type Result, type Comment } from "@/types/bakend-types";
+import { ApiErrorType } from "@/enums/enums";
 import { ApiError, ErrorHandler } from "@/services/globalHandler";
 
 export class ApiService {
@@ -64,56 +65,6 @@ export class ApiService {
     }
 
     return ResultUtils.error(new ApiError(errorType, message, response.status));
-  }
-
-  // Crear sesión (POST)
-  async createSession(idToken: string): Promise<Result<void>> {
-    try {
-      const response = await fetch(`${this.baseUrl}/cookies/session`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: idToken }),
-        credentials: "include",
-      });
-
-      return this.handleResponse<void>(response);
-    } catch (error) {
-      return ResultUtils.error(
-        new ApiError(ApiErrorType.NETWORK_ERROR, "Error de conexión", undefined, error as Error)
-      );
-    }
-  }
-
-  // Obtener sesión (GET)
-  async getSession(): Promise<Result<SessionData>> {
-    try {
-      const response = await fetch(`${this.baseUrl}/cookies/session`, {
-        method: "GET",
-        credentials: "include",
-      });
-
-      return this.handleResponse<SessionData>(response);
-    } catch (error) {
-      return ResultUtils.error(
-        new ApiError(ApiErrorType.NETWORK_ERROR, "Error de conexión", undefined, error as Error)
-      );
-    }
-  }
-
-  // Eliminar sesión (DELETE)
-  async deleteSession(): Promise<Result<void>> {
-    try {
-      const response = await fetch(`${this.baseUrl}/cookies/session`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-
-      return this.handleResponse<void>(response);
-    } catch (error) {
-      return ResultUtils.error(
-        new ApiError(ApiErrorType.NETWORK_ERROR, "Error de conexión", undefined, error as Error)
-      );
-    }
   }
 
   // Obtener todos los comentarios (GET)

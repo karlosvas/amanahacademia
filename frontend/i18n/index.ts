@@ -5,7 +5,7 @@ import german from "./de.json";
 import italian from "./it.json";
 import portuguese from "./pt.json";
 import arabic from "./ar.json";
-import type { i18nTranslations } from "@/types/types";
+import type { I18nTranslations } from "@/types/types";
 
 // Lenguajes permitidos
 const enum Languages {
@@ -19,7 +19,7 @@ const enum Languages {
 }
 
 // Obtener la traduccion correspondiente al idioma selecionado
-export const getI18N = ({ lang = "es" }: { lang: string | undefined }): i18nTranslations => {
+export const getI18N = ({ lang = "es" }: { lang: string | undefined }): I18nTranslations => {
   if (lang === Languages.ENGLISH) return english;
   else if (lang === Languages.SPANISH) return spanish;
   else if (lang === Languages.FRENCH) return french;

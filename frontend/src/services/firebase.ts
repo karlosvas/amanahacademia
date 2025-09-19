@@ -1,8 +1,7 @@
-import { signInWithEmailAndPassword, signInWithRedirect, type User } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, type User } from "firebase/auth";
 import toast from "solid-toast";
 import { showModalAnimation } from "../utils/modals";
 import { auth, googleProvider } from "@/config/firebase";
-import { ApiService } from "./helper";
 
 // Obtener el botón de identificación segun el tamaño de la pantalla
 export function getIdentificationButton() {
@@ -88,9 +87,7 @@ export function submitForm(
       const turnstileDiv = formHTML.querySelector(".cf-turnstile");
       if (typeof window.turnstile !== "undefined" && turnstileDiv) {
         window.turnstile.execute(turnstileDiv, {
-          async callback() {
-            console.log("Turnstile verification successful");
-          },
+          async callback() {},
           "error-callback": function (error: any) {
             console.error("Error de Turnstile:", error);
             throw new Error("Error en la verificación, por favor recarga la página.");
@@ -150,26 +147,10 @@ export function submitForm(
 // Función mejorada para logout
 export async function handleLogout(): Promise<void> {
   try {
-    // 1. Eliminar sesión del servidor
-    const helper = new ApiService();
-    const sessionResult = await helper.deleteSession();
-
-    if (sessionResult.success) {
-      console.log("🗑️ Server session deleted");
-    } else {
-      console.warn("⚠️ Failed to delete server session:", sessionResult.error);
-    }
-
-    // 2. Logout de Firebase
     await auth.signOut();
-    console.log("🚪 Firebase logout successful");
-
-    // 3. Mostrar mensaje
     toast.success("Sesión cerrada correctamente");
   } catch (error) {
     console.error("❌ Error during logout:", error);
-
-    // Incluso si hay error, intentar logout de Firebase
     try {
       await auth.signOut();
     } catch (firebaseError) {
@@ -210,9 +191,20 @@ export function setupAuth(
 }
 
 // Función mejorada para Google login
-export async function handleLogGoogleProvider(loginError: HTMLDivElement) {
+export async function handleLogGoogleProvider(
+  modal: HTMLDialogElement,
+  formHTML: HTMLFormElement,
+  isRegister: boolean,
+  loginError: HTMLDivElement
+) {
   try {
-    await signInWithRedirect(auth, googleProvider);
+    await signInWithPopup(auth, googleProvider);
+    modal.close();
+    setTimeout(() => {
+      toast.success(isRegister ? "¡Registro exitoso! Vamos a empezar con tu primer curso." : "¡Bienvenido de vuelta!");
+      formHTML.reset();
+      loginError.classList.add("hidden");
+    }, 300);
   } catch (error) {
     console.error("Error during Google sign-in:", error);
     loginError.textContent = "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo.";

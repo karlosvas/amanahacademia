@@ -1,0 +1,157 @@
+---
+import CardComment from "@/components/comments/CardComment.astro";
+import StarGroup from "@/components/comments/StarGroup.astro";
+import Stadistics from "@/components/comments/Stadistics.astro";
+import type { Comment, Result } from "@/types/bakend-types";
+import { ApiService } from "@/services/helper";
+
+const helper = new ApiService();
+let comments: Comment[] = [];
+try {
+  const response: Result<Comment[]> = await helper.getAllComments();
+  if (response.success) {
+    comments = Object.entries(response.data).map(([key, value]) => ({
+      author_uid: key,
+      name: value.name ?? "",
+      timestamp: value.timestamp ?? "",
+      content: value.content ?? "",
+      url_img: value.url_img ?? "",
+      stars: value.stars ?? 0,
+      like: value.like ?? 0,
+      reply: value.reply ?? [],
+      users_liked: value.users_liked ?? [],
+    }));
+  } else {
+    console.error("Error al cargar comentarios:", response.error);
+    // En server-side no puedes usar toast, pero puedes hacer logging
+  }
+} catch (error) {
+  console.error("Error de red al cargar comentarios:", error);
+  // Opcional: Puedes tener comentarios por defecto o vacío
+  comments = [];
+}
+---
+
+<main
+  class="py-10 lg:mt-0 mb-20 m-auto w-full 2xl:w-3/4
+              grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+              gap-6 lg:gap-8 items-start justify-items-center"
+>
+  <!-- Sección 1: Estadísticas y comentarios destacados -->
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-6">
+      <p class="text-7xl font-bold">3.75</p>
+      <StarGroup star={4} />
+    </div>
+    <h5 class="text-salmon ml-3 mb-4 font-semibold">Comentarios con mas me gusta</h5>
+    <div class="space-y-4">
+      <CardComment name="ana.banana" fecha="12 ago 2025" />
+      <CardComment name="carmen_ortega" fecha="15 apr 2023" />
+    </div>
+  </div>
+
+  <!-- Sección 2: Elementos de evaluación -->
+  <div class="p-6 bg-[--color-brown] rounded-2xl w-full max-w-sm">
+    <h5 class="text-[--color-salmon] text-xl font-semibold mb-4">Elementos de evaluacion</h5>
+    <div class="space-y-3">
+      <Stadistics title="Profesionalismo" percentage="70" />
+      <Stadistics title="Eficiencia" percentage="50" />
+      <Stadistics title="Respuesta de tiempo de los servicios" percentage="90" />
+      <Stadistics title="Tiempo de contacto administrativo" percentage="60" />
+      <Stadistics title="Satisfacción del usuario" percentage="89" />
+    </div>
+  </div>
+
+  <!-- Sección 3: Botón comentar y más comentarios -->
+  <div
+    class="w-full max-w-none md:col-span-2 lg:col-span-1 lg:max-w-sm flex flex-col items-center justify-self-center lg:justify-self-auto"
+  >
+    <button
+      class="bg-lightRed hover:bg-salmon transition-colors duration-300
+           rounded-lg text-gray-100 text-xl font-semibold w-full max-w-56
+           py-3 px-6 shadow-lg hover:shadow-xl transform
+           transition-all duration-200 mb-6 mt-10 lg:mt-0 hover:bg-salmon"
+    >
+      Comentar
+    </button>
+    <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6 px-2 sm:px-0 justify-items-center">
+      {comments.length > 0 && comments.map((comment: Comment) => <CardComment data={comment} />)}
+    </div>
+  </div>
+</main>
+<script>
+  // Importa la instancia de autenticación de Firebase y el listener de cambios de usuario
+  import { auth } from "@/config/firebase";
+  import { onAuthStateChanged, type User } from "firebase/auth";
+  import { submitLike } from "@/services/comments";
+  import { toast } from "solid-toast";
+
+  // Espera a que el DOM esté completamente cargado
+  document.addEventListener("DOMContentLoaded", function () {
+    // Selecciona todos los comentarios en la página
+    const likeIcons = document.querySelectorAll(".like-icon");
+
+    // Itera sobre cada comentario
+    likeIcons.forEach((likeIcon) => {
+      // Selecciona el icono de "like" dentro del comentario
+      // Selecciona el span que muestra el número de likes
+      const likeCountSpan = likeIcon.querySelector("span");
+      if (!likeCountSpan) return;
+
+      // Obtiene los datos del comentario desde el atributo data-users-liked
+      const commentAttr = likeIcon.getAttribute("data-users-liked");
+      if (!commentAttr) return;
+      const comment = JSON.parse(commentAttr);
+
+      // Función para actualizar el estado visual del "like" según el usuario actual
+      function updateLikeState(user: User | null) {
+        if (!comment || !likeIcon) return;
+        // Si el usuario ha dado like, añade la clase "liked"
+        if (user && comment.includes(user.uid)) {
+          likeIcon.classList.add("liked");
+          const svg = likeIcon.querySelector(".like-svg");
+          if (svg) svg.classList.add("liked");
+        } else {
+          // Si no ha dado like, quita la clase "liked"
+          likeIcon.classList.remove("liked");
+          const svg = likeIcon.querySelector(".like-svg");
+          if (svg) svg.classList.remove("liked");
+        }
+      }
+
+      // Escucha los cambios de autenticación y actualiza el estado visual del like
+      onAuthStateChanged(auth, (user) => {
+        updateLikeState(user);
+      });
+
+      // Añade el listener al icono de "like" para manejar el click
+      likeIcon.addEventListener("click", async () => {
+        const user = auth.currentUser;
+        if (user) {
+          // Selecciona el SVG del icono de "like"
+          const svg = likeIcon.querySelector(".like-svg");
+
+          // Cambia el estado visual inmediatamente (toggle)
+          likeIcon.classList.toggle("liked");
+          if (svg) svg.classList.toggle("liked");
+          if (svg) svg.classList.add("pulse");
+
+          // Llama a la función que registra el like en el backend
+          try {
+            await submitLike(likeIcon, likeCountSpan);
+          } catch (err) {
+            console.error("Error in submitLike:", err);
+          }
+
+          // Quita la animación "pulse" después de 300ms
+          setTimeout(() => {
+            if (svg) svg.classList.remove("pulse");
+          }, 300);
+        } else {
+          // Si el usuario no está logueado, muestra un toast de error
+          toast.error("Debes iniciar sesión para dar like");
+        }
+      });
+    });
+  });
+</script>

@@ -1,5 +1,5 @@
 ---
-import CardInfo from "@/components/CardInfo.astro";
+import CardInfo from "@/components/home/CardInfo.astro";
 import IconPeople from "@/assets/people.svg";
 import IconDiana from "@/assets/diana.svg";
 import IconClock from "@/assets/clock.svg";
@@ -58,7 +58,7 @@ const data = Astro.props.data as HomeI18n;
       </CardInfo>
     </div>
     <p class="m-0 md:m-10 px-10 text-red text-center text-sm font-jomolhari">
-      {data.focus.note.map((note, i) => <span >{note}</span> <br />)}
+      {data.focus.note.map((note, _) => <span >{note}</span> <br />)}
     </p>
   </div>
 </section>
