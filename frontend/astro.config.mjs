@@ -10,6 +10,14 @@ export default defineConfig({
   site: 'https://amanahacademia.com',
   output: 'server',
   adapter: cloudflare(),
+  vite: {
+    server: {
+      headers: {
+        'Cross-Origin-Opener-Policy': 'same-origin',
+        'Cross-Origin-Embedder-Policy': 'require-corp'
+      }
+    }
+  },
   i18n: {
     defaultLocale: 'es',
     locales: ['es', 'en', 'fr', 'de', 'it', 'pt', 'ar'],
@@ -45,5 +53,4 @@ export default defineConfig({
       }
     }
   }
-
 });

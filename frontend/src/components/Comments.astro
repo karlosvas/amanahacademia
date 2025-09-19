@@ -3,31 +3,27 @@ import CardComment from "./CardComment.astro";
 import StarGroup from "./StarGroup.astro";
 import Stadistics from "./Stadistics.astro";
 import type { Comment } from "@/types/types";
-import { toast } from "solid-toast";
+// import { toast } from "solid-toast";
+import { ApiService } from "@/services/helper";
+import type { Result } from "@/types/bakend-types";
 
-const url_backend = import.meta.env.PUBLIC_BACKEND_URL as string;
+const helper = new ApiService();
 let comments: Comment[] = [];
-
 try {
-  const res = await fetch(url_backend + "/comments/all", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (!res.ok) throw new Error();
-
-  const response = await res.json();
+  const response: Result<Comment[]> = await helper.getAllComments();
   if (response.success) {
     comments = Object.entries(response.data).map(([key, value]) => ({
       author_uid: key,
       ...(typeof value === "object" && value !== null ? value : {}),
     }));
   } else {
-    throw new Error();
+    console.error("Error al cargar comentarios:", response.error);
+    // En server-side no puedes usar toast, pero puedes hacer logging
   }
-} catch (err) {
-  toast.error("Error al cargar los comentarios");
+} catch (error) {
+  console.error("Error de red al cargar comentarios:", error);
+  // Opcional: Puedes tener comentarios por defecto o vacío
+  comments = [];
 }
 ---
 
@@ -74,7 +70,7 @@ try {
       Comentar
     </button>
     <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6 px-2 sm:px-0 justify-items-center">
-      {comments && comments.length > 0 && comments.map((comment: Comment) => <CardComment data={comment} />)}
+      {comments.length > 0 && comments.map((comment: Comment) => <CardComment data={comment} />)}
     </div>
   </div>
 </main>
@@ -128,7 +124,7 @@ try {
             // En caso de error, no cambiar el estado visual
           }
 
-          // ✅ Remover animación de pulso después de 300ms
+          // Remover animación de pulso después de 300ms
           setTimeout(() => {
             svg.classList.remove("pulse");
           }, 300);

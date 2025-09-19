@@ -1,30 +1,8 @@
-import { signInWithEmailAndPassword, signInWithPopup, type User } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithRedirect, type User } from "firebase/auth";
 import toast from "solid-toast";
 import { showModalAnimation } from "../utils/modals";
 import { auth, googleProvider } from "@/config/firebase";
-
-// Actualiza el botón de identificación
-export function setupAuth(
-  user: User | null,
-  authModalLogin: HTMLDialogElement,
-  formLogin: HTMLFormElement,
-  auth: any,
-  headerData: { button: { login: string; logout: string } }
-) {
-  const identificationButton = getIdentificationButton();
-  if (!identificationButton) return;
-
-  if (user) {
-    identificationButton.textContent = headerData.button.logout;
-    identificationButton.onclick = async () => await auth.signOut();
-  } else {
-    identificationButton.textContent = headerData.button.login;
-    identificationButton.onclick = () => {
-      if (authModalLogin && !authModalLogin.classList.contains("hidden") && formLogin)
-        showModalAnimation(authModalLogin, formLogin, true);
-    };
-  }
-}
+import { ApiService } from "./helper";
 
 // Obtener el botón de identificación segun el tamaño de la pantalla
 export function getIdentificationButton() {
@@ -58,6 +36,7 @@ export function toggleLoginToRegister(
   return isRegister;
 }
 
+// Enviar formularios
 export function submitForm(
   modal: HTMLDialogElement,
   loading: HTMLElement,
@@ -168,21 +147,72 @@ export function submitForm(
   });
 }
 
-// Logeo con firebase
-export async function handleLogGoogleProvider(
-  modal: HTMLDialogElement,
-  formHTML: HTMLFormElement,
-  isRegister: boolean,
-  loginError: HTMLDivElement
-) {
+// Función mejorada para logout
+export async function handleLogout(): Promise<void> {
   try {
-    await signInWithPopup(auth, googleProvider);
-    modal.close();
-    setTimeout(() => {
-      toast.success(isRegister ? "¡Registro exitoso! Vamos a empezar con tu primer curso." : "¡Bienvenido de vuelta!");
-      formHTML.reset();
-      loginError.classList.add("hidden");
-    }, 300);
+    // 1. Eliminar sesión del servidor
+    const helper = new ApiService();
+    const sessionResult = await helper.deleteSession();
+
+    if (sessionResult.success) {
+      console.log("🗑️ Server session deleted");
+    } else {
+      console.warn("⚠️ Failed to delete server session:", sessionResult.error);
+    }
+
+    // 2. Logout de Firebase
+    await auth.signOut();
+    console.log("🚪 Firebase logout successful");
+
+    // 3. Mostrar mensaje
+    toast.success("Sesión cerrada correctamente");
+  } catch (error) {
+    console.error("❌ Error during logout:", error);
+
+    // Incluso si hay error, intentar logout de Firebase
+    try {
+      await auth.signOut();
+    } catch (firebaseError) {
+      console.error("❌ Firebase logout also failed:", firebaseError);
+    }
+  }
+}
+
+// Actualizar setupAuth para usar handleLogout
+export function setupAuth(
+  user: User | null,
+  authModalLogin: HTMLDialogElement,
+  formLogin: HTMLFormElement,
+  headerData: { button: { login: string; logout: string } }
+) {
+  const identificationButton = getIdentificationButton();
+  if (!identificationButton) return;
+
+  // ✅ Validación defensiva
+  if (!headerData || !headerData.button) {
+    console.error("❌ headerData or headerData.button is undefined", headerData);
+    return;
+  }
+
+  if (user) {
+    identificationButton.textContent = headerData.button.logout;
+    // Usar la nueva función de logout
+    identificationButton.onclick = async () => {
+      await handleLogout();
+    };
+  } else {
+    identificationButton.textContent = headerData.button.login;
+    identificationButton.onclick = () => {
+      if (authModalLogin && !authModalLogin.classList.contains("hidden") && formLogin)
+        showModalAnimation(authModalLogin, formLogin, true);
+    };
+  }
+}
+
+// Función mejorada para Google login
+export async function handleLogGoogleProvider(loginError: HTMLDivElement) {
+  try {
+    await signInWithRedirect(auth, googleProvider);
   } catch (error) {
     console.error("Error during Google sign-in:", error);
     loginError.textContent = "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo.";
