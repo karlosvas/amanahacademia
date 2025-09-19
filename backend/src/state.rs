@@ -12,4 +12,5 @@ pub struct CustomFirebase {
     pub firebase_keys: serde_json::Value,
     pub firebase_project_id: String,
     pub firebase_api_key: String,
+    pub firebase_database_url: String,
 }

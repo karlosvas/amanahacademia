@@ -1,4 +1,5 @@
 pub mod comments;
+pub mod cookies;
 pub mod error;
 pub mod firebase;
 pub mod response;

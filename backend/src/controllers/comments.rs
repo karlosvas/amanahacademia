@@ -11,10 +11,18 @@ use {
         response::IntoResponse,
     },
     std::{collections::HashMap, sync::Arc},
+    tracing::instrument,
 };
 
 // Crear un comentario
 #[debug_handler]
+#[instrument(
+    skip(state, id_token, user_claims, comment),
+    fields(
+        user_id = %user_claims.user_id,
+        comment_content_length = %comment.content.len(),
+        operation = "add_comment"
+    ))]
 pub async fn add_comment(
     Extension(user_claims): Extension<UserAuthentication>,
     Extension(id_token): Extension<String>,
@@ -23,8 +31,8 @@ pub async fn add_comment(
 ) -> impl IntoResponse {
     // URL de para crear usuario en la DB
     let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/comments.json?auth={}",
-        state.firebase.firebase_project_id, id_token
+        "{}/comments.json?auth={}",
+        state.firebase.firebase_database_url, id_token
     );
 
     // Creamos el usuario que se va a crear en la DB
@@ -73,12 +81,10 @@ pub async fn add_comment(
 
 // Obtener todos los comentarios
 #[debug_handler]
+#[instrument(skip(state), fields(operation = "get_all_comments"))]
 pub async fn get_all_comments(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     // URL para obtener todos los comentarios de la DB
-    let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/comments.json",
-        state.firebase.firebase_project_id
-    );
+    let url_firebase_db: String = format!("{}/comments.json", state.firebase.firebase_database_url);
 
     // Realizamos la petición a la base de datos
     match state.firebase_client.get(&url_firebase_db).send().await {
@@ -136,6 +142,13 @@ pub async fn get_all_comments(State(state): State<Arc<AppState>>) -> impl IntoRe
 
 // Eliminar comentario
 #[debug_handler]
+#[instrument(
+    skip(state, id_token),
+    fields(
+        comment_id = %comment_id,
+        operation = "delete_comment"
+    )
+)]
 pub async fn delete_comment(
     Path(comment_id): Path<String>,
     Extension(id_token): Extension<String>,
@@ -143,8 +156,8 @@ pub async fn delete_comment(
 ) -> impl IntoResponse {
     // Obtenemos el ID del comentario a eliminar
     let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/comments/{}.json?auth={}",
-        state.firebase.firebase_project_id, comment_id, id_token
+        "{}/comments/{}.json?auth={}",
+        state.firebase.firebase_database_url, comment_id, id_token
     );
 
     // Verificar si el comentario existe
@@ -190,6 +203,14 @@ pub async fn delete_comment(
 
 // Añadir o quitar el like
 #[debug_handler]
+#[instrument(
+    skip(state, id_token, user_claims),
+    fields(
+        comment_id = %comment_id,
+        user_id = %user_claims.user_id,
+        operation = "toggle_like"
+    )
+)]
 pub async fn toggle_like(
     Path(comment_id): Path<String>,
     Extension(user_claims): Extension<UserAuthentication>,
@@ -210,8 +231,8 @@ pub async fn toggle_like(
 
     // Actualizamos el estado del "like"
     let url_firebase_db_like: String = format!(
-        "https://{}.firebasedatabase.app/comments/{}.json?auth={}",
-        state.firebase.firebase_project_id, comment_id, id_token
+        "{}/comments/{}.json?auth={}",
+        state.firebase.firebase_database_url, comment_id, id_token
     );
 
     // Comprobamos si ya le habiamos dado like
@@ -275,6 +296,15 @@ pub async fn toggle_like(
 
 // Añadir respuesta a un comentario
 #[debug_handler]
+#[instrument(
+    skip(state, id_token, user_claims, reply_comment),
+    fields(
+        comment_id = %comment_id,
+        user_id = %user_claims.user_id,
+        reply_content_length = %reply_comment.content.len(),
+        operation = "add_reply"
+    )
+)]
 pub async fn add_reply(
     Path(comment_id): Path<String>,
     State(state): State<Arc<AppState>>,
@@ -296,8 +326,8 @@ pub async fn add_reply(
 
     // URL para obtener el comentario
     let url_firebase_db_comment: String = format!(
-        "https://{}.firebasedatabase.app/comments/{}.json?auth={}",
-        state.firebase.firebase_project_id, comment_id, id_token
+        "{}/comments/{}.json?auth={}",
+        state.firebase.firebase_database_url, comment_id, id_token
     );
 
     // Creamos el nuevo comentario
@@ -353,6 +383,13 @@ pub async fn add_reply(
 }
 
 // Servicio para obtener un comentario de la base de datos
+#[instrument(
+    skip(state, id_token),
+    fields(
+        comment_id = %comment_id,
+        operation = "get_comment_data"
+    )
+)]
 async fn get_comment_data(
     comment_id: &str,
     id_token: &str,
@@ -360,8 +397,8 @@ async fn get_comment_data(
 ) -> Option<Comment> {
     // URL de Firebase Realtime Database para obtener los datos del comentario
     let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/comments/{}.json?auth={}",
-        state.firebase.firebase_project_id, comment_id, id_token
+        "{}/comments/{}.json?auth={}",
+        state.firebase.firebase_database_url, comment_id, id_token
     );
 
     // Realizamos la petición a Firebase Realtime Database

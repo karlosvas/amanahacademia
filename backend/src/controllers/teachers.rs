@@ -11,10 +11,12 @@ use {
         response::IntoResponse,
     },
     std::{collections::HashMap, sync::Arc},
+    tracing::instrument,
 };
 
 // Obtener teacher por ID
 #[debug_handler]
+#[instrument(skip(state, id_token))]
 pub async fn get_teacher(
     State(state): State<Arc<AppState>>,
     Extension(id_token): Extension<String>,
@@ -22,8 +24,8 @@ pub async fn get_teacher(
 ) -> impl IntoResponse {
     // Lógica para obtener la información del profesor por su ID, creamos la url a el recurso y nos autentificamos.
     let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/teacher_profiles/{}.json?auth={}",
-        state.firebase.firebase_project_id, id, id_token
+        "{}/teacher_profiles/{}.json?auth={}",
+        state.firebase.firebase_database_url, id, id_token
     );
 
     // Realizamos la petición a Firebase Realtime Database
@@ -53,6 +55,7 @@ pub async fn get_teacher(
 
 // Crear nuevo teacher
 #[debug_handler]
+#[instrument(skip(state, id_token))]
 pub async fn create_teacher(
     State(state): State<Arc<AppState>>,
     Extension(id_token): Extension<String>,
@@ -60,8 +63,8 @@ pub async fn create_teacher(
 ) -> impl IntoResponse {
     // URL de para crear usuario en la DB
     let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/teacher_profiles?auth={}",
-        state.firebase.firebase_project_id, id_token
+        "{}/teacher_profiles?auth={}",
+        state.firebase.firebase_database_url, id_token
     );
 
     // POST:: Crear profesor en FB_DATABASE
@@ -93,11 +96,12 @@ pub async fn create_teacher(
 
 // Mustra todos los profesores
 #[debug_handler]
+#[instrument(skip(state))]
 pub async fn get_all_teachers(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     // URL para obtener todos los usuarios de Firebase Realtime Database
     let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/teacher_profiles.json",
-        state.firebase.firebase_project_id
+        "{}/teacher_profiles.json",
+        state.firebase.firebase_database_url
     );
 
     // Realizamos la petición a Firebase Realtime Database para obtener todos los usuarios
@@ -156,6 +160,7 @@ pub async fn get_all_teachers(State(state): State<Arc<AppState>>) -> impl IntoRe
 
 // Elimina un profesor
 #[debug_handler]
+#[instrument(skip(state, id_token))]
 pub async fn delete_teacher(
     State(state): State<Arc<AppState>>,
     Extension(id_token): Extension<String>,
@@ -163,8 +168,8 @@ pub async fn delete_teacher(
 ) -> impl IntoResponse {
     // Lógica para eliminar un profesor por su ID
     let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/teacher_profiles/{}.json?auth={}",
-        state.firebase.firebase_project_id, id, id_token
+        "{}/teacher_profiles/{}.json?auth={}",
+        state.firebase.firebase_database_url, id, id_token
     );
 
     match state.firebase_client.delete(&url_firebase_db).send().await {

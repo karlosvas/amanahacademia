@@ -21,10 +21,17 @@ use {
     },
     serde_json::json,
     std::{collections::HashMap, sync::Arc},
+    tracing::instrument,
 };
 
 // Creación del usuario conn firebase
 #[debug_handler]
+#[instrument(
+    skip(state, user),
+    fields(
+        email = %user.email
+    )
+)]
 pub async fn register_user(
     State(state): State<Arc<AppState>>,
     Json(user): Json<UserRequest>,
@@ -95,8 +102,8 @@ pub async fn register_user(
 
     // URL de para crear usuario en la DB
     let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/user_profiles/{}.json?auth={}",
-        state.firebase.firebase_project_id, auth_response.local_id, auth_response.id_token
+        "{}/user_profiles/{}.json?auth={}",
+        state.firebase.firebase_database_url, auth_response.local_id, auth_response.id_token
     );
 
     // Creamos el usuario que se va a crear en la DB
@@ -145,6 +152,12 @@ pub async fn register_user(
 
 // Login de usuario en Firebase
 #[debug_handler]
+#[instrument(
+    skip(state, login),
+    fields(
+        email = %login.email
+    )
+)]
 pub async fn login_user(
     State(state): State<Arc<AppState>>,
     Json(login): Json<UserRequest>,
@@ -196,13 +209,20 @@ pub async fn login_user(
 
 // Actualización de usuario
 #[debug_handler]
+#[instrument(
+    skip(state, user_claims, id_token, user_request),
+    fields(
+        user_id = %user_claims.sub,
+        email = %user_request.email,
+        operation = "update_user"
+    )
+)]
 pub async fn update_user(
     Extension(user_claims): Extension<UserAuthentication>,
     Extension(id_token): Extension<String>,
     State(state): State<Arc<AppState>>,
     Json(user_request): Json<UserRequest>,
 ) -> impl IntoResponse {
-    println!("User request: {:?}", user_request);
     // URL para la actualización de usuario en Firebase
     let url_firebase_auth_update: String = format!(
         "https://identitytoolkit.googleapis.com/v1/accounts:update?key={}",
@@ -240,8 +260,8 @@ pub async fn update_user(
 
     // URL para la base de datos de Firebase
     let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/user_profiles/{}.json?auth={}",
-        state.firebase.firebase_project_id, user_claims.sub, id_token
+        "{}/user_profiles/{}.json?auth={}",
+        state.firebase.firebase_database_url, user_claims.sub, id_token
     );
 
     // Obtener los datos del usuario actual
@@ -311,67 +331,14 @@ pub async fn update_user(
     }
 }
 
-// Eliminar el usuario actualmente autentificado
-#[debug_handler]
-pub async fn delete_me(
-    Extension(id_token): Extension<String>,
-    Extension(user_claims): Extension<UserAuthentication>,
-    State(state): State<Arc<AppState>>,
-) -> impl IntoResponse {
-    // URL para eliminar el usuario especificado en Firebase Authentication
-    let url_firebase_auth: String = format!(
-        "https://identitytoolkit.googleapis.com/v1/accounts:delete?key={}",
-        state.firebase.firebase_api_key
-    );
-
-    // Obtenemos el usuario de las claims y lo borramos
-    // Si falló la eliminación de Auth, retornar error inmediatamente
-    let _: Response<Body> = match state
-        .firebase_client
-        .post(url_firebase_auth) // Fb utiliza POST para eliminar usuarios
-        .json(&json!({ "idToken": id_token }))
-        .send()
-        .await
-    {
-        Ok(response) => match handle_firebase_response::<FirebaseAuthResponse>(response).await {
-            Ok(_) => (StatusCode::NO_CONTENT).into_response(),
-            Err((status, error)) => (status, Json(error)).into_response(),
-        },
-        Err(_) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ResponseAPI::<()>::error(
-                "Error connecting to Firebase".to_string(),
-            )),
-        )
-            .into_response(),
-    };
-
-    // URL de para eliminar usuario en la DB
-    let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/user_profiles/{}.json?auth={}",
-        state.firebase.firebase_project_id, user_claims.sub, id_token
-    );
-
-    // Eliminamos el usuario de Firebase Realtime Database
-    match state.firebase_client.delete(url_firebase_db).send().await {
-        Ok(response) if response.status().is_success() => (StatusCode::NO_CONTENT).into_response(),
-        Ok(_) => (
-            StatusCode::BAD_REQUEST,
-            Json(ResponseAPI::<()>::error("Invalid credential".to_string())),
-        )
-            .into_response(),
-        Err(_) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ResponseAPI::<()>::error(
-                "Error connecting to Firebase".to_string(),
-            )),
-        )
-            .into_response(),
-    }
-}
-
 // Obtener todos los usuarios
 #[debug_handler]
+#[instrument(
+    skip(state, user_claims, id_token),
+    fields(
+        user_id = %user_claims.sub
+    )
+)]
 pub async fn get_all_users(
     Extension(user_claims): Extension<UserAuthentication>,
     Extension(id_token): Extension<String>,
@@ -379,8 +346,12 @@ pub async fn get_all_users(
 ) -> impl IntoResponse {
     // Obtenemos de la base de datos el usuario actual
     let actual_user_db: UserDB = match get_user_data_db(&user_claims, &id_token, &state).await {
-        Some(user_db) => user_db,
+        Some(user_db) => {
+            println!("Successfully retrieved user data: {:?}", user_db);
+            user_db
+        }
         None => {
+            println!("ERROR: get_user_data_db returned None");
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(ResponseAPI::<()>::error(
@@ -393,6 +364,7 @@ pub async fn get_all_users(
 
     // Solo podemos obtener todos los usuarios si es administrador
     if actual_user_db.role != Some("admin".to_string()) {
+        println!("User is not admin, denying access");
         return (
             StatusCode::FORBIDDEN,
             Json(ResponseAPI::<()>::error(
@@ -401,41 +373,64 @@ pub async fn get_all_users(
         )
             .into_response();
     } else {
-        println!("Actual user db: {:?}", actual_user_db);
-        println!("User claims: {:?}", "admin".to_string());
+        println!("User is admin, proceeding...");
     }
 
     // URL para obtener todos los usuarios de Firebase Realtime Database
     let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/user_profiles.json?auth={}",
-        state.firebase.firebase_project_id, id_token
+        "{}/user_profiles.json?auth={}",
+        state.firebase.firebase_database_url, id_token
     );
 
+    println!("Firebase DB URL: {}", url_firebase_db);
+
     // Realizamos la petición a Firebase Realtime Database para obtener todos los usuarios
-    let user_data_db: HashMap<String, UserDB> =
-        match state.firebase_client.get(&url_firebase_db).send().await {
-            Ok(response) if response.status().is_success() => match response.text().await {
-                Ok(response_text) => {
-                    if response_text.trim().is_empty() || response_text.trim() == "null" {
-                        HashMap::new()
-                    } else {
-                        match serde_json::from_str::<HashMap<String, UserDB>>(&response_text) {
-                            Ok(value) => value,
-                            Err(_) => {
-                                return (
-                                    StatusCode::INTERNAL_SERVER_ERROR,
-                                    Json(ResponseAPI::<()>::error(
-                                        "Error parsing database users data".to_string(),
-                                    )),
-                                )
-                                    .into_response();
+    println!("Making request to Firebase DB...");
+    let user_data_db: HashMap<String, UserDB> = match state
+        .firebase_client
+        .get(&url_firebase_db)
+        .send()
+        .await
+    {
+        Ok(response) => {
+            println!("Firebase DB response status: {}", response.status());
+            if response.status().is_success() {
+                match response.text().await {
+                    Ok(response_text) => {
+                        println!("Firebase DB response text length: {}", response_text.len());
+                        if response_text.trim().is_empty() || response_text.trim() == "null" {
+                            println!("Empty or null response, returning empty HashMap");
+                            HashMap::new()
+                        } else {
+                            match serde_json::from_str::<HashMap<String, UserDB>>(&response_text) {
+                                Ok(value) => {
+                                    println!("Successfully parsed {} users from DB", value.len());
+                                    value
+                                }
+                                Err(e) => {
+                                    println!("Error parsing JSON: {}", e);
+                                    println!("Response text: {}", response_text);
+                                    return (
+                                        StatusCode::INTERNAL_SERVER_ERROR,
+                                        Json(ResponseAPI::<()>::error(
+                                            "Error parsing database users data".to_string(),
+                                        )),
+                                    )
+                                        .into_response();
+                                }
                             }
                         }
                     }
+                    Err(e) => {
+                        println!("Error reading response text: {}", e);
+                        HashMap::new()
+                    }
                 }
-                Err(_) => HashMap::new(),
-            },
-            Ok(_) => {
+            } else {
+                println!(
+                    "Firebase DB request failed with status: {}",
+                    response.status()
+                );
                 return (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(ResponseAPI::<()>::error(
@@ -444,41 +439,9 @@ pub async fn get_all_users(
                 )
                     .into_response();
             }
-            Err(_) => {
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(ResponseAPI::<()>::error(
-                        "Error connecting to Firebase".to_string(),
-                    )),
-                )
-                    .into_response();
-            }
-        };
-
-    // URL de los datos de Firebase Admin
-    let url_firebase_admin: String = format!(
-        // Obtenemos la información del usuario de Firebase Realtime Database
-        "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={}",
-        state.firebase.firebase_api_key
-    );
-
-    // Realizamos la petición a Firebase Admin para obtener la información del usuario
-    let user_data_auth: FirebaseAdminLookupResponse = match state
-        .firebase_client
-        .post(&url_firebase_admin)
-        .json(&json!({ "idToken": id_token }))
-        .send()
-        .await
-    {
-        Ok(response) => {
-            match handle_firebase_response::<FirebaseAdminLookupResponse>(response).await {
-                Ok(users) => users,
-                Err((status, error)) => {
-                    return (status, Json(error)).into_response();
-                }
-            }
         }
-        Err(_) => {
+        Err(e) => {
+            println!("Error connecting to Firebase DB: {}", e);
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(ResponseAPI::<()>::error(
@@ -489,7 +452,56 @@ pub async fn get_all_users(
         }
     };
 
+    // URL de los datos de Firebase Admin
+    let url_firebase_admin: String = format!(
+        "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={}",
+        state.firebase.firebase_api_key
+    );
+
+    println!("Firebase Admin URL: {}", url_firebase_admin);
+    println!("Making request to Firebase Admin...");
+
+    // Realizamos la petición a Firebase Admin para obtener la información del usuario
+    let user_data_auth: FirebaseAdminLookupResponse = match state
+        .firebase_client
+        .post(&url_firebase_admin)
+        .json(&json!({ "idToken": id_token }))
+        .send()
+        .await
+    {
+        Ok(response) => {
+            println!("Firebase Admin response status: {}", response.status());
+            match handle_firebase_response::<FirebaseAdminLookupResponse>(response).await {
+                Ok(users) => {
+                    println!("Successfully retrieved auth data");
+                    users
+                }
+                Err((status, error)) => {
+                    println!(
+                        "Error handling Firebase Admin response: {} - {:?}",
+                        status, error
+                    );
+                    return (status, Json(error)).into_response();
+                }
+            }
+        }
+        Err(e) => {
+            println!("Error connecting to Firebase Admin: {}", e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(
+                    "Error connecting to Firebase".to_string(),
+                )),
+            )
+                .into_response();
+        }
+    };
+
+    println!("Merging user data...");
     let merged_users: Vec<UserMerged> = user_data_auth.merge(user_data_db);
+    println!("Successfully merged {} users", merged_users.len());
+    println!("=== GET_ALL_USERS DEBUG END ===");
+
     (
         StatusCode::OK,
         Json(ResponseAPI::<Vec<UserMerged>>::success(
@@ -500,8 +512,64 @@ pub async fn get_all_users(
         .into_response()
 }
 
+// Obtener datos del usuario según su sesión de Firebase DB
+#[instrument(
+    skip(state, id_token),
+    fields(
+        user_id = %user_claims.sub,
+        operation = "get_user_data_db"
+    )
+)]
+pub async fn get_user_data_db(
+    user_claims: &UserAuthentication,
+    id_token: &str,
+    state: &Arc<AppState>,
+) -> Option<UserDB> {
+    println!("=== GET_USER_DATA_DB DEBUG START ===");
+
+    // URL de Firebase Realtime Database para obtener los datos del usuario
+    let url_firebase_db: String = format!(
+        "{}/user_profiles/{}.json?auth={}",
+        state.firebase.firebase_database_url, user_claims.sub, id_token
+    );
+
+    println!(
+        "Firebase Project ID: {}",
+        state.firebase.firebase_database_url
+    );
+    println!("User claims sub: {}", user_claims.sub);
+    println!("ID Token length: {}", id_token.len());
+    println!("Firebase DB URL: {}", url_firebase_db);
+
+    // Realizamos la petición a Firebase Realtime Database
+    println!("Making request to Firebase DB for single user...");
+    match state.firebase_client.get(url_firebase_db).send().await {
+        Ok(response) => {
+            println!("Firebase DB response status: {}", response.status());
+            match handle_firebase_response::<UserDB>(response).await {
+                Ok(user) => {
+                    println!("Successfully retrieved user data: {:?}", user);
+                    println!("=== GET_USER_DATA_DB DEBUG END (SUCCESS) ===");
+                    Some(user)
+                }
+                Err((status, error)) => {
+                    println!("Error parsing Firebase response: {} - {:?}", status, error);
+                    println!("=== GET_USER_DATA_DB DEBUG END (PARSE ERROR) ===");
+                    None
+                }
+            }
+        }
+        Err(e) => {
+            println!("Error connecting to Firebase DB: {}", e);
+            println!("=== GET_USER_DATA_DB DEBUG END (CONNECTION ERROR) ===");
+            None
+        }
+    }
+}
+
 // Refrescar el token
 #[debug_handler]
+#[instrument(skip(state, refresh_token), fields(operation = "refresh_token"))]
 pub async fn refresh_token(
     State(state): State<Arc<AppState>>,
     Json(refresh_token): Json<RefreshToken>,
@@ -547,24 +615,68 @@ pub async fn refresh_token(
     }
 }
 
-// Obtener datos del usuario según su sesión de Firebase DB
-pub async fn get_user_data_db(
-    user_claims: &UserAuthentication,
-    id_token: &str,
-    state: &Arc<AppState>,
-) -> Option<UserDB> {
-    // URL de Firebase Realtime Database para obtener los datos del usuario
-    let url_firebase_db: String = format!(
-        "https://{}.firebasedatabase.app/user_profiles/{}.json?auth={}",
-        state.firebase.firebase_project_id, user_claims.sub, id_token
+// Eliminar el usuario actualmente autentificado
+#[debug_handler]
+#[instrument(
+    skip(state, user_claims, id_token),
+    fields(
+        user_id = %user_claims.sub,
+        operation = "delete_me"
+    )
+)]
+pub async fn delete_me(
+    Extension(id_token): Extension<String>,
+    Extension(user_claims): Extension<UserAuthentication>,
+    State(state): State<Arc<AppState>>,
+) -> impl IntoResponse {
+    // URL para eliminar el usuario especificado en Firebase Authentication
+    let url_firebase_auth: String = format!(
+        "https://identitytoolkit.googleapis.com/v1/accounts:delete?key={}",
+        state.firebase.firebase_api_key
     );
 
-    // Realizamos la petición a Firebase Realtime Database
-    match state.firebase_client.get(url_firebase_db).send().await {
-        Ok(response) => match handle_firebase_response::<UserDB>(response).await {
-            Ok(user) => Some(user),
-            Err(_) => None,
+    // Obtenemos el usuario de las claims y lo borramos
+    // Si falló la eliminación de Auth, retornar error inmediatamente
+    let _: Response<Body> = match state
+        .firebase_client
+        .post(url_firebase_auth) // Fb utiliza POST para eliminar usuarios
+        .json(&json!({ "idToken": id_token }))
+        .send()
+        .await
+    {
+        Ok(response) => match handle_firebase_response::<FirebaseAuthResponse>(response).await {
+            Ok(_) => (StatusCode::NO_CONTENT).into_response(),
+            Err((status, error)) => (status, Json(error)).into_response(),
         },
-        Err(_) => None,
+        Err(_) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ResponseAPI::<()>::error(
+                "Error connecting to Firebase".to_string(),
+            )),
+        )
+            .into_response(),
+    };
+
+    // URL de para eliminar usuario en la DB
+    let url_firebase_db: String = format!(
+        "{}/user_profiles/{}.json?auth={}",
+        state.firebase.firebase_database_url, user_claims.sub, id_token
+    );
+
+    // Eliminamos el usuario de Firebase Realtime Database
+    match state.firebase_client.delete(url_firebase_db).send().await {
+        Ok(response) if response.status().is_success() => (StatusCode::NO_CONTENT).into_response(),
+        Ok(_) => (
+            StatusCode::BAD_REQUEST,
+            Json(ResponseAPI::<()>::error("Invalid credential".to_string())),
+        )
+            .into_response(),
+        Err(_) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ResponseAPI::<()>::error(
+                "Error connecting to Firebase".to_string(),
+            )),
+        )
+            .into_response(),
     }
 }

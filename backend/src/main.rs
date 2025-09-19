@@ -20,7 +20,14 @@ use {
     tokio::net::TcpListener,
     tower_http::{
         cors::{AllowOrigin, CorsLayer},
+        set_header::SetResponseHeaderLayer,
         trace::TraceLayer,
+    },
+    tracing::{debug, error, info},
+    tracing_subscriber::{
+        EnvFilter, fmt,
+        layer::{Layer, SubscriberExt},
+        util::SubscriberInitExt,
     },
 };
 
@@ -29,18 +36,71 @@ async fn main() {
     // Cargar variables de entorno desde un archivo .env
     dotenvy::dotenv().ok();
 
-    // Inicializar tracing
-    tracing_subscriber::fmt::init();
+    // Usar cfg!(debug_assertions) directamente para el logging
+    let env_filter: EnvFilter = EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+        if cfg!(debug_assertions) {
+            EnvFilter::new("debug") // Desarrollo
+        } else {
+            EnvFilter::new("info") // Producción
+        }
+    });
+    // Inicializar tracing correctamente
+    tracing_subscriber::registry()
+        .with(env_filter)
+        .with({
+            let layer = fmt::layer()
+                .with_target(true)
+                .with_thread_ids(true)
+                .with_file(true)
+                .with_line_number(true)
+                .with_ansi(cfg!(debug_assertions)); // Colores en desarrollo
+            if cfg!(debug_assertions) {
+                layer.compact().boxed() // ← Desarrollo: formato compacto con colores
+            } else {
+                layer.json().boxed() // ← Producción: JSON estructurado sin colores
+            }
+        })
+        .init();
+
+    if cfg!(debug_assertions) {
+        info!("🔧 Modo desarrollo - debug_assertions activado");
+    } else {
+        info!("🚀 Modo producción - debug_assertions desactivado");
+    }
 
     // Obtener las claves públicas de Firebase
-    let firebase_keys = reqwest::get(
+    info!("Fetching Firebase public keys");
+    let firebase_keys = match reqwest::get(
         "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
     )
     .await
-    .unwrap()
-    .json()
-    .await
-    .unwrap();
+    {
+        Ok(response) => {
+            debug!("Firebase keys response status: {}", response.status());
+            match response.json().await {
+                Ok(keys) => {
+                    info!("Firebase public keys fetched successfully");
+                    debug!(
+                        "Available key IDs: {:?}",
+                        if let serde_json::Value::Object(obj) = &keys {
+                            obj.keys().collect::<Vec<_>>()
+                        } else {
+                            vec![]
+                        }
+                    );
+                    keys
+                }
+                Err(e) => {
+                    error!("Failed to parse Firebase keys JSON: {}", e);
+                    panic!("Cannot start without Firebase keys");
+                }
+            }
+        }
+        Err(e) => {
+            error!("Failed to fetch Firebase keys: {}", e);
+            panic!("Cannot start without Firebase keys");
+        }
+    };
 
     // Crear la instancia de CustomFirebase, con todos los datos neceesarios para la autenticación
     let firebase: CustomFirebase = CustomFirebase {
@@ -48,6 +108,8 @@ async fn main() {
         firebase_project_id: env::var("FIREBASE_PROJECT_ID")
             .expect("FIREBASE_PROJECT_ID must be set"),
         firebase_api_key: env::var("FIREBASE_API_KEY").expect("FIREBASE_API_KEY must be set"),
+        firebase_database_url: env::var("FIREBASE_DATABASE_URL")
+            .expect("FIREBASE_DATABASE_URL must be set"),
     };
 
     // Cliente de stripe
@@ -78,7 +140,17 @@ async fn main() {
         .nest("/payment", routes::payments::router(state.clone())) // Stripe
         .nest("/teachers", routes::teachers::router(state.clone())) // FB Auth, FB Realtime DB
         .nest("/webhook", routes::webhooks::router(state.clone())) // Webhooks
+        .nest("/cookies", routes::cookies::router(state.clone())) // Cookies
         .layer(cors) // CORS abierto
+        // Añadir los headers COOP/COEP
+        .layer(SetResponseHeaderLayer::overriding(
+            axum::http::header::HeaderName::from_static("cross-origin-opener-policy"),
+            axum::http::HeaderValue::from_static("same-origin"),
+        ))
+        .layer(SetResponseHeaderLayer::overriding(
+            axum::http::header::HeaderName::from_static("cross-origin-embedder-policy"),
+            axum::http::HeaderValue::from_static("require-corp"),
+        ))
         .layer(TraceLayer::new_for_http()) // Logging básico
         .with_state(state);
 

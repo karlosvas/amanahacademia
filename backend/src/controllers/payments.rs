@@ -10,7 +10,7 @@ use {
     axum::{
         Json, debug_handler,
         extract::{Path, State},
-        http::{HeaderMap, StatusCode},
+        http::StatusCode,
         response::IntoResponse,
     },
     serde_json::json,
@@ -21,63 +21,23 @@ use {
         ListProducts, PaymentIntent, PaymentIntentStatus, Price, PriceId, Product, ProductId,
         StripeError, UpdatePrice, UpdateProduct,
     },
+    tracing::instrument,
 };
-
-async fn show_data(headers: &HeaderMap) {
-    // Log estructurado
-    println!("=== Payment Request Info ===");
-
-    // User aggent
-    if let Some(user_agent) = headers.get("user-agent").and_then(|v| v.to_str().ok()) {
-        println!("User-Agent: {}", user_agent);
-    }
-
-    // Content-Type
-    if let Some(content_type) = headers.get("content-type").and_then(|v| v.to_str().ok()) {
-        println!("Content-Type: {}", content_type);
-    }
-
-    // IP real
-    if let Some(ip) = headers.get("cf-connecting-ip") {
-        println!("IP real del visitante: {:?}", ip.to_str().unwrap_or(""));
-    }
-
-    // País
-    if let Some(country) = headers.get("cf-ipcountry") {
-        println!("País: {:?}", country.to_str().unwrap_or(""));
-    }
-
-    // Ciudad
-    if let Some(city) = headers.get("cf-city") {
-        println!("Ciudad: {:?}", city.to_str().unwrap_or(""));
-    }
-
-    // Continente
-    if let Some(continent) = headers.get("cf-continent") {
-        println!("Continente: {:?}", continent.to_str().unwrap_or(""));
-    }
-
-    // Latitud y longitud
-    if let Some(lat) = headers.get("cf-latitude") {
-        println!("Latitud: {:?}", lat.to_str().unwrap_or(""));
-    }
-
-    // Longitud
-    if let Some(lon) = headers.get("cf-longitude") {
-        println!("Longitud: {:?}", lon.to_str().unwrap_or(""));
-    }
-    println!("========================");
-}
 
 // Comprar precios genericos
 #[debug_handler]
+#[instrument(
+    skip(state, payload),
+    fields(
+        amount = %payload.amount,
+        currency = %payload.currency,
+        operation = "generic_payment"
+    )
+)]
 pub async fn generic_payment(
     State(state): State<Arc<AppState>>,
-    headers: HeaderMap,
     Json(payload): Json<PaymentPayload>,
 ) -> impl IntoResponse {
-    show_data(&headers).await;
-
     // Validar el monto mínimo (ejemplo: $5.00 USD = 500 centavos)
     if payload.amount < 500 {
         return Json(json!({
@@ -163,6 +123,15 @@ pub async fn generic_payment(
 }
 
 // Comprar clase individual
+#[debug_handler]
+#[instrument(
+    skip(state, payload),
+    fields(
+        amount = %payload.amount,
+        currency = %payload.currency,
+        operation = "basic_class_payment"
+    )
+)]
 pub async fn basic_class_payment(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<PaymentPayload>,
@@ -284,6 +253,15 @@ pub async fn webhook_handler() -> impl IntoResponse {
 
 // Crear un producto
 #[debug_handler]
+#[instrument(
+    skip(state, payload),
+    fields(
+        product_name = %payload.product.name,
+        price_amount = %payload.price.unit_amount,
+        price_currency = %payload.price.currency,
+        operation = "create_product"
+    )
+)]
 pub async fn create_product(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<PayloadCreacteProduct>,
@@ -376,6 +354,8 @@ pub async fn create_product(
 }
 
 // Obtener toda la lista de productos
+#[debug_handler]
+#[instrument(skip(state), fields(operation = "get_all_products"))]
 pub async fn get_all_products(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let params = ListProducts::default();
     let products: Result<List<Product>, StripeError> =
@@ -393,6 +373,8 @@ pub async fn get_all_products(State(state): State<Arc<AppState>>) -> impl IntoRe
 }
 
 // Obtener todos los precios
+#[debug_handler]
+#[instrument(skip(state), fields(operation = "get_all_prices"))]
 pub async fn get_all_prices(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let params: ListPrices<'_> = ListPrices::default();
     let prices: Result<List<Price>, StripeError> = Price::list(&state.stripe_client, &params).await;
@@ -507,9 +489,4 @@ pub async fn delete_price(
             Json(json!({"success": false, "error": format!("Error archiving price: {}", err) })),
         ),
     }
-}
-
-// // Convierte una cadena a una divisa
-fn convert_string_to_currency(currency: &str) -> Currency {
-    Currency::from_str(currency).unwrap_or(Currency::EUR)
 }
