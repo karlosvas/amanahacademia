@@ -9,7 +9,9 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   site: 'https://amanahacademia.com',
   output: 'server',
-  adapter: cloudflare(),
+  adapter: cloudflare({
+    imageService: 'passthrough'
+  }),
   i18n: {
     defaultLocale: 'es',
     locales: ['es', 'en', 'fr', 'de', 'it', 'pt', 'ar'],
@@ -36,13 +38,5 @@ export default defineConfig({
       },
       filter: (page) => !page.includes('/admin/') && !page.includes('/404'),
     })
-  ],
-  image: {
-    service: {
-      entrypoint: "astro/assets/services/sharp",
-      config: {
-        imageService: "compile"
-      }
-    }
-  }
+  ]
 });

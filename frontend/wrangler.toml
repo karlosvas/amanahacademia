@@ -1,0 +1,9 @@
+name = "amanahacademia"
+compatibility_date = "2024-09-20"
+
+[pages.build]
+command = "npm run build"
+destination = "dist"
+
+[[pages.rules]]
+rule = "/*"
