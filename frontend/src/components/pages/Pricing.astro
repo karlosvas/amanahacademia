@@ -27,7 +27,7 @@ const data = Astro.props.data as PricingI18n;
         </p>
         <button
           data-cal-namespace={Class.Free}
-          data-cal-teacher="carlos-vasquez-sanchez"
+          data-cal-link="ana-ortega-gutierrez-hnmbkz/free"
           class="select-schedule transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 bg-red text-salmon py-2 px-6 md:px-10 rounded-full mt-5 text-xs md:text-sm cal-btn font-semibold"
         >
           {data.info[0].button}
@@ -47,9 +47,8 @@ const data = Astro.props.data as PricingI18n;
 <script>
   import { getTheme } from "@/utils/cookie";
   import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
-  import { initCalendar, getTeacherURL } from "@/services/calendar";
+  import { initCalendar } from "@/services/calendar";
   import { Class } from "@/enums/enums";
-  import { URL_BAKEND } from "@/utils/constants";
 
   // Iniciamos el calendario de clases gratuitas por defecto
   initCalendar(Class.Free);
@@ -87,21 +86,7 @@ const data = Astro.props.data as PricingI18n;
 
         // Obtenemos el tema y el namespace o tipo de clase, y el profesor
         const theme = getTheme();
-        const namespace = element.getAttribute("data-cal-namespace");
-        const teacher = element.getAttribute("data-cal-teacher");
 
-        // Obtenemos la url del calendario
-        if (!teacher) return;
-        let url_teacher = "";
-        try {
-          url_teacher = await getTeacherURL(URL_BAKEND, teacher);
-        } catch (error) {
-          console.error("Error fetching teacher URL:", error);
-          return;
-        }
-
-        // carlos-vasquez-sanchez-prjw1j
-        element.setAttribute("data-cal-link", `${url_teacher}/${namespace}`);
         element.setAttribute("data-cal-config", `{"theme":"${theme}"}`);
       });
     });

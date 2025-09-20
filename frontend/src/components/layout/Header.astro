@@ -16,16 +16,13 @@ const theme = Astro.cookies.get("theme")?.value ?? "light";
 >
   <AuthModal data={data.identification.modal} />
   <Hamburger data={data} />
-  {
-    (
-      <img
-        src={theme === "dark" ? "/img/logo_amanah_dark.webp" : "/img/logo_amanah.webp"}
-        alt=""
-        class="h-full hidden lg:block"
-        id="logo_amanah"
-      />
-    )
-  }
+  <img
+    src={theme === "dark" ? "/img/logo_amanah_dark.webp" : "/img/logo_amanah.webp"}
+    alt="Logo empresa Amanah Academia"
+    class="h-full w-20 hidden lg:block"
+    id="logo_amanah"
+    fetchpriority="high"
+  />
   <nav class="hidden lg:block absolute left-1/2 top-8 h-full flex items-center z-10 -translate-x-1/2">
     <ul class="flex flex-row gap-6 items-center color-red text-red font-jomolhari justify-center whitespace-nowrap">
       <li><a href={!lang ? "/" : `/${lang}/`}>{data.about_us}</a></li>

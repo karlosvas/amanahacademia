@@ -2,13 +2,21 @@
 const { title, percentage } = Astro.props;
 ---
 
-<div>
-  <div class="my-10">
-    <h5 class="text-[--color-salmon] text-sm">{title}</h5>
-    <div class="bg-[--color-salmon] flex justify-center items-center rounded-lg p-3">
-      <div class="bg-black h-3 w-full relative mx-2 rounded-md">
-        <div class="bg-red-600 h-3 absolute top-0 left-0"></div>
-      </div><p class="text-white">{percentage}%</p>
+<div class="space-y-1.5">
+  <div class="flex items-center justify-between">
+    <h6 class="text-xs font-medium truncate pr-2">{title}</h6>
+    <span class="text-xs font-semibold flex-shrink-0">{percentage}%</span>
+  </div>
+
+  <!-- Barra de progreso -->
+  <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+    <div
+      class="h-2 rounded-full"
+      style={`
+        width: ${percentage}%;
+        background: linear-gradient(135deg, var(--color-brown) 0%, var(--color-light-brown) 100%);
+      `}
+    >
     </div>
   </div>
 </div>

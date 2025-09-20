@@ -1,4 +1,4 @@
-import { type ResponseAPI, type Result, type Comment } from "@/types/bakend-types";
+import { type ResponseAPI, type Result, type Comment, type Teacher } from "@/types/bakend-types";
 import { ApiErrorType } from "@/enums/enums";
 import { ApiError, ErrorHandler } from "@/services/globalHandler";
 
@@ -100,6 +100,24 @@ export class ApiService {
         new ApiError(ApiErrorType.NETWORK_ERROR, "Error de conexión", undefined, error as Error)
       );
     }
+  }
+
+  // Obtener un profesor por su ID (GET)
+  async getTeacher(teacher: string): Promise<Result<Teacher>> {
+    let res = await fetch(`${this.baseUrl}/teachers/${teacher}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    return this.handleResponse<Teacher>(res);
+  }
+
+  // Obtener todos los profesores (GET)
+  async getTeachers(): Promise<Result<Teacher[]>> {
+    let res = await fetch(`${this.baseUrl}/teachers/all`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    return this.handleResponse<Teacher[]>(res);
   }
 
   // Método helper para manejo automático de errores

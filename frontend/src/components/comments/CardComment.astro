@@ -8,34 +8,63 @@ const comment = Astro.props.data as Comment;
 if (!comment) return;
 ---
 
-<div class="bg-lightSalmon max-w-96 m-3 p-2 rounded-md scroll-fade-in min-w-80">
-  <div class="p-5">
-    <div class="flex items-center space-x-3 mb-2">
-      {
-        comment.url_img ? (
-          <img src={comment.url_img} alt="User Icon" class="w-7 h-7 rounded-full" />
-        ) : (
-          <PersonIcon class="w-7 h-7" />
-        )
-      }
-      <div>
-        <p class="text-xs">@{comment.name}</p>
-        <StarGroup star={comment.stars} size={"16px"} />
+<div class="bg-lightSalmon max-w-sm rounded-lg scroll-fade-in min-w-72 overflow-hidden">
+  <!-- Header compacto -->
+  <div class="p-4">
+    <div class="flex items-center space-x-3">
+      <!-- Avatar pequeño -->
+      <div class="flex-shrink-0">
+        {
+          comment.url_img ? (
+            <img src={comment.url_img} alt={`Avatar de ${comment.name}`} class="w-8 h-8 rounded-full object-cover " />
+          ) : (
+            <div class="w-8 h-8 rounded-full bg-salmon flex items-center justify-center">
+              <PersonIcon class="w-4 h-4 text-gray-800" />
+            </div>
+          )
+        }
+      </div>
+
+      <!-- Info del usuario compacta -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+          <h5 class="text-sm font-medium truncate">
+            @{comment.name}
+          </h5>
+          <time class="text-xs ml-2">
+            {comment.timestamp}
+          </time>
+        </div>
+        <div class="mt-0.5 flex items-start">
+          <StarGroup star={comment.stars} size={"12px"} />
+        </div>
       </div>
     </div>
-    <p class="text-xs">{comment.timestamp}</p>
+
+    <!-- Contenido del comentario -->
+    <div class="mt-3">
+      <p class="text-[var(-text-gray-800)] text-sm leading-snug line-clamp-3">
+        {comment.content}
+      </p>
+    </div>
   </div>
-  <p class="pl-5">
-    {comment.content}
-  </p>
-  <div class="flex justify-end space-x-2">
-    <div
-      class={`flex justify-end space-x-1 cursor-pointer like-icon`}
-      data-id={comment.author_uid}
-      data-users-liked={JSON.stringify(comment.users_liked ?? [])}
-    >
-      <Like class={`like-svg`} />
-      <span class="min-w-5 text-center">{(comment.like ?? 0) ? comment.like : 0}</span>
+
+  <!-- Footer minimalista -->
+  <div class="px-4 py-2 bg-salmon">
+    <div class="flex items-center justify-end">
+      <!-- Botón de like compacto -->
+      <button
+        class="flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-[var(--color-light-red)] transition-colors duration-200 like-icon cursor-pointer"
+        data-id={comment.author_uid}
+        data-users-liked={JSON.stringify(comment.users_liked ?? [])}
+      >
+        <Like
+          class="w-3.5 h-3.5 text-[var(--text-medium-contrast)] hover:text-[var(--color-red)] transition-colors duration-200 like-svg"
+        />
+        <span class="text-xs font-medium text-[var(--text-medium-contrast)] min-w-3 text-center">
+          {(comment.like ?? 0) || 0}
+        </span>
+      </button>
     </div>
   </div>
 </div>

@@ -20,6 +20,7 @@ import ThemeIcon from "@/assets/theme.svg";
       body.className = "light";
     }
 
+    // Aplica el tema claro o oscuro a la imagen
     function applyTheme(newTheme: "dark" | "light") {
       body.className = newTheme;
       html.classList.toggle("dark", newTheme === "dark");
@@ -27,9 +28,8 @@ import ThemeIcon from "@/assets/theme.svg";
 
       // Opcional: recargar el logo si depende del tema
       const logo = document.getElementById("logo_amanah");
-      if (logo && logo instanceof HTMLImageElement) {
+      if (logo && logo instanceof HTMLImageElement)
         logo.src = newTheme === "dark" ? "/img/logo_amanah_dark.webp" : "/img/logo_amanah.webp";
-      }
     }
 
     if (themeButton) {

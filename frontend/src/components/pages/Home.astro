@@ -1,26 +1,37 @@
 ---
 import type { HomeI18n } from "@/types/types";
 import AboutUs from "@/components/home/AboutUs.astro";
+import { Image } from "astro:assets";
+import banner from "@/assets/img/banner.webp";
 
 const data = Astro.props.data as HomeI18n;
 ---
 
-<section class="relative scroll-fade-in">
+<section class="relative w-full">
   <div
-    class="absolute top-0 left-0 w-full h-full overflow-hidden rounded-none shadow-[0_0_10px_0_rgba(255,120,60,0.5)] m-0 p-0 z-0"
+    class="absolute scroll-fade-in top-0 left-0 w-full h-full overflow-hidden rounded-none shadow-[0_0_10px_0_rgba(255,120,60,0.5)] m-0 p-0 z-0"
   >
-    <img src="/img/banner.webp" alt="" class="w-full h-full object-cover object-top m-0 p-0" />
+    <Image
+      src={banner}
+      alt=""
+      aria-hidden="true"
+      fetchpriority="high"
+      sizes="100vw"
+      class="w-full h-full object-cover object-top m-0 p-0"
+    />
     <div
       class="absolute inset-0 pointer-events-none"
       style="background: radial-gradient(circle at center, rgba(255,120,60,0.35) 0%, transparent 70%);"
     >
     </div>
   </div>
-  <h1 class="text-center px-10 pt-20 pb-1 text-red font-bold text-5xl select-none font-jomolhari z-20 relative">
+  <h1
+    class="scroll-fade-in text-center px-10 pt-20 pb-1 text-red font-bold text-5xl select-none font-jomolhari z-20 relative"
+  >
     Amanah Academia
   </h1>
-  <div class="bg-salmon h-2 m-auto mb-10 w-80 mt-1 z-20 relative"></div>
-  <h2 class="text-center m-10 text-red font-semibold font-jomolhari z-20 relative pb-20">
+  <div class="scroll-fade-in bg-salmon h-2 m-auto mb-10 w-80 mt-1 z-20 relative"></div>
+  <h2 class="scroll-fade-in text-center m-10 text-red font-semibold font-jomolhari z-20 relative pb-20">
     Del primer hola a todo un mundo, academia de Español
   </h2>
 </section>

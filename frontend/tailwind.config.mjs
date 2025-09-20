@@ -6,6 +6,7 @@ export const theme = {
     extend: {
         fontFamily: {
             'jomolhari': ['"Jomolhari"', 'serif'],
+            "inter": ['"Inter"', 'sans-serif']
         },
         colors: {
             background: "var(--color-background)",

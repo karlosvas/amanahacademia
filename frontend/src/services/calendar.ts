@@ -1,4 +1,6 @@
 import type { Class } from "@/enums/enums";
+import { ApiService } from "./helper";
+import type { Teacher } from "@/types/bakend-types";
 
 /**
  * Inicializa y configura el calendario embebido de Cal.com para el namespace dado.
@@ -54,21 +56,14 @@ export function initCalendar(namespaceId: Class) {
   });
 }
 
-export async function getTeacherURL(bakend_url: string, teacher: string): Promise<string> {
-  let res = await fetch(`${bakend_url}/teachers/${teacher}`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch teacher URL");
+export async function getTeacherURL(teacher: string): Promise<Teacher> {
+  try {
+    const helper = new ApiService();
+    const response = await helper.getTeacher(teacher);
+    if (response.success && response.data) return response.data;
+  } catch (error) {
+    console.error("Error fetching teacher data:", error);
+    throw error;
   }
-
-  const data = await res.json();
-
-  if (!data || !data.calendar_url || typeof data.calendar_url !== "string") {
-    throw new Error("Invalid teacher URL");
-  }
-
-  return data.calendar_url as string;
+  throw new Error("Teacher data not found.");
 }

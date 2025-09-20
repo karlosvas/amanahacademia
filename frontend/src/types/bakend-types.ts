@@ -1,11 +1,13 @@
 import type { ApiError } from "@/services/globalHandler";
 
 export type Teacher = {
+  uid?: string;
   calLink: string;
   name: string;
   native_lang: string;
   url_image: string;
   description: string;
+  data_cal_teacher?: string; // ✅ Opcional, si lo usas
 };
 
 export interface ResponseAPI<T> {
@@ -25,17 +27,6 @@ export interface Comment {
   like?: number; // Opcional
   reply?: Comment[]; // Opcional
   users_liked?: string[]; // Opcional
-}
-
-export interface SessionData {
-  token: string;
-  local_id: string;
-  email?: string | null;
-  name?: string | null;
-  exp: number;
-  picture?: string | null;
-  email_verified: boolean;
-  provider?: string | null;
 }
 
 // Resultado de operaciones que pueden fallar en la api

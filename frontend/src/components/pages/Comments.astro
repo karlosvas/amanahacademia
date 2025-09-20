@@ -5,8 +5,15 @@ import Stadistics from "@/components/comments/Stadistics.astro";
 import type { Comment, Result } from "@/types/bakend-types";
 import { ApiService } from "@/services/helper";
 
+// Para formato "dd/MM/yyyy HH:mm"
+function parseSpanishDate(str: string): Date {
+  const [day, month, year, hour, minute] = str.match(/\d+/g) ?? [];
+  return new Date(`${year}-${month}-${day}T${hour}:${minute}`);
+}
+
 const helper = new ApiService();
 let comments: Comment[] = [];
+let bestComments: Comment[] = [];
 try {
   const response: Result<Comment[]> = await helper.getAllComments();
   if (response.success) {
@@ -21,6 +28,11 @@ try {
       reply: value.reply ?? [],
       users_liked: value.users_liked ?? [],
     }));
+    comments = comments.sort((a, b) => {
+      return parseSpanishDate(a.timestamp).getTime() - parseSpanishDate(b.timestamp).getTime();
+    });
+    bestComments = [...comments].sort((a, b) => (a.like ?? 0) - (b.like ?? 0)).slice(0, 3);
+    // Ordenamos por timestamp
   } else {
     console.error("Error al cargar comentarios:", response.error);
     // En server-side no puedes usar toast, pero puedes hacer logging
@@ -38,44 +50,48 @@ try {
               gap-6 lg:gap-8 items-start justify-items-center"
 >
   <!-- Sección 1: Estadísticas y comentarios destacados -->
-  <div class="w-full max-w-sm">
+  <div class="w-full max-w-sm mx-auto justify-self-center">
     <div class="text-center mb-6">
       <p class="text-7xl font-bold">3.75</p>
       <StarGroup star={4} />
     </div>
     <h5 class="text-salmon ml-3 mb-4 font-semibold">Comentarios con mas me gusta</h5>
     <div class="space-y-4">
-      <CardComment name="ana.banana" fecha="12 ago 2025" />
-      <CardComment name="carmen_ortega" fecha="15 apr 2023" />
+      {bestComments.length > 0 && bestComments.map((comment: Comment) => <CardComment data={comment} />)}
     </div>
   </div>
 
-  <!-- Sección 2: Elementos de evaluación -->
-  <div class="p-6 bg-[--color-brown] rounded-2xl w-full max-w-sm">
-    <h5 class="text-[--color-salmon] text-xl font-semibold mb-4">Elementos de evaluacion</h5>
-    <div class="space-y-3">
-      <Stadistics title="Profesionalismo" percentage="70" />
-      <Stadistics title="Eficiencia" percentage="50" />
-      <Stadistics title="Respuesta de tiempo de los servicios" percentage="90" />
-      <Stadistics title="Tiempo de contacto administrativo" percentage="60" />
-      <Stadistics title="Satisfacción del usuario" percentage="89" />
-    </div>
-  </div>
-
-  <!-- Sección 3: Botón comentar y más comentarios -->
+  <!-- Sección 2: Botón comentar y más comentarios -->
   <div
     class="w-full max-w-none md:col-span-2 lg:col-span-1 lg:max-w-sm flex flex-col items-center justify-self-center lg:justify-self-auto"
   >
     <button
-      class="bg-lightRed hover:bg-salmon transition-colors duration-300
+      class="bg-lightRed hover:bg-salmon
            rounded-lg text-gray-100 text-xl font-semibold w-full max-w-56
            py-3 px-6 shadow-lg hover:shadow-xl transform
-           transition-all duration-200 mb-6 mt-10 lg:mt-0 hover:bg-salmon"
+           mb-6 mt-10 lg:mt-0"
     >
       Comentar
     </button>
     <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6 px-2 sm:px-0 justify-items-center">
       {comments.length > 0 && comments.map((comment: Comment) => <CardComment data={comment} />)}
+    </div>
+  </div>
+
+  <!-- Sección 3: Elementos de evaluación -->
+  <div class="bg-lightSalmon mt-20 rounded-lg max-w-sm w-full overflow-hidden">
+    <!-- Header -->
+    <div class="px-4 py-3 bg-salmon">
+      <h5 class="text-sm">Elementos de evaluación</h5>
+    </div>
+
+    <!-- Contenido -->
+    <div class="p-4 space-y-14 pb-10">
+      <Stadistics title="Profesionalismo" percentage="70" />
+      <Stadistics title="Eficiencia" percentage="50" />
+      <Stadistics title="Respuesta de tiempo de los servicios" percentage="90" />
+      <Stadistics title="Tiempo de contacto administrativo" percentage="60" />
+      <Stadistics title="Satisfacción del usuario" percentage="89" />
     </div>
   </div>
 </main>
