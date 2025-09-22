@@ -178,7 +178,7 @@
       "title": "Prezzi",
       "type": {
         "standard": {
-          "title": "Lezioni individuali standard",
+          "title": "Individuali standard",
           "description": "Un approccio completo per lavorare su grammatica, vocabolario, comprensione ed espressione. Non ci limitiamo a liste di verbi o parole isolate: tutto si impara nel contesto, con esempi ed espressioni reali. Includiamo sempre dialoghi e attività che rendono la lezione pratica e coinvolgente.",
           "price": {
             "currency": "€",
@@ -196,7 +196,7 @@
           "button": "Prenota lezione"
         },
         "conversation": {
-          "title": "Lezioni individuali di conversazione",
+          "title": "Individuali di conversazione",
           "description": "Progettate per chi ha un livello intermedio-alto (B1+/B2) e vuole concentrarsi sul parlare. Utilizziamo dinamiche, giochi e temi vari per far fluire la conversazione. Pur non approfondendo la grammatica, correggiamo e chiarifichiamo i dubbi sul momento.",
           "price": {
             "currency": "€",
@@ -212,7 +212,7 @@
           "button": "Prenota lezione"
         },
         "group": {
-          "title": "Lezioni di gruppo",
+          "title": "Di gruppo",
           "description": "La stessa qualità delle lezioni standard, ma in gruppi ristretti di massimo 4 persone. Ideali se cerchi un'opzione più economica e collaborativa. Includono dibattiti, giochi e attività partecipative. Se non puoi partecipare, riceverai un riassunto con i contenuti e gli esercizi svolti.",
           "price": {
             "currency": "€",

@@ -98,8 +98,7 @@ export function submitForm(
       // URL de la petición
       let url = import.meta.env.PUBLIC_BACKEND_URL;
       if (!url) throw new Error("PUBLIC_BACKEND_URL no definida");
-      if (isRegister) url += "/users/register";
-      else url += "/users/login";
+      url += isRegister ? "/users/register" : "/users/login";
 
       // Validar credenciales en backend, registrandonos o logeandonos segun corresponda
       const backendResponse = await fetch(url, {
@@ -125,16 +124,22 @@ export function submitForm(
         console.error(errorData);
         throw new Error("Credenciales inválidas");
       }
-    } catch (error: Error | unknown) {
+    } catch (error: unknown) {
       console.error("Error en la autenticación:", error);
       errorMessage.classList.remove("hidden");
-      let message = "*Error desconocido";
-      if (error instanceof Error) {
-        message = "*" + error.message;
-      } else if (typeof error === "string") {
-        message = "*" + error;
-      } else if (typeof error === "object" && error !== null && "message" in error) {
-        message = "*" + String((error as any).message);
+      let message;
+      switch (error) {
+        case error instanceof DOMException:
+          message = "*Error de red. Por favor, inténtalo de nuevo más tarde.";
+          break;
+        case typeof error === "string":
+          message = "*" + error;
+          break;
+        case typeof error === "object" && error !== null && "message" in error:
+          message = "*" + String((error as any).message);
+          break;
+        default:
+          message = "*Error desconocido";
       }
       errorMessage.textContent = message;
     } finally {
@@ -169,8 +174,8 @@ export function setupAuth(
   const identificationButton = getIdentificationButton();
   if (!identificationButton) return;
 
-  // ✅ Validación defensiva
-  if (!headerData || !headerData.button) {
+  // Validación defensiva
+  if (!headerData?.button) {
     console.error("❌ headerData or headerData.button is undefined", headerData);
     return;
   }

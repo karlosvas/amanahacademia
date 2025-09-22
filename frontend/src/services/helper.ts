@@ -1,6 +1,7 @@
-import { type ResponseAPI, type Result, type Comment, type Teacher } from "@/types/bakend-types";
+import { type ResponseAPI, type Result, type Comment, type Teacher, type UserMerged } from "@/types/bakend-types";
 import { ApiErrorType } from "@/enums/enums";
 import { ApiError, ErrorHandler } from "@/services/globalHandler";
+import { auth } from "@/config/firebase";
 
 export class ApiService {
   private readonly baseUrl: string;
@@ -72,7 +73,6 @@ export class ApiService {
     try {
       const response = await fetch(`${this.baseUrl}/comments/all`, {
         method: "GET",
-        credentials: "include",
       });
 
       return this.handleResponse<Comment[]>(response);
@@ -118,6 +118,35 @@ export class ApiService {
       headers: { "Content-Type": "application/json" },
     });
     return this.handleResponse<Teacher[]>(res);
+  }
+
+  // Enviar comentario (POST)
+  async postComment(token: string, comment: Comment): Promise<Result<Comment>> {
+    let res = await fetch(`${this.baseUrl}/comments/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify(comment),
+    });
+
+    return this.handleResponse<Comment>(res);
+  }
+
+  // Obtener el usuario actual (GET)
+  async getUser(): Promise<Result<UserMerged>> {
+    const currentUser = auth.currentUser;
+    const token = currentUser ? await currentUser.getIdToken() : null;
+    let url = `${this.baseUrl}/users/me`;
+    let res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
+    return this.handleResponse<UserMerged>(res);
   }
 
   // Método helper para manejo automático de errores

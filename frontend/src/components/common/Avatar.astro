@@ -1,0 +1,24 @@
+---
+import PersonIcon from "@/assets/person.svg";
+import type { AvatarProps } from "@/types/types";
+
+const info = Astro.props.info as AvatarProps | null;
+const server = Astro.props.server ?? true;
+---
+
+<div class="flex-shrink-0" id="avatar-container">
+  {
+    !server ? (
+      // Si cargo desde el cliente se lo damos mediante JS
+      <img src="" alt="" class="avatar-img w-8 h-8 rounded-full object-cover " />
+    ) : info?.url_img ? (
+      // Si hay info url la imagen, cargo desde el servidor y tiene foto
+      <img src={info.url_img} alt={`Avatar de ${info.name}`} class="w-8 h-8 rounded-full object-cover " />
+    ) : (
+      // Si cargo del servvidor pero no tiene foto o no hay info
+      <div class="w-8 h-8 rounded-full bg-salmon flex items-center justify-center" id="avatar-default">
+        <PersonIcon class="w-4 h-4 text-gray-800" />
+      </div>
+    )
+  }
+</div>

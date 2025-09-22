@@ -7,11 +7,13 @@ const data = Astro.props.data as I18nTranslations;
 const { lang } = Astro.params;
 ---
 
-<!-- Header -->
-<Header data={data.header} lang={lang} />
-<!-- Contenido Principal -->
-<main class="flex-1 py-20">
-  <slot />
-</main>
-<!-- Footer -->
-<Footer data={data.footer} />
+<div class="min-h-screen flex flex-col">
+  <!-- Header -->
+  <Header data={data.header} lang={lang} />
+  <!-- Contenido Principal -->
+  <main class="flex-1 py-20">
+    <slot />
+  </main>
+  <!-- Footer -->
+  <Footer data={data.footer} />
+</div>

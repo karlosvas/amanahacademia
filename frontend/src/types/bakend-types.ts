@@ -31,3 +31,32 @@ export interface Comment {
 
 // Resultado de operaciones que pueden fallar en la api
 export type Result<T, E = ApiError> = { success: true; data: T } | { success: false; error: E };
+
+export interface ProviderUserInfo {
+  provider_id: string;
+  federated_id?: string;
+  email?: string;
+  display_name?: string;
+  photo_url?: string;
+  raw_id?: string;
+}
+
+export interface UserMerged {
+  local_id: string;
+  email?: string;
+  email_verified?: boolean;
+  display_name?: string;
+  photo_url?: string;
+  phone_number?: string;
+  disabled?: boolean;
+  role?: string;
+  subscription_tier?: string;
+  permissions?: string[];
+  provider_user_info?: ProviderUserInfo[];
+  password_hash?: string;
+  password_updated_at?: number;
+  valid_since?: string;
+  last_login_at?: string;
+  created_at?: string;
+  custom_auth?: boolean;
+}

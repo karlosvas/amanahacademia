@@ -1,29 +1,25 @@
 ---
 import type { Comment } from "@/types/bakend-types";
-import PersonIcon from "@/assets/person.svg";
 import StarGroup from "./StarGroup.astro";
 import Like from "@/assets/like.svg";
+import Avatar from "../common/Avatar.astro";
+import type { AvatarProps } from "@/types/types";
 
 const comment = Astro.props.data as Comment;
 if (!comment) return;
+
+const avatar: AvatarProps = {
+  name: comment.name ?? "Invitado",
+  url_img: comment.url_img ?? "",
+};
 ---
 
-<div class="bg-lightSalmon max-w-sm rounded-lg scroll-fade-in min-w-72 overflow-hidden">
+<div class="bg-lightSalmon max-w-sm rounded-lg scroll-fade-in min-w-72 overflow-hidden flex flex-col h-full">
   <!-- Header compacto -->
   <div class="p-4">
     <div class="flex items-center space-x-3">
       <!-- Avatar pequeño -->
-      <div class="flex-shrink-0">
-        {
-          comment.url_img ? (
-            <img src={comment.url_img} alt={`Avatar de ${comment.name}`} class="w-8 h-8 rounded-full object-cover " />
-          ) : (
-            <div class="w-8 h-8 rounded-full bg-salmon flex items-center justify-center">
-              <PersonIcon class="w-4 h-4 text-gray-800" />
-            </div>
-          )
-        }
-      </div>
+      <Avatar info={avatar} />
 
       <!-- Info del usuario compacta -->
       <div class="flex-1 min-w-0">
@@ -50,7 +46,7 @@ if (!comment) return;
   </div>
 
   <!-- Footer minimalista -->
-  <div class="px-4 py-2 bg-salmon">
+  <div class="px-4 py-1 bg-salmon mt-auto">
     <div class="flex items-center justify-end">
       <!-- Botón de like compacto -->
       <button

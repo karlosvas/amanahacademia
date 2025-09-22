@@ -178,7 +178,7 @@
       "title": "Tarifs",
       "type": {
         "standard": {
-          "title": "Cours particuliers standard",
+          "title": "Particuliers standard",
           "description": "Une approche complète pour travailler la grammaire, le vocabulaire, la compréhension et l'expression. Nous ne nous contentons pas de listes de verbes ou de mots isolés : tout s'apprend dans le contexte, avec des exemples et des expressions réelles. Nous incluons toujours des dialogues et des activités rendant la leçon pratique et agréable.",
           "price": {
             "currency": "€",
@@ -196,7 +196,7 @@
           "button": "Réserver un cours"
         },
         "conversation": {
-          "title": "Cours particuliers de conversation",
+          "title": "Particuliers de conversation",
           "description": "Conçus pour les apprenants ayant un niveau intermédiaire-avancé (B1+/B2) et souhaitant se concentrer sur l'expression orale. Nous proposons des dynamiques, des jeux et des thèmes variés pour faire circuler la conversation. Même si nous n'approfondissons pas la grammaire, nous corrigeons et clarifions les doutes sur le moment.",
           "price": {
             "currency": "€",
@@ -212,7 +212,7 @@
           "button": "Réserver un cours"
         },
         "group": {
-          "title": "Cours en groupe",
+          "title": "En groupe",
           "description": "La même qualité que les cours standard, mais en petits groupes de maximum 4 personnes. Idéal si vous cherchez une option plus économique et collaborative. Ils incluent débats, jeux et activités participatives. Si vous ne pouvez pas assister, vous recevrez un résumé avec les contenus et exercices travaillés.",
           "price": {
             "currency": "€",

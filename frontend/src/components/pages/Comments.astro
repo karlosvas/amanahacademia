@@ -4,20 +4,75 @@ import StarGroup from "@/components/comments/StarGroup.astro";
 import Stadistics from "@/components/comments/Stadistics.astro";
 import type { Comment, Result } from "@/types/bakend-types";
 import { ApiService } from "@/services/helper";
+import CommentModal from "@/components/comments/CommentModal.astro";
 
-// Para formato "dd/MM/yyyy HH:mm"
-function parseSpanishDate(str: string): Date {
-  const [day, month, year, hour, minute] = str.match(/\d+/g) ?? [];
-  return new Date(`${year}-${month}-${day}T${hour}:${minute}`);
+function formatToSpanishDate(isoTimestamp: string): string {
+  const date = new Date(isoTimestamp);
+
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
+// Función para parsear fecha española a objeto Date
+function parseSpanishDate(spanishDate: string): Date {
+  // Formato: "20/09/2025 00:25"
+  const [datePart, timePart] = spanishDate.split(" ");
+  const [day, month, year] = datePart.split("/").map(Number);
+  const [hours, minutes] = timePart.split(":").map(Number);
+
+  return new Date(year, month - 1, day, hours, minutes);
+}
+
+function normalizeTimestamp(timestamp: string): string {
+  // Si ya está en formato español, lo devuelve tal como está
+  if (timestamp.includes("/")) {
+    return timestamp;
+  }
+
+  // Si está en formato ISO, lo convierte
+  if (timestamp.includes("T") || timestamp.includes("Z")) {
+    return formatToSpanishDate(timestamp);
+  }
+
+  // Si no reconoce el formato, devuelve el original
+  return timestamp;
+}
+
+// Función principal para procesar y ordenar comentarios
+function processComments(comments: Comment[]) {
+  // Normalizar todos los timestamps
+  const normalizedComments = comments.map((comment: Comment) => ({
+    ...comment,
+    timestamp: normalizeTimestamp(comment.timestamp),
+  }));
+
+  // Ordenar por fecha (más antiguos primero)
+  const sortedComments = normalizedComments.sort((a, b) => {
+    return parseSpanishDate(a.timestamp).getTime() - parseSpanishDate(b.timestamp).getTime();
+  });
+
+  // Obtener los 3 mejores comentarios por likes
+  const bestComments = [...normalizedComments].sort((a, b) => (b.like ?? 0) - (a.like ?? 0)).slice(0, 3);
+
+  return {
+    comments: sortedComments,
+    bestComments: bestComments,
+  };
 }
 
 const helper = new ApiService();
 let comments: Comment[] = [];
 let bestComments: Comment[] = [];
+let mediaStars = 0;
 try {
   const response: Result<Comment[]> = await helper.getAllComments();
   if (response.success) {
-    comments = Object.entries(response.data).map(([key, value]) => ({
+    const commentsData = Object.entries(response.data).map(([key, value]) => ({
       author_uid: key,
       name: value.name ?? "",
       timestamp: value.timestamp ?? "",
@@ -28,10 +83,9 @@ try {
       reply: value.reply ?? [],
       users_liked: value.users_liked ?? [],
     }));
-    comments = comments.sort((a, b) => {
-      return parseSpanishDate(a.timestamp).getTime() - parseSpanishDate(b.timestamp).getTime();
-    });
-    bestComments = [...comments].sort((a, b) => (a.like ?? 0) - (b.like ?? 0)).slice(0, 3);
+
+    ({ comments, bestComments } = processComments(commentsData));
+    mediaStars = comments.reduce((acc, comment) => acc + (comment.stars ?? 0), 0) / comments.length;
     // Ordenamos por timestamp
   } else {
     console.error("Error al cargar comentarios:", response.error);
@@ -44,49 +98,79 @@ try {
 }
 ---
 
+<style>
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .comments-grid {
+      grid-template-columns: 1fr;
+    }
+    .section-1 {
+      grid-column: 1;
+      justify-self: center;
+      max-width: 400px;
+    }
+    .section-2 {
+      grid-column: 1;
+      justify-self: center;
+      max-width: 600px;
+    }
+    .section-3 {
+      grid-column: 1;
+      justify-self: center;
+      max-width: 400px;
+    }
+  }
+</style>
+
 <main
-  class="py-10 lg:mt-0 mb-20 m-auto w-full 2xl:w-3/4
-              grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3
-              gap-6 lg:gap-8 items-start justify-items-center"
+  class="py-6 sm:py-8 md:py-10 lg:mt-0 mb-12 sm:mb-16 md:mb-20 m-auto w-full 2xl:w-3/4
+              grid grid-cols-1 lg:grid-cols-3
+              gap-4 sm:gap-6 lg:gap-8 items-start justify-items-center px-2 sm:px-4 comments-grid"
 >
   <!-- Sección 1: Estadísticas y comentarios destacados -->
-  <div class="w-full max-w-sm mx-auto justify-self-center">
-    <div class="text-center mb-6">
-      <p class="text-7xl font-bold">3.75</p>
-      <StarGroup star={4} />
+  <div class="w-full max-w-sm mx-auto justify-self-center md:justify-self-center lg:justify-self-start section-1">
+    <div class="text-center mb-4 sm:mb-6">
+      <p class="text-5xl sm:text-6xl lg:text-7xl font-bold">{mediaStars.toFixed(2)}</p>
+      <StarGroup star={mediaStars} />
     </div>
-    <h5 class="text-salmon ml-3 mb-4 font-semibold">Comentarios con mas me gusta</h5>
-    <div class="space-y-4">
+    <h5 class="text-salmon ml-2 sm:ml-3 mb-10 sm:mb-4 font-semibold text-sm sm:text-base">
+      Comentarios con mas me gusta
+    </h5>
+    <div class="space-y-3 sm:space-y-4">
       {bestComments.length > 0 && bestComments.map((comment: Comment) => <CardComment data={comment} />)}
     </div>
   </div>
 
   <!-- Sección 2: Botón comentar y más comentarios -->
   <div
-    class="w-full max-w-none md:col-span-2 lg:col-span-1 lg:max-w-sm flex flex-col items-center justify-self-center lg:justify-self-auto"
+    class="mt-24 w-full max-w-none lg:col-span-1 lg:max-w-sm flex flex-col items-center justify-self-center lg:justify-self-auto order-2 lg:order-2 section-2"
   >
     <button
+      id="open-comment-modal"
       class="bg-lightRed hover:bg-salmon
-           rounded-lg text-gray-100 text-xl font-semibold w-full max-w-56
-           py-3 px-6 shadow-lg hover:shadow-xl transform
-           mb-6 mt-10 lg:mt-0"
+           rounded-lg text-gray-100 text-lg sm:text-xl font-semibold w-full max-w-48 sm:max-w-56
+           py-2 sm:py-3 px-4 sm:px-6 shadow-lg hover:shadow-xl transform
+            sm:mb-6 mt-6 sm:mt-8 lg:mt-0"
     >
       Comentar
     </button>
-    <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6 px-2 sm:px-0 justify-items-center">
+    <div
+      class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4 lg:gap-6 px-2 sm:px-0 justify-items-center mt-10"
+    >
       {comments.length > 0 && comments.map((comment: Comment) => <CardComment data={comment} />)}
     </div>
   </div>
 
   <!-- Sección 3: Elementos de evaluación -->
-  <div class="bg-lightSalmon mt-20 rounded-lg max-w-sm w-full overflow-hidden">
+  <div
+    class="bg-lightSalmon mt-12 sm:mt-16 lg:mt-20 rounded-lg max-w-sm w-full overflow-hidden mx-auto md:mx-auto lg:mx-0 order-3 section-3"
+  >
     <!-- Header -->
-    <div class="px-4 py-3 bg-salmon">
-      <h5 class="text-sm">Elementos de evaluación</h5>
+    <div class="px-3 sm:px-4 py-2 sm:py-3 bg-salmon">
+      <h5 class="text-xs sm:text-sm font-semibold">Elementos de evaluación</h5>
     </div>
 
     <!-- Contenido -->
-    <div class="p-4 space-y-14 pb-10">
+    <div class="p-3 sm:p-4 space-y-8 sm:space-y-10 lg:space-y-14 pb-6 sm:pb-8 lg:pb-10">
       <Stadistics title="Profesionalismo" percentage="70" />
       <Stadistics title="Eficiencia" percentage="50" />
       <Stadistics title="Respuesta de tiempo de los servicios" percentage="90" />
@@ -95,6 +179,8 @@ try {
     </div>
   </div>
 </main>
+<CommentModal />
+
 <script>
   // Importa la instancia de autenticación de Firebase y el listener de cambios de usuario
   import { auth } from "@/config/firebase";

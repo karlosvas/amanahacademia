@@ -179,7 +179,7 @@
       "title": "Precios",
       "type": {
         "standard": {
-          "title": "Clases individuales estándar",
+          "title": "Individuales estándar",
           "price": {
             "currency": "€",
             "amount": 30,
@@ -196,7 +196,7 @@
           "button": "Reservar Clase"
         },
         "conversation": {
-          "title": "Clases individuales de conversación",
+          "title": "Individuales de conversación",
           "price": {
             "currency": "€",
             "amount": 20,
@@ -212,7 +212,7 @@
           "button": "Reservar Clase"
         },
         "group": {
-          "title": "Clases grupales",
+          "title": "Grupales",
           "price": {
             "currency": "€",
             "amount": 10,

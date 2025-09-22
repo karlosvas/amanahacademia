@@ -1,5 +1,5 @@
 // Cerrar el modal con animación
-export function closeModalAnimation(modal: HTMLDialogElement) {
+export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElement | null = null) {
   modal.setAttribute("closing", "");
   modal.addEventListener(
     "animationend",
@@ -9,6 +9,7 @@ export function closeModalAnimation(modal: HTMLDialogElement) {
     },
     { once: true }
   );
+  form?.reset();
 }
 
 // Abrir el modal
@@ -41,20 +42,22 @@ export function closeModalsEvents() {
     // Obtenemos el elementos al que le hemos echo click y obtenemos el modal
     const target = e.target as HTMLElement;
     const modal = target.closest("dialog") as HTMLDialogElement;
+    const formModal = modal ? modal.querySelector("form") : null;
     // Cerrar al hacer clic en cualquier parte del carrusel (incluida la imagen), al hacer clic en el backdrop, el botón de cancelar
     if (
       (target.closest(".embla__container") && modal) ||
       (target instanceof HTMLDialogElement && target.open) ||
       (target.getAttribute("aria-label") === "close-modal" && modal)
     )
-      closeModalAnimation(modal);
+      closeModalAnimation(modal, formModal);
   });
 
   // Cerrar con el botón de cancelar
   document.querySelectorAll("dialog").forEach((modal) => {
     modal.addEventListener("cancel", (e) => {
       e.preventDefault();
-      closeModalAnimation(modal as HTMLDialogElement);
+      const formModal = modal.querySelector("form");
+      closeModalAnimation(modal, formModal);
     });
   });
 }

@@ -1,5 +1,4 @@
 ---
-// CardPricing.astro
 import IconCheck from "@/assets/check.svg";
 import ModalPracing from "./ModalPracing.astro";
 import type { CardPricingType } from "@/types/types";
@@ -10,22 +9,22 @@ const id = Astro.props.id as Class;
 ---
 
 <div
-  class="scroll-fade-in w-3/4 m-auto md:max-w-72 min-h-[500px] relative text-center text-black bg-smoothBrown rounded-xl py-10 px-5 flex flex-col md:m-0 h-full containter-pricing"
+  class="scroll-fade-in w-full min-h-[400px] sm:min-h-[450px] md:min-h-[500px] relative text-center text-black bg-smoothBrown rounded-xl py-4 sm:py-6 md:py-8 lg:py-10 px-4 sm:px-5 flex flex-col h-full containter-pricing"
   data-pricing-tier={id}
 >
-  <h2 class="font-semibold text-red px-5">{data.title}</h2>
+  <h2 class="font-semibold text-red px-2 sm:px-3 md:px-5 text-sm sm:text-base md:text-lg">{data.title}</h2>
   <div class="flex-1 flex flex-col items-center">
-    <ul class="text-start text-xs mb-5 flex-1 flex flex-col items-start justify-center">
+    <ul class="text-start text-xs sm:text-sm mb-4 sm:mb-5 flex-1 flex flex-col items-start justify-center w-full">
       {
         (data.content ?? []).map((item: string) => (
-          <li class="flex my-2 gap-x-2">
+          <li class="flex my-1 sm:my-2 gap-x-2 w-full">
             <IconCheck style="width:15px; height:15px; min-width:15px; min-height:15px; max-width:15px; max-height:15px;" />
             {item}
           </li>
         ))
       }
     </ul>
-    <div class="font-semibold text-red mb-5 text-lg flex justify-center items-center gap-x-1">
+    <div class="font-semibold text-red mb-4 sm:mb-5 text-base sm:text-lg flex justify-center items-center gap-x-1">
       <div class="price-container">
         <span class="price-amount">{data.price?.amount || 30}</span>
         <span class="currency-symbol">€</span>
@@ -35,7 +34,7 @@ const id = Astro.props.id as Class;
   </div>
   <button
     data-modal-id={id}
-    class="reserve-class bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red rounded-md py-3 px-5 xl:px-10 text-white font-semibold mt-auto transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2"
+    class="reserve-class bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red rounded-md py-2 sm:py-3 px-4 sm:px-5 xl:px-10 text-white font-semibold mt-auto transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 text-xs sm:text-sm w-full"
   >
     {data.button}
   </button>

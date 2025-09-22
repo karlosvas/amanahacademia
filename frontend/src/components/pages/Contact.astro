@@ -3,96 +3,90 @@
 import SpotifyIcon from "@/assets/spotify.svg";
 import PhoneIcon from "@/assets/phone.svg";
 import type { ContactI18n } from "@/types/types";
+import { Image } from "astro:assets";
+import coffe from "@/assets/img/coffe.webp";
 
 const data = Astro.props.data as ContactI18n;
 ---
 
 <!-- Fondo decorativo -->
-<img
-  src="/img/coffe.webp"
+<Image
+  src={coffe}
   alt=""
-  class="absolute w-full md:w-5/12 h-[500px] right-0 top-36 md:top-0 md:rounded-bl-2xl object-cover z-0 pointer-events-none rounded-3xl md:rounded-none hidden xl:block"
+  class="absolute w-full md:w-5/12 h-[300px] md:h-[600px] right-0 top-36 md:top-0 md:rounded-bl-2xl object-cover z-0 pointer-events-none rounded-3xl md:rounded-none hidden xl:block"
 />
 <!-- Circulo1 -->
-<img
-  src="/img/coffe.webp"
+<Image
+  src={coffe}
   alt=""
-  class="hidden md:block absolute w-28 h-28 left-[440px] top-40 md:top-20 rounded-full object-cover z-0 pointer-events-none"
+  class="hidden md:block absolute w-20 md:w-28 h-20 md:h-28 left-1/2 md:left-[440px] top-32 md:top-20 rounded-full object-cover z-0 pointer-events-none"
 />
 <!-- Circulo2 -->
-<img
-  src="/img/coffe.webp"
+<Image
+  src={coffe}
   alt=""
-  class="hidden md:block absolute w-80 h-80 left-10 top-32 rounded-full object-cover z-0 pointer-events-none"
+  class="hidden md:block absolute w-40 md:w-80 h-40 md:h-80 left-5 md:left-10 top-24 md:top-32 rounded-full object-cover z-0 pointer-events-none"
 />
 
-<main class="md:pb-20 pb-80">
-  <h2
-    class=`mt-0 md:mt-24 text-center px-10 pb-1 text-red font-bold text-2xl relative md:absolute md:left-28 top-0 md:top-40 pointer-events-none`
-  >
+<main class="pb-20 md:pb-32 flex flex-col items-center relative">
+  <h2 class="mt-10 md:mt-24 text-center px-4 pb-1 text-red font-bold text-2xl relative">
     {data.title}
   </h2>
-  <div class=`bg-salmon w-24 h-1 m-auto mb-10 relative md:absolute md:top-72 md:left-40 pointer-events-none`></div>
-  <form
-    class="flex flex-col z-10 px-10 ml-0 md:ml-72 lg:ml-[400px] lg:py-10 items-center md:items-start md:border-2 md:border-gray-700 md:rounded-l-3xl relative"
-  >
-    <div class="absolute w-full md:w-7/12 px-20 right-6/12 md:right-0 top-[500px] md:top-5 2xl:pt-10">
+  <div class="bg-salmon w-24 h-1 mx-auto mb-10"></div>
+  <div class="w-full flex flex-col md:flex-row items-center md:items-start justify-center gap-10 relative">
+    <div class="absolute w-1/2 h-full right-0 border-y-2 border-gray-700 hidden md:block"></div>
+    <form
+      class="flex flex-col z-10 px-4 py-8 md:py-10 w-full max-w-lg md:max-w-md lg:max-w-xl
+         md:border-t-2 md:border-b-2 md:border-l-2 bg-transparent border-gray-700 rounded-xl md:rounded-l-3xl rounded-tr-none rounded-br-none
+         bg-opacity-80"
+    >
+      <label for="name" class="my-4 text-red w-full">
+        {data.form.name}
+        <input
+          type="text"
+          class="mt-2 bg-transparent border-b-2 outline-none border-gray-700 focus:border-salmon w-full text-black transition-all"
+        />
+      </label>
+      <label for="subject" class="my-4 text-red w-full">
+        {data.form.subject}
+        <input
+          type="text"
+          class="mt-2 bg-transparent border-b-2 border-gray-700 focus:border-salmon outline-none w-full text-black transition-all"
+        />
+      </label>
+      <label for="message" class="my-4 text-red w-full">
+        {data.form.message}
+        <textarea
+          class="mt-2 bg-[--color-custom-gray] border-2 border-[--color-custom-gray] rounded-xl p-2 outline-none w-full focus:border-salmon focus:ring-1 focus:ring-salmon transition-all duration-200 shadow-sm resize-none placeholder-gray-400 text-black"
+          placeholder="Escribe tu mensaje aquí..."></textarea>
+      </label>
+      <button
+        type="submit"
+        class="text-white bg-lightRed hover:bg-salmon transition-all duration-200 font-semibold rounded-xl mt-6 p-3 w-full"
+        >{data.form.button}</button
+      >
+    </form>
+    <div class="px-10 md:px-0 md:pl-20 w-full max-w-lg md:max-w-xs lg:max-w-sm flex flex-col gap-6 pt-8">
       <!-- TODO:: Agregar Etsy -->
       <!-- <div class="py-2">
           <div class="flex items-center">
             <EtsyIcon
-              style="width:25px; height:25px; min-width:25px; min-height:25px; max-width:25px; max-height:25px;"
+              style="width:25px; height:25px;"
             />
             <h1 class="px-3 text-red font-semibold">{data.etsy.title}</h1>
           </div>
           <p class="text-xs md:hidden lg:block text-black">{data.etsy.description}</p>
         </div> -->
-      <div class="py-2">
-        <div class="flex items-center">
-          <SpotifyIcon
-            style="width:25px; height:25px; min-width:25px; min-height:25px; max-width:25px; max-height:25px;"
-          />
-          <h1 class="px-3 text-red font-semibold">{data.podcast.title}</h1>
-        </div>
-        <p class="text-xs md:hidden lg:block text-black">{data.podcast.description}</p>
+      <div class="flex items-center gap-3">
+        <SpotifyIcon style="width:25px; height:25px;" />
+        <h1 class="text-red font-semibold">{data.podcast.title}</h1>
       </div>
-      <div class="py-2">
-        <div class="flex items-center">
-          <PhoneIcon
-            style="width:25px; height:25px; min-width:25px; min-height:25px; max-width:25px; max-height:25px;"
-          />
-          <h1 class="px-3 text-red font-semibold">{data.call.title}</h1>
-        </div>
-        <p class="text-xs md:hidden lg:block text-black">{data.call.description}</p>
+      <p class="text-xs text-black">{data.podcast.description}</p>
+      <div class="flex items-center gap-3">
+        <PhoneIcon style="width:25px; height:25px;" />
+        <h1 class="text-red font-semibold">{data.call.title}</h1>
       </div>
+      <p class="text-xs text-black">{data.call.description}</p>
     </div>
-
-    <label for="name" class="my-5 text-red w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
-      {data.form.name}
-      <br />
-      <input
-        type="text"
-        class="bg-transparent border-b-2 outline-none border-gray-700 focus:border-salmon w-full md:w-36 lg:w-1/2 xl:w-80 text-black"
-      />
-    </label>
-    <label for="subject" class="my-5 text-red w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
-      {data.form.subject}
-      <br />
-      <input
-        type="text"
-        class="bg-transparent border-b-2 border-gray-700 focus:border-salmon outline-none w-full md:w-36 lg:w-1/2 xl:w-80 text-black"
-      />
-    </label>
-    <label for="message" class="my-5 text-red w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
-      {data.form.message}<br />
-      <textarea
-        class="mt-3 bg-[--color-custom-gray] border-2 border-[--color-custom-gray] rounded-xl p-2 outline-none w-full md:w-36 lg:w-1/2 xl:w-80 focus:border-salmon focus:ring-1 focus:ring-salmon transition-all duration-200 shadow-sm resize-none placeholder-gray-400 text-black"
-        placeholder="Escribe tu mensaje aquí..."></textarea>
-    </label>
-    <button
-      type="submit"
-      class="text-white bg-lightRed hover:bg-salmon transition-all duration-200 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg font-semibold rounded-xl mt-10 md:my-10 lg:my-0 lg:mt-20 p-3 w-full md:w-36 lg:w-50 xl:w-1/2"
-      >{data.form.button}</button
-    >
-  </form>
+  </div>
 </main>

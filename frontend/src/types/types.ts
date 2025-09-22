@@ -204,6 +204,7 @@ export interface CardModuleProps {
 }
 
 // Props para SEO de los componentes
+export type StructuredDataType = "organization" | "course" | "webpage";
 export interface PropsSEO {
   lang: string;
   title: string;
@@ -212,12 +213,12 @@ export interface PropsSEO {
   ogImage: string;
   noindex: boolean; // true para páginas legales/internas
   keywords: string;
-  structuredDataType?: "organization" | "course" | "webpage";
+  structuredDataType?: StructuredDataType;
   structuredData?: Record<string, any>;
 }
 
 export interface StructureDataTypes {
-  type: "organization" | "course" | "webpage";
+  type: StructuredDataType;
   data: Record<string, any>;
 }
 
@@ -414,4 +415,9 @@ export type InfoI18n = {
     };
     securityHallOfFame: InfoSecurityHallOfFame;
   };
+};
+
+export type AvatarProps = {
+  name: string;
+  url_img: string;
 };

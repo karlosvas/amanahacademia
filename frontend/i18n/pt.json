@@ -178,7 +178,7 @@
       "title": "Preços",
       "type": {
         "standard": {
-          "title": "Aulas individuais padrão",
+          "title": "Individuais padrão",
           "description": "Uma abordagem completa para trabalhar gramática, vocabulário, compreensão e expressão. Não nos limitamos a listas de verbos ou palavras isoladas: tudo é aprendido no contexto, com exemplos e expressões reais. Incluímos sempre diálogos e atividades que tornam a aula prática e envolvente.",
           "price": {
             "currency": "€",
@@ -196,7 +196,7 @@
           "button": "Reservar Aula"
         },
         "conversation": {
-          "title": "Aulas individuais de conversação",
+          "title": "Individuais de conversação",
           "description": "Projetadas para quem já tem nível intermediário-alto (B1+/B2) e quer focar em falar. Contamos com dinâmicas, jogos e temas variados que fazem a conversa fluir. Embora não entremos profundamente na gramática, corrigimos e esclarecemos dúvidas no momento.",
           "price": {
             "currency": "€",
@@ -207,7 +207,7 @@
           "button": "Reservar Aula"
         },
         "group": {
-          "title": "Aulas em grupo",
+          "title": "Em grupo",
           "description": "A mesma qualidade das aulas padrão, mas em grupos pequenos de no máximo 4 pessoas. Ideais se você busca uma opção mais econômica e colaborativa. Incluem debates, jogos e atividades participativas. Se você não puder comparecer, receberá um resumo com os conteúdos e exercícios trabalhados.",
           "price": {
             "currency": "€",

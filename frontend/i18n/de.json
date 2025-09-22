@@ -178,7 +178,7 @@
       "title": "Preise",
       "type": {
         "standard": {
-          "title": "Standard Einzelunterricht",
+          "title": "Standard Einzel",
           "description": "Ein umfassender Ansatz zur Arbeit an Grammatik, Wortschatz, Verständnis und Ausdruck. Wir beschränken uns nicht auf Verblisten oder lose Wörter: alles wird im Kontext mit Beispielen und realen Ausdrücken gelernt. Wir schließen stets Dialoge und Aktivitäten ein, die die Stunde praktisch und unterhaltsam machen.",
           "price": {
             "currency": "€",
@@ -196,7 +196,7 @@
           "button": "Unterricht buchen"
         },
         "conversation": {
-          "title": "Konversationsunterricht",
+          "title": "Konversation",
           "description": "Konzipiert für Lernende mit mittlerem bis hohem Niveau (B1+/B2), die sich auf das Sprechen konzentrieren möchten. Wir nutzen dynamische Übungen, Spiele und abwechslungsreiche Themen, die den Gesprächsfluss fördern. Obwohl wir nicht tief in die Grammatik eintauchen, korrigieren und klären wir Fragen unmittelbar.",
           "price": {
             "currency": "€",
@@ -213,7 +213,7 @@
           "button": "Unterricht buchen"
         },
         "group": {
-          "title": "Gruppenunterricht",
+          "title": "Gruppe",
           "description": "Die gleiche Qualität wie im Standardunterricht, aber in kleinen Gruppen von maximal 4 Personen. Ideal, wenn Sie eine kostengünstigere und kollaborative Option suchen. Einschließlich Debatten, Spielen und interaktiven Aktivitäten. Wenn Sie nicht teilnehmen können, erhalten Sie eine Zusammenfassung der behandelten Inhalte und Übungen.",
           "price": {
             "currency": "€",

@@ -178,7 +178,7 @@
       "title": "Pricing",
       "type": {
         "standard": {
-          "title": "Standard One-to-One Classes",
+          "title": "Standard One-to-One",
           "description": "A comprehensive approach to work on grammar, vocabulary, comprehension and production. We don't limit ourselves to verb lists or isolated words: everything is learned in context, with examples and real expressions. We always include dialogues and activities that make the lesson practical and engaging.",
           "price": {
             "currency": "€",
@@ -196,7 +196,7 @@
           "button": "Book Class"
         },
         "conversation": {
-          "title": "Conversation One-to-One Classes",
+          "title": "Conversation One-to-One",
           "description": "Designed for learners with an intermediate-high level (B1+/B2) who want to focus on speaking. We use dynamics, games and varied topics to keep conversation flowing. Although we don't dive deeply into grammar, we correct and clarify doubts in the moment.",
           "price": {
             "currency": "€",
@@ -207,7 +207,7 @@
           "button": "Book Class"
         },
         "group": {
-          "title": "Group Classes",
+          "title": "Group",
           "description": "The same quality as the standard classes, but in small groups of up to 4 people. Ideal if you're looking for a more economical and collaborative option. They include debates, games and participatory activities. If you can't attend, you'll receive a summary with the content and exercises covered.",
           "price": {
             "currency": "€",

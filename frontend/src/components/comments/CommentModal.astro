@@ -1,0 +1,301 @@
+---
+import Avatar from "@/components/common/Avatar.astro";
+---
+
+<dialog
+  id="comment-modal"
+  class="modal border-0 rounded-2xl p-0 shadow-2xl bg-gradient-to-br from-white to-smoothBrown overflow-hidden font-normal text-sm w-full max-w-96"
+>
+  <div class="bg-lightSalmon rounded-lg shadow-lg p-6 max-w-sm w-full">
+    <form id="comment-form">
+      <!-- Header -->
+      <div class="space-y-3">
+        <h2 class="text-[var(--color-brown)] text-center font-medium text-lg">Deja tu comentario</h2>
+      </div>
+
+      <!-- Rating Section -->
+      <div class="space-y-3 mb-10">
+        <label class="block text-[var(--color-brown)] text-center font-medium">
+          ¿Cómo calificarías tu experiencia?
+        </label>
+        <div id="star-rating" class="flex justify-center space-x-2">
+          {
+            Array.from({ length: 5 }).map((_, i) => (
+              <button
+                type="button"
+                data-star={i + 1}
+                class="star-btn transition-all duration-200 hover:scale-110 focus:outline-none f rounded"
+              >
+                <svg
+                  class="w-8 h-8 transition-colors duration-200 text-gray-300 hover:text-yellow-200"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z" />
+                </svg>
+              </button>
+            ))
+          }
+        </div>
+        <p id="rating-feedback" class="text-center text-sm text-[var(--color-brown)] opacity-80 hidden"></p>
+        <input type="hidden" id="rating-value" value="0" />
+      </div>
+
+      <!-- User Info Section -->
+      <div class="flex items-center space-x-3 bg-lightRed rounded-xl p-3 backdrop-blur-sm">
+        <div
+          class="h-10 w-10 rounded-full bg-[var(--color-salmon)] text-white flex items-center justify-center ring-2 ring-[var(--color-salmon)] font-medium"
+        >
+          <Avatar info={null} server={false} />
+        </div>
+        <span id="avatar-name" class="text-black font-medium"> </span>
+      </div>
+
+      <!-- Comment Section -->
+      <textarea
+        id="comment-text"
+        rows="6"
+        class="mt-2 bg-[--color-custom-gray] border-2 border-[--color-custom-gray] rounded-xl py-4 px-2 outline-none w-full focus:border-salmon focus:ring-1 focus:ring-salmon transition-all duration-200 shadow-sm resize-none placeholder-gray-400 text-black"
+        placeholder="Escribe tu mensaje aquí..."></textarea>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-between gap-3 pt-2">
+        <button
+          type="button"
+          id="reset-btn"
+          class="border-2 border-[var(--color-salmon)] text-[var(--color-salmon)] hover:bg-[var(--color-salmon)] hover:text-white transition-all duration-200 font-medium py-2 px-4 rounded-xl"
+        >
+          Limpiar
+        </button>
+        <button
+          type="submit"
+          id="submit-btn"
+          disabled
+          class="bg-[var(--color-light-red)] hover:bg-[var(--color-red)] text-white font-medium py-2 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+            ></path>
+          </svg>
+          Enviar
+        </button>
+      </div>
+    </form>
+  </div>
+</dialog>
+<script>
+  import { onAuthStateChanged, type User } from "firebase/auth";
+  import { showModalAnimation } from "@/utils/modals";
+  import { ApiService } from "@/services/helper";
+  import { auth } from "@/config/firebase";
+  import toast from "solid-toast";
+  import type { Comment } from "@/types/bakend-types";
+  import { closeModalAnimation } from "@/utils/modals";
+
+  function updateModalUser(user: User | null) {
+    const modal = document.getElementById("comment-modal");
+    const avatarNameElem = modal ? modal.querySelector("#avatar-name") : null;
+    if (!avatarNameElem) {
+      console.warn("Avatar elements not found in CommentModal.");
+      return;
+    }
+    if (user) {
+      if (avatarNameElem) {
+        avatarNameElem.textContent = user.displayName || "Anonimo";
+      }
+      const avatarImg = modal ? modal.querySelector(".avatar-img") : null;
+      if (avatarImg && user.photoURL) {
+        (avatarImg as HTMLImageElement).src = user.photoURL;
+      }
+    }
+  }
+
+  onAuthStateChanged(auth, updateModalUser);
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const modal = document.getElementById("comment-modal") as HTMLDialogElement;
+    const commentButton = document.getElementById("open-comment-modal") as HTMLButtonElement;
+    const commentForm = document.getElementById("comment-form") as HTMLFormElement;
+
+    commentButton.addEventListener("click", function () {
+      const currentUser = auth.currentUser;
+      if (modal && currentUser) showModalAnimation(modal, commentForm, true);
+      else toast.error("Debes iniciar sesión para comentar.");
+    });
+  });
+
+  class CommentModal {
+    private form: HTMLFormElement;
+    private starButtons: NodeListOf<HTMLButtonElement>;
+    private commentText: HTMLTextAreaElement;
+    private ratingValue: HTMLInputElement;
+    private ratingFeedback: HTMLElement;
+    private submitBtn: HTMLButtonElement;
+    private resetBtn: HTMLButtonElement;
+    private rating: number = 0;
+    private hoverRating: number = 0;
+    private modal: HTMLDialogElement;
+
+    constructor() {
+      this.modal = document.getElementById("comment-modal") as HTMLDialogElement;
+      this.form = document.getElementById("comment-form") as HTMLFormElement;
+      this.starButtons = document.querySelectorAll(".star-btn");
+      this.commentText = document.getElementById("comment-text") as HTMLTextAreaElement;
+      this.ratingValue = document.getElementById("rating-value") as HTMLInputElement;
+      this.ratingFeedback = document.getElementById("rating-feedback")!;
+      this.submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+      this.resetBtn = document.getElementById("reset-btn") as HTMLButtonElement;
+
+      this.initializeEventListeners();
+    }
+
+    private initializeEventListeners() {
+      // Star rating events
+      this.starButtons.forEach((star, index) => {
+        const starValue = index + 1;
+
+        star.addEventListener("mouseenter", () => {
+          this.hoverRating = starValue;
+          this.updateStars();
+        });
+
+        star.addEventListener("mouseleave", () => {
+          this.hoverRating = 0;
+          this.updateStars();
+        });
+
+        star.addEventListener("click", () => {
+          this.rating = starValue;
+          this.ratingValue.value = starValue.toString();
+          this.updateStars();
+          this.updateRatingFeedback();
+          this.validateForm();
+        });
+      });
+
+      // Comment text events
+      this.commentText.addEventListener("input", () => {
+        this.validateForm();
+      });
+
+      // Form events
+      this.form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await this.handleSubmit();
+      });
+
+      this.resetBtn.addEventListener("click", () => {
+        this.resetForm();
+      });
+    }
+
+    private updateStars() {
+      const currentRating = this.hoverRating || this.rating;
+      this.starButtons.forEach((star, index) => {
+        const svg = star.querySelector("svg")!;
+        if (index < currentRating) {
+          svg.classList.remove("text-gray-300", "hover:text-yellow-200");
+          svg.classList.add("text-yellow-300");
+        } else {
+          svg.classList.remove("text-yellow-300");
+          svg.classList.add("text-gray-300", "hover:text-yellow-200");
+        }
+      });
+    }
+
+    private async updateRatingFeedback() {
+      const feedbacks = ["", "😞 Muy malo", "😕 Malo", "😐 Regular", "😊 Bueno", "🤩 ¡Excelente!"];
+
+      if (this.rating > 0) {
+        this.ratingFeedback.textContent = feedbacks[this.rating];
+        this.ratingFeedback.classList.remove("hidden");
+      } else {
+        this.ratingFeedback.classList.add("hidden");
+      }
+    }
+
+    private validateForm() {
+      const hasComment = this.commentText.value.trim().length > 0;
+      const hasRating = this.rating > 0;
+      this.submitBtn.disabled = !(hasComment && hasRating);
+    }
+
+    private async handleSubmit() {
+      const comment = this.commentText.value.trim();
+      const rating = this.rating;
+
+      if (comment && rating > 0) {
+        // Dispatch custom event with comment data
+        const event = new CustomEvent("commentSubmit", {
+          detail: { comment, rating },
+          bubbles: true,
+        });
+        document.dispatchEvent(event);
+
+        try {
+          const currentUser = auth.currentUser;
+          const idToken = currentUser ? await currentUser.getIdToken() : null;
+          if (!currentUser || !idToken) {
+            toast.error("Debes iniciar sesión para comentar.");
+            return;
+          }
+
+          const text = (document.getElementById("comment-text") as HTMLTextAreaElement).value;
+          const ratingInput = document.getElementById("rating-value") as HTMLInputElement;
+          if (!text || text.trim().length === 0) {
+            toast.error("El comentario no puede estar vacío.");
+            return;
+          }
+
+          const commentObj: Comment = {
+            author_uid: currentUser.uid,
+            name: typeof currentUser.displayName === "string" ? currentUser.displayName : "Anonimo",
+            content: text,
+            timestamp: new Date().toISOString(),
+            url_img: currentUser.photoURL ? currentUser.photoURL : undefined,
+            stars: parseInt(ratingInput.value) || 0,
+          };
+
+          const helper = new ApiService();
+          await helper
+            .postComment(idToken, commentObj)
+            .then(() => {
+              toast.success("Comentario enviado con éxito.");
+              if (this.modal) closeModalAnimation(this.modal);
+            })
+            .catch((error) => {
+              console.error("Error submitting comment:", error);
+              toast.error("Error al enviar el comentario. Inténtalo de nuevo.");
+            });
+        } catch (error) {
+          console.error("Error setting up form submission:", error);
+          toast.error("Error al configurar el formulario de comentarios.");
+        }
+
+        this.resetForm();
+      }
+    }
+
+    private resetForm() {
+      this.commentText.value = "";
+      this.rating = 0;
+      this.hoverRating = 0;
+      this.ratingValue.value = "0";
+      this.updateStars();
+      this.ratingFeedback.classList.add("hidden");
+      this.validateForm();
+    }
+  }
+
+  // Initialize modal when DOM is loaded
+  document.addEventListener("DOMContentLoaded", () => {
+    window.commentModal = new CommentModal();
+  });
+
+  // Make it globally accessible
+  declare global {
+    interface Window {
+      commentModal: CommentModal;
+    }
+  }
+</script>

@@ -11,19 +11,23 @@ const data = Astro.props.data as HomeI18n;
 ---
 
 <section class="font-raleway scroll-fade-in">
-  <h2 class=`select-none mt-10 lg:mt-24 text-center px-10  text-red font-bold text-2xl`>{data.title}</h2>
-  <div class=`bg-salmon  h-1 m-auto w-36`></div>
+  <h2
+    class="select-none mt-6 sm:mt-10 lg:mt-24 text-center px-4 sm:px-6 md:px-10 text-red font-bold text-xl sm:text-2xl"
+  >
+    {data.title}
+  </h2>
+  <div class="bg-salmon h-1 m-auto w-24 sm:w-32 md:w-36"></div>
   <div
-    class="flex flex-col md:flex-row w-full max-w-3xl mx-auto px-2 sm:px-4 items-center gap-8 md:gap-0 mt-10 md:mt-0"
+    class="flex flex-col md:flex-row w-full max-w-3xl mx-auto px-2 sm:px-4 items-center gap-6 sm:gap-8 md:gap-0 mt-6 sm:mt-10 md:mt-0"
   >
     <div
-      class="w-full max-w-md h-52 md:w-[400px] md:h-[350px] rounded-md overflow-hidden flex items-center justify-center mx-auto md:mx-0"
+      class="w-full max-w-xs sm:max-w-sm md:max-w-md h-48 sm:h-52 md:w-[400px] md:h-[350px] rounded-md overflow-hidden flex items-center justify-center mx-auto md:mx-0"
     >
       <Image src={pinkHouse} alt="" class="w-full h-full object-cover" />
     </div>
-    <div class="py-6 px-4 sm:px-6 md:px-10 flex-1 w-full">
-      <h3 class="text-red mb-5 font-semibold text-xl">{data.about_us.title}</h3>
-      <p class="text-sm text-black">
+    <div class="py-4 sm:py-6 px-3 sm:px-4 md:px-6 lg:px-10 flex-1 w-full">
+      <h3 class="text-red mb-3 sm:mb-5 font-semibold text-lg sm:text-xl">{data.about_us.title}</h3>
+      <p class="text-xs sm:text-sm text-black leading-relaxed">
         {
           data.about_us.description.map((desc, i) => (
             <>
@@ -33,16 +37,26 @@ const data = Astro.props.data as HomeI18n;
           ))
         }
       </p>
-      <div class="flex gap-6 mt-4 text-red text-xl">
-        <div class="text-center"><p>2500+</p><p class="text-sm">{data.info.students}</p></div>
-        <div class="text-center"><p>50+</p> <p class="text-sm">{data.info.teachers}</p></div>
-        <div class="text-center"><p>98%</p> <p class="text-sm">{data.info.satisfaction}</p></div>
+      <div class="flex gap-3 sm:gap-4 md:gap-6 mt-3 sm:mt-4 text-red text-lg sm:text-xl">
+        <div class="text-center">
+          <p class="font-bold">2500+</p><p class="text-xs sm:text-sm">{data.info.students}</p>
+        </div>
+        <div class="text-center">
+          <p class="font-bold">50+</p><p class="text-xs sm:text-sm">{data.info.teachers}</p>
+        </div>
+        <div class="text-center">
+          <p class="font-bold">98%</p><p class="text-xs sm:text-sm">{data.info.satisfaction}</p>
+        </div>
       </div>
     </div>
   </div>
-  <div class="w-full xl:w-8/12 2xl:w-3/4 mx-auto px-4 mb-20 scroll-fade-in">
-    <h3 class="mt-24 text-center text-red font-semibold mb-5">{data.focus.title}</h3>
-    <div class="flex flex-col md:flex-row gap-6 mb-10 justify-center ">
+  <div class="w-full xl:w-8/12 2xl:w-3/4 mx-auto px-2 sm:px-4 mb-12 sm:mb-16 md:mb-20 scroll-fade-in">
+    <h3
+      class="mt-12 sm:mt-16 md:mt-20 lg:mt-24 text-center text-red font-semibold mb-4 sm:mb-5 text-lg sm:text-xl px-4"
+    >
+      {data.focus.title}
+    </h3>
+    <div class="flex flex-col sm:flex-row md:flex-row gap-4 sm:gap-6 mb-8 sm:mb-10 justify-center">
       <InfoCard colourRectangle="bg-salmon">
         <span slot="icon"><IconPeople /></span>
         <span slot="title">{data.focus.cards[0].title}</span>
@@ -59,8 +73,5 @@ const data = Astro.props.data as HomeI18n;
         <span slot="description"> {data.focus.cards[2].description}</span>
       </InfoCard>
     </div>
-    <p class="m-0 md:m-10 px-10 text-red text-center text-sm font-jomolhari">
-      {data.focus.note.map((note, _) => <span >{note}</span> <br />)}
-    </p>
   </div>
 </section>
