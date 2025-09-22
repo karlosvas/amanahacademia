@@ -70,7 +70,7 @@ pub async fn register_user(
     let new_user_authentication: UserAuth = UserAuth {
         id_token: None, // No es necesario para crear un usuario
         email: user.email.clone(),
-        password: user.password,
+        password: user.password.clone(),
         return_secure_token: true,
     };
 
@@ -100,21 +100,126 @@ pub async fn register_user(
         }
     };
 
+    create_user_in_db(
+        &state,
+        &auth_response.id_token,
+        &auth_response.local_id,
+        &user,
+        &auth_response.email,
+    )
+    .await
+    .into_response()
+}
+
+// Creación de usuario
+#[debug_handler]
+#[instrument(
+    skip(state, user),
+    fields(
+        email = %user.email
+    )
+)]
+pub async fn add_user(
+    State(state): State<Arc<AppState>>,
+    Json(user): Json<UserRequest>,
+) -> impl IntoResponse {
+    // Comprobamos si quiere hacer cosas que solo podria hacer un admin como tener un rol, o asiganr permisos o tier de subscripción
+    match &user.role {
+        Some(role) if role == "admin" => {
+            return (
+                StatusCode::FORBIDDEN,
+                Json(ResponseAPI::<()>::error(
+                    "You do not have permission to assign this role".to_string(),
+                )),
+            )
+                .into_response();
+        }
+        _ => {}
+    }
+    if user.permissions.as_ref().is_some() || user.subscription_tier.as_ref().is_some() {
+        return (
+            StatusCode::FORBIDDEN,
+            Json(ResponseAPI::<()>::error(
+                "You do not have permission to assign these permissions or subscription tier"
+                    .to_string(),
+            )),
+        )
+            .into_response();
+    }
+
+    // Obtenemos la URL de registro de usuario con Firebase
+    let url_register_auth: String = format!(
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={}",
+        state.firebase.firebase_api_key
+    );
+
+    // Creamos el usuario que se va a crear en Firebase Authentication
+    let new_user_authentication: UserAuth = UserAuth {
+        id_token: None, // No es necesario para crear un usuario
+        email: user.email.clone(),
+        password: user.password.clone(),
+        return_secure_token: true,
+    };
+
+    // POST:: Crear usuario en Firebase Authentication
+    let auth_response: FirebaseAuthResponse = match state
+        .firebase_client
+        .post(&url_register_auth)
+        .json(&new_user_authentication)
+        .send()
+        .await
+    {
+        Ok(response) => match handle_firebase_response::<FirebaseAuthResponse>(response).await {
+            Ok(parsed_response) => parsed_response,
+            Err((status, error)) => {
+                println!("Error creating user in Firebase: {}", error);
+                return (status, Json(ResponseAPI::<()>::error(error))).into_response();
+            }
+        },
+        Err(_) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(
+                    "Error connecting to Firebase".to_string(),
+                )),
+            )
+                .into_response();
+        }
+    };
+
+    create_user_in_db(
+        &state,
+        &auth_response.id_token,
+        &auth_response.local_id,
+        &user,
+        &auth_response.email,
+    )
+    .await
+    .into_response()
+}
+
+pub async fn create_user_in_db(
+    state: &Arc<AppState>,
+    id_token: &str,
+    user_id: &str,
+    user: &UserRequest,
+    email: &str,
+) -> impl IntoResponse {
     // URL de para crear usuario en la DB
     let url_firebase_db: String = format!(
         "{}/user_profiles/{}.json?auth={}",
-        state.firebase.firebase_database_url, auth_response.local_id, auth_response.id_token
+        state.firebase.firebase_database_url, user_id, id_token
     );
 
     // Creamos el usuario que se va a crear en la DB
     let user_db: UserDB = UserDB {
-        email: auth_response.email.clone(),
-        role: Some(match user.role {
+        email: email.to_string().clone(),
+        role: Some(match &user.role {
             Some(role) => role.to_string(),
             None => "student".to_string(),
         }),
-        subscription_tier: user.subscription_tier,
-        permissions: user.permissions,
+        subscription_tier: user.subscription_tier.clone(),
+        permissions: user.permissions.clone(),
     };
 
     // POST:: crear usuario
@@ -129,7 +234,7 @@ pub async fn register_user(
             StatusCode::CREATED,
             Json(ResponseAPI::<String>::success(
                 "User created successfully".to_string(),
-                auth_response.id_token,
+                id_token.to_string(),
             )),
         )
             .into_response(),

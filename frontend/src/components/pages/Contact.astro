@@ -36,6 +36,7 @@ const data = Astro.props.data as ContactI18n;
   <div class="w-full flex flex-col md:flex-row items-center md:items-start justify-center gap-10 relative">
     <div class="absolute w-1/2 h-full right-0 border-y-2 border-gray-700 hidden md:block"></div>
     <form
+      id="contact-form"
       class="flex flex-col z-10 px-4 py-8 md:py-10 w-full max-w-lg md:max-w-md lg:max-w-xl
          md:border-t-2 md:border-b-2 md:border-l-2 bg-transparent border-gray-700 rounded-xl md:rounded-l-3xl rounded-tr-none rounded-br-none
          bg-opacity-80"
@@ -43,6 +44,7 @@ const data = Astro.props.data as ContactI18n;
       <label for="name" class="my-4 text-red w-full">
         {data.form.name}
         <input
+          name="name"
           type="text"
           class="mt-2 bg-transparent border-b-2 outline-none border-gray-700 focus:border-salmon w-full text-black transition-all"
         />
@@ -51,12 +53,14 @@ const data = Astro.props.data as ContactI18n;
         {data.form.subject}
         <input
           type="text"
+          name="subject"
           class="mt-2 bg-transparent border-b-2 border-gray-700 focus:border-salmon outline-none w-full text-black transition-all"
         />
       </label>
       <label for="message" class="my-4 text-red w-full">
         {data.form.message}
         <textarea
+          name="message"
           class="mt-2 bg-[--color-custom-gray] border-2 border-[--color-custom-gray] rounded-xl p-2 outline-none w-full focus:border-salmon focus:ring-1 focus:ring-salmon transition-all duration-200 shadow-sm resize-none placeholder-gray-400 text-black"
           placeholder="Escribe tu mensaje aquí..."></textarea>
       </label>
@@ -90,3 +94,47 @@ const data = Astro.props.data as ContactI18n;
     </div>
   </div>
 </main>
+
+<script>
+  import { auth } from "@/config/firebase";
+  import { ApiService } from "@/services/helper";
+  import type { EmailResend } from "@/types/bakend-types";
+  import toast from "solid-toast";
+
+  // DOOM content loaded
+  document.addEventListener("DOMContentLoaded", async () => {
+    const contactForm = document.getElementById("contact-form") as HTMLFormElement | null;
+    if (!contactForm) return;
+
+    contactForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const user = auth.currentUser;
+      if (!user || !user.email) {
+        toast.error("Debes iniciar sesión para enviar un mensaje.");
+        return;
+      }
+
+      const formData = new FormData(contactForm);
+      const data = Object.fromEntries(formData);
+
+      const resendEmail: EmailResend = {
+        from: user.email as string,
+        name: data.name as string,
+        subject: data.subject as string,
+        text: data.message as string,
+      };
+      console.log(resendEmail);
+
+      const helper = new ApiService();
+      const res = helper.sendContact(resendEmail);
+
+      if (!res) {
+        toast.error("Error al enviar el mensaje. Inténtalo de nuevo más tarde.");
+        return;
+      } else {
+        toast.success("Mensaje enviado correctamente. ¡Gracias por contactarnos!");
+        contactForm.reset();
+      }
+    });
+  });
+</script>

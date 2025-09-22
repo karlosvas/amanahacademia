@@ -1,10 +1,11 @@
-use {reqwest::Client as HttpClient, stripe::Client as StripeClient};
+use {reqwest::Client as HttpClient, resend_rs::Resend, stripe::Client as StripeClient};
 
 #[derive(Clone)]
 pub struct AppState {
     pub firebase: CustomFirebase,
     pub firebase_client: HttpClient,
     pub stripe_client: StripeClient,
+    pub resend_client: Resend,
 }
 
 #[derive(Clone)]

@@ -60,3 +60,11 @@ export interface UserMerged {
   created_at?: string;
   custom_auth?: boolean;
 }
+
+export interface EmailResend {
+  from: string;
+  name: string;
+  to?: string[]; // Opcional, array de strings
+  subject: string;
+  text: string;
+}

@@ -14,6 +14,7 @@ use {
         },
     },
     reqwest::Client as HttpClient,
+    resend_rs::Resend,
     state::{AppState, CustomFirebase},
     std::{env, net::SocketAddr, sync::Arc},
     stripe::Client as StripeClient,
@@ -115,11 +116,19 @@ async fn main() {
     let stripe_client: StripeClient =
         StripeClient::new(env::var("STRIPE_API_KEY").expect("STRIPE_API_KEY must be set"));
 
+    // Cliente de resend
+    let resend_client: Resend = Resend::new(
+        env::var("RESEND_API_KEY")
+            .expect("RESEND_API_KEY must be set")
+            .as_str(),
+    );
+
     // Inicializar el estado de la aplicación y el enrutador
     let state: Arc<AppState> = Arc::new(AppState {
         firebase,
         firebase_client: HttpClient::new(),
         stripe_client,
+        resend_client,
     });
 
     // Configurar CORS
@@ -137,6 +146,7 @@ async fn main() {
         .nest("/comments", routes::comments::router(state.clone())) // FB Auth, FB Realtime DB
         .nest("/payment", routes::payments::router(state.clone())) // Stripe
         .nest("/teachers", routes::teachers::router(state.clone())) // FB Auth, FB Realtime DB
+        .nest("/email", routes::email::router(state.clone())) // Email
         .nest("/webhook", routes::webhooks::router(state.clone())) // Webhooks
         .layer(cors) // CORS abierto
         .layer(TraceLayer::new_for_http()) // Logging básico

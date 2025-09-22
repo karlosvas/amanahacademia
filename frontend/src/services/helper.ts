@@ -1,4 +1,11 @@
-import { type ResponseAPI, type Result, type Comment, type Teacher, type UserMerged } from "@/types/bakend-types";
+import {
+  type ResponseAPI,
+  type Result,
+  type Comment,
+  type Teacher,
+  type UserMerged,
+  type EmailResend,
+} from "@/types/bakend-types";
 import { ApiErrorType } from "@/enums/enums";
 import { ApiError, ErrorHandler } from "@/services/globalHandler";
 import { auth } from "@/config/firebase";
@@ -132,6 +139,18 @@ export class ApiService {
     });
 
     return this.handleResponse<Comment>(res);
+  }
+
+  async sendContact(resendEmail: EmailResend): Promise<Result<Record<string, string>>> {
+    let res = await fetch(`${this.baseUrl}/email/contact`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(resendEmail),
+    });
+
+    return this.handleResponse<Record<string, string>>(res);
   }
 
   // Obtener el usuario actual (GET)
