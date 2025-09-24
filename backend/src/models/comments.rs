@@ -2,18 +2,23 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Comment {
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub author_uid: Option<String>, // Usuario que comento
-    pub name: String,
-    pub timestamp: String,
-    pub content: String,
+    pub name: String,               // Nombre del usuario
+    pub timestamp: String,          // Fecha del comentario
+    pub content: String,            // Contenido del comentario
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub url_img: Option<String>,
+    pub url_img: Option<String>, // Imagen del usuario
+    pub stars: f32,                 // Estrellas del comentario
+    #[serde(default)]
+    pub like: u32, // Likes del comentario
+    #[serde(default)]
+    pub reply: Vec<Comment>, // Respuestas al comentario
+    #[serde(default)]
+    pub users_liked: Vec<String>, // Usuarios que le dieron like
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UpdateComment {
+    pub content: String,
     pub stars: f32,
-    #[serde(default)]
-    pub like: u32,
-    #[serde(default)]
-    pub reply: Vec<Comment>,
-    #[serde(default)]
-    pub users_liked: Vec<String>,
 }

@@ -22,7 +22,7 @@ where
         let error_text: String = response.text().await.unwrap_or_default();
 
         // Intenta parsear el JSON de error de Firebase
-        let error_msg = match serde_json::from_str::<Value>(&error_text) {
+        let error_msg: String = match serde_json::from_str::<Value>(&error_text) {
             Ok(json) => {
                 // Firebase devuelve errores en formato: {"error": {"message": "...", "code": 400}}
                 if let Some(error_obj) = json.get("error") {

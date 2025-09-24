@@ -5,6 +5,9 @@ import {
   type Teacher,
   type UserMerged,
   type EmailResend,
+  type AddContactResponse,
+  type UserRequest,
+  type UpdateComment,
 } from "@/types/bakend-types";
 import { ApiErrorType } from "@/enums/enums";
 import { ApiError, ErrorHandler } from "@/services/globalHandler";
@@ -75,6 +78,7 @@ export class ApiService {
     return ResultUtils.error(new ApiError(errorType, message, response.status));
   }
 
+  //////////////////// COMENTARIOS /////////////////////
   // Obtener todos los comentarios (GET)
   async getAllComments(): Promise<Result<Comment[]>> {
     try {
@@ -88,6 +92,22 @@ export class ApiService {
         new ApiError(ApiErrorType.NETWORK_ERROR, "Error de conexión", undefined, error as Error)
       );
     }
+  }
+
+  // Enviar comentario (POST)
+  async postComment(comment: Comment): Promise<Result<Comment>> {
+    const currentUser = auth.currentUser;
+    const token = currentUser ? await currentUser.getIdToken() : null;
+    let res = await fetch(`${this.baseUrl}/comments/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify(comment),
+    });
+
+    return this.handleResponse<Comment>(res);
   }
 
   // Darle like a un comentario (PUT)
@@ -109,6 +129,55 @@ export class ApiService {
     }
   }
 
+  // Delete a comment (DELETE)
+  async deleteComment(commentId: string): Promise<Result<void>> {
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      return ResultUtils.error(new ApiError(ApiErrorType.AUTHENTICATION_ERROR, "Usuario no autenticado"));
+    }
+
+    const token = await currentUser.getIdToken();
+    let res = await fetch(`${this.baseUrl}/comments/del/${commentId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
+    return this.handleResponse<void>(res);
+  }
+
+  // Editar un comentario (PUT)
+  async editComment(commentId: string, comment: UpdateComment): Promise<Result<Comment>> {
+    const currentUser = auth.currentUser;
+    const token = currentUser ? await currentUser.getIdToken() : null;
+    let res = await fetch(`${this.baseUrl}/comments/edit/${commentId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify(comment),
+    });
+    return this.handleResponse<Comment>(res);
+  }
+
+  // Obtener un comentario con una id especifica (GET)
+  async getCommentById(commentId: string): Promise<Result<Comment>> {
+    const currentUser = auth.currentUser;
+    const token = currentUser ? await currentUser.getIdToken() : null;
+    let res = await fetch(`${this.baseUrl}/comments/${commentId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
+    return this.handleResponse<Comment>(res);
+  }
+
+  //////////////////// PROFESORES /////////////////////
   // Obtener un profesor por su ID (GET)
   async getTeacher(teacher: string): Promise<Result<Teacher>> {
     let res = await fetch(`${this.baseUrl}/teachers/${teacher}`, {
@@ -127,20 +196,8 @@ export class ApiService {
     return this.handleResponse<Teacher[]>(res);
   }
 
-  // Enviar comentario (POST)
-  async postComment(token: string, comment: Comment): Promise<Result<Comment>> {
-    let res = await fetch(`${this.baseUrl}/comments/add`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-      body: JSON.stringify(comment),
-    });
-
-    return this.handleResponse<Comment>(res);
-  }
-
+  //////////////////// EMAIL /////////////////////
+  // Enviar email de contacto (Resend) (POST)
   async sendContact(resendEmail: EmailResend): Promise<Result<Record<string, string>>> {
     let res = await fetch(`${this.baseUrl}/email/contact`, {
       method: "POST",
@@ -151,6 +208,32 @@ export class ApiService {
     });
 
     return this.handleResponse<Record<string, string>>(res);
+  }
+
+  //////////////////// USUARIOS /////////////////////
+
+  // Registrar a un usuario
+  async registerUser(userRequest: UserRequest): Promise<Result<UserMerged>> {
+    let res = await fetch(`${this.baseUrl}/users/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userRequest),
+    });
+    return this.handleResponse<UserMerged>(res);
+  }
+
+  // Logear a un usuario
+  async loginUser(userRequest: UserRequest): Promise<Result<UserMerged>> {
+    let res = await fetch(`${this.baseUrl}/users/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userRequest),
+    });
+    return this.handleResponse<UserMerged>(res);
   }
 
   // Obtener el usuario actual (GET)
@@ -168,16 +251,17 @@ export class ApiService {
     return this.handleResponse<UserMerged>(res);
   }
 
-  // Método helper para manejo automático de errores
-  async executeWithErrorHandling<T>(operation: () => Promise<Result<T>>): Promise<T | null> {
-    const result = await operation();
-
-    if (ResultUtils.isOk(result)) {
-      return result.data;
-    } else {
-      ErrorHandler.handleApiError(result.error);
-      return null;
-    }
+  //////////////////// Mailchimp /////////////////////
+  // Añadir usuarios a la newsletter
+  async addContactToNewsletter(email: string): Promise<Result<AddContactResponse>> {
+    let res = await fetch(`${this.baseUrl}/mailchimp/add_newsletter`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(email),
+    });
+    return this.handleResponse<AddContactResponse>(res);
   }
 }
 

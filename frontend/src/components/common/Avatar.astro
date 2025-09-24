@@ -11,6 +11,9 @@ const server = Astro.props.server ?? true;
     !server ? (
       // Si cargo desde el cliente se lo damos mediante JS
       <img src="" alt="" class="avatar-img w-8 h-8 rounded-full object-cover " />
+      <div id="avatar-default" style="display: flex;">
+        <PersonIcon class="w-4 h-4 text-gray-800" />
+      </div>
     ) : info?.url_img ? (
       // Si hay info url la imagen, cargo desde el servidor y tiene foto
       <img src={info.url_img} alt={`Avatar de ${info.name}`} class="w-8 h-8 rounded-full object-cover " />

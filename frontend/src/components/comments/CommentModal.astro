@@ -1,16 +1,36 @@
 ---
 import Avatar from "@/components/common/Avatar.astro";
+
+const edit = (Astro.props.edit as boolean) || false;
+const idCommentShared = Astro.props.id as string;
+
+if (!idCommentShared) {
+  console.error("CommentModal component requires an 'id' prop.");
+  return;
+}
+
+const formId = `comment-form-${idCommentShared}`;
+const starRatingId = `star-rating-${idCommentShared}`;
+const ratingValueId = `rating-value-${idCommentShared}`;
+const avatarNameId = `avatar-name-${idCommentShared}`;
+const commentTextId = `comment-text-${idCommentShared}`;
+const resetBtnId = `reset-btn-${idCommentShared}`;
+const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCommentShared}`;
 ---
 
 <dialog
-  id="comment-modal"
+  id={idCommentShared}
+  data-edit={edit}
+  data-comment-modal="true"
   class="modal border-0 rounded-2xl p-0 shadow-2xl bg-gradient-to-br from-white to-smoothBrown overflow-hidden font-normal text-sm w-full max-w-96"
 >
   <div class="bg-lightSalmon rounded-lg shadow-lg p-6 max-w-sm w-full">
-    <form id="comment-form">
+    <form id={formId}>
       <!-- Header -->
       <div class="space-y-3">
-        <h2 class="text-[var(--color-brown)] text-center font-medium text-lg">Deja tu comentario</h2>
+        <h2 class="text-[var(--color-brown)] text-center font-medium text-lg">
+          {edit ? "Edita tu comentario" : "Deja tu comentario"}
+        </h2>
       </div>
 
       <!-- Rating Section -->
@@ -18,13 +38,13 @@ import Avatar from "@/components/common/Avatar.astro";
         <label class="block text-[var(--color-brown)] text-center font-medium">
           ¿Cómo calificarías tu experiencia?
         </label>
-        <div id="star-rating" class="flex justify-center space-x-2">
+        <div id={starRatingId} class="flex justify-center space-x-2">
           {
             Array.from({ length: 5 }).map((_, i) => (
               <button
                 type="button"
                 data-star={i + 1}
-                class="star-btn transition-all duration-200 hover:scale-110 focus:outline-none f rounded"
+                class="star-btn transition-all duration-200 hover:scale-110 outline-none focus:outline-none rounded"
               >
                 <svg
                   class="w-8 h-8 transition-colors duration-200 text-gray-300 hover:text-yellow-200"
@@ -37,23 +57,22 @@ import Avatar from "@/components/common/Avatar.astro";
             ))
           }
         </div>
-        <p id="rating-feedback" class="text-center text-sm text-[var(--color-brown)] opacity-80 hidden"></p>
-        <input type="hidden" id="rating-value" value="0" />
+        <input type="hidden" id={ratingValueId} value="0" />
       </div>
 
       <!-- User Info Section -->
       <div class="flex items-center space-x-3 bg-lightRed rounded-xl p-3 backdrop-blur-sm">
         <div
-          class="h-10 w-10 rounded-full bg-[var(--color-salmon)] text-white flex items-center justify-center ring-2 ring-[var(--color-salmon)] font-medium"
+          class="avatar-container h-10 w-10 rounded-full bg-[var(--color-salmon)] text-white flex items-center justify-center ring-2 ring-[var(--color-salmon)] font-medium"
         >
           <Avatar info={null} server={false} />
         </div>
-        <span id="avatar-name" class="text-black font-medium"> </span>
+        <span id={avatarNameId} class="text-black font-medium">Cargando...</span>
       </div>
 
       <!-- Comment Section -->
       <textarea
-        id="comment-text"
+        id={commentTextId}
         rows="6"
         class="mt-2 bg-[--color-custom-gray] border-2 border-[--color-custom-gray] rounded-xl py-4 px-2 outline-none w-full focus:border-salmon focus:ring-1 focus:ring-salmon transition-all duration-200 shadow-sm resize-none placeholder-gray-400 text-black"
         placeholder="Escribe tu mensaje aquí..."></textarea>
@@ -62,14 +81,14 @@ import Avatar from "@/components/common/Avatar.astro";
       <div class="flex justify-between gap-3 pt-2">
         <button
           type="button"
-          id="reset-btn"
+          id={resetBtnId}
           class="border-2 border-[var(--color-salmon)] text-[var(--color-salmon)] hover:bg-[var(--color-salmon)] hover:text-white transition-all duration-200 font-medium py-2 px-4 rounded-xl"
         >
           Limpiar
         </button>
         <button
           type="submit"
-          id="submit-btn"
+          id={submitBtnId}
           disabled
           class="bg-[var(--color-light-red)] hover:bg-[var(--color-red)] text-white font-medium py-2 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
@@ -77,85 +96,103 @@ import Avatar from "@/components/common/Avatar.astro";
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
             ></path>
           </svg>
-          Enviar
+          {edit ? "Actualizar" : "Enviar"}
         </button>
       </div>
     </form>
   </div>
 </dialog>
+
 <script>
-  import { onAuthStateChanged, type User } from "firebase/auth";
-  import { showModalAnimation } from "@/utils/modals";
   import { ApiService } from "@/services/helper";
   import { auth } from "@/config/firebase";
   import toast from "solid-toast";
-  import type { Comment } from "@/types/bakend-types";
+  import type { Comment, UpdateComment } from "@/types/bakend-types";
   import { closeModalAnimation } from "@/utils/modals";
 
-  function updateModalUser(user: User | null) {
-    const modal = document.getElementById("comment-modal");
-    const avatarNameElem = modal ? modal.querySelector("#avatar-name") : null;
-    if (!avatarNameElem) {
-      console.warn("Avatar elements not found in CommentModal.");
-      return;
-    }
-    if (user) {
-      if (avatarNameElem) {
-        avatarNameElem.textContent = user.displayName || "Anonimo";
-      }
-      const avatarImg = modal ? modal.querySelector(".avatar-img") : null;
-      if (avatarImg && user.photoURL) {
-        (avatarImg as HTMLImageElement).src = user.photoURL;
-      }
-    }
-  }
-
-  onAuthStateChanged(auth, updateModalUser);
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    const modal = document.getElementById("comment-modal") as HTMLDialogElement;
-    const commentButton = document.getElementById("open-comment-modal") as HTMLButtonElement;
-    const commentForm = document.getElementById("comment-form") as HTMLFormElement;
-
-    commentButton.addEventListener("click", function () {
-      const currentUser = auth.currentUser;
-      if (modal && currentUser) showModalAnimation(modal, commentForm, true);
-      else toast.error("Debes iniciar sesión para comentar.");
-    });
-  });
-
   class CommentModal {
-    private form: HTMLFormElement;
-    private starButtons: NodeListOf<HTMLButtonElement>;
-    private commentText: HTMLTextAreaElement;
-    private ratingValue: HTMLInputElement;
-    private ratingFeedback: HTMLElement;
-    private submitBtn: HTMLButtonElement;
-    private resetBtn: HTMLButtonElement;
+    private id: string;
+    private form!: HTMLFormElement;
+    private starButtons!: NodeListOf<HTMLButtonElement>;
+    private commentText!: HTMLTextAreaElement;
+    private ratingValue!: HTMLInputElement;
+    private submitBtn!: HTMLButtonElement;
+    private resetBtn!: HTMLButtonElement;
+    private avatarName!: HTMLElement;
     private rating: number = 0;
     private hoverRating: number = 0;
     private modal: HTMLDialogElement;
+    private edit!: boolean;
 
-    constructor() {
-      this.modal = document.getElementById("comment-modal") as HTMLDialogElement;
-      this.form = document.getElementById("comment-form") as HTMLFormElement;
-      this.starButtons = document.querySelectorAll(".star-btn");
-      this.commentText = document.getElementById("comment-text") as HTMLTextAreaElement;
-      this.ratingValue = document.getElementById("rating-value") as HTMLInputElement;
-      this.ratingFeedback = document.getElementById("rating-feedback")!;
-      this.submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
-      this.resetBtn = document.getElementById("reset-btn") as HTMLButtonElement;
+    constructor(idBase: string) {
+      this.id = idBase;
+      this.modal = document.getElementById(idBase) as HTMLDialogElement;
 
-      this.initializeEventListeners();
+      if (!this.modal) {
+        console.error("Modal element not found:", idBase);
+        return;
+      }
+
+      this.edit = this.modal.dataset.edit === "true";
+
+      // Construir IDs
+      const formId = `comment-form-${idBase}`;
+      const ratingValueId = `rating-value-${idBase}`;
+      const avatarNameId = `avatar-name-${idBase}`;
+      const commentTextId = `comment-text-${idBase}`;
+      const resetBtnId = `reset-btn-${idBase}`;
+      const submitBtnId = this.edit ? `update-btn-${idBase}` : `submit-btn-${idBase}`;
+
+      // Obtener elementos
+      this.form = document.getElementById(formId) as HTMLFormElement;
+      this.starButtons = this.modal.querySelectorAll(".star-btn");
+      this.commentText = document.getElementById(commentTextId) as HTMLTextAreaElement;
+      this.ratingValue = document.getElementById(ratingValueId) as HTMLInputElement;
+      this.submitBtn = document.getElementById(submitBtnId) as HTMLButtonElement;
+      this.resetBtn = document.getElementById(resetBtnId) as HTMLButtonElement;
+      this.avatarName = document.getElementById(avatarNameId) as HTMLElement;
+
+      // Verificar que se encontraron todos los elementos
+      if (
+        !this.form ||
+        !this.starButtons.length ||
+        !this.commentText ||
+        !this.ratingValue ||
+        !this.submitBtn ||
+        !this.resetBtn ||
+        !this.avatarName
+      ) {
+        console.error("Algunos elementos del modal no se encontraron:", {
+          form: !!this.form,
+          starButtons: this.starButtons.length,
+          commentText: !!this.commentText,
+          ratingValue: !!this.ratingValue,
+          submitBtn: !!this.submitBtn,
+          resetBtn: !!this.resetBtn,
+          avatarName: !!this.avatarName,
+        });
+        return;
+      }
+      // Inicializar
+      this.initEventListeners();
+      this.loadUserInfo();
     }
 
-    private initializeEventListeners() {
-      // Star rating events
+    private initEventListeners() {
+      // Event listeners para las estrellas
       this.starButtons.forEach((star, index) => {
-        const starValue = index + 1;
+        // Click event
+        star.addEventListener("click", (e) => {
+          e.preventDefault();
+          this.rating = index + 1;
+          this.ratingValue.value = this.rating.toString();
+          this.updateStars();
+          this.validateForm();
+        });
 
+        // Hover events
         star.addEventListener("mouseenter", () => {
-          this.hoverRating = starValue;
+          this.hoverRating = index + 1;
           this.updateStars();
         });
 
@@ -163,34 +200,29 @@ import Avatar from "@/components/common/Avatar.astro";
           this.hoverRating = 0;
           this.updateStars();
         });
-
-        star.addEventListener("click", () => {
-          this.rating = starValue;
-          this.ratingValue.value = starValue.toString();
-          this.updateStars();
-          this.updateRatingFeedback();
-          this.validateForm();
-        });
       });
 
-      // Comment text events
+      // Event listener para el textarea
       this.commentText.addEventListener("input", () => {
         this.validateForm();
       });
 
-      // Form events
-      this.form.addEventListener("submit", async (e) => {
+      // Event listener para el botón reset
+      this.resetBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        await this.handleSubmit();
+        this.resetForm();
       });
 
-      this.resetBtn.addEventListener("click", () => {
-        this.resetForm();
+      // Event listener para el formulario
+      this.form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.handleSubmit();
       });
     }
 
     private updateStars() {
       const currentRating = this.hoverRating || this.rating;
+
       this.starButtons.forEach((star, index) => {
         const svg = star.querySelector("svg")!;
         if (index < currentRating) {
@@ -203,21 +235,33 @@ import Avatar from "@/components/common/Avatar.astro";
       });
     }
 
-    private async updateRatingFeedback() {
-      const feedbacks = ["", "😞 Muy malo", "😕 Malo", "😐 Regular", "😊 Bueno", "🤩 ¡Excelente!"];
-
-      if (this.rating > 0) {
-        this.ratingFeedback.textContent = feedbacks[this.rating];
-        this.ratingFeedback.classList.remove("hidden");
-      } else {
-        this.ratingFeedback.classList.add("hidden");
-      }
-    }
-
     private validateForm() {
       const hasComment = this.commentText.value.trim().length > 0;
       const hasRating = this.rating > 0;
       this.submitBtn.disabled = !(hasComment && hasRating);
+    }
+
+    private async loadUserInfo() {
+      // Esperar a que Firebase esté listo
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          const displayName = user.displayName || user.email || "Usuario";
+          this.avatarName.textContent = displayName;
+          const avatarImg = this.modal.querySelector(".avatar-img") as HTMLImageElement;
+          const avatarDefault = this.modal.querySelector("#avatar-default") as HTMLElement;
+          if (avatarImg && user.photoURL) {
+            avatarImg.src = user.photoURL;
+            avatarImg.alt = `Avatar de ${displayName}`;
+            avatarImg.style.display = "block";
+            if (avatarDefault) avatarDefault.style.display = "none";
+          } else if (avatarImg) {
+            avatarImg.style.display = "none";
+            if (avatarDefault) avatarDefault.style.display = "flex";
+          }
+        } else {
+          this.avatarName.textContent = "Usuario no autenticado";
+        }
+      });
     }
 
     private async handleSubmit() {
@@ -225,48 +269,55 @@ import Avatar from "@/components/common/Avatar.astro";
       const rating = this.rating;
 
       if (comment && rating > 0) {
-        // Dispatch custom event with comment data
-        const event = new CustomEvent("commentSubmit", {
-          detail: { comment, rating },
-          bubbles: true,
-        });
-        document.dispatchEvent(event);
-
         try {
           const currentUser = auth.currentUser;
-          const idToken = currentUser ? await currentUser.getIdToken() : null;
-          if (!currentUser || !idToken) {
+          if (!currentUser) {
             toast.error("Debes iniciar sesión para comentar.");
             return;
           }
 
-          const text = (document.getElementById("comment-text") as HTMLTextAreaElement).value;
-          const ratingInput = document.getElementById("rating-value") as HTMLInputElement;
-          if (!text || text.trim().length === 0) {
-            toast.error("El comentario no puede estar vacío.");
-            return;
-          }
-
-          const commentObj: Comment = {
-            author_uid: currentUser.uid,
-            name: typeof currentUser.displayName === "string" ? currentUser.displayName : "Anonimo",
-            content: text,
-            timestamp: new Date().toISOString(),
-            url_img: currentUser.photoURL ? currentUser.photoURL : undefined,
-            stars: parseInt(ratingInput.value) || 0,
-          };
-
           const helper = new ApiService();
-          await helper
-            .postComment(idToken, commentObj)
-            .then(() => {
-              toast.success("Comentario enviado con éxito.");
-              if (this.modal) closeModalAnimation(this.modal);
-            })
-            .catch((error) => {
-              console.error("Error submitting comment:", error);
-              toast.error("Error al enviar el comentario. Inténtalo de nuevo.");
-            });
+          if (this.edit) {
+            const commentObj: UpdateComment = {
+              content: comment,
+              stars: rating,
+            };
+            await helper
+              .editComment(this.id, commentObj)
+              .then(() => {
+                toast.success("Comentario actualizado con éxito.");
+                if (this.modal) closeModalAnimation(this.modal);
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              })
+              .catch((error) => {
+                console.error("Error updating comment:", error);
+                toast.error("Error al actualizar el comentario. Inténtalo de nuevo.");
+              });
+          } else {
+            const commentObj: Comment = {
+              author_uid: currentUser.uid,
+              name: typeof currentUser.displayName === "string" ? currentUser.displayName : "Anonimo",
+              content: comment,
+              timestamp: new Date().toISOString(),
+              url_img: currentUser.photoURL ? currentUser.photoURL : undefined,
+              stars: rating,
+            };
+            await helper
+              .postComment(commentObj)
+              .then(() => {
+                toast.success("Comentario enviado con éxito.");
+                if (this.modal) closeModalAnimation(this.modal);
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              })
+              .catch((error) => {
+                console.error("Error submitting comment:", error);
+                toast.error("Error al enviar el comentario. Inténtalo de nuevo.");
+              });
+          }
         } catch (error) {
           console.error("Error setting up form submission:", error);
           toast.error("Error al configurar el formulario de comentarios.");
@@ -282,20 +333,37 @@ import Avatar from "@/components/common/Avatar.astro";
       this.hoverRating = 0;
       this.ratingValue.value = "0";
       this.updateStars();
-      this.ratingFeedback.classList.add("hidden");
+      this.validateForm();
+    }
+
+    public reset() {
+      this.resetForm();
+    }
+
+    public setEditData(content: string, stars: number) {
+      this.commentText.value = content;
+      this.rating = stars;
+      this.ratingValue.value = stars.toString();
+      this.updateStars();
       this.validateForm();
     }
   }
 
-  // Initialize modal when DOM is loaded
+  // Esperamos a que carge en el doom
   document.addEventListener("DOMContentLoaded", () => {
-    window.commentModal = new CommentModal();
+    const commentModals = document.querySelectorAll("dialog[data-comment-modal='true']");
+    window.commentModals = window.commentModals || {};
+    commentModals.forEach((modal) => {
+      const id = modal.id;
+      if (id) {
+        window.commentModals[id] = new CommentModal(id);
+      }
+    });
   });
 
-  // Make it globally accessible
   declare global {
     interface Window {
-      commentModal: CommentModal;
+      commentModals: Record<string, CommentModal>;
     }
   }
 </script>

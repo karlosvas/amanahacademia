@@ -4,8 +4,8 @@ mod models;
 mod routes;
 mod services;
 mod state;
-
 use {
+    crate::models::mailchimp::MailchimpClient,
     axum::{
         Router,
         http::{
@@ -80,14 +80,6 @@ async fn main() {
             match response.json().await {
                 Ok(keys) => {
                     info!("Firebase public keys fetched successfully");
-                    debug!(
-                        "Available key IDs: {:?}",
-                        if let serde_json::Value::Object(obj) = &keys {
-                            obj.keys().collect::<Vec<_>>()
-                        } else {
-                            vec![]
-                        }
-                    );
                     keys
                 }
                 Err(e) => {
@@ -123,12 +115,20 @@ async fn main() {
             .as_str(),
     );
 
+    // Cliente de Mailchimp personalizado
+    let mailchimp_client: MailchimpClient = MailchimpClient::new(
+        env::var("MAILCHIMP_API_KEY").expect("MAILCHIMP_API_KEY must be set"),
+        env::var("MAILCHIMP_SERVER_PREFIX").expect("MAILCHIMP_SERVER_PREFIX must be set"),
+        env::var("MAILCHIMP_LIST_ID").expect("MAILCHIMP_LIST_ID must be set"),
+    );
+
     // Inicializar el estado de la aplicación y el enrutador
     let state: Arc<AppState> = Arc::new(AppState {
         firebase,
         firebase_client: HttpClient::new(),
         stripe_client,
         resend_client,
+        mailchimp_client,
     });
 
     // Configurar CORS
@@ -147,6 +147,7 @@ async fn main() {
         .nest("/payment", routes::payments::router(state.clone())) // Stripe
         .nest("/teachers", routes::teachers::router(state.clone())) // FB Auth, FB Realtime DB
         .nest("/email", routes::email::router(state.clone())) // Email
+        .nest("/mailchimp", routes::mailchimp::router(state.clone())) // Email
         .nest("/webhook", routes::webhooks::router(state.clone())) // Webhooks
         .layer(cors) // CORS abierto
         .layer(TraceLayer::new_for_http()) // Logging básico

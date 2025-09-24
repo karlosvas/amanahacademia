@@ -4,8 +4,10 @@ import StarGroup from "./StarGroup.astro";
 import Like from "@/assets/like.svg";
 import Avatar from "../common/Avatar.astro";
 import type { AvatarProps } from "@/types/types";
+import CommentModal from "@/components/comments/CommentModal.astro";
 
 const comment = Astro.props.data as Comment;
+const idCommentShared = Astro.props.id as string;
 if (!comment) return;
 
 const avatar: AvatarProps = {
@@ -14,7 +16,21 @@ const avatar: AvatarProps = {
 };
 ---
 
-<div class="bg-lightSalmon max-w-sm rounded-lg scroll-fade-in min-w-72 overflow-hidden flex flex-col h-full">
+<div
+  data-comment-id={comment.id}
+  class="relative bg-lightSalmon w-full rounded-lg scroll-fade-in overflow-hidden flex flex-col h-full"
+>
+  <div class="comment-config flex flex-col items-end justify-center absolute top-2 right-2 h-5 space-y-0.5 px-1">
+    <div class="w-1 h-1 bg-black rounded-full"></div>
+    <div class="w-1 h-1 bg-black rounded-full"></div>
+    <div class="w-1 h-1 bg-black rounded-full"></div>
+  </div>
+  <div class="comment-config-menu hidden bg-salmon absolute right-1 top-8 text-xs rounded-md w-fit h-fit">
+    <ul>
+      <li class="p-1 hover:text-lightRed"><button>Editar</button></li>
+      <li class="p-1 hover:text-lightRed"><button>Eliminar</button></li>
+    </ul>
+  </div>
   <!-- Header compacto -->
   <div class="p-4">
     <div class="flex items-center space-x-3">
@@ -24,10 +40,10 @@ const avatar: AvatarProps = {
       <!-- Info del usuario compacta -->
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between">
-          <h5 class="text-sm font-medium truncate">
-            @{comment.name}
+          <h5 class="text-sm font-medium truncate w-32">
+            {comment.name}
           </h5>
-          <time class="text-xs ml-2">
+          <time class="text-xs mr-2">
             {comment.timestamp}
           </time>
         </div>
@@ -51,8 +67,8 @@ const avatar: AvatarProps = {
       <!-- Botón de like compacto -->
       <button
         class="flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-[var(--color-light-red)] transition-colors duration-200 like-icon cursor-pointer"
-        data-id={comment.author_uid}
         data-users-liked={JSON.stringify(comment.users_liked ?? [])}
+        data-id={comment.id}
       >
         <Like
           class="w-3.5 h-3.5 text-[var(--text-medium-contrast)] hover:text-[var(--color-red)] transition-colors duration-200 like-svg"
@@ -64,6 +80,103 @@ const avatar: AvatarProps = {
     </div>
   </div>
 </div>
+<CommentModal id={idCommentShared} edit={true} />
+
+<script>
+  import { auth } from "@/config/firebase";
+  import { ApiService } from "@/services/helper";
+  import type { Result, Comment } from "@/types/bakend-types";
+  import { showModalAnimation } from "@/utils/modals";
+  import toast from "solid-toast";
+
+  const options = document.querySelectorAll(".comment-config");
+  const menus = document.querySelectorAll(".comment-config-menu");
+  const helper = new ApiService();
+
+  options.forEach((option, index) => {
+    option.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!auth.currentUser) {
+        toast.error("Debes iniciar sesión para gestionar comentarios");
+        return;
+      }
+      menus[index].classList.toggle("hidden");
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    menus.forEach((menu) => {
+      if (!menu.classList.contains("hidden")) {
+        menu.classList.add("hidden");
+      }
+    });
+  });
+
+  const deleteButtons = document.querySelectorAll(".comment-config-menu li:last-child button");
+  deleteButtons.forEach((btn, idx) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const commentDiv = btn.closest("[data-comment-id]");
+
+      if (!commentDiv) {
+        console.error("No se encontró el contenedor del comentario");
+        return;
+      }
+
+      const commentId: string = commentDiv.getAttribute("data-comment-id") as string;
+
+      if (!commentId) {
+        console.error("No se encontró el ID del comentario");
+        return;
+      }
+
+      helper.deleteComment(commentId).then((res) => {
+        if (res.success) {
+          menus[idx].classList.add("hidden");
+          toast.success("Comentario eliminado");
+          // Optimistic UI - eliminamos el comentario del DOM
+          commentDiv.remove();
+        } else {
+          console.error("Error al eliminar el comentario");
+          toast.error("Debes de ser dueño del comentario para eliminarlo");
+        }
+      });
+    });
+  });
+
+  const editButtons = document.querySelectorAll(".comment-config-menu li:first-child button");
+  editButtons.forEach((btn, idx) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const commentDiv = btn.closest("[data-comment-id]");
+      if (!commentDiv) {
+        console.error("No se encontró el contenedor del comentario");
+        return;
+      }
+      const commentId: string = commentDiv.getAttribute("data-comment-id") as string;
+      if (!commentId) {
+        console.error("No se encontró el ID del comentario");
+        return;
+      }
+      const helper = new ApiService();
+      const comment: Result<Comment> = await helper.getCommentById(commentId);
+
+      if (!comment.success) {
+        toast.error("Error al obtener el comentario");
+        return;
+      }
+
+      if (auth.currentUser?.uid !== comment.data.author_uid) {
+        toast.error("No puedes cambiar comentarios que no sean tuyos");
+        return;
+      }
+
+      const modal = document.getElementById(commentId) as HTMLDialogElement;
+      const form = modal.querySelector("form");
+      showModalAnimation(modal, form, true);
+    });
+  });
+</script>
 <style>
   .like-svg {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

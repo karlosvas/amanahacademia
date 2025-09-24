@@ -2,6 +2,8 @@ import { signInWithEmailAndPassword, signInWithPopup, type User } from "firebase
 import toast from "solid-toast";
 import { showModalAnimation } from "../utils/modals";
 import { auth, googleProvider } from "@/config/firebase";
+import type { UserRequest } from "@/types/bakend-types";
+import { ApiService } from "./helper";
 
 // Obtener el botón de identificación segun el tamaño de la pantalla
 export function getIdentificationButton() {
@@ -70,13 +72,19 @@ export function submitForm(
       .addField('[name="newsletter"]', [{ rule: "required", errorMessage: "Debes aceptar recibir novedades" }]);
   }
 
-  // Si todo sale bien
+  // Si sale bien
   validation.onSuccess(async (event: Event) => {
     event.preventDefault();
 
     // Datos introducidos
     const formData = new FormData(event.target as HTMLFormElement);
     const credentials = Object.fromEntries(formData.entries());
+    const userRequest: UserRequest = {
+      name: (credentials.name as string) || "",
+      email: credentials.email as string,
+      password: credentials.password as string,
+    };
+    g("UserRequest:", userRequest);
 
     // Mostrar loading, ocultar errores
     loading.classList.remove("hidden");
@@ -95,20 +103,14 @@ export function submitForm(
         });
       }
 
-      // URL de la petición
-      let url = import.meta.env.PUBLIC_BACKEND_URL;
-      if (!url) throw new Error("PUBLIC_BACKEND_URL no definida");
-      url += isRegister ? "/users/register" : "/users/login";
+      const helper = new ApiService();
+      let response;
+      if (isRegister) response = await helper.registerUser(userRequest);
+      else response = await helper.loginUser(userRequest);
 
       // Validar credenciales en backend, registrandonos o logeandonos segun corresponda
-      const backendResponse = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credentials),
-      });
-
-      if (backendResponse.ok && credentials.email && credentials.password && form) {
-        // Si todo salió bien, hacer login directo en Firebase, con email y contraseña
+      if (response.success) {
+        // Si salió bien, hacer login directo en Firebase, con email y contraseña
         await signInWithEmailAndPassword(auth, credentials.email as string, credentials.password as string);
         modal.close();
         // Esperamos a que se cierre para mostrar el mensaje de exito
@@ -119,10 +121,14 @@ export function submitForm(
           formHTML.reset();
           errorMessage.classList.add("hidden");
         }, 300);
+      } else if (response.error) {
+        throw new Error(
+          typeof response.error === "string"
+            ? response.error
+            : response.error?.message || "Error desconocido, por favor inténtalo de nuevo."
+        );
       } else {
-        const errorData = await backendResponse.json();
-        console.error(errorData);
-        throw new Error("Credenciales inválidas");
+        throw new Error("Error desconocido, por favor inténtalo de nuevo.");
       }
     } catch (error: unknown) {
       console.error("Error en la autenticación:", error);

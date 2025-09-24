@@ -72,6 +72,7 @@ pub async fn register_user(
         email: user.email.clone(),
         password: user.password.clone(),
         return_secure_token: true,
+        display_name: user.name.clone(),
     };
 
     // POST:: Crear usuario en Firebase Authentication
@@ -159,6 +160,7 @@ pub async fn add_user(
         email: user.email.clone(),
         password: user.password.clone(),
         return_secure_token: true,
+        display_name: user.name.clone(),
     };
 
     // POST:: Crear usuario en Firebase Authentication
@@ -279,6 +281,7 @@ pub async fn login_user(
         email: login.email,
         password: login.password,
         return_secure_token: true,
+        display_name: None,
     };
 
     // Enviar la solicitud a Firebase Auth
@@ -340,6 +343,7 @@ pub async fn update_user(
         email: user_request.email.clone(), // El email es obligatorio darlo en la request
         password: user_request.password.clone(), // La contraseña es obligatoria darle en la request
         return_secure_token: true,
+        display_name: user_request.name.clone(),
     };
 
     // Enviar la solicitud a Firebase Auth

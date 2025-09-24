@@ -20,6 +20,7 @@ pub struct UserAuth {
     pub email: String,
     pub password: String,
     pub return_secure_token: bool,
+    pub display_name: Option<String>,
 }
 
 // Para claims del JWT (usuario autenticado)

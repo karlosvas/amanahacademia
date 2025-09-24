@@ -11,7 +11,7 @@ pub struct UserRequest {
     pub password: String,
 
     // Datos opcionales que el cliente puede enviar
-    pub name: Option<String>,
+    pub name: Option<String>, // Solo necesario en los register o en los update
     pub phone_number: Option<String>,
 
     // Datos especificos para la DB

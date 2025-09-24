@@ -18,15 +18,21 @@ export interface ResponseAPI<T> {
 }
 
 export interface Comment {
+  id?: string;
   author_uid?: string;
   name: string;
   timestamp: string;
   content: string;
   url_img?: string; // ✅ Opcional
-  stars?: number; // ✅ Opcional, si lo usas
+  stars: number; // ✅ Opcional, si lo usas
   like?: number; // Opcional
   reply?: Comment[]; // Opcional
   users_liked?: string[]; // Opcional
+}
+
+export interface UpdateComment {
+  content: string;
+  stars: number;
 }
 
 // Resultado de operaciones que pueden fallar en la api
@@ -68,3 +74,24 @@ export interface EmailResend {
   subject: string;
   text: string;
 }
+
+export interface AddContactResponse {
+  id: string;
+  email_address: string;
+  status: string;
+}
+
+export type UserRequest = {
+  // Datos obligatorios requeridos por firebase auth
+  email: string;
+  password: string;
+
+  // Datos opcionales que el cliente puede enviar
+  name: string;
+  phone_number?: string;
+
+  // Datos específicos para la DB
+  role?: string; // Si tienes un enum ROLE, puedes usarlo aquí
+  permissions?: string[];
+  subscription_tier?: string;
+};

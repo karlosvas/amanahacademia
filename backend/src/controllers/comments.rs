@@ -1,6 +1,10 @@
 use {
     crate::{
-        models::{comments::Comment, firebase::UserAuthentication, response::ResponseAPI},
+        models::{
+            comments::{Comment, UpdateComment},
+            firebase::UserAuthentication,
+            response::ResponseAPI,
+        },
         services::firebase::handle_firebase_response,
         state::AppState,
     },
@@ -10,6 +14,7 @@ use {
         http::StatusCode,
         response::IntoResponse,
     },
+    chrono::Utc,
     std::{collections::HashMap, sync::Arc},
     tracing::instrument,
 };
@@ -22,7 +27,7 @@ use {
         user_id = %user_claims.user_id,
         comment_content_length = %comment.content.len(),
         operation = "add_comment"
-    ))]
+))]
 pub async fn add_comment(
     Extension(user_claims): Extension<UserAuthentication>,
     Extension(id_token): Extension<String>,
@@ -39,7 +44,7 @@ pub async fn add_comment(
     let new_comment: Comment = Comment {
         author_uid: Some(user_claims.user_id),
         name: comment.name,
-        timestamp: comment.timestamp,
+        timestamp: Utc::now().format("%d/%m/%Y %H:%M").to_string(),
         content: comment.content,
         url_img: comment.url_img,
         stars: comment.stars,
@@ -73,6 +78,93 @@ pub async fn add_comment(
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(ResponseAPI::<()>::error(
                 "Failed to add comment".to_string(),
+            )),
+        )
+            .into_response(),
+    }
+}
+
+// Editar un comentario
+#[debug_handler]
+#[instrument(
+    skip(state, id_token, user_claims, comment),
+    fields(
+        comment_id = %comment_id,
+        user_id = %user_claims.user_id,
+        comment_content_length = %comment.content.len(),
+        operation = "edit_comment"
+    )
+)]
+pub async fn edit_comment(
+    Path(comment_id): Path<String>,
+    State(state): State<Arc<AppState>>,
+    Extension(id_token): Extension<String>,
+    Extension(user_claims): Extension<UserAuthentication>,
+    Json(comment): Json<UpdateComment>,
+) -> impl IntoResponse {
+    // Obtenemos el ID del comentario a editar
+    let url_firebase_db: String = format!(
+        "{}/comments/{}.json?auth={}",
+        state.firebase.firebase_database_url, comment_id, id_token
+    );
+
+    // Verificar si el comentario existe
+    let existing_comment: Comment = match get_comment_data(&comment_id, &id_token, &state).await {
+        Some(comment) => comment,
+        None => {
+            return (
+                StatusCode::NOT_FOUND,
+                Json(ResponseAPI::<()>::error("Comment not found".to_string())),
+            )
+                .into_response();
+        }
+    };
+
+    // Verificamos que el usuario sea el autor del comentario
+    if existing_comment.author_uid != Some(user_claims.user_id) {
+        return (
+            StatusCode::FORBIDDEN,
+            Json(ResponseAPI::<()>::error(
+                "You are not authorized to edit this comment".to_string(),
+            )),
+        )
+            .into_response();
+    }
+
+    // Creamos el nuevo comentario con los datos actualizados, solo cambiamos el timestamp contenido y stars
+    let updated_comment: Comment = Comment {
+        timestamp: Utc::now().format("%d/%m/%Y %H:%M").to_string(),
+        content: comment.content,
+        stars: comment.stars,
+        ..existing_comment
+    };
+
+    // Intentamos actualizar el comentario en la base de datos
+    match state
+        .firebase_client
+        .put(&url_firebase_db)
+        .json(&updated_comment)
+        .send()
+        .await
+    {
+        Ok(response) => match handle_firebase_response::<Comment>(response).await {
+            Ok(comment) => (
+                StatusCode::OK,
+                Json(ResponseAPI::<Comment>::success(
+                    "Comment updated successfully".to_string(),
+                    Comment {
+                        author_uid: None,
+                        ..comment
+                    },
+                )),
+            )
+                .into_response(),
+            Err((status, error)) => (status, Json(ResponseAPI::<()>::error(error))).into_response(),
+        },
+        Err(_) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ResponseAPI::<()>::error(
+                "Failed to update comment".to_string(),
             )),
         )
             .into_response(),
@@ -152,6 +244,7 @@ pub async fn get_all_comments(State(state): State<Arc<AppState>>) -> impl IntoRe
 pub async fn delete_comment(
     Path(comment_id): Path<String>,
     Extension(id_token): Extension<String>,
+    Extension(user_claims): Extension<UserAuthentication>,
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
     // Obtenemos el ID del comentario a eliminar
@@ -161,7 +254,7 @@ pub async fn delete_comment(
     );
 
     // Verificar si el comentario existe
-    match get_comment_data(&comment_id, &id_token, &state).await {
+    let comment: Comment = match get_comment_data(&comment_id, &id_token, &state).await {
         Some(comment) => comment,
         None => {
             return (
@@ -171,6 +264,17 @@ pub async fn delete_comment(
                 .into_response();
         }
     };
+
+    println!("Comment Author UID: {:?}", comment.author_uid);
+    if comment.author_uid != Some(user_claims.user_id) {
+        return (
+            StatusCode::FORBIDDEN,
+            Json(ResponseAPI::<()>::error(
+                "You are not authorized to delete this comment".to_string(),
+            )),
+        )
+            .into_response();
+    }
 
     // Intentamos eliminar el comentario
     match state.firebase_client.delete(&url_firebase_db).send().await {
@@ -337,7 +441,7 @@ pub async fn add_reply(
             replies.push(Comment {
                 author_uid: Some(user_claims.user_id),
                 name: reply_comment.name,
-                timestamp: reply_comment.timestamp,
+                timestamp: Utc::now().format("%d/%m/%Y %H:%M").to_string(),
                 content: reply_comment.content,
                 url_img: reply_comment.url_img,
                 stars: reply_comment.stars,
@@ -408,5 +512,36 @@ async fn get_comment_data(
             Err(_) => None,
         },
         Err(_) => None,
+    }
+}
+
+// Obtener un comentario por id
+#[debug_handler]
+#[instrument(
+    skip(state),
+    fields(
+        comment_id = %comment_id,
+        operation = "get_comment_by_id"
+    )
+)]
+pub async fn get_comment_by_id(
+    Path(comment_id): Path<String>,
+    Extension(id_token): Extension<String>,
+    State(state): State<Arc<AppState>>,
+) -> impl IntoResponse {
+    match get_comment_data(&comment_id, &id_token, &state).await {
+        Some(comment) => (
+            StatusCode::OK,
+            Json(ResponseAPI::<Comment>::success(
+                "Comment fetched successfully".to_string(),
+                comment,
+            )),
+        )
+            .into_response(),
+        None => (
+            StatusCode::NOT_FOUND,
+            Json(ResponseAPI::<()>::error("Comment not found".to_string())),
+        )
+            .into_response(),
     }
 }

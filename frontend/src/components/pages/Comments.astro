@@ -5,75 +5,19 @@ import Stadistics from "@/components/comments/Stadistics.astro";
 import type { Comment, Result } from "@/types/bakend-types";
 import { ApiService } from "@/services/helper";
 import CommentModal from "@/components/comments/CommentModal.astro";
-
-function formatToSpanishDate(isoTimestamp: string): string {
-  const date = new Date(isoTimestamp);
-
-  const day = date.getDate().toString().padStart(2, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const year = date.getFullYear();
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
-}
-
-// Función para parsear fecha española a objeto Date
-function parseSpanishDate(spanishDate: string): Date {
-  // Formato: "20/09/2025 00:25"
-  const [datePart, timePart] = spanishDate.split(" ");
-  const [day, month, year] = datePart.split("/").map(Number);
-  const [hours, minutes] = timePart.split(":").map(Number);
-
-  return new Date(year, month - 1, day, hours, minutes);
-}
-
-function normalizeTimestamp(timestamp: string): string {
-  // Si ya está en formato español, lo devuelve tal como está
-  if (timestamp.includes("/")) {
-    return timestamp;
-  }
-
-  // Si está en formato ISO, lo convierte
-  if (timestamp.includes("T") || timestamp.includes("Z")) {
-    return formatToSpanishDate(timestamp);
-  }
-
-  // Si no reconoce el formato, devuelve el original
-  return timestamp;
-}
-
-// Función principal para procesar y ordenar comentarios
-function processComments(comments: Comment[]) {
-  // Normalizar todos los timestamps
-  const normalizedComments = comments.map((comment: Comment) => ({
-    ...comment,
-    timestamp: normalizeTimestamp(comment.timestamp),
-  }));
-
-  // Ordenar por fecha (más antiguos primero)
-  const sortedComments = normalizedComments.sort((a, b) => {
-    return parseSpanishDate(a.timestamp).getTime() - parseSpanishDate(b.timestamp).getTime();
-  });
-
-  // Obtener los 3 mejores comentarios por likes
-  const bestComments = [...normalizedComments].sort((a, b) => (b.like ?? 0) - (a.like ?? 0)).slice(0, 3);
-
-  return {
-    comments: sortedComments,
-    bestComments: bestComments,
-  };
-}
+import { processComments } from "@/services/comments";
 
 const helper = new ApiService();
 let comments: Comment[] = [];
 let bestComments: Comment[] = [];
-let mediaStars = 0;
+let mediaStars: number = 0.0;
 try {
   const response: Result<Comment[]> = await helper.getAllComments();
+
   if (response.success) {
     const commentsData = Object.entries(response.data).map(([key, value]) => ({
-      author_uid: key,
+      id: key,
+      author_uid: value.author_uid ?? "",
       name: value.name ?? "",
       timestamp: value.timestamp ?? "",
       content: value.content ?? "",
@@ -98,29 +42,6 @@ try {
 }
 ---
 
-<style>
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .comments-grid {
-      grid-template-columns: 1fr;
-    }
-    .section-1 {
-      grid-column: 1;
-      justify-self: center;
-      max-width: 400px;
-    }
-    .section-2 {
-      grid-column: 1;
-      justify-self: center;
-      max-width: 600px;
-    }
-    .section-3 {
-      grid-column: 1;
-      justify-self: center;
-      max-width: 400px;
-    }
-  }
-</style>
-
 <main
   class="py-6 sm:py-8 md:py-10 lg:mt-0 mb-12 sm:mb-16 md:mb-20 m-auto w-full 2xl:w-3/4
               grid grid-cols-1 lg:grid-cols-3
@@ -130,19 +51,24 @@ try {
   <div class="w-full max-w-sm mx-auto justify-self-center md:justify-self-center lg:justify-self-start section-1">
     <div class="text-center mb-4 sm:mb-6">
       <p class="text-5xl sm:text-6xl lg:text-7xl font-bold">{mediaStars.toFixed(2)}</p>
-      <StarGroup star={mediaStars} />
+      <StarGroup star={mediaStars} size={50} />
     </div>
     <h5 class="text-salmon ml-2 sm:ml-3 mb-10 sm:mb-4 font-semibold text-sm sm:text-base">
       Comentarios con mas me gusta
     </h5>
     <div class="space-y-3 sm:space-y-4">
-      {bestComments.length > 0 && bestComments.map((comment: Comment) => <CardComment data={comment} />)}
+      {
+        bestComments.length > 0 &&
+          bestComments.map((comment: Comment) => {
+            return <CardComment data={comment} id={"best-" + comment.id} />;
+          })
+      }
     </div>
   </div>
 
   <!-- Sección 2: Botón comentar y más comentarios -->
   <div
-    class="mt-24 w-full max-w-none lg:col-span-1 lg:max-w-sm flex flex-col items-center justify-self-center lg:justify-self-auto order-2 lg:order-2 section-2"
+    class="max-w-sm sm:max-w-2xl mt-24 w-full lg:col-span-1 lg:max-w-sm flex flex-col items-center justify-self-center lg:justify-self-auto order-2 lg:order-2 section-2"
   >
     <button
       id="open-comment-modal"
@@ -154,9 +80,9 @@ try {
       Comentar
     </button>
     <div
-      class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4 lg:gap-6 px-2 sm:px-0 justify-items-center mt-10"
+      class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4 lg:gap-6 justify-items-center mt-10"
     >
-      {comments.length > 0 && comments.map((comment: Comment) => <CardComment data={comment} />)}
+      {comments.length > 0 && comments.map((comment: Comment) => <CardComment data={comment} id={comment.id} />)}
     </div>
   </div>
 
@@ -179,14 +105,16 @@ try {
     </div>
   </div>
 </main>
-<CommentModal />
+<CommentModal id={"comment-modal"} edit={false} />
 
 <script>
   // Importa la instancia de autenticación de Firebase y el listener de cambios de usuario
   import { auth } from "@/config/firebase";
-  import { onAuthStateChanged, type User } from "firebase/auth";
+  import { onAuthStateChanged } from "firebase/auth";
   import { submitLike } from "@/services/comments";
   import { toast } from "solid-toast";
+  import { updateLikeState } from "@/services/comments";
+  import { showModalAnimation } from "@/utils/modals";
 
   // Espera a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", function () {
@@ -205,25 +133,9 @@ try {
       if (!commentAttr) return;
       const comment = JSON.parse(commentAttr);
 
-      // Función para actualizar el estado visual del "like" según el usuario actual
-      function updateLikeState(user: User | null) {
-        if (!comment || !likeIcon) return;
-        // Si el usuario ha dado like, añade la clase "liked"
-        if (user && comment.includes(user.uid)) {
-          likeIcon.classList.add("liked");
-          const svg = likeIcon.querySelector(".like-svg");
-          if (svg) svg.classList.add("liked");
-        } else {
-          // Si no ha dado like, quita la clase "liked"
-          likeIcon.classList.remove("liked");
-          const svg = likeIcon.querySelector(".like-svg");
-          if (svg) svg.classList.remove("liked");
-        }
-      }
-
       // Escucha los cambios de autenticación y actualiza el estado visual del like
       onAuthStateChanged(auth, (user) => {
-        updateLikeState(user);
+        updateLikeState(user, likeIcon, comment);
       });
 
       // Añade el listener al icono de "like" para manejar el click
@@ -255,5 +167,47 @@ try {
         }
       });
     });
+
+    // Para abrir el modal (por ejemplo, desde un botón)
+    function openCommentModal(idCommentShared: string, isEdit: boolean = false) {
+      const modal = document.getElementById(idCommentShared) as HTMLDialogElement;
+      const form = modal?.querySelector("form") as HTMLFormElement;
+
+      if (modal && form) {
+        showModalAnimation(modal, form, true); // true para showModal() en lugar de show()
+      }
+    }
+
+    // Ejemplo de uso desde un botón
+    const openBtn = document.getElementById("open-comment-modal");
+    openBtn?.addEventListener("click", () => {
+      if (!auth.currentUser) {
+        toast.error("Debes iniciar sesión para comentar");
+        return;
+      }
+      openCommentModal("comment-modal"); // donde "123" es tu ID único
+    });
   });
 </script>
+<style>
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .comments-grid {
+      grid-template-columns: 1fr;
+    }
+    .section-1 {
+      grid-column: 1;
+      justify-self: center;
+      max-width: 400px;
+    }
+    .section-2 {
+      grid-column: 1;
+      justify-self: center;
+      max-width: 600px;
+    }
+    .section-3 {
+      grid-column: 1;
+      justify-self: center;
+      max-width: 400px;
+    }
+  }
+</style>
