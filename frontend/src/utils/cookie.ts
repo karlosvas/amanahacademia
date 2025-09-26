@@ -6,3 +6,8 @@ export function getTheme(): string {
 
   return theme || "light";
 }
+
+export function getLangFromCookie(): string {
+  const match = document.cookie.match(/(?:^|; )lang=([^;]*)/);
+  return match ? match[1] : "es";
+}

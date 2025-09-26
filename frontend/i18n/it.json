@@ -249,41 +249,92 @@
         "Non troverai solo corsi linguistici, ma anche corsi su cultura, gastronomia e altri argomenti che ti avvicineranno al mondo ispanofono."
       ],
       "ideal_for": {
-        "title": "Questo corso è ideale per te",
+        "title": "Il corso è ideale per te",
         "title_color": "se sei",
         "points": [
           {
-            "title": "?????",
-            "description": "Ti piace imparare al tuo ritmo. Sei autodidatta e apprezzi la libertà di studiare quando vuoi, ma desideri materiali di qualità che davvero favoriscano i tuoi progressi."
+            "title": "Autodidatta",
+            "description": "Ti piace imparare al tuo ritmo. Sei autodidatta e apprezzi la libertà di studiare quando vuoi, ma desideri materiali di qualità che migliorino davvero i tuoi progressi."
           },
           {
-            "title": "?????",
-            "description": "Non puoi impegnarti in un orario fisso per le lezioni e preferisci decidere tu il ritmo di apprendimento."
+            "title": "Qualcuno con orari flessibili",
+            "description": "Non puoi impegnarti in un orario di lezione fisso e preferisci stabilire il tuo ritmo di apprendimento."
           },
           {
-            "title": "?????",
-            "description": "Vuoi imparare la lingua da solo, ma senti che i materiali gratuiti su YouTube o i libri tradizionali non ti portano ai risultati desiderati, quindi vuoi iniziare con qualcosa che ti aiuti davvero."
+            "title": "Chi cerca risultati concreti",
+            "description": "Vuoi imparare la lingua da solo, ma senti che i materiali gratuiti su YouTube o i libri di testo tradizionali non ti portano ai risultati desiderati, quindi vuoi iniziare con qualcosa che ti aiuti davvero."
           }
         ]
       },
-      "modules": {
-        "title": "Programma",
-        "title_color": "dei corsi",
-        "content": [
-          {
-            "title": "Moduli",
-            "description": "Ogni corso è composto da più moduli che affrontano diversi aspetti della lingua.",
-            "icons": {
-              "session": "Sessioni online",
-              "book": "Materiale di lettura"
-            }
-          }
-        ]
-      }
+      "modules": [
+        {
+          "sessions": [4, "Session video"],
+          "homeworks": [1, "Compiti e risorse"],
+          "title": "Concetti di base dello spagnolo",
+          "description": "Inizia il tuo viaggio nello spagnolo con questo modulo introduttivo. Impara le basi della lingua in modo pratico e semplice e acquisisci fiducia per le tue prime conversazioni.",
+          "content": [
+            "Impara le basi dello spagnolo: saluti, presentazioni e frasi essenziali.",
+            "Perfetto per i principianti che vogliono iniziare a parlare dal primo giorno.",
+            "Include un quaderno di esercizi per praticare a casa."
+          ]
+        },
+        {
+          "sessions": [3, "Session video"],
+          "homeworks": [2, "Compiti e risorse"],
+          "title": "Vocabolario quotidiano ed espressioni utili",
+          "description": "Migliora il tuo vocabolario per le situazioni quotidiane e comunica con sicurezza nella vita di tutti i giorni. Questo modulo ti aiuta a comprendere e usare espressioni reali utilizzate dai madrelingua.",
+          "content": [
+            "Amplia il tuo vocabolario per usarlo in situazioni quotidiane: shopping, viaggi e ristoranti.",
+            "Ricevi due esercizi stampabili per rafforzare quanto appreso.",
+            "Impara espressioni tipiche e modi di dire usati dai madrelingua."
+          ]
+        },
+        {
+          "sessions": [2, "Session video"],
+          "homeworks": [1, "Compiti e risorse"],
+          "title": "Grammatica essenziale senza complicazioni",
+          "description": "Padroneggia la grammatica spagnola senza sentirti sopraffatto. Questo modulo ti insegna le regole più importanti in modo chiaro, così potrai parlare correttamente fin dall’inizio.",
+          "content": [
+            "Padroneggia i tempi verbali più importanti in modo semplice e pratico.",
+            "Include un mini-quaderno di esercizi per rivedere e memorizzare le regole.",
+            "Perfetto per chi vuole parlare correttamente senza sentirsi sopraffatto."
+          ]
+        },
+        {
+          "sessions": [1, "Session video"],
+          "homeworks": [3, "Compiti e risorse"],
+          "title": "Comprensione e conversazione",
+          "description": "Migliora le tue abilità di comprensione e conversazione attraverso audio autentici e pratiche guidate. Impara a capire e rispondere con sicurezza nelle conversazioni reali.",
+          "content": [
+            "Ascolta podcast e audio autentici per migliorare la tua comprensione dello spagnolo.",
+            "Esegui esercizi interattivi per praticare la comprensione.",
+            "Ricevi materiale extra: carte di vocabolario, esercizi e un piccolo regalo sorpresa."
+          ]
+        }
+      ]
     },
     "comments": {
-      "title": "Commenti",
-      "summary": ["Ti stanno piacendo le lezioni con noi?", "Lasciaci un commento e aiutaci a migliorare ogni giorno."]
+      "best": "Commenti più apprezzati",
+      "title": "Elementi di valutazione",
+      "button": "Commenta",
+      "modal": {
+        "title": "Lascia il tuo commento",
+        "description": "Come valuteresti la tua esperienza?",
+        "submit": "Invia",
+        "cleanup": "Pulisci",
+        "placeholder": "Scrivi il tuo commento qui...",
+        "loading": "Caricamento..."
+      },
+      "evaluations": {
+        "title": "Valutazioni",
+        "types": [
+          "Professionalità",
+          "Efficienza",
+          "Tempo di risposta dei servizi",
+          "Tempo di contatto amministrativo",
+          "Soddisfazione dell'utente"
+        ]
+      }
     },
     "contact": {
       "title": "Contatti",

@@ -27,6 +27,6 @@ const seoData = getSEOData("comments", currentLang) as PropsSEO;
   structuredData={seoData.structuredData}
 >
   <App data={data}>
-    <CommentsPage data={data.main} />
+    <CommentsPage data={data.main.comments} />
   </App>
 </Layout>

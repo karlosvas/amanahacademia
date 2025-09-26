@@ -7,8 +7,11 @@ import AuthModal from "@/components/common/AuthModal.astro";
 
 // Obtener las traduccciones
 const data = Astro.props.data as HeaderI18n;
-const { lang } = Astro.params;
+let { lang } = Astro.params;
 const theme = Astro.cookies.get("theme")?.value ?? "light";
+
+if (!lang) lang = "es";
+Astro.cookies.set("lang", lang, { path: "/", maxAge: 31536000 });
 ---
 
 <header

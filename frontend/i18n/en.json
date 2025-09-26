@@ -239,44 +239,92 @@
         "You will find not only language courses but also ones about culture, gastronomy and other topics that connect you with the Spanish-speaking world."
       ],
       "ideal_for": {
-        "title": "This course is ideal for you",
+        "title": "The course is ideal for you",
         "title_color": "if you are",
         "points": [
           {
-            "title": "?????",
-            "description": "You like to learn at your own pace. You are self-taught and value the freedom to study whenever you want, but you want quality materials that truly drive your progress."
+            "title": "Self-taught",
+            "description": "You like to learn at your own pace. You are self-taught and value the freedom to study whenever you want, but you want quality materials that truly boost your progress."
           },
           {
-            "title": "?????",
-            "description": "You can't commit to a fixed class schedule and prefer to set your own learning pace."
+            "title": "Someone with flexible schedules",
+            "description": "You cannot commit to a fixed class schedule and prefer to set your own learning pace."
           },
           {
-            "title": "?????",
-            "description": "You want to learn the language on your own, but feel that free materials on YouTube or traditional textbooks don't lead to the results you seek, so you want to start with something that really helps."
+            "title": "Someone looking for real results",
+            "description": "You want to learn the language on your own, but feel that free YouTube materials or traditional textbooks don’t get you the results you want, so you want to start with something that really helps."
           }
         ]
       },
-      "modules": {
-        "title": "Program",
-        "title_color": "of the courses",
-        "content": [
-          {
-            "title": "Modules",
-            "description": "Each course is made up of several modules that address different aspects of the language.",
-            "icons": {
-              "session": "Online sessions",
-              "book": "Reading material"
-            }
-          }
-        ]
-      }
+      "modules": [
+        {
+          "sessions": [4, "Video sessions"],
+          "homeworks": [1, "Assignments and resources"],
+          "title": "Basic Spanish Concepts",
+          "description": "Begin your journey into Spanish with this introductory module. Learn the basics of the language in a practical and simple way, and gain confidence for your first conversations.",
+          "content": [
+            "Learn the basics of the Spanish language: greetings, introductions, and essential phrases.",
+            "Perfect for beginners who want to start speaking from day one.",
+            "Includes a workbook for practicing at home."
+          ]
+        },
+        {
+          "sessions": [3, "Video sessions"],
+          "homeworks": [2, "Assignments and resources"],
+          "title": "Daily Vocabulary and Useful Expressions",
+          "description": "Enhance your vocabulary for everyday situations and communicate confidently in daily life. This module helps you understand and use real expressions used by native speakers.",
+          "content": [
+            "Expand your vocabulary for use in everyday situations: shopping, traveling, and dining.",
+            "Receive two printable exercises to reinforce what you've learned.",
+            "Learn typical expressions and idioms used by native speakers."
+          ]
+        },
+        {
+          "sessions": [2, "Video sessions"],
+          "homeworks": [1, "Assignments and resources"],
+          "title": "Essential Grammar Without Complications",
+          "description": "Master Spanish grammar without feeling overwhelmed. This module teaches the most important rules clearly so you can speak correctly from the start.",
+          "content": [
+            "Master the most important verb tenses in a simple and practical way.",
+            "Includes a mini workbook for reviewing and memorizing the rules.",
+            "Perfect for those who want to speak correctly without feeling overwhelmed."
+          ]
+        },
+        {
+          "sessions": [1, "Video sessions"],
+          "homeworks": [3, "Assignments and resources"],
+          "title": "Listening and Conversation",
+          "description": "Improve your listening and conversation skills through authentic audio and guided practice. Learn to understand and respond confidently in real conversations.",
+          "content": [
+            "Listen to podcasts and authentic audio to improve your Spanish listening skills.",
+            "Do interactive exercises to practice comprehension.",
+            "Receive extra material: vocabulary cards, exercises, and a small surprise gift."
+          ]
+        }
+      ]
     },
     "comments": {
-      "title": "Comments",
-      "summary": [
-        "Are you enjoying your classes with us?",
-        "Leave us your feedback and help us keep improving every day."
-      ]
+      "best": "Most liked comments",
+      "title": "Evaluation items",
+      "button": "Comment",
+      "modal": {
+        "title": "Leave your comment",
+        "description": "How would you rate your experience?",
+        "submit": "Submit",
+        "cleanup": "Clear",
+        "placeholder": "Write your comment here...",
+        "loading": "Loading..."
+      },
+      "evaluations": {
+        "title": "Evaluations",
+        "types": [
+          "Professionalism",
+          "Efficiency",
+          "Service response time",
+          "Administrative contact time",
+          "User satisfaction"
+        ]
+      }
     },
     "contact": {
       "title": "Contact",

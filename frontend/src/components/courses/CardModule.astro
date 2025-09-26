@@ -1,61 +1,62 @@
 ---
 import CameraIcon from "@/assets/camera.svg";
 import BookIcon from "@/assets/book.svg";
-import type { CardModuleProps } from "@/types/types";
-import Image from "astro:assets";
+import type { CardModuleType } from "@/types/types";
 
-const { sessons, homeworks, modulo, content, url } = Astro.props as CardModuleProps;
+const data = Astro.props.data as CardModuleType;
+const index = Astro.props.index as number;
 ---
 
 <div
   class="scroll-fade-in m-auto border border-gray-300 p-5 w-full max-w-md sm:max-w-lg lg:max-w-2xl xl:max-w-3xl rounded-2xl mt-10 mb-[-20px] cursor-pointer transition-all duration-300 hover:shadow-lg"
-  id=`module-${modulo}`
+  id={"module-" + index}
+  data-module={index}
 >
+  <!-- Titulo del módulo -->
   <div class="flex justify-between items-center">
-    <h2 class="text-lg font-semibold text-[--color-red]">Module {modulo}</h2>
-    <svg class="w-5 h-5 transform transition-transform duration-300" id="arrow" fill="currentColor" viewBox="0 0 20 20">
+    <h2 class="text-lg font-semibold text-red">{data.title}</h2>
+    <svg
+      id={`arrow-${index}`}
+      class="w-5 h-5 transform transition-transform duration-300"
+      fill="currentColor"
+      viewBox="0 0 20 20"
+    >
       <path
         fill-rule="evenodd"
         d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
         clip-rule="evenodd"></path>
     </svg>
   </div>
+  <!-- Contenido del módulo -->
   <div class="text-[--color-black]">
     <p class="p-2">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas hic quidem natus, saepe culpa labore fuga sint
-      consequatur, optio laudantium assumenda dolor quaerat.
+      {data.description}
     </p>
     <div class="flex">
-      <div class="border border-gray-100 mr-4">
+      <div class="mr-4">
         <div class="flex justify-center items-center align-middle border border-gray-400 rounded-xl px-3">
           <CameraIcon />
-          <p class="px-2">{sessons} online sessons</p>
+          <p class="px-2">{data.sessions[0]} {data.sessions[1]}</p>
         </div>
       </div>
       <div class="flex justify-center items-center align-middle border border-gray-400 rounded-xl px-3">
         <BookIcon />
-        <div class="px-2">{homeworks} homeworks</div>
+        <div class="px-2">{data.homeworks[0]} {data.homeworks[1]}</div>
       </div>
     </div>
   </div>
 </div>
 <div
-  class="text-[--color-black] w-full max-w-md sm:max-w-lg lg:max-w-2xl xl:max-w-3xl m-auto border border-[--color-light-salmon] border-t-0 border-b-0 rounded-b-xl overflow-hidden transition-all duration-500 ease-in-out pt-5"
-  id=`showcourse-${modulo}`
+  class="text-black w-full max-w-md sm:max-w-lg lg:max-w-2xl xl:max-w-3xl m-auto border border-lightSalmon border-t-0 border-b-0 rounded-b-xl overflow-hidden transition-all duration-500 ease-in-out pt-5"
+  id={`showcourse-${index}`}
   style="max-height: 0;"
 >
   <div class="p-5">
-    <h3 class="font-semibold text-lg mb-3 text-[--color-red]">Contenido del módulo:</h3>
     <ul class="space-y-2">
-      <li>
-        <div class="bg-yellow-200">
-          <img src={url} alt="" class="mb-10 max-w-40 m-auto" />
-        </div>
-      </li>
       {
-        content.map((item) => (
+        data.content.map((item) => (
           <li class="flex items-center">
-            <span class="w-2 h-2 bg-[--color-salmon] rounded-full mr-3" />
+            <span class="w-2 h-2 bg-salmon rounded-full mr-3" />
             {item}
           </li>
         ))
@@ -64,34 +65,36 @@ const { sessons, homeworks, modulo, content, url } = Astro.props as CardModulePr
   </div>
 </div>
 
-<script define:vars={{ modulo }}>
-  const module = document.getElementById(`module-${modulo}`);
-  const showCourse = document.getElementById(`showcourse-${modulo}`);
-  const arrow = document.getElementById("arrow");
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("[data-module]").forEach((moduleDiv) => {
+      const moduleId = moduleDiv.getAttribute("data-module");
+      const showCourse = document.getElementById(`showcourse-${moduleId}`);
+      const arrow = document.getElementById(`arrow-${moduleId}`);
 
-  if (module && showCourse && arrow) {
-    module.addEventListener("click", () => {
-      const isExpanded = showCourse.style.maxHeight !== "0px" && showCourse.style.maxHeight !== "";
+      if (moduleDiv && showCourse && arrow) {
+        moduleDiv.addEventListener("click", () => {
+          const isExpanded = showCourse.style.maxHeight !== "0px" && showCourse.style.maxHeight !== "";
 
-      if (isExpanded) {
-        // Cerrar
-        showCourse.style.maxHeight = "0px";
-        arrow.style.transform = "rotate(0deg)";
-        module.classList.remove("border-[--color-light-salmon]");
-        module.classList.add("border-gray-300");
-        showCourse.classList.add("border-b-0");
-        showCourse.classList.remove("border-b");
-      } else {
-        // Abrir
-        showCourse.style.maxHeight = showCourse.scrollHeight + "px";
-        arrow.style.transform = "rotate(180deg)";
-        module.classList.add("border-[--color-light-salmon]");
-        module.classList.remove("border-gray-300");
-        showCourse.classList.remove("border-b-0");
-        showCourse.classList.add("border-b");
+          if (isExpanded) {
+            showCourse.style.maxHeight = "0px";
+            arrow.style.transform = "rotate(0deg)";
+            moduleDiv.classList.remove("border-[--color-light-salmon]");
+            moduleDiv.classList.add("border-gray-300");
+            showCourse.classList.add("border-b-0");
+            showCourse.classList.remove("border-b");
+          } else {
+            showCourse.style.maxHeight = showCourse.scrollHeight + "px";
+            arrow.style.transform = "rotate(180deg)";
+            moduleDiv.classList.add("border-[--color-light-salmon]");
+            moduleDiv.classList.remove("border-gray-300");
+            showCourse.classList.remove("border-b-0");
+            showCourse.classList.add("border-b");
+          }
+        });
       }
     });
-  }
+  });
 </script>
 
 <style>

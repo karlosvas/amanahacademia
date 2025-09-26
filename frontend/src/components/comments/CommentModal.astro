@@ -1,6 +1,10 @@
 ---
 import Avatar from "@/components/common/Avatar.astro";
+import type { ModalComent } from "@/types/types";
+import StarsSelectionIcon from "@/assets/star-selecion.svg";
+import ArrowSubmitIcon from "@/assets/arrow-submit.svg";
 
+const data = Astro.props.data as ModalComent;
 const edit = (Astro.props.edit as boolean) || false;
 const idCommentShared = Astro.props.id as string;
 
@@ -29,14 +33,14 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
       <!-- Header -->
       <div class="space-y-3">
         <h2 class="text-[var(--color-brown)] text-center font-medium text-lg">
-          {edit ? "Edita tu comentario" : "Deja tu comentario"}
+          {data.title}
         </h2>
       </div>
 
       <!-- Rating Section -->
       <div class="space-y-3 mb-10">
         <label class="block text-[var(--color-brown)] text-center font-medium">
-          ¿Cómo calificarías tu experiencia?
+          {data.description}
         </label>
         <div id={starRatingId} class="flex justify-center space-x-2">
           {
@@ -46,13 +50,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
                 data-star={i + 1}
                 class="star-btn transition-all duration-200 hover:scale-110 outline-none focus:outline-none rounded"
               >
-                <svg
-                  class="w-8 h-8 transition-colors duration-200 text-gray-300 hover:text-yellow-200"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z" />
-                </svg>
+                <StarsSelectionIcon />
               </button>
             ))
           }
@@ -67,7 +65,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
         >
           <Avatar info={null} server={false} />
         </div>
-        <span id={avatarNameId} class="text-black font-medium">Cargando...</span>
+        <span id={avatarNameId} class="text-black font-medium">{data.loading}</span>
       </div>
 
       <!-- Comment Section -->
@@ -75,7 +73,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
         id={commentTextId}
         rows="6"
         class="mt-2 bg-[--color-custom-gray] border-2 border-[--color-custom-gray] rounded-xl py-4 px-2 outline-none w-full focus:border-salmon focus:ring-1 focus:ring-salmon transition-all duration-200 shadow-sm resize-none placeholder-gray-400 text-black"
-        placeholder="Escribe tu mensaje aquí..."></textarea>
+        placeholder={data.placeholder}></textarea>
 
       <!-- Action Buttons -->
       <div class="flex justify-between gap-3 pt-2">
@@ -84,7 +82,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
           id={resetBtnId}
           class="border-2 border-[var(--color-salmon)] text-[var(--color-salmon)] hover:bg-[var(--color-salmon)] hover:text-white transition-all duration-200 font-medium py-2 px-4 rounded-xl"
         >
-          Limpiar
+          {data.cleanup}
         </button>
         <button
           type="submit"
@@ -92,11 +90,8 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
           disabled
           class="bg-[var(--color-light-red)] hover:bg-[var(--color-red)] text-white font-medium py-2 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-            ></path>
-          </svg>
-          {edit ? "Actualizar" : "Enviar"}
+          <ArrowSubmitIcon />
+          {data.submit}
         </button>
       </div>
     </form>
@@ -109,6 +104,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
   import toast from "solid-toast";
   import type { Comment, UpdateComment } from "@/types/bakend-types";
   import { closeModalAnimation } from "@/utils/modals";
+  import { FrontendErrorCode, getErrorMessage } from "@/types/enums";
 
   class CommentModal {
     private id: string;
@@ -272,7 +268,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
         try {
           const currentUser = auth.currentUser;
           if (!currentUser) {
-            toast.error("Debes iniciar sesión para comentar.");
+            toast.error(getErrorMessage(FrontendErrorCode.NEED_AUTHENTICATION));
             return;
           }
 
@@ -291,9 +287,8 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
                   window.location.reload();
                 }, 1000);
               })
-              .catch((error) => {
-                console.error("Error updating comment:", error);
-                toast.error("Error al actualizar el comentario. Inténtalo de nuevo.");
+              .catch((_) => {
+                toast.error(getErrorMessage(FrontendErrorCode.UNKNOWN_ERROR));
               });
           } else {
             const commentObj: Comment = {
@@ -313,14 +308,12 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
                   window.location.reload();
                 }, 1000);
               })
-              .catch((error) => {
-                console.error("Error submitting comment:", error);
-                toast.error("Error al enviar el comentario. Inténtalo de nuevo.");
+              .catch((_) => {
+                toast.error(getErrorMessage(FrontendErrorCode.UNKNOWN_ERROR));
               });
           }
         } catch (error) {
-          console.error("Error setting up form submission:", error);
-          toast.error("Error al configurar el formulario de comentarios.");
+          toast.error(getErrorMessage(FrontendErrorCode.UNKNOWN_ERROR));
         }
 
         this.resetForm();

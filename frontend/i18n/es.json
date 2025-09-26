@@ -263,31 +263,79 @@
           },
           {
             "title": "Quien busca resultados reales",
-            "description": " Deseas aprender el idioma por tu cuenta, pero sientes que los materiales gratuitos de YouTube o los libros de texto tradicionales no te llevan a los resultados que buscas, así que quieres empezar con algo que realmente te ayude."
+            "description": "Deseas aprender el idioma por tu cuenta, pero sientes que los materiales gratuitos de YouTube o los libros de texto tradicionales no te llevan a los resultados que buscas, así que quieres empezar con algo que realmente te ayude."
           }
         ]
       },
-      "modules": {
-        "title": "Programa",
-        "title_color": "de los cursos",
-        "content": [
-          {
-            "title": "Módulos",
-            "description": "Cada curso se compone de varios módulos que abordan diferentes aspectos del idioma.",
-            "icons": {
-              "session": "Sesiones online",
-              "book": "Material de lectura"
-            }
-          }
-        ]
-      }
+      "modules": [
+        {
+          "sessions": [4, "Sesiones de video"],
+          "homeworks": [1, "Tareas y recursos"],
+          "title": "Conceptos básicos del español",
+          "description": "Empieza tu viaje en el español con este módulo introductorio. Aprende las bases del idioma de manera práctica y sencilla, y adquiere confianza para tus primeras conversaciones.",
+          "content": [
+            "Aprende las bases del idioma español: saludos, presentaciones y frases esenciales.",
+            "Perfecto para principiantes que quieren empezar a hablar desde el primer día.",
+            "Incluye un cuaderno de ejercicios para practicar en casa."
+          ]
+        },
+        {
+          "sessions": [3, "Sesiones de video"],
+          "homeworks": [2, "Tareas y recursos"],
+          "title": "Vocabulario diario y expresiones útiles",
+          "description": "Mejora tu vocabulario para situaciones cotidianas y comunícate con seguridad en la vida diaria. Este módulo te ayuda a entender y usar expresiones reales que usan los hablantes nativos.",
+          "content": [
+            "Amplía tu vocabulario para usarlo en situaciones cotidianas: compras, viajes y restaurante.",
+            "Recibe dos ejercicios imprimibles para reforzar lo aprendido.",
+            "Aprende expresiones típicas y modismos que usan los hablantes nativos."
+          ]
+        },
+        {
+          "sessions": [2, "Sesiones de video"],
+          "homeworks": [1, "Tareas y recursos"],
+          "title": "Gramática esencial sin complicaciones",
+          "description": "Domina la gramática del español sin sentirte abrumado. Este módulo te enseña las reglas más importantes de manera clara, para que puedas hablar correctamente desde el principio.",
+          "content": [
+            "Domina los tiempos verbales más importantes de forma sencilla y práctica.",
+            "Incluye un mini-libro de ejercicios para repasar y memorizar las reglas.",
+            "Perfecto para quienes quieren hablar correctamente sin abrumarse."
+          ]
+        },
+        {
+          "sessions": [1, "Sesiones de video"],
+          "homeworks": [3, "Tareas y recursos"],
+          "title": "Comprensión auditiva y conversación",
+          "description": "Mejora tu comprensión auditiva y habilidades conversacionales a través de audios auténticos y prácticas guiadas. Aprende a entender y responder con confianza en conversaciones reales.",
+          "content": [
+            "Escucha podcasts y audios auténticos para mejorar tu oído en español.",
+            "Realiza ejercicios interactivos para practicar la comprensión.",
+            "Recibe material extra: tarjetas de vocabulario, ejercicios y un pequeño regalo sorpresa."
+          ]
+        }
+      ]
     },
     "comments": {
-      "title": "Comentarios",
-      "summary": [
-        "¿Disfrutas de tus clases con nosotros?",
-        "Déjanos tu comentario y ayúdanos a seguir mejorando cada día."
-      ]
+      "best": "Comentarios con más me gusta",
+      "title": "Elementos de evaluación",
+      "button": "Comentar",
+      "modal": {
+        "title": "Deja tu comentario",
+        "description": "¿Cómo calificarías tu experiencia?",
+        "submit": "Enviar",
+        "cleanup": "Limpiar",
+        "placeholder": "Escribe tu comentario aquí...",
+        "loading": "Cargando..."
+      },
+      "evaluations": {
+        "title": "Valoraciones",
+        "types": [
+          "Profesionalismo",
+          "Eficiencia",
+          "Respuesta de tiempo de los servicios",
+          "Tiempo de contacto administrativo",
+          "Satisfacción del usuario"
+        ]
+      }
     },
     "contact": {
       "title": "Contacto",

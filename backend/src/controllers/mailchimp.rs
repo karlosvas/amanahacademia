@@ -1,7 +1,7 @@
 use {
     crate::{
         models::{
-            mailchimp::{AddContactResponse, Contact, ErrorMailchimp},
+            mailchimp::{AddContactResponse, Contact},
             response::ResponseAPI,
         },
         services::mailchimp::handle_mailchimp_response,

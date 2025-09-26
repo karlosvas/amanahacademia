@@ -6,6 +6,9 @@ import type { Comment, Result } from "@/types/bakend-types";
 import { ApiService } from "@/services/helper";
 import CommentModal from "@/components/comments/CommentModal.astro";
 import { processComments } from "@/services/comments";
+import type { CommentI18n } from "@/types/types";
+
+const data = Astro.props.data as CommentI18n;
 
 const helper = new ApiService();
 let comments: Comment[] = [];
@@ -54,13 +57,13 @@ try {
       <StarGroup star={mediaStars} size={50} />
     </div>
     <h5 class="text-salmon ml-2 sm:ml-3 mb-10 sm:mb-4 font-semibold text-sm sm:text-base">
-      Comentarios con mas me gusta
+      {data.best}
     </h5>
     <div class="space-y-3 sm:space-y-4">
       {
         bestComments.length > 0 &&
           bestComments.map((comment: Comment) => {
-            return <CardComment data={comment} id={"best-" + comment.id} />;
+            return <CardComment comment={comment} id={"best-" + comment.id} data={data.modal} />;
           })
       }
     </div>
@@ -77,12 +80,15 @@ try {
            py-2 sm:py-3 px-4 sm:px-6 shadow-lg hover:shadow-xl transform
             sm:mb-6 mt-6 sm:mt-8 lg:mt-0"
     >
-      Comentar
+      {data.button}
     </button>
     <div
       class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4 lg:gap-6 justify-items-center mt-10"
     >
-      {comments.length > 0 && comments.map((comment: Comment) => <CardComment data={comment} id={comment.id} />)}
+      {
+        comments.length > 0 &&
+          comments.map((comment: Comment) => <CardComment comment={comment} id={comment.id} data={data.modal} />)
+      }
     </div>
   </div>
 
@@ -92,20 +98,20 @@ try {
   >
     <!-- Header -->
     <div class="px-3 sm:px-4 py-2 sm:py-3 bg-salmon">
-      <h5 class="text-xs sm:text-sm font-semibold">Elementos de evaluación</h5>
+      <h5 class="text-xs sm:text-sm font-semibold">{data.evaluations.title}</h5>
     </div>
 
     <!-- Contenido -->
     <div class="p-3 sm:p-4 space-y-8 sm:space-y-10 lg:space-y-14 pb-6 sm:pb-8 lg:pb-10">
-      <Stadistics title="Profesionalismo" percentage="70" />
-      <Stadistics title="Eficiencia" percentage="50" />
-      <Stadistics title="Respuesta de tiempo de los servicios" percentage="90" />
-      <Stadistics title="Tiempo de contacto administrativo" percentage="60" />
-      <Stadistics title="Satisfacción del usuario" percentage="89" />
+      <Stadistics title={data.evaluations.types[0]} percentage="70" />
+      <Stadistics title={data.evaluations.types[1]} percentage="50" />
+      <Stadistics title={data.evaluations.types[2]} percentage="90" />
+      <Stadistics title={data.evaluations.types[3]} percentage="60" />
+      <Stadistics title={data.evaluations.types[4]} percentage="89" />
     </div>
   </div>
 </main>
-<CommentModal id={"comment-modal"} edit={false} />
+<CommentModal id={"comment-modal"} edit={false} data={data.modal} />
 
 <script>
   // Importa la instancia de autenticación de Firebase y el listener de cambios de usuario
@@ -115,6 +121,7 @@ try {
   import { toast } from "solid-toast";
   import { updateLikeState } from "@/services/comments";
   import { showModalAnimation } from "@/utils/modals";
+  import { FrontendErrorCode, getErrorMessage } from "@/types/enums";
 
   // Espera a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", function () {
@@ -163,7 +170,7 @@ try {
           }, 300);
         } else {
           // Si el usuario no está logueado, muestra un toast de error
-          toast.error("Debes iniciar sesión para dar like");
+          toast.error(getErrorMessage(FrontendErrorCode.NEED_AUTHENTICATION));
         }
       });
     });
@@ -182,7 +189,7 @@ try {
     const openBtn = document.getElementById("open-comment-modal");
     openBtn?.addEventListener("click", () => {
       if (!auth.currentUser) {
-        toast.error("Debes iniciar sesión para comentar");
+        toast.error(getErrorMessage(FrontendErrorCode.NEED_AUTHENTICATION));
         return;
       }
       openCommentModal("comment-modal"); // donde "123" es tu ID único

@@ -147,12 +147,18 @@ export type ContactI18n = {
 export type ArticleI18n = {
   title: string;
   summary: string[];
-  articles: [
-    {
-      title: string;
-      summary: string[];
-    },
-  ];
+  articles: {
+    title: string;
+    summary: string[];
+  }[];
+};
+
+export type CardModuleType = {
+  sessions: [number, string];
+  homeworks: [number, string];
+  title: string;
+  description: string;
+  content: string[];
 };
 
 export type CourseI18n = {
@@ -161,32 +167,30 @@ export type CourseI18n = {
   ideal_for: {
     title: string;
     title_color: string;
-    points: [
-      {
-        title: string;
-        description: string;
-      },
-    ];
+    points: {
+      title: string;
+      description: string;
+    }[];
   };
-  modules: {
-    title: string;
-    title_color: string;
-    content: [
-      {
-        title: string;
-        description: string;
-        icons: {
-          session: string;
-          book: string;
-        };
-      },
-    ];
-  };
+  modules: CardModuleType[];
+};
+
+export type ModalComent = {
+  title: string;
+  description: string;
+  submit: string;
+  cleanup: string;
+  placeholder: string;
 };
 
 export type CommentI18n = {
-  title: string;
-  summary: string[];
+  best: string;
+  button: string;
+  modal: ModalComent;
+  evaluations: {
+    title: string;
+    types: string[];
+  };
 };
 
 export type FooterI18n = {
@@ -194,14 +198,6 @@ export type FooterI18n = {
   privacy_policy: string;
   terms_of_service: string;
 };
-
-export interface CardModuleProps {
-  sessons: number;
-  homeworks: number;
-  modulo: number;
-  content: string[];
-  url: string;
-}
 
 // Props para SEO de los componentes
 export type StructuredDataType = "organization" | "course" | "webpage";

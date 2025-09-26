@@ -252,44 +252,92 @@
         "Sie finden nicht nur Sprachkurse, sondern auch Kurse zu Kultur, Gastronomie und weiteren Themen, die Sie mit der spanischsprachigen Welt verbinden."
       ],
       "ideal_for": {
-        "title": "Dieser Kurs ist ideal für Sie",
-        "title_color": "wenn Sie",
+        "title": "Der Kurs ist ideal für dich",
+        "title_color": "wenn du",
         "points": [
           {
-            "title": "?????",
-            "description": "Sie lernen gern in Ihrem eigenen Tempo. Sie sind autodidaktisch und schätzen die Freiheit, zu lernen, wann Sie möchten, möchten aber Materialien von hoher Qualität, die Ihren Fortschritt wirklich vorantreiben."
+            "title": "Autodidakt",
+            "description": "Du lernst gerne in deinem eigenen Tempo. Du bist autodidaktisch und schätzt die Freiheit, zu lernen, wann immer du willst, aber du möchtest qualitativ hochwertige Materialien, die deinen Fortschritt wirklich fördern."
           },
           {
-            "title": "?????",
-            "description": "Sie können sich nicht auf einen festen Stundenplan festlegen und ziehen es vor, Ihr Lerntempo selbst zu bestimmen."
+            "title": "Jemand mit flexiblen Zeitplänen",
+            "description": "Du kannst dich nicht an einen festen Stundenplan halten und bevorzugst es, dein Lerntempo selbst zu bestimmen."
           },
           {
-            "title": "?????",
-            "description": "Sie möchten die Sprache eigenständig lernen, haben aber das Gefühl, dass kostenlose Materialien auf YouTube oder traditionelle Lehrbücher nicht die gewünschten Ergebnisse bringen, und möchten daher mit etwas beginnen, das Ihnen wirklich hilft."
+            "title": "Jemand, der echte Ergebnisse sucht",
+            "description": "Du möchtest die Sprache selbstständig lernen, fühlst aber, dass kostenlose YouTube-Materialien oder traditionelle Lehrbücher dich nicht zu den gewünschten Ergebnissen bringen, also möchtest du mit etwas starten, das wirklich hilft."
           }
         ]
       },
-      "modules": {
-        "title": "Programm",
-        "title_color": "der Kurse",
-        "content": [
-          {
-            "title": "Module",
-            "description": "Jeder Kurs besteht aus mehreren Modulen, die verschiedene Aspekte der Sprache behandeln.",
-            "icons": {
-              "session": "Online-Sitzungen",
-              "book": "Lesematerial"
-            }
-          }
-        ]
-      }
+      "modules": [
+        {
+          "sessions": [4, "Video-Sitzungen"],
+          "homeworks": [1, "Hausaufgaben und Ressourcen"],
+          "title": "Grundlagen der spanischen Sprache",
+          "description": "Beginnen Sie Ihre Reise in die spanische Sprache mit diesem Einführungskurs. Lernen Sie die Grundlagen der Sprache auf praktische und einfache Weise und gewinnen Sie Vertrauen für Ihre ersten Gespräche.",
+          "content": [
+            "Lernen Sie die Grundlagen der spanischen Sprache: Begrüßungen, Vorstellungen und grundlegende Sätze.",
+            "Perfekt für Anfänger, die ab dem ersten Tag sprechen möchten.",
+            "Beinhaltet ein Übungsheft für das Üben zu Hause."
+          ]
+        },
+        {
+          "sessions": [3, "Video-Sitzungen"],
+          "homeworks": [2, "Hausaufgaben und Ressourcen"],
+          "title": "Täglicher Wortschatz und nützliche Ausdrücke",
+          "description": "Verbessern Sie Ihren Wortschatz für alltägliche Situationen und kommunizieren Sie sicher im täglichen Leben. Dieser Kurs hilft Ihnen, echte Ausdrücke zu verstehen und zu verwenden, die von Muttersprachlern genutzt werden.",
+          "content": [
+            "Erweitern Sie Ihren Wortschatz für den Einsatz in alltäglichen Situationen: Einkaufen, Reisen und Restaurantbesuche.",
+            "Erhalten Sie zwei ausdruckbare Übungen zur Verstärkung des Gelernten.",
+            "Lernen Sie typische Ausdrücke und Redewendungen, die von Muttersprachlern verwendet werden."
+          ]
+        },
+        {
+          "sessions": [2, "Video-Sitzungen"],
+          "homeworks": [1, "Hausaufgaben und Ressourcen"],
+          "title": "Essentielle Grammatik ohne Komplikationen",
+          "description": "Meistern Sie die spanische Grammatik, ohne sich überfordert zu fühlen. Dieser Kurs lehrt Ihnen die wichtigsten Regeln auf klare Weise, damit Sie von Anfang an korrekt sprechen können.",
+          "content": [
+            "Meistern Sie die wichtigsten Verbzeiten auf einfache und praktische Weise.",
+            "Beinhaltet ein kleines Übungsbuch zum Überprüfen und Auswendiglernen der Regeln.",
+            "Perfekt für diejenigen, die korrekt sprechen möchten, ohne sich überfordert zu fühlen."
+          ]
+        },
+        {
+          "sessions": [1, "Video-Sitzungen"],
+          "homeworks": [3, "Hausaufgaben und Ressourcen"],
+          "title": "Hörverständnis und Konversation",
+          "description": "Verbessern Sie Ihr Hörverständnis und Ihre Konversationsfähigkeiten durch authentische Audios und geführte Übungen. Lernen Sie, mit Vertrauen in echten Gesprächen zu verstehen und zu antworten.",
+          "content": [
+            "Hören Sie Podcasts und authentische Audios, um Ihr Gehör im Spanischen zu verbessern.",
+            "Führen Sie interaktive Übungen zur Verbesserung des Hörverständnisses durch.",
+            "Erhalten Sie zusätzliches Material: Vokabelkarten, Übungen und ein kleines Überraschungsgeschenk."
+          ]
+        }
+      ]
     },
     "comments": {
-      "title": "Kommentare",
-      "summary": [
-        "Genießen Sie Ihren Unterricht bei uns?",
-        "Hinterlassen Sie uns Ihr Feedback und helfen Sie uns, uns täglich zu verbessern."
-      ]
+      "best": "Kommentare mit den meisten Likes",
+      "title": "Bewertungselemente",
+      "button": "Kommentieren",
+      "modal": {
+        "title": "Hinterlasse deinen Kommentar",
+        "description": "Wie würdest du deine Erfahrung bewerten?",
+        "submit": "Absenden",
+        "cleanup": "Bereinigen",
+        "placeholder": "Schreibe deinen Kommentar hier...",
+        "loading": "Wird geladen..."
+      },
+      "evaluations": {
+        "title": "Bewertungen",
+        "types": [
+          "Professionalität",
+          "Effizienz",
+          "Reaktionszeit der Dienste",
+          "Dauer des administrativen Kontakts",
+          "Zufriedenheit der Benutzer"
+        ]
+      }
     },
     "contact": {
       "title": "Kontakt",
