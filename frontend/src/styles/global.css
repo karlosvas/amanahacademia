@@ -24,64 +24,23 @@
   background-color: var(--color-brown, #fff);
   color: var(--color-white, #fff);
   outline-color: var(--color-white, #fff);
-  .glow-shadow {
-    box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.8);
-  }
   --color-custom-gray: #4b5563; /* Color personalizado */
-  --color-red: #ff4d4f; /* Rojo acento más vivo */
-  --color-light-red: #ff6b6b; /* Rojo suave brillante */
+  --color-red: #eb5e61; /* Rojo acento más vivo */
+  --color-light-red: #fe9090; /* Rojo suave brillante */
   --color-salmon: #ff8c7a; /* Salmón adaptado */
   --color-light-salmon: #ffb5a7; /* Versión clara para destacar */
   --color-light-brown: #a6786d; /* Marrón cálido apagado */
-  --color-brown: #593737; /* Marrón profundo */
+  --color-brown: #5f4949; /* Marrón profundo */
   --color-smooth-brown: #3a2b2b; /* Fondo marrón oscuro muy suave */
   --color-white: #131313; /* Blanco cálido (no puro) */
   --color-black: #f3f3f3; /* Fondo base casi negro */
-  --color-background: #593737;
-  --brand-primary: rgb(138, 180, 248);
-  --brand-secondary: rgb(193, 168, 226);
-  --brand-alternative: rgb(136, 186, 191);
-  --background-site: rgb(0, 0, 0);
-  --background-code: rgb(12, 12, 12);
-  --text-body: rgb(222, 222, 222);
-  --text-comment: rgb(170, 170, 170);
-  --text-high-contrast: rgb(230, 230, 230);
-  --text-medium-contrast: rgb(202, 202, 202);
-  --text-low-contrast: rgb(170, 170, 170);
-  --detail-high-contrast: rgb(101, 101, 101);
-  --detail-medium-contrast: rgb(25, 25, 25);
-  --detail-low-contrast: rgb(21, 21, 21);
-  --admonition-note: rgb(138, 180, 248);
-  --admonition-warning: rgb(253, 186, 116);
-  --admonition-danger: rgb(220, 38, 38);
-  --brand-primary-rgb-value: 138, 180, 248;
-  --brand-secondary-rgb-value: 193, 168, 226;
-  --brand-alternative-rgb-value: 136, 186, 191;
-  --background-site-rgb-value: 0, 0, 0;
-  --background-code-rgb-value: 12, 12, 12;
-  --text-body-rgb-value: 222, 222, 222;
-  --text-comment-rgb-value: 170, 170, 170;
-  --text-high-contrast-rgb-value: 230, 230, 230;
-  --text-medium-contrast-rgb-value: 202, 202, 202;
-  --text-low-contrast-rgb-value: 170, 170, 170;
-  --detail-high-contrast-rgb-value: 101, 101, 101;
-  --detail-medium-contrast-rgb-value: 25, 25, 25;
-  --detail-low-contrast-rgb-value: 21, 21, 21;
-  --admonition-note-rgb-value: 138, 180, 248;
-  --admonition-warning-rgb-value: 253, 186, 116;
-  --admonition-danger-rgb-value: 220, 38, 38;
+  --color-background: #5f4949;
 }
 
 .light {
   background-color: var(--color-background);
   color: var(--color-black, #000);
   outline-color: var(--color-black, #000);
-  transition:
-    background-color 0.3s ease-in-out,
-    color 0.3s ease-in-out;
-  .glow-shadow {
-    box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.8);
-  }
   --color-custom-gray: #f1faff;
   --color-red: #6d0006;
   --color-light-red: #b2443a;
@@ -91,40 +50,8 @@
   --color-brown: #8a4141;
   --color-smooth-brown: #fee8d6;
   --color-white: #fff4e1;
-  --color-black: #000;
+  --color-black: #0000;
   --color-background: #fff4e1;
-  --brand-primary: rgb(47, 112, 193);
-  --brand-secondary: rgb(116, 97, 195);
-  --brand-alternative: rgb(19, 120, 134);
-  --background-site: rgb(249, 249, 249);
-  --background-code: rgb(244, 244, 244);
-  --text-body: rgb(54, 49, 61);
-  --text-comment: rgb(99, 94, 105);
-  --text-high-contrast: rgb(49, 49, 49);
-  --text-medium-contrast: rgb(99, 94, 105);
-  --text-low-contrast: rgb(116, 109, 118);
-  --detail-high-contrast: rgb(192, 192, 192);
-  --detail-medium-contrast: rgb(234, 234, 234);
-  --detail-low-contrast: rgb(240, 240, 242);
-  --admonition-note: rgb(46, 109, 188);
-  --admonition-warning: rgb(255, 196, 9);
-  --admonition-danger: rgb(220, 38, 38);
-  --brand-primary-rgb-value: 47, 112, 193;
-  --brand-secondary-rgb-value: 116, 97, 195;
-  --brand-alternative-rgb-value: 19, 120, 134;
-  --background-site-rgb-value: 249, 249, 249;
-  --background-code-rgb-value: 244, 244, 244;
-  --text-body-rgb-value: 54, 49, 61;
-  --text-comment-rgb-value: 99, 94, 105;
-  --text-high-contrast-rgb-value: 49, 49, 49;
-  --text-medium-contrast-rgb-value: 99, 94, 105;
-  --text-low-contrast-rgb-value: 116, 109, 118;
-  --detail-high-contrast-rgb-value: 192, 192, 192;
-  --detail-medium-contrast-rgb-value: 234, 234, 234;
-  --detail-low-contrast-rgb-value: 240, 240, 242;
-  --admonition-note-rgb-value: 46, 109, 188;
-  --admonition-warning-rgb-value: 255, 196, 9;
-  --admonition-danger-rgb-value: 220, 38, 38;
 }
 
 html,

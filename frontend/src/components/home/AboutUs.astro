@@ -56,11 +56,11 @@ const data = Astro.props.data as HomeI18n;
     >
       {data.focus.title}
     </h3>
-    <div class="flex flex-col sm:flex-row md:flex-row gap-4 sm:gap-6 mb-8 sm:mb-10 justify-center">
+    <div class="flex flex-col md:flex-row gap-4 sm:gap-6 mb-8 sm:mb-10 justify-center">
       <InfoCard colourRectangle="bg-salmon">
         <span slot="icon"><IconPeople /></span>
         <span slot="title">{data.focus.cards[0].title}</span>
-        <span slot="description"> {data.focus.cards[0].description}</span>
+        <span slot="description">{data.focus.cards[0].description}</span>
       </InfoCard>
       <InfoCard colourRectangle="bg-lightRed">
         <span slot="icon"><IconDiana /></span>

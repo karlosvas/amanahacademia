@@ -8,6 +8,9 @@ import type { ModalI18n } from "@/types/types";
 import GoogleIcon from "@/assets/google.svg";
 
 const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+if (!TURNSTILE_SITE_KEY) {
+  console.warn("No TURNSTILE_SITE_KEY provided");
+}
 const data = Astro.props.data as ModalI18n;
 ---
 
@@ -37,12 +40,16 @@ const data = Astro.props.data as ModalI18n;
     </div>
     <!-- Form -->
     <form class="space-y-4" id="loginForm">
-      {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="invisible" />}
+      {
+        TURNSTILE_SITE_KEY && (
+          <div id="turnstile-login" class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="invisible" />
+        )
+      }
       <!-- Email Input -->
       <div class="relative">
         <input
           type="email"
-          placeholder="Email"
+          placeholder={data.utils.labels.email}
           name="email"
           class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown font-normal"
         />
@@ -54,7 +61,7 @@ const data = Astro.props.data as ModalI18n;
       <div class="relative">
         <input
           type="password"
-          placeholder="Contraseña"
+          placeholder={data.utils.labels.password}
           name="password"
           class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
@@ -137,12 +144,16 @@ const data = Astro.props.data as ModalI18n;
     </div>
     <!-- Form -->
     <form class="space-y-4" id="registerForm">
-      {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="invisible" />}
+      {
+        TURNSTILE_SITE_KEY && (
+          <div id="turnstile-register" class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="invisible" />
+        )
+      }
       <!-- Nombre Input -->
       <div class="relative">
         <input
           type="text"
-          placeholder="Nombre"
+          placeholder={data.utils.labels.name}
           name="name"
           class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
@@ -152,7 +163,7 @@ const data = Astro.props.data as ModalI18n;
       <div class="relative">
         <input
           type="email"
-          placeholder="Email"
+          placeholder={data.utils.labels.email}
           name="email"
           class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
@@ -164,7 +175,7 @@ const data = Astro.props.data as ModalI18n;
       <div class="relative">
         <input
           type="password"
-          placeholder="Contraseña"
+          placeholder={data.utils.labels.password}
           name="password"
           class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
@@ -241,6 +252,13 @@ const data = Astro.props.data as ModalI18n;
   // Estado actual de registro o Login
   let isRegister = false;
 
+  function updateTurnstileVisibility() {
+    const loginWidget = document.getElementById("turnstile-login");
+    const registerWidget = document.getElementById("turnstile-register");
+    if (loginWidget) loginWidget.style.display = isRegister ? "none" : "";
+    if (registerWidget) registerWidget.style.display = isRegister ? "" : "none";
+  }
+
   // Esperamos a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", () => {
     // Referencias a elementos del DOM
@@ -259,6 +277,7 @@ const data = Astro.props.data as ModalI18n;
       link.addEventListener("click", (e) => {
         e.preventDefault();
         isRegister = toggleLoginToRegister(authModalLogin, authModalRegister, formLogin, formRegister, isRegister);
+        updateTurnstileVisibility();
       });
     });
 

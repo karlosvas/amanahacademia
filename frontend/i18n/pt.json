@@ -328,5 +328,80 @@
     ],
     "thank_you_title": "Obrigado por tornar a Amanah Academia mais segura!",
     "thank_you_desc": "Apreciamos profundamente o tempo, esforço e expertise que nossos pesquisadores dedicaram para melhorar nossa plataforma. Seu trabalho responsável preveniu incidentes potenciais e melhorou a experiência para todos os nossos usuários."
+  },
+  "info": {
+    "header": {
+      "title": "Amanah Academia",
+      "subtitle": "A sua privacidade e confiança são a nossa prioridade. Saiba como protegemos os seus dados e os seus direitos."
+    },
+    "privacyPolicy": {
+      "title": "Política de Privacidade",
+      "sections": {
+        "informationCollection": {
+          "title": "Informações que recolhemos e sua utilização",
+          "content": "Na Amanah Academia recolhemos vários tipos de informações para fornecer os nossos serviços educativos: Informações pessoais: Nome completo, endereço de email, número de telefone, data de nascimento. Informações académicas: Histórico educacional, cursos de interesse, progresso nos cursos, notas. Informações de pagamento: Dados necessários para processar as transações, sendo que os detalhes dos cartões são geridos por processadores externos. Dados técnicos: Endereço IP, tipo de navegador, páginas visitadas, tempo de permanência, dispositivo utilizado. Conteúdo gerado: Trabalhos enviados, participação em fóruns, comentários e outros conteúdos criados na plataforma. Utilizamos as suas informações para: Fornecer, manter e melhorar os serviços. Personalizar a experiência de aprendizagem. Processar pagamentos e gerir a subscrição. Comunicar atualizações e novos cursos. Responder às suas questões e dar suporte técnico. Realizar análises internas. Cumprir obrigações legais."
+        },
+        "dataProtection": {
+          "title": "Proteção de dados",
+          "content": "Implementamos várias medidas de segurança: Encriptação SSL/TLS. Armazenamento seguro em servidores protegidos. Acesso restrito apenas a pessoal autorizado. Auditorias periódicas de segurança. Cópias de segurança para prevenir perdas. Nenhum sistema é 100% seguro. Se ocorrer uma violação, notificaremos conforme a lei. Os seus direitos incluem: acesso, retificação, eliminação, limitação do tratamento, portabilidade e oposição. Para exercer, contacte-nos em support@amanahacademia.com. Responderemos no prazo máximo de 30 dias."
+        },
+        "communications": {
+          "title": "Comunicações e Newsletter",
+          "content": "Podemos utilizar o seu email para: Enviar informações sobre cursos e atualizações. Partilhar dicas e recursos educativos. Informar sobre promoções e descontos. Enviar lembretes sobre prazos e eventos. Pode cancelar a subscrição a qualquer momento através do link em cada email ou nas definições da conta. Em alguns casos, podemos partilhar informações com: Fornecedores de serviços, instrutores, autoridades legais ou parceiros educativos (com consentimento). Nunca vendemos dados pessoais a terceiros."
+        },
+        "cookies": {
+          "title": "Cookies e tecnologias semelhantes",
+          "content": "Utilizamos cookies para: Guardar preferências, autenticar sessões, analisar utilização, personalizar conteúdos. Pode gerir cookies no navegador. Como operamos globalmente, os dados podem ser transferidos para países com leis diferentes. Aplicamos medidas de segurança como cláusulas contratuais padrão."
+        },
+        "policyChanges": {
+          "title": "Alterações a esta política",
+          "content": "Guardamos os dados apenas pelo tempo necessário. Podemos atualizar esta política periodicamente e notificaremos quando houver alterações relevantes. Recomendamos rever esta página regularmente."
+        }
+      }
+    },
+    "termsConditions": {
+      "title": "Termos e Condições",
+      "sections": {
+        "platformUse": {
+          "title": "Utilização da plataforma",
+          "content": "Ao registar-se, aceita usar a plataforma de forma responsável e legal. Deve fornecer informações verdadeiras, usar os recursos apenas para aprendizagem pessoal, não partilhar credenciais, respeitar direitos de autor, não prejudicar a plataforma e manter respeito nos fóruns. Podemos suspender ou encerrar contas em caso de violação."
+        },
+        "intellectualProperty": {
+          "title": "Propriedade intelectual",
+          "content": "Todo o conteúdo é propriedade da Amanah Academia ou licenciantes. O utilizador recebe apenas uma licença pessoal e limitada. Não pode redistribuir, modificar ou usar com fins comerciais. O conteúdo criado pelo utilizador continua a ser seu, mas concede-nos licença para utilizá-lo nos serviços."
+        },
+        "liabilityLimitation": {
+          "title": "Limitação de responsabilidade",
+          "content": "Amanah Academia fornece serviços de qualidade, mas não garante resultados. Não nos responsabilizamos por danos indiretos, interrupções, imprecisões de conteúdos de terceiros ou uso indevido. A responsabilidade máxima não excederá o valor pago nos últimos seis meses."
+        },
+        "paymentsSubscriptions": {
+          "title": "Pagamentos e subscrições",
+          "content": "Alguns cursos exigem pagamento. Aceita fornecer dados corretos e autorizar a cobrança. As subscrições renovam-se automaticamente salvo cancelamento. Oferecemos garantia de reembolso de 14 dias na maioria dos cursos."
+        },
+        "applicableLaw": {
+          "title": "Lei aplicável e resolução de litígios",
+          "content": "Os termos regem-se pelas leis de Espanha. Conflitos serão resolvidos por negociação, depois mediação e, se necessário, pelos tribunais de Madrid."
+        }
+      }
+    },
+    "license": {
+      "title": "Licença",
+      "sections": {
+        "usageLicense": {
+          "title": "Licença de utilização",
+          "content": "Ao registar-se, recebe uma licença limitada e pessoal para aceder aos cursos e utilizar os conteúdos para fins educativos. Pode visualizar cursos inscritos, aceder a materiais e participar em fóruns. A licença termina em caso de violação ou cancelamento."
+        },
+        "restrictions": {
+          "title": "Restrições",
+          "content": "É proibido copiar, distribuir, modificar, usar com fins comerciais, fazer engenharia reversa ou contornar proteções. Uso não autorizado resulta no encerramento da conta e possíveis ações legais. Para detalhes completos visite o nosso GitHub:",
+          "button": "Ver Licença Completa"
+        }
+      }
+    },
+    "securityHallOfFame": {
+      "title": "Security Hall Of Fame",
+      "content": "A Amanah Academia valoriza os investigadores de segurança que nos ajudam a melhorar a plataforma. O nosso \"Security Hall of Fame\" reconhece quem reporta vulnerabilidades de forma responsável. Caso encontre alguma, envie para support@amanahacademia.com. Veja a lista completa aqui:",
+      "button": "Security Hall Of Fame"
+    }
   }
 }

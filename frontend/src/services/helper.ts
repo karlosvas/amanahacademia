@@ -8,6 +8,7 @@ import {
   type AddContactResponse,
   type UserRequest,
   type UpdateComment,
+  type ContactMailchimp,
 } from "@/types/bakend-types";
 import { ApiErrorType } from "@/enums/enums";
 import { ApiError, ErrorHandler } from "@/services/globalHandler";
@@ -253,13 +254,13 @@ export class ApiService {
 
   //////////////////// Mailchimp /////////////////////
   // Añadir usuarios a la newsletter
-  async addContactToNewsletter(email: string): Promise<Result<AddContactResponse>> {
+  async addContactToNewsletter(contactMailchimp: ContactMailchimp): Promise<Result<AddContactResponse>> {
     let res = await fetch(`${this.baseUrl}/mailchimp/add_newsletter`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(email),
+      body: JSON.stringify(contactMailchimp),
     });
     return this.handleResponse<AddContactResponse>(res);
   }

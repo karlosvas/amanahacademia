@@ -256,166 +256,82 @@ export type SecurityHallOfFameI18n = {
   thank_you_desc: string;
 };
 
-interface PrivacyPolicyItem {
-  title: string;
-  description: string;
-}
-
-interface ContactItem {
-  type: string;
-  value: string;
-  link?: string;
-}
-
-interface InfoPrivacyPolicySection {
-  informationCollection: {
-    title: string;
-    description: string;
-    items: PrivacyPolicyItem[];
-  };
-  informationUsage: {
-    title: string;
-    description: string;
-    items: string[];
-  };
-  dataProtection: {
-    title: string;
-    description: string;
-    items: PrivacyPolicyItem[];
-    additionalInfo: string;
-  };
-  userRights: {
-    title: string;
-    description: string;
-    items: PrivacyPolicyItem[];
-    contactInfo: string;
-    email: string;
-  };
-  communications: {
-    title: string;
-    description: string;
-    items: string[];
-    unsubscribeInfo: string;
-  };
-  thirdPartySharing: {
-    title: string;
-    description: string;
-    items: PrivacyPolicyItem[];
-    noSellingInfo: string;
-  };
-  cookies: {
-    title: string;
-    description: string;
-    items: string[];
-    managementInfo: string;
-  };
-  internationalTransfers: {
-    title: string;
-    description: string;
-    additionalInfo: string;
-  };
-  dataRetention: {
-    title: string;
-    description: string;
-    additionalInfo: string;
-  };
-  policyChanges: {
-    title: string;
-    description: string;
-    additionalInfo: string;
-  };
-  contact: {
-    title: string;
-    description: string;
-    items: ContactItem[];
-  };
-}
-
-interface InfoTermsAndConditionsSection {
-  platformUsage: {
-    title: string;
-    description: string;
-    items: string[];
-    consequence: string;
-  };
-  intellectualProperty: {
-    title: string;
-    description: string;
-    licenseDescription: string;
-    exclusions: string[];
-    userContent: string;
-  };
-  liabilityLimitation: {
-    title: string;
-    description: string;
-    nonResponsibility: string;
-    items: string[];
-    liabilityLimit: string;
-  };
-  payments: {
-    title: string;
-    description: string;
-    items: string[];
-    subscriptionInfo: string;
-  };
-  governingLaw: {
-    title: string;
-    description: string;
-    disputeResolution: string;
-    jurisdiction: string;
-  };
-}
-
-interface InfoLicenseSection {
-  usageLicense: {
-    title: string;
-    description: string;
-    includes: string;
-    items: string[];
-    termination: string;
-  };
-  restrictions: {
-    title: string;
-    description: string;
-    items: string[];
-    consequence: string;
-  };
-  licenseLink: {
-    title: string;
-    description: string;
-    buttonText: string;
-    url: string;
-  };
-}
-
-interface InfoSecurityHallOfFame {
-  title: string;
-  description: string;
-  recognition: string;
-  reporting: string;
-  securityEmail: string;
-  ctaText: string;
-  ctaUrl: string;
-}
-
 // Tipo principal que representa toda la estructura
-export type InfoI18n = {
-  info: {
-    privacyPolicy: {
-      title: string;
-      sections: InfoPrivacyPolicySection;
-    };
-    termsAndConditions: {
-      title: string;
-      sections: InfoTermsAndConditionsSection;
-    };
-    license: {
-      title: string;
-      sections: InfoLicenseSection;
-    };
-    securityHallOfFame: InfoSecurityHallOfFame;
+export interface InfoI18n {
+  header: {
+    title: string;
+    subtitle: string;
   };
-};
+  privacyPolicy: {
+    title: string;
+    sections: {
+      informationCollection: {
+        title: string;
+        content: string;
+      };
+      dataProtection: {
+        title: string;
+        content: string;
+      };
+      communications: {
+        title: string;
+        content: string;
+      };
+      cookies: {
+        title: string;
+        content: string;
+      };
+      policyChanges: {
+        title: string;
+        content: string;
+      };
+    };
+  };
+  termsConditions: {
+    title: string;
+    sections: {
+      platformUse: {
+        title: string;
+        content: string;
+      };
+      intellectualProperty: {
+        title: string;
+        content: string;
+      };
+      liabilityLimitation: {
+        title: string;
+        content: string;
+      };
+      paymentsSubscriptions: {
+        title: string;
+        content: string;
+      };
+      applicableLaw: {
+        title: string;
+        content: string;
+      };
+    };
+  };
+  license: {
+    title: string;
+    sections: {
+      usageLicense: {
+        title: string;
+        content: string;
+      };
+      restrictions: {
+        title: string;
+        content: string;
+        button: string;
+      };
+    };
+  };
+  securityHallOfFame: {
+    title: string;
+    content: string;
+    button: string;
+  };
+}
 
 export type AvatarProps = {
   name: string;

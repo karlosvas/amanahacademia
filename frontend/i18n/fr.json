@@ -338,5 +338,80 @@
     ],
     "thank_you_title": "Merci de rendre Amanah Academia plus sûre !",
     "thank_you_desc": "Nous apprécions profondément le temps, les efforts et l'expertise que nos chercheurs ont consacrés à l'amélioration de notre plateforme. Leur travail responsable a permis de prévenir des incidents potentiels et d'améliorer l'expérience de tous nos utilisateurs."
+  },
+  "info": {
+    "header": {
+      "title": "Amanah Academia",
+      "subtitle": "Votre vie privée et votre confiance sont notre priorité. Découvrez comment nous protégeons vos données et vos droits."
+    },
+    "privacyPolicy": {
+      "title": "Politique de Confidentialité",
+      "sections": {
+        "informationCollection": {
+          "title": "Informations collectées et leur utilisation",
+          "content": "Chez Amanah Academia, nous collectons différents types d'informations pour vous fournir nos services éducatifs : Informations personnelles : Nom complet, adresse e-mail, numéro de téléphone, date de naissance. Informations académiques : Parcours éducatif, cours qui vous intéressent, progression dans les cours, notes. Informations de paiement : Données nécessaires au traitement de vos transactions, bien que les détails complets des cartes de crédit soient gérés par des processeurs de paiement tiers. Données techniques : Adresse IP, type de navigateur, pages visitées, temps passé sur le site, appareil utilisé. Contenu généré : Devoirs soumis, participations aux forums, commentaires et tout autre contenu que vous créez sur notre plateforme. Nous utilisons vos informations aux fins suivantes : Fournir, maintenir et améliorer nos services éducatifs. Personnaliser votre expérience d'apprentissage en fonction de vos intérêts et de votre progression. Traiter vos paiements et gérer votre abonnement. Vous communiquer des mises à jour, de nouveaux cours ou des changements dans nos services. Répondre à vos demandes et vous fournir un support technique quand vous en avez besoin. Effectuer des analyses et des études internes pour améliorer notre plateforme. Respecter les obligations légales et réglementaires."
+        },
+        "dataProtection": {
+          "title": "Protection des données",
+          "content": "Nous mettons en œuvre diverses mesures de sécurité pour protéger vos informations : Chiffrement : Toutes les données transmises entre votre navigateur et nos serveurs sont chiffrées à l'aide des protocoles SSL/TLS. Stockage sécurisé : Les informations sont stockées sur des serveurs sécurisés avec des mesures de protection physiques et numériques. Accès restreint : Seul le personnel autorisé a accès à vos informations, et uniquement à des fins légitimes. Évaluations périodiques : Nous réalisons des audits de sécurité régulièrement pour identifier et corriger les vulnérabilités potentielles. Sauvegardes : Nous maintenons des sauvegardes des données pour prévenir les pertes en cas d'incidents techniques. Malgré ces mesures, aucune transmission sur Internet ou méthode de stockage électronique n'est sécurisée à 100%. Si nous avons connaissance d'une violation de sécurité, nous vous en informerons conformément à la législation applicable. Conformément à la législation sur la protection des données, vous disposez des droits suivants : Droit d'accès : Vous pouvez demander des informations sur les données personnelles que nous détenons vous concernant. Droit de rectification : Vous pouvez demander la correction de toute information inexacte ou incomplète. Droit à l'effacement : Vous pouvez demander la suppression de vos données personnelles dans certaines circonstances. Droit à la limitation du traitement : Vous pouvez demander de restreindre la manière dont nous utilisons vos données. Droit à la portabilité des données : Vous pouvez demander à ce que nous vous fournissions vos données dans un format structuré et lisible. Droit d'opposition : Vous pouvez vous opposer au traitement de vos données à des fins de marketing direct. Pour exercer l'un de ces droits, vous pouvez nous contacter à support@amanahacademia.com. Nous répondrons à votre demande dans un délai maximum de 30 jours."
+        },
+        "communications": {
+          "title": "Communications et Newsletter",
+          "content": "Nous pouvons utiliser votre adresse e-mail pour vous envoyer : Des informations sur les nouveaux cours, les mises à jour de contenu et les améliorations de la plateforme. Des conseils d'apprentissage, des ressources éducatives et des articles en rapport avec vos domaines d'étude. Vous informer des promotions spéciales, des réductions et des opportunités éducatives. Vous envoyer des rappels concernant les tâches en attente, les dates limites et les événements académiques. Vous pouvez vous désinscrire de ces communications à tout moment en cliquant sur le lien \"se désinscrire\" présent dans chaque e-mail, ou en ajustant vos préférences de notification dans les paramètres de votre compte. Dans certaines circonstances, nous pouvons partager vos informations avec : Prestataires de services : Entreprises qui nous aident à opérer notre plateforme (hébergement web, traitement des paiements, analyse de données, services e-mail). Instructeurs et professeurs : Pour leur permettre d'évaluer votre progression et de vous fournir des retours personnalisés. Autorités légales : Lorsque nécessaire pour se conformer à une obligation légale, une réglementation, une procédure légale ou une demande gouvernementale. Partenaires commerciaux : Dans le cas de programmes conjoints ou de collaborations éducatives, toujours avec votre consentement préalable. Nous ne vendons jamais vos informations personnelles à des tiers à des fins commerciales."
+        },
+        "cookies": {
+          "title": "Cookies et technologies similaires",
+          "content": "Nous utilisons des cookies et des technologies similaires pour : Mémoriser vos préférences et paramètres. Authentifier votre session et la maintenir active pendant votre navigation sur notre plateforme. Analyser comment vous interagissez avec nos services pour en améliorer le fonctionnement. Personnaliser le contenu en fonction de vos intérêts et de votre comportement de navigation. Vous pouvez gérer vos préférences en matière de cookies via les paramètres de votre navigateur. Notez que désactiver certains cookies peut affecter la fonctionnalité de notre plateforme. Amanah Academia opère au niveau global, donc vos informations pourraient être transférées et traitées dans des pays autres que le vôtre. Ces pays peuvent avoir des lois sur la protection des données différentes des vôtres. Lorsque nous transférons vos informations vers d'autres pays, nous mettons en place des mesures de sécurité appropriées, telles que les clauses contractuelles types, pour garantir que vos données bénéficient d'un niveau de protection équivalent à celui requis dans votre pays de résidence."
+        },
+        "policyChanges": {
+          "title": "Modifications de cette politique",
+          "content": "Nous conserverons vos informations personnelles pendant la durée nécessaire aux fins décrites dans cette politique, sauf si la loi exige ou permet une période de conservation plus longue. Généralement, nous conservons vos informations tant que votre compte est actif ou selon les besoins pour vous fournir des services. Une fois la relation terminée, nous pouvons conserver certaines informations pour respecter les obligations légales, résoudre les litiges et faire appliquer nos accords. Nous pouvons mettre à jour cette politique de confidentialité périodiquement pour refléter les changements dans nos pratiques ou pour d'autres raisons opérationnelles, légales ou réglementaires. Nous vous informerons des modifications substantielles de cette politique en publiant la nouvelle version sur notre plateforme et, lorsque la loi l'exige, en sollicitant votre consentement. Nous vous recommandons de consulter cette page périodiquement pour rester informé sur la façon dont nous protégeons vos informations."
+        }
+      }
+    },
+    "termsConditions": {
+      "title": "Conditions Générales",
+      "sections": {
+        "platformUse": {
+          "title": "Utilisation de la plateforme",
+          "content": "En vous inscrivant à Amanah Academia, vous acceptez d'utiliser notre plateforme de manière responsable et conformément à la législation en vigueur. Cela inclut : Fournir des informations véridiques et à jour lors de l'inscription et dans votre profil. Utiliser les ressources éducatives uniquement pour votre apprentissage personnel. Ne pas partager vos identifiants de connexion avec des tiers. Respecter les droits de propriété intellectuelle des documents fournis. Ne pas réaliser d'activités susceptibles d'endommager, de surcharger ou de nuire au fonctionnement de la plateforme. Maintenir une conduite respectueuse dans les forums et espaces de communication. Nous nous réservons le droit de suspendre ou de résilier votre compte en cas de violation de ces conditions d'utilisation."
+        },
+        "intellectualProperty": {
+          "title": "Propriété intellectuelle",
+          "content": "L'ensemble du contenu éducatif, des documents, des logiciels et autres propriétés intellectuelles présents sur Amanah Academia sont la propriété exclusive de notre entreprise ou de nos concédants de licence, sauf indication contraire. En accédant à nos cours, vous obtenez une licence limitée, non exclusive, non transférable et révocable pour utiliser les matériaux à des fins éducatives personnelles. Cette licence n'inclut pas : Le droit de redistribuer, publier, transmettre ou afficher publiquement les matériaux. Le droit de modifier, adapter ou créer des œuvres dérivées basées sur notre contenu. Le droit d'utiliser le contenu à des fins commerciales ou pour dispenser un enseignement à des tiers. Le contenu que vous créez et partagez sur notre plateforme (comme les devoirs ou les participations aux forums) restera votre propriété, mais vous nous accordez une licence pour l'utiliser dans le contexte de nos services éducatifs."
+        },
+        "liabilityLimitation": {
+          "title": "Limitation de responsabilité",
+          "content": "Amanah Academia s'efforce de fournir des services éducatifs de haute qualité, mais nous ne pouvons garantir des résultats d'apprentissage spécifiques ou une réussite académique. Nous ne sommes pas responsables des : Dommages ou préjudices indirects, accessoires ou consécutifs résultant de l'utilisation de nos services. Interruptions de service dues à la maintenance, aux mises à jour ou à des causes beyond notre contrôle. L'exactitude, l'exhaustivité ou l'actualité du contenu éducatif fourni par des instructeurs tiers. L'usage abusif que les utilisateurs pourraient faire des informations acquises dans nos cours. Notre responsabilité totale envers vous pour toute réclamation liée à nos services ne dépassera pas le montant total que vous avez payé à Amanah Academia au cours des six mois précédant la réclamation."
+        },
+        "paymentsSubscriptions": {
+          "title": "Paiements et abonnements",
+          "content": "L'accès à certains cours et fonctionnalités d'Amanah Academia nécessite le paiement de frais. En effectuant un paiement, vous acceptez de : Payer tous les frais applicables dans les délais établis. Fournir des informations de paiement précises et à jour. Nous autoriser à débiter le mode de paiement fourni pour les montants correspondants. Les abonnements sont renouvelés automatiquement à la fin de chaque période de facturation, sauf si vous annulez votre abonnement avant la date de renouvellement. Nous offrons une garantie de remboursement de 14 jours pour la plupart de nos cours, sous réserve de nos conditions de remboursement spécifiques."
+        },
+        "applicableLaw": {
+          "title": "Loi applicable et règlement des litiges",
+          "content": "Ces conditions sont régies et interprétées conformément aux lois de l'Espagne, sans tenir compte de ses dispositions relatives aux conflits de lois. En cas de litige lié à ces conditions ou à nos services, nous convenons de tenter d'abord de le résoudre par une négociation directe. Si aucun accord n'est trouvé dans un délai de 60 jours, les deux parties conviennent de soumettre le litige à une médiation avant d'engager toute procédure judiciaire. Tout litige non résolu par la négociation ou la médiation sera résolu par les tribunaux compétents de Madrid, Espagne."
+        }
+      }
+    },
+    "license": {
+      "title": "Licence",
+      "sections": {
+        "usageLicense": {
+          "title": "Licence d'utilisation",
+          "content": "En vous inscrivant à Amanah Academia, une licence limitée, non exclusive, non transférable et révocable vous est accordée pour accéder à nos services et les utiliser à des fins éducatives personnelles, conformément à ces conditions. Cette licence inclut : L'accès aux cours dans lesquels vous vous êtes inscrit pendant la durée de validité de votre abonnement. Le droit de visualiser, de streamer et de télécharger (quand disponible) le contenu pour votre usage personnel. La possibilité de participer aux forums de discussion et aux activités interactives liées à vos cours. Cette licence prend fin automatiquement si vous ne respectez pas ces conditions ou lorsque vous décidez de fermer votre compte."
+        },
+        "restrictions": {
+          "title": "Restrictions",
+          "content": "Il est strictement interdit de : Copier, reproduire, distribuer, transmettre ou diffuser tout contenu de nos cours sans autorisation expresse écrite. Modifier, adapter, traduire ou créer des œuvres dérivées basées sur notre contenu. Utiliser nos matériels pour dispenser un enseignement à des tiers ou à des fins commerciales. Procéder à la rétro-ingénierie, la décompilation ou le démontage de tout aspect de notre plateforme. Contourner ou tenter de contourner toute mesure de protection du contenu ou de restriction d'accès. Utiliser des robots, spiders ou autres moyens automatisés pour accéder à nos services. Toute utilisation non autorisée de notre contenu constitue une violation des droits de propriété intellectuelle et peut entraîner la résiliation immédiate de votre compte et d'éventuelles actions légales. Pour consulter les détails complets de notre licence, visitez notre dépôt GitHub :",
+          "button": "Voir la Licence Complète"
+        }
+      }
+    },
+    "securityHallOfFame": {
+      "title": "Security Hall Of Fame",
+      "content": "Chez Amanah Academia, nous apprécions grandement la contribution des chercheurs en sécurité et des utilisateurs qui nous aident à identifier les vulnérabilités et à améliorer la protection de notre plateforme. Notre \"Security Hall of Fame\" vise à honorer les personnes qui nous ont signalé de manière responsable des problèmes de sécurité, nous aidant ainsi à maintenir un environnement sécurisé pour tous nos utilisateurs. Si vous découvrez une vulnérabilité dans nos systèmes, nous vous remercions de nous la signaler de manière responsable à support@amanahacademia.com, en suivant nos directives de signalement des vulnérabilités. Accédez à la liste complète des reconnaissances sur notre page dédiée :",
+      "button": "Security Hall Of Fame"
+    }
   }
 }

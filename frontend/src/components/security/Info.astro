@@ -2,9 +2,10 @@
 import type { InfoI18n } from "@/types/types";
 
 const data = Astro.props.data as InfoI18n;
+console.log(data);
 ---
 
-<main class="bg-gradient-to-br from-light to-[#F8EDEB] text-black min-h-screen py-8 px-4">
+<main class="text-sm bg-gradient-to-br from-light to-[#F8EDEB] text-black min-h-screen py-8 px-4">
   <div class="max-w-4xl mx-auto">
     <!-- Header -->
     <div
@@ -13,260 +14,140 @@ const data = Astro.props.data as InfoI18n;
       <div class="absolute inset-0 bg-pattern z-0"></div>
       <div class="relative z-10">
         <i class="fas fa-shield-alt text-lightRed text-4xl mb-4"></i>
-        <h1 class="font-playfair text-4xl md:text-5xl font-black text-lightRed mb-4 drop-shadow-sm">Amanah Academia</h1>
+        <h1 class="font-playfair text-4xl md:text-5xl font-black text-lightRed mb-4 drop-shadow-sm">
+          {data.header.title}
+        </h1>
         <p class="text-lg md:text-xl text-salmon max-w-2xl mx-auto">
-          Tu privacidad y confianza son nuestra prioridad. Conoce cómo protegemos tus datos y tus derechos.
+          {data.header.subtitle}
         </p>
       </div>
     </div>
 
     <!-- Política de Privacidad -->
     <section
-      class="bg-transparent rounded-2xl shadow-lg p-6 md:p-8 mb-8 border-l-4 border-lightRed hover:shadow-xl transition-shadow duration-300"
+      class="bg-transparent rounded-2xl shadow-lg p-6 md:p-8 mb-8 border-l-4 border-lightRed hover:shadow-xl transition-shadow"
     >
       <h2
         class="font-playfair text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
       >
-        <i class="fas fa-user-shield mr-3"></i>Política de Privacidad
+        <i class="fas fa-user-shield mr-3">{data.privacyPolicy.title}</i>
       </h2>
 
-      <div class="space-y-6">
-        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
+      <!-- Información que recopilamos y su uso -->
+      <div class="space-y-3">
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
           <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-info-circle mr-3 text-salmon"></i>Información que recopilamos
+            <i class="fas fa-info-circle mr-3 text-salmon">{data.privacyPolicy.sections.informationCollection.title}</i>
           </h3>
           <p class="mb-4">
-            En Amanah Academia, recopilamos diversos tipos de información para proporcionarte nuestros servicios
-            educativos: Información personal: Nombre completo, dirección de correo electrónico, número de teléfono,
-            fecha de nacimiento. Información académica: Historial educativo, cursos de interés, progreso en los cursos,
-            calificaciones. Información de pago: Datos necesarios para procesar tus transacciones, aunque los detalles
-            completos de tarjetas de crédito son manejados por procesadores de pago de terceros. Datos técnicos:
-            Dirección IP, tipo de navegador, páginas visitadas, tiempo de permanencia en el sitio, dispositivo
-            utilizado. Contenido generado: Tareas enviadas, participaciones en foros, comentarios y cualquier otro
-            contenido que crees en nuestra plataforma.
+            {data.privacyPolicy.sections.informationCollection.content}
           </p>
         </div>
 
-        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
+        <!-- Protección de datos -->
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
           <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-cogs mr-3 text-salmon"></i>Uso de la información
+            <i class="fas fa-lock mr-3 text-salmon">{data.privacyPolicy.sections.dataProtection.title}</i>
           </h3>
           <p class="mb-4">
-            Utilizamos tu información para los siguientes propósitos: Proporcionar, mantener y mejorar nuestros
-            servicios educativos. Personalizar tu experiencia de aprendizaje según tus intereses y progreso. Procesar
-            tus pagos y gestionar tu suscripción. Comunicarnos contigo sobre actualizaciones, nuevos cursos o cambios en
-            nuestros servicios. Responder a tus consultas y brindarte soporte técnico cuando lo necesites. Realizar
-            análisis y estudios internos para mejorar nuestra plataforma. Cumplir con obligaciones legales y
-            regulatorias.
+            {data.privacyPolicy.sections.dataProtection.content}
           </p>
         </div>
 
-        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
+        <!-- Comunicaciones y newsletter -->
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
           <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-lock mr-3 text-salmon"></i>Protección de datos
+            <i class="fas fa-envelope mr-3 text-salmon">{data.privacyPolicy.sections.communications.title}</i>
           </h3>
           <p class="mb-4">
-            Implementamos diversas medidas de seguridad para proteger tu información: Encriptación: Todos los datos
-            transmitidos entre tu navegador y nuestros servidores están encriptados utilizando protocolos SSL/TLS.
-            Almacenamiento seguro: La información se almacena en servidores seguros con medidas de protección física y
-            digital. Acceso restringido: Solo el personal autorizado tiene acceso a tu información, y únicamente para
-            fines legítimos. Evaluaciones periódicas: Realizamos auditorías de seguridad regularmente para identificar y
-            corregir posibles vulnerabilidades. Copias de seguridad: Mantenemos copias de seguridad de los datos para
-            prevenir pérdidas en caso de incidentes técnicos. A pesar de estas medidas, ninguna transmisión por internet
-            o método de almacenamiento electrónico es 100% seguro. Si tenemos conocimiento de una violación de
-            seguridad, te notificaremos de acuerdo con las leyes aplicables.
+            {data.privacyPolicy.sections.communications.content}
           </p>
         </div>
-      </div>
 
-      <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
-        <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-          <i class="fas fa-user-check mr-3 text-salmon"></i>Derechos del usuario
-        </h3>
-        <p class="mb-4">
-          De acuerdo con la legislación de protección de datos, tienes los siguientes derechos: Derecho de acceso:
-          Puedes solicitar información sobre qué datos personales tenemos sobre ti. Derecho de rectificación: Puedes
-          solicitar que corrijamos cualquier información inexacta o incompleta. Derecho de supresión: Puedes solicitar
-          que eliminemos tus datos personales en ciertas circunstancias. Derecho a la limitación del tratamiento: Puedes
-          solicitar que restrinjamos el modo en que utilizamos tus datos. Derecho a la portabilidad de datos: Puedes
-          solicitar que te proporcionemos tus datos en un formato estructurado y legible. Derecho de oposición: Puedes
-          oponerte al tratamiento de tus datos para fines de marketing directo.
-        </p>
-        <p class="mt-4">
-          Para ejercer cualquiera de estos derechos, puedes contactarnos a través de <a
-            href="mailto:privacity@amanahacademia.com"
-            class="text-lightRed hover:underline font-medium">privacity@amanahacademia.com</a
-          >. Responderemos a tu solicitud en un plazo máximo de 30 días.
-        </p>
-      </div>
+        <!-- Cookies y tecnologías similares -->
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
+          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
+            <i class="fas fa-cookie mr-3 text-salmon">{data.privacyPolicy.sections.cookies.title}</i>
+          </h3>
+          <p class="mb-4">
+            {data.privacyPolicy.sections.cookies.content}
+          </p>
+        </div>
 
-      <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
-        <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-          <i class="fas fa-envelope mr-3 text-salmon"></i>Comunicaciones y Newsletter
-        </h3>
-        <p class="mb-4">
-          Podemos utilizar tu correo electrónico para: Enviarte información sobre nuevos cursos, actualizaciones de
-          contenido y mejoras en la plataforma. Compartir consejos de aprendizaje, recursos educativos y artículos de
-          interés relacionados con tus áreas de estudio. Informarte sobre promociones especiales, descuentos y
-          oportunidades educativas. Enviarte recordatorios sobre tareas pendientes, fechas límite y eventos académicos.
-          Puedes darte de baja de estas comunicaciones en cualquier momento haciendo clic en el enlace de "cancelar
-          suscripción" que aparece en cada correo electrónico, o ajustando tus preferencias de notificación en la
-          configuración de tu cuenta.
-        </p>
-      </div>
-
-      <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
-        <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-          <i class="fas fa-share-alt mr-3 text-salmon"></i>Compartición de información con terceros
-        </h3>
-        <p class="mb-4">
-          En algunas circunstancias, podemos compartir tu información con: Proveedores de servicios: Empresas que nos
-          ayudan a operar nuestra plataforma (alojamiento web, procesamiento de pagos, análisis de datos, servicios de
-          email). Instructores y profesores: Para permitirles evaluar tu progreso y brindarte retroalimentación
-          personalizada. Autoridades legales: Cuando sea necesario para cumplir con una obligación legal, regulación,
-          proceso legal o solicitud gubernamental. Socios comerciales: En casos de programas conjuntos o colaboraciones
-          educativas, siempre con tu consentimiento previo. Nunca vendemos tu información personal a terceros con fines
-          comerciales.
-        </p>
-      </div>
-
-      <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
-        <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-          <i class="fas fa-cookie mr-3 text-salmon"></i>Cookies y tecnologías similares
-        </h3>
-        <p class="mb-4">
-          Utilizamos cookies y tecnologías similares para: Recordar tus preferencias y configuraciones. Autenticar tu
-          sesión y mantenerla activa mientras navegas por nuestra plataforma. Analizar cómo interactúas con nuestros
-          servicios para mejorar su funcionamiento. Personalizar el contenido según tus intereses y comportamiento de
-          navegación. Puedes gestionar tus preferencias de cookies a través de la configuración de tu navegador. Ten en
-          cuenta que deshabilitar ciertas cookies puede afectar la funcionalidad de nuestra plataforma.
-        </p>
-      </div>
-
-      <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
-        <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-          <i class="fas fa-globe mr-3 text-salmon"></i>Transferencias internacionales de datos
-        </h3>
-        <p class="mb-4">
-          Amanah Academia opera a nivel global, por lo que tu información podría ser transferida y procesada en países
-          fuera del tuyo. Estos países pueden tener leyes de protección de datos diferentes a las de tu jurisdicción.
-          Cuando transferimos tu información a otros países, implementamos las medidas de seguridad adecuadas, como
-          cláusulas contractuales estándar, para garantizar que tu datos reciban un nivel de protección equivalente al
-          requerido en tu país de residencia.
-        </p>
-      </div>
-
-      <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
-        <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-          <i class="fas fa-calendar-alt mr-3 text-salmon"></i>Conservación de datos
-        </h3>
-        <p class="mb-4">
-          Conservaremos tu información personal durante el tiempo necesario para cumplir con los fines descritos en esta
-          política, a menos que la ley requiera o permita un período de conservación más largo. Generalmente, mantenemos
-          tu información mientras tu cuenta esté activa o según sea necesario para prestarte servicios. Una vez
-          finalizada la relación, podremos conservar cierta información para cumplir con obligaciones legales, resolver
-          disputas y hacer cumplir nuestros acuerdos.
-        </p>
-      </div>
-
-      <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
-        <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-          <i class="fas fa-exclamation-circle mr-3 text-salmon"></i>Cambios en esta política
-        </h3>
-        <p class="mb-4">
-          Podemos actualizar esta política de privacidad periódicamente para reflejar cambios en nuestras prácticas o
-          por otros motivos operativos, legales o regulatorios. Te notificaremos sobre cambios materiales en esta
-          política publicando la nueva versión en nuestra plataforma y, cuando sea requerido por ley, solicitando tu
-          consentimiento. Te recomendamos revisar esta página periódicamente para estar informado sobre cómo protegemos
-          tu información.
-        </p>
+        <!-- Cambios en la politica -->
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
+          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
+            <i class="fas fa-calendar-alt mr-3 text-salmon">{data.privacyPolicy.sections.policyChanges.title}</i>
+          </h3>
+          <p class="mb-4">
+            {data.privacyPolicy.sections.policyChanges.content}
+          </p>
+        </div>
       </div>
     </section>
 
     <!-- Términos y Condiciones -->
     <section
-      class="bg-transparent rounded-2xl shadow-lg p-6 md:p-8 mb-8 border-l-4 border-lightRed hover:shadow-xl transition-shadow duration-300"
+      class="bg-transparent rounded-2xl shadow-lg p-6 md:p-8 mb-8 border-l-4 border-lightRed hover:shadow-xl transition-shadow"
     >
       <h2
         class="font-playfair text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
       >
-        <i class="fas fa-file-contract mr-3"></i>Términos y Condiciones
+        <i class="fas fa-file-contract mr-3">{data.termsConditions.title}</i>
       </h2>
 
-      <div class="space-y-6">
-        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
+      <!-- Uso de la platafomrma -->
+      <div class="space-y-3">
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
           <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-desktop mr-3 text-salmon"></i>Uso de la plataforma
+            <i class="fas fa-desktop mr-3 text-salmon">{data.termsConditions.sections.platformUse.title}</i>
           </h3>
           <p class="mb-4">
-            Al registrarte en Amanah Academia, aceptas utilizar nuestra plataforma de forma responsable y conforme a la
-            legislación vigente. Esto incluye: Proporcionar información veraz y actualizada durante el registro y en tu
-            perfil. Utilizar los recursos educativos únicamente para tu aprendizaje personal. No compartir tus
-            credenciales de acceso con terceros. Respetar los derechos de propiedad intelectual de los materiales
-            proporcionados. No realizar actividades que puedan dañar, sobrecargar o perjudicar el funcionamiento de la
-            plataforma. Mantener una conducta respetuosa en los foros y espacios de comunicación. Nos reservamos el
-            derecho de suspender o cancelar tu cuenta si violas estos términos de uso.
+            {data.termsConditions.sections.platformUse.content}
           </p>
         </div>
 
-        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
+        <!-- Propiedad intelectual -->
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
           <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-copyright mr-3 text-salmon"></i>Propiedad intelectual
+            <i class="fas fa-copyright mr-3 text-salmon">{data.termsConditions.sections.intellectualProperty.title}</i>
           </h3>
           <p class="mb-4">
-            Todo el contenido educativo, materiales, software y demás propiedad intelectual presente en Amanah Academia
-            son propiedad exclusiva de nuestra empresa o de nuestros licenciantes, salvo que se indique lo contrario. Al
-            acceder a nuestros cursos, obtienes una licencia limitada, no exclusiva, intransferible y revocable para
-            utilizar los materiales con fines educativos personales. Esta licencia no incluye: El derecho a
-            redistribuir, publicar, transmitir o mostrar públicamente los materiales. El derecho a modificar, adaptar o
-            crear obras derivadas basadas en nuestro contenido. El derecho a utilizar el contenido con fines comerciales
-            o para impartir enseñanza a terceros. El contenido que crees y compartas en nuestra plataforma (como tareas
-            o participaciones en foros) seguirá siendo de tu propiedad, pero nos otorgas una licencia para utilizarlo en
-            el contexto de nuestros servicios educativos.
+            {data.termsConditions.sections.intellectualProperty.content}
           </p>
         </div>
 
-        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
+        <!-- Limitación de responsabilidad -->
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
           <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-exclamation-triangle mr-3 text-salmon"></i>Limitación de responsabilidad
+            <i class="fas fa-exclamation-triangle mr-3 text-salmon"
+              >{data.termsConditions.sections.liabilityLimitation.title}</i
+            >
           </h3>
           <p class="mb-4">
-            Amanah Academia se esfuerza por proporcionar servicios educativos de alta calidad, pero no podemos
-            garantizar resultados específicos de aprendizaje o éxito académico. No nos hacemos responsables por: Daños o
-            perjuicios indirectos, incidentales o consecuentes resultantes del uso de nuestros servicios. Interrupciones
-            del servicio debido a mantenimiento, actualizaciones o causas beyond nuestro control. La exactitud,
-            integridad o actualidad del contenido educativo proporcionado por instructores terceros. El uso indebido que
-            los usuarios puedan hacer de la información adquirida en nuestros cursos. Nuestra responsabilidad total
-            hacia ti por cualquier reclamación relacionada con nuestros servicios no excederá el monto total pagado por
-            ti a Amanah Academia durante los seis meses anteriores a la reclamación.
+            {data.termsConditions.sections.liabilityLimitation.content}
           </p>
         </div>
 
-        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
+        <!-- Pagos y suscripciones -->
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
           <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-credit-card mr-3 text-salmon"></i>Pagos y suscripciones
+            <i class="fas fa-credit-card mr-3 text-salmon"
+              >{data.termsConditions.sections.paymentsSubscriptions.title}</i
+            >
           </h3>
           <p class="mb-4">
-            El acceso a algunos cursos y funcionalidades de Amanah Academia requiere el pago de tarifas. Al realizar un
-            pago, aceptas: Pagar todas las tarifas aplicables en los plazos establecidos. Proporcionar información de
-            pago precisa y actualizada. Autorizarnos a cargar el método de pago proporcionado por los importes
-            correspondientes. Las suscripciones se renovarán automáticamente al final de cada período de facturación, a
-            menos que canceles tu suscripción antes de la fecha de renovación. Ofrecemos una garantía de reembolso de 14
-            días para la mayoría de nuestros cursos, sujeta a nuestros términos de reembolso específicos.
+            {data.termsConditions.sections.paymentsSubscriptions.content}
           </p>
         </div>
 
-        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
+        <!-- Ley aplicable y resolución de conflictos -->
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
           <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-gavel mr-3 text-salmon"></i>Ley aplicable y resolución de conflictos
+            <i class="fas fa-gavel mr-3 text-salmon">{data.termsConditions.sections.applicableLaw.title}</i>
           </h3>
           <p class="mb-4">
-            Estos términos se regirán e interpretarán de acuerdo con las leyes de España, sin tener en cuenta sus
-            disposiciones sobre conflicto de leyes. En caso de cualquier disputa relacionada con estos términos o
-            nuestros servicios, acordamos primero intentar resolverla mediante negociación directa. Si no llegamos a una
-            resolución dentro de 60 días, ambas partes acuerdan someter la disputa a mediación antes de iniciar
-            cualquier procedimiento judicial. Cualquier controversia que no se resuelva mediante negociación o mediación
-            será resuelta por los tribunales competentes de Madrid, España.
+            {data.termsConditions.sections.applicableLaw.content}
           </p>
         </div>
       </div>
@@ -274,59 +155,38 @@ const data = Astro.props.data as InfoI18n;
 
     <!-- Licencia -->
     <section
-      class="bg-transparent rounded-2xl shadow-lg p-6 md:p-8 mb-8 border-l-4 border-lightRed hover:shadow-xl transition-shadow duration-300"
+      class="bg-transparent rounded-2xl shadow-lg p-6 md:p-8 mb-8 border-l-4 border-lightRed hover:shadow-xl transition-shadow"
     >
+      <!-- LIcencia -->
       <h2
         class="font-playfair text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
       >
-        <i class="fas fa-file-signature mr-3"></i>Licencia
+        <i class="fas fa-file-signature mr-3">{data.license.title}</i>
       </h2>
 
-      <div class="space-y-6">
-        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
+      <!-- Licencia de uso -->
+      <div>
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
           <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-id-card mr-3 text-salmon"></i>Licencia de uso
+            <i class="fas fa-id-card mr-3 text-salmon">{data.license.sections.usageLicense.title}</i>
           </h3>
-          <p class="mb-4">
-            Al registrarte en Amanah Academia, se te concede una licencia limitada, no exclusiva, no transferible y
-            revocable para acceder y utilizar nuestros servicios con fines educativos personales, de acuerdo con estos
-            términos. Esta licencia incluye: Acceso a los cursos en los que te hayas inscrito durante el período de
-            vigencia de tu suscripción. Derecho a visualizar, streaming y descargar (cuando esté disponible) el
-            contenido para tu uso personal. Posibilidad de participar en foros de discusión y actividades interactivas
-            relacionadas con tus cursos. Esta licencia finaliza automáticamente si incumples estos términos o cuando
-            decidas cancelar tu cuenta.
-          </p>
+          <p class="mb-4">{data.license.sections.usageLicense.content}</p>
         </div>
 
-        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
+        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
           <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-ban mr-3 text-salmon"></i>Restricciones
+            <i class="fas fa-ban mr-3 text-salmon">{data.license.sections.restrictions.title}</i>
           </h3>
           <p class="mb-4">
-            Queda estrictamente prohibido: Copiar, reproducir, distribuir, transmitir o difundir cualquier contenido de
-            nuestros cursos sin autorización expresa por escrito. Modificar, adaptar, traducir o crear obras derivadas
-            basadas en nuestro contenido. Utilizar nuestros materiales para impartir enseñanza a terceros o con fines
-            comerciales. Reverse engineer, descompilar o desmontar cualquier aspecto de nuestra plataforma. Eludir o
-            intentar eludir cualquier medida de protección de contenido o restricción de acceso. Utilizar robots,
-            spiders o otros medios automatizados para acceder a nuestros servicios. Cualquier uso no autorizado de
-            nuestro contenido constituye una violación de los derechos de propiedad intelectual y puede resultar en la
-            terminación inmediata de tu cuenta y posibles acciones legales.
-          </p>
-        </div>
-
-        <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-external-link-alt mr-3 text-salmon"></i>Link de la licencia en GitHub
-          </h3>
-          <p class="mb-4">
-            Para consultar los detalles completos de nuestra licencia, visita nuestro repositorio en GitHub:
+            {data.license.sections.restrictions.content}
           </p>
           <a
             href="https://github.com/karlosvas/amanahacademia/LICENSE"
             target="_blank"
-            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-lightRed to-salmon text-white font-medium rounded-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-lightRed to-salmon text-white font-medium rounded-full hover:shadow-lg transition-all hover:-translate-y-1"
           >
-            Ver Licencia Completa <i class="fas fa-arrow-right ml-2"></i>
+            {data.license.sections.restrictions.button}
+            <i class="fas fa-arrow-right ml-2"></i>
           </a>
         </div>
       </div>
@@ -334,39 +194,31 @@ const data = Astro.props.data as InfoI18n;
 
     <!-- Security Hall Of Fame -->
     <section
-      class="bg-transparent rounded-2xl shadow-lg p-6 md:p-8 mb-8 border-l-4 border-lightRed hover:shadow-xl transition-shadow duration-300"
+      class="bg-transparent rounded-2xl shadow-lg p-6 md:p-8 mb-8 border-l-4 border-lightRed hover:shadow-xl transition-shadow"
     >
       <h2
         class="font-playfair text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
       >
-        <i class="fas fa-medal mr-3"></i>Security Hall Of Fame
+        <i class="fas fa-medal mr-3"></i>{data.securityHallOfFame.title}
       </h2>
 
-      <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100 transition-colors duration-300">
+      <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
         <p class="mb-4">
-          En Amanah Academia, valoramos enormemente la contribución de los investigadores de seguridad y usuarios que
-          nos ayudan a identificar vulnerabilidades y mejorar la protección de nuestra plataforma. Nuestro "Security
-          Hall of Fame" reconoce a aquellas personas que han reportado de manera responsable problemas de seguridad,
-          ayudándonos a mantener un entorno seguro para todos nuestros usuarios. Si descubres una vulnerabilidad en
-          nuestros sistemas, te agradecemos que nos la reportes de manera responsable a <a
-            href="mailto:security@amanahacademia.com"
-            class="text-lightRed hover:underline font-medium">security@amanahacademia.com</a
-          >, siguiendo nuestras directrices de reporte de vulnerabilidades.
+          {data.securityHallOfFame.content}
         </p>
-        <p class="mb-6">Accede a la lista completa de reconocimientos en nuestra página dedicada:</p>
         <a
           href="/security-hall-of-fame"
           target="_blank"
-          class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-lightRed to-salmon text-white font-medium rounded-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+          class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-lightRed to-salmon text-white font-medium rounded-full hover:shadow-lg transition-all hover:-translate-y-1"
         >
-          Security Hall Of Fame <i class="fas fa-trophy ml-2"></i>
+          <i class="fas fa-trophy ml-2">{data.securityHallOfFame.button}</i>
         </a>
       </div>
     </section>
   </div>
-  <style>
-    .bg-pattern {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23E63946' fill-opacity='0.05'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    }
-  </style>
 </main>
+<style>
+  .bg-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23E63946' fill-opacity='0.05'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+</style>

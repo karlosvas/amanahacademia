@@ -2,7 +2,7 @@ import { signInWithEmailAndPassword, signInWithPopup, type User } from "firebase
 import toast from "solid-toast";
 import { showModalAnimation } from "../utils/modals";
 import { auth, googleProvider } from "@/config/firebase";
-import type { UserRequest } from "@/types/bakend-types";
+import type { ContactMailchimp, UserRequest } from "@/types/bakend-types";
 import { ApiService } from "./helper";
 
 // Obtener el botón de identificación segun el tamaño de la pantalla
@@ -68,8 +68,7 @@ export function submitForm(
     validation
       .addField('[name="name"]', [{ rule: "required", errorMessage: "El nombre es obligatorio" }])
       .addField('[name="privacy"]', [{ rule: "required", errorMessage: "Debes aceptar la política de privacidad" }])
-      .addField('[name="terms"]', [{ rule: "required", errorMessage: "Debes aceptar los términos y condiciones" }])
-      .addField('[name="newsletter"]', [{ rule: "required", errorMessage: "Debes aceptar recibir novedades" }]);
+      .addField('[name="terms"]', [{ rule: "required", errorMessage: "Debes aceptar los términos y condiciones" }]);
   }
 
   // Si sale bien
@@ -84,7 +83,6 @@ export function submitForm(
       email: credentials.email as string,
       password: credentials.password as string,
     };
-    g("UserRequest:", userRequest);
 
     // Mostrar loading, ocultar errores
     loading.classList.remove("hidden");
@@ -110,6 +108,20 @@ export function submitForm(
 
       // Validar credenciales en backend, registrandonos o logeandonos segun corresponda
       if (response.success) {
+        // Si selecionó la opcion de la newsletter le añadimos a nuesra lista de mailchimp
+        if (formData.get("newsletter") === "on") {
+          const newUserNewsletter: ContactMailchimp = {
+            email_address: userRequest.email,
+            status: "subscribed",
+          };
+          const response = await helper.addContactToNewsletter(newUserNewsletter);
+
+          if (!response.success) {
+            console.error("Error adding user to newsletter");
+            toast.error("Error al suscribirte a la newsletter. Por favor, inténtalo de nuevo más tarde.");
+          }
+        }
+
         // Si salió bien, hacer login directo en Firebase, con email y contraseña
         await signInWithEmailAndPassword(auth, credentials.email as string, credentials.password as string);
         modal.close();

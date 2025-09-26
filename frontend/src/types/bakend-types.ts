@@ -95,3 +95,14 @@ export type UserRequest = {
   permissions?: string[];
   subscription_tier?: string;
 };
+
+export interface ContactMailchimp {
+  email_address: string;
+  status: string;
+  merge_fields?: MergeFields;
+}
+
+export interface MergeFields {
+  FNAME?: string;
+  LNAME?: string;
+}

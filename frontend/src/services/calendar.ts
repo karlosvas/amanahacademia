@@ -48,8 +48,18 @@ export function initCalendar(namespaceId: Class) {
   // Configura la UI del calendario embebido
   window.Cal.ns[`${namespaceId}`]("ui", {
     cssVarsPerTheme: {
-      light: { "cal-brand": "#ffbba8" },
-      dark: { "cal-brand": "#8a4141" },
+      light: {
+        "cal-brand": "#eb5e61", // Color de la marca (botones, enlaces)
+        "cal-bg": "#fff4e1", // Fondo primario para tema claro
+        "cal-bg-muted": "#eb5e61", // Fondo atenuado para tema claro :cite[10]
+        "cal-text": "#1a0808", // Color del texto primario en claro :cite[10]
+      },
+      dark: {
+        "cal-brand": "#5f4949",
+        "cal-bg": "#b2443a", // Fondo primario para tema oscuro :cite[10]
+        "cal-bg-muted": "#5f4949", // Fondo atenuado para tema oscuro :cite[10]
+        "cal-text": "#f1faff", // Color del texto primario en oscuro :cite[10]
+      },
     },
     hideEventTypeDetails: false,
     layout: "month_view",
