@@ -1,16 +1,18 @@
 ---
 import IconCheck from "@/assets/check.svg";
-import ModalPracing from "./ModalPracing.astro";
 import type { CardPricingType } from "@/types/types";
 import type { Class } from "@/enums/enums";
+import Carrousel from "./Carrousel.astro";
+import type { Teacher } from "@/types/bakend-types";
 
 const data = Astro.props.data as CardPricingType;
 const id = Astro.props.id as Class;
+const teachers = Astro.props.teachers as Teacher[];
 ---
 
 <div
   class="scroll-fade-in w-full min-h-[400px] sm:min-h-[450px] md:min-h-[500px] relative text-center text-black bg-smoothBrown rounded-xl py-4 sm:py-6 md:py-8 lg:py-10 px-4 sm:px-5 flex flex-col h-full containter-pricing"
-  data-pricing-tier={id}
+  card-pricing-tier={id}
 >
   <h2 class="font-semibold text-red px-2 sm:px-3 md:px-5 text-sm sm:text-base md:text-lg">{data.title}</h2>
   <div class="flex-1 flex flex-col items-center">
@@ -33,68 +35,16 @@ const id = Astro.props.id as Class;
     </div>
   </div>
   <button
+    card-button={id}
     data-modal-id={id}
     class="reserve-class bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red rounded-md py-2 sm:py-3 px-4 sm:px-5 xl:px-10 text-white font-semibold mt-auto transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 text-xs sm:text-sm w-full"
   >
     {data.button}
   </button>
 </div>
-<ModalPracing id={id} />
-
-<script>
-  async function updatePricing() {
-    try {
-      // Obtener el país de la URL si existe
-      const urlParams = new URLSearchParams(window.location.search);
-      const testCountry = urlParams.get("test_country");
-
-      const apiUrl = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
-      const response = await fetch(apiUrl);
-
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-      const pricingData = await response.json();
-      document.querySelectorAll("[data-pricing-tier]").forEach((card) => {
-        const tier = card.getAttribute("data-pricing-tier");
-        const symbolElement = card.querySelector(".currency-symbol");
-        const amountElement = card.querySelectorAll(".price-amount");
-        const perStudentElement = card.querySelector(".per-student-price");
-
-        let tierPrice,
-          perStudentPrice = null;
-
-        switch (tier) {
-          case "standard":
-            tierPrice = pricingData.prices.individual_standard;
-            break;
-          case "conversation":
-            tierPrice = pricingData.prices.individual_conversation;
-            break;
-          case "group":
-            tierPrice = pricingData.prices.group;
-            break;
-          default:
-            tierPrice = pricingData.prices.individual_standard;
-        }
-
-        if (symbolElement) symbolElement.textContent = pricingData.symbol;
-        if (amountElement) amountElement.forEach((el) => (el.textContent = tierPrice.toString()));
-
-        // Mostrar precio por estudiante si aplica
-        if (perStudentElement && perStudentPrice) {
-          perStudentElement.textContent = perStudentPrice;
-          perStudentElement.classList.remove("hidden");
-        }
-      });
-    } catch (error) {
-      console.error("❌ Error loading pricing:", error);
-    }
-  }
-
-  // Ejecutar cuando el DOM esté listo
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", updatePricing);
-  } else {
-    updatePricing();
-  }
-</script>
+<dialog
+  id={id}
+  class="modal border-0 rounded-2xl shadow-2xl max-w-2xl w-[95%] mx-auto overflow-hidden bg-background] p-8 bg-brown dark:bg-background"
+>
+  <Carrousel id={id} teachers={teachers} />
+</dialog>

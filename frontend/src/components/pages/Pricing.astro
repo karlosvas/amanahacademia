@@ -3,8 +3,24 @@ import { Class } from "@/enums/enums";
 import CardPricing from "@/components/pricing/CardPricing.astro";
 import Title from "@/components/common/Title.astro";
 import type { PricingI18n } from "@/types/types";
+import { ApiService } from "@/services/helper";
 
 const data = Astro.props.data as PricingI18n;
+
+let teachers;
+try {
+  // Fetch teachers from the API
+  const helper = new ApiService();
+  const response = await helper.getTeachers();
+
+  // Check if the response is successful and has data
+  if (response.success && response.data) {
+    teachers = Object.values(response.data);
+  } else if ("error" in response) console.error("Error fetching teachers:", response.error);
+  else console.error("Unknown error fetching teachers");
+} catch (e) {
+  console.error("Error fetching teachers:", e);
+}
 ---
 
 <main class="relative text-black">
@@ -22,9 +38,9 @@ const data = Astro.props.data as PricingI18n;
     <div
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center items-stretch h-auto gap-6 sm:gap-8 md:gap-6 lg:gap-4 w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-4"
     >
-      <CardPricing data={data.type.standard} id={Class.Standard} />
-      <CardPricing data={data.type.conversation} id={Class.Conversacion} />
-      <CardPricing data={data.type.group} id={Class.Grupales} />
+      <CardPricing data={data.type.standard} id={Class.Standard} teachers={teachers} />
+      <CardPricing data={data.type.conversation} id={Class.Conversacion} teachers={teachers} />
+      <CardPricing data={data.type.group} id={Class.Grupales} teachers={teachers} />
     </div>
     <div
       class="w-full md:w-3/4 flex flex-col md:flex-row text-xs sm:text-sm mt-20 m-auto pb-6 sm:pb-8 md:pb-12 lg:pb-16 xl:pb-20 px-4 sm:px-6 lg:px-12 xl:px-20 md:px-0 gap-4 sm:gap-5 md:gap-6 scroll-fade-in"
@@ -38,7 +54,7 @@ const data = Astro.props.data as PricingI18n;
         </p>
         <button
           data-cal-namespace={Class.Free}
-          data-cal-link="ana-ortega-gutierrez-hnmbkz/free"
+          data-cal-link="ana-ortega-gutierrez-hnmbkz"
           class="select-schedule transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 bg-red text-salmon py-2 px-4 sm:px-6 md:px-8 lg:px-10 rounded-full mt-3 sm:mt-4 md:mt-5 text-xs sm:text-sm cal-btn font-semibold w-full sm:w-auto"
         >
           {data.info[0].button}
@@ -60,9 +76,10 @@ const data = Astro.props.data as PricingI18n;
   import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
   import { initCalendar } from "@/services/calendar";
   import { Class } from "@/enums/enums";
+  import type { PricingApiResponse } from "@/types/types";
 
   // Iniciamos el calendario de clases gratuitas por defecto
-  initCalendar(Class.Free);
+  [Class.Free, Class.Conversacion, Class.Grupales, Class.Standard].forEach(initCalendar);
 
   // Evento al cargar el DOM
   document.addEventListener("DOMContentLoaded", () => {
@@ -73,7 +90,7 @@ const data = Astro.props.data as PricingI18n;
     reserveButtons.forEach((button) => {
       button.addEventListener("click", () => {
         // Obtenemos el modal correspondiente al botón
-        const modalID: string | null = button.getAttribute("data-modal-id");
+        const modalID: string | null = button.getAttribute("card-button");
         if (!modalID) return;
 
         const modal = document.getElementById(modalID) as HTMLDialogElement | null;
@@ -97,9 +114,61 @@ const data = Astro.props.data as PricingI18n;
 
         // Obtenemos el tema y el namespace o tipo de clase, y el profesor
         const theme = getTheme();
-
         element.setAttribute("data-cal-config", `{"theme":"${theme}"}`);
       });
     });
+
+    // Cargamos los precios dinámicamente
+    updatePricing();
   });
+
+  async function updatePricing() {
+    try {
+      // Obtener el país de la URL si existe
+      const urlParams: URLSearchParams = new URLSearchParams(window.location.search);
+      const testCountry: string | null = urlParams.get("test_country");
+
+      const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
+      const response: Response = await fetch(apiUrl);
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const pricingData: PricingApiResponse = (await response.json()) as PricingApiResponse;
+      document.querySelectorAll("[card-pricing-tier]").forEach((card) => {
+        const tier: string | null = card.getAttribute("card-pricing-tier");
+        const symbolElement: NodeListOf<HTMLElement> = card.querySelectorAll(".currency-symbol");
+        const amountElement: NodeListOf<HTMLElement> = card.querySelectorAll(".price-amount");
+        const perStudentElement: NodeListOf<HTMLElement> = card.querySelectorAll(".per-student-price");
+
+        let tierPrice,
+          perStudentPrice = null;
+
+        switch (tier) {
+          case "standard":
+            tierPrice = pricingData.prices.individual_standard;
+            break;
+          case "conversation":
+            tierPrice = pricingData.prices.individual_conversation;
+            break;
+          case "group":
+            tierPrice = pricingData.prices.group;
+            break;
+          default:
+            tierPrice = pricingData.prices.individual_standard;
+        }
+
+        if (symbolElement && symbolElement.length > 0)
+          symbolElement.forEach((el) => (el.textContent = pricingData.symbol));
+        if (amountElement) amountElement.forEach((el) => (el.textContent = tierPrice.toString()));
+
+        // Mostrar precio por estudiante si aplica
+        if (perStudentElement && perStudentPrice) {
+          perStudentElement.forEach((el) => (el.textContent = perStudentPrice));
+          perStudentElement.forEach((el) => el.classList.remove("hidden"));
+        }
+      });
+    } catch (error) {
+      console.error("Error loading pricing:", error);
+    }
+  }
 </script>

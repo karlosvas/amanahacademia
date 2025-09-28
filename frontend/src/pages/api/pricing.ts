@@ -1,3 +1,5 @@
+import type { PricingApiResponse } from "@/types/types";
+
 export async function GET({ request }: { request: Request }) {
   // Para testing en desarrollo y producción
   const url = new URL(request.url);
@@ -73,12 +75,13 @@ export async function GET({ request }: { request: Request }) {
 
   const isHighIncome = highIncomeCountries.includes(country);
 
-  const pricing = {
+  const pricing: PricingApiResponse = {
     currency: "EUR",
     symbol: "€",
     level: isHighIncome ? "high" : "low",
     countryGroup: isHighIncome ? "Mayor nivel de vida" : "Menor nivel de vida",
-    isDevelopment, // para debugging
+    isDevelopment,
+    country,
     prices: {
       individual_standard: isHighIncome ? 30 : 15,
       individual_conversation: isHighIncome ? 20 : 10,
@@ -86,16 +89,10 @@ export async function GET({ request }: { request: Request }) {
     },
   };
 
-  return new Response(
-    JSON.stringify({
-      country,
-      ...pricing,
-    }),
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": isDevelopment ? "no-cache" : "public, max-age=3600",
-      },
-    }
-  );
+  return new Response(JSON.stringify(pricing), {
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": isDevelopment ? "no-cache" : "public, max-age=3600",
+    },
+  });
 }

@@ -11,7 +11,7 @@ import {
   type ContactMailchimp,
 } from "@/types/bakend-types";
 import { ApiErrorType } from "@/enums/enums";
-import { ApiError, ErrorHandler } from "@/services/globalHandler";
+import { ApiError } from "@/services/globalHandler";
 import { auth } from "@/config/firebase";
 
 export class ApiService {

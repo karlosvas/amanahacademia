@@ -1,6 +1,4 @@
 import type { Class } from "@/enums/enums";
-import { ApiService } from "./helper";
-import type { Teacher } from "@/types/bakend-types";
 
 /**
  * Inicializa y configura el calendario embebido de Cal.com para el namespace dado.
@@ -50,30 +48,18 @@ export function initCalendar(namespaceId: Class) {
     cssVarsPerTheme: {
       light: {
         "cal-brand": "#eb5e61", // Color de la marca (botones, enlaces)
-        "cal-bg": "#fff4e1", // Fondo primario para tema claro
+        "cal-bg": "#808080", // Fondo primario para tema claro
         "cal-bg-muted": "#eb5e61", // Fondo atenuado para tema claro :cite[10]
         "cal-text": "#1a0808", // Color del texto primario en claro :cite[10]
       },
       dark: {
-        "cal-brand": "#5f4949",
+        "cal-brand": "#808080",
         "cal-bg": "#b2443a", // Fondo primario para tema oscuro :cite[10]
-        "cal-bg-muted": "#5f4949", // Fondo atenuado para tema oscuro :cite[10]
+        "cal-bg-muted": "#808080", // Fondo atenuado para tema oscuro :cite[10]
         "cal-text": "#f1faff", // Color del texto primario en oscuro :cite[10]
       },
     },
     hideEventTypeDetails: false,
     layout: "month_view",
   });
-}
-
-export async function getTeacherURL(teacher: string): Promise<Teacher> {
-  try {
-    const helper = new ApiService();
-    const response = await helper.getTeacher(teacher);
-    if (response.success && response.data) return response.data;
-  } catch (error) {
-    console.error("Error fetching teacher data:", error);
-    throw error;
-  }
-  throw new Error("Teacher data not found.");
 }

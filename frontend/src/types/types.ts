@@ -333,3 +333,17 @@ export type AvatarProps = {
   name: string;
   url_img: string;
 };
+
+export type PricingApiResponse = {
+  country: string;
+  currency: string;
+  symbol: string;
+  level: "high" | "low";
+  countryGroup: string;
+  isDevelopment: boolean;
+  prices: {
+    individual_standard: number;
+    individual_conversation: number;
+    group: number;
+  };
+};

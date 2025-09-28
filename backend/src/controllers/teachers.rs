@@ -63,34 +63,34 @@ pub async fn create_teacher(
 ) -> impl IntoResponse {
     // URL de para crear usuario en la DB
     let url_firebase_db: String = format!(
-        "{}/teacher_profiles?auth={}",
+        "{}/teacher_profiles.json?auth={}",
         state.firebase.firebase_database_url, id_token
     );
 
     // POST:: Crear profesor en FB_DATABASE
     match state
         .firebase_client
-        .put(&url_firebase_db)
+        .post(&url_firebase_db)
         .json(&teacher)
         .send()
         .await
     {
-        Ok(response) => match handle_firebase_response::<Teacher>(response).await {
+        Ok(response) => match handle_firebase_response::<HashMap<String, String>>(response).await {
             Ok(parsed_response) => (
                 StatusCode::CREATED,
                 Json(ResponseAPI::success(
                     "Teacher created successfully".to_string(),
                     parsed_response,
                 )),
-            ),
-            Err((status, error)) => (status, Json(ResponseAPI::<Teacher>::error(error))),
+            )
+                .into_response(),
+            Err((status, error)) => (status, Json(ResponseAPI::<()>::error(error))).into_response(),
         },
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ResponseAPI::<Teacher>::error(
-                "Error saving profile".to_string(),
-            )),
-        ),
+            Json(ResponseAPI::<()>::error("Error saving profile".to_string())),
+        )
+            .into_response(),
     }
 }
 
