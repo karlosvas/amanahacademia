@@ -40,6 +40,7 @@ const theme = Astro.cookies.get("theme")?.value;
       ) {
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
         document.documentElement.classList.add(prefersDark ? "dark" : "light");
+        document.cookie = `theme=${prefersDark ? "dark" : "light"}; path=/; max-age=${60 * 60 * 24 * 30}`;
       }
     </script>
     <meta http-equiv="Cross-Origin-Opener-Policy" content="unsafe-none" />

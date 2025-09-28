@@ -1,8 +1,8 @@
 export enum Class {
-  Standard = "standard",
-  Conversacion = "conversation",
-  Grupales = "group",
-  Free = "free",
+  Standard = "standard-class", // ✅ Coincide con tu event type
+  Conversacion = "conversation-class", // ✅ Coincide con tu event type
+  Grupales = "group-class", // ✅ Coincide con tu event type
+  Free = "free-class", // ✅ Coincide con tu event type
 }
 
 export enum ApiErrorType {

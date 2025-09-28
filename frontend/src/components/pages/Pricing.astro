@@ -53,8 +53,9 @@ try {
           {data.info[0].description}
         </p>
         <button
-          data-cal-namespace={Class.Free}
-          data-cal-link="ana-ortega-gutierrez-hnmbkz"
+          data-cal-namespace="free-class"
+          data-cal-link="team/amanah-academia/free-class"
+          data-cal-host="1735275"
           class="select-schedule transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 bg-red text-salmon py-2 px-4 sm:px-6 md:px-8 lg:px-10 rounded-full mt-3 sm:mt-4 md:mt-5 text-xs sm:text-sm cal-btn font-semibold w-full sm:w-auto"
         >
           {data.info[0].button}
@@ -71,18 +72,18 @@ try {
     </div>
   </div>
 </main>
+
 <script>
-  import { getTheme } from "@/utils/cookie";
   import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
   import { initCalendar } from "@/services/calendar";
   import { Class } from "@/enums/enums";
-  import type { PricingApiResponse } from "@/types/types";
-
-  // Iniciamos el calendario de clases gratuitas por defecto
-  [Class.Free, Class.Conversacion, Class.Grupales, Class.Standard].forEach(initCalendar);
+  import { getThemeFromCookie } from "@/utils/cookie";
+  import { updatePricing } from "@/services/calendar";
 
   // Evento al cargar el DOM
   document.addEventListener("DOMContentLoaded", () => {
+    [Class.Free, Class.Conversacion, Class.Grupales, Class.Standard].forEach(initCalendar);
+
     // Obtenemos todos los botones de reservar clase
     const reserveButtons = document.querySelectorAll(".reserve-class") as NodeListOf<HTMLButtonElement>;
     // Por cada botón obtenemos que modal pertenece, para abrir el que le corresponde al hacer click
@@ -92,83 +93,31 @@ try {
         // Obtenemos el modal correspondiente al botón
         const modalID: string | null = button.getAttribute("card-button");
         if (!modalID) return;
-
         const modal = document.getElementById(modalID) as HTMLDialogElement | null;
 
-        if (modal && modal.id && Object.values(Class).includes(modal.id as Class)) {
-          initCalendar(modal.id as Class);
+        if (modal && modal.id && Object.values(Class).includes(modal.id as Class))
           showModalAnimation(modal, null, true);
-        }
       });
     });
 
     // Obtenemos todos los enlaces de seleccionar horario, button o img
-    const scheduleCalendar = document.querySelectorAll(".select-schedule") as NodeListOf<
-      HTMLButtonElement | HTMLImageElement
-    >;
+    const scheduleCalendar = document.querySelectorAll(".select-schedule");
     // Por cada botón seteamos el tema actual al atributo data-cal-config
     scheduleCalendar.forEach((element) => {
       element.addEventListener("click", async () => {
         const modal = document.querySelector("dialog[open]") as HTMLDialogElement | null;
         if (modal) closeModalAnimation(modal);
 
-        // Obtenemos el tema y el namespace o tipo de clase, y el profesor
-        const theme = getTheme();
-        element.setAttribute("data-cal-config", `{"theme":"${theme}"}`);
+        // Obtenemos el tema actual
+        const theme = getThemeFromCookie();
+        // Para cada .select-schedule: elimina el atributo si existe y pon el nuevo valor
+        scheduleCalendar.forEach((el) => {
+          el.removeAttribute("data-cal-config");
+          el.setAttribute("data-cal-config", `{"theme":"${theme}"}`);
+        });
       });
     });
 
-    // Cargamos los precios dinámicamente
     updatePricing();
   });
-
-  async function updatePricing() {
-    try {
-      // Obtener el país de la URL si existe
-      const urlParams: URLSearchParams = new URLSearchParams(window.location.search);
-      const testCountry: string | null = urlParams.get("test_country");
-
-      const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
-      const response: Response = await fetch(apiUrl);
-
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-      const pricingData: PricingApiResponse = (await response.json()) as PricingApiResponse;
-      document.querySelectorAll("[card-pricing-tier]").forEach((card) => {
-        const tier: string | null = card.getAttribute("card-pricing-tier");
-        const symbolElement: NodeListOf<HTMLElement> = card.querySelectorAll(".currency-symbol");
-        const amountElement: NodeListOf<HTMLElement> = card.querySelectorAll(".price-amount");
-        const perStudentElement: NodeListOf<HTMLElement> = card.querySelectorAll(".per-student-price");
-
-        let tierPrice,
-          perStudentPrice = null;
-
-        switch (tier) {
-          case "standard":
-            tierPrice = pricingData.prices.individual_standard;
-            break;
-          case "conversation":
-            tierPrice = pricingData.prices.individual_conversation;
-            break;
-          case "group":
-            tierPrice = pricingData.prices.group;
-            break;
-          default:
-            tierPrice = pricingData.prices.individual_standard;
-        }
-
-        if (symbolElement && symbolElement.length > 0)
-          symbolElement.forEach((el) => (el.textContent = pricingData.symbol));
-        if (amountElement) amountElement.forEach((el) => (el.textContent = tierPrice.toString()));
-
-        // Mostrar precio por estudiante si aplica
-        if (perStudentElement && perStudentPrice) {
-          perStudentElement.forEach((el) => (el.textContent = perStudentPrice));
-          perStudentElement.forEach((el) => el.classList.remove("hidden"));
-        }
-      });
-    } catch (error) {
-      console.error("Error loading pricing:", error);
-    }
-  }
 </script>

@@ -1,10 +1,12 @@
-export function getTheme(): string {
-  const theme = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("theme="))
-    ?.split("=")[1];
-
-  return theme || "light";
+export function getThemeFromCookie() {
+  if (typeof document === "undefined" || !document.cookie) return "light";
+  const cookies = document.cookie.split(";").map((c) => c.trim());
+  for (const c of cookies) {
+    if (c.startsWith("theme=")) {
+      return c.substring("theme=".length);
+    }
+  }
+  return "light";
 }
 
 export function getLangFromCookie(): string {

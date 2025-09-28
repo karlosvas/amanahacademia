@@ -5,7 +5,7 @@ const id = Astro.props.id as string;
 const teachers = Astro.props.teachers as Teacher[];
 ---
 
-<div class="max-w-2xl mx-auto py-4 sm:py-6 md:py-8 px-4">
+<div class="max-w-2xl mx-auto py-4 sm:py-6 md:py-8 px-0 md:px-4">
   <h1 class="text-red text-center text-lg sm:text-xl md:text-2xl font-semibold font-jomolhari mb-4 sm:mb-6">
     Selecciona tu profesor
   </h1>
@@ -34,21 +34,24 @@ const teachers = Astro.props.teachers as Teacher[];
               <img
                 src={teacher.url_image + ".jpg"}
                 alt={`Profesor ${teacher.name}`}
-                class="carousel-img w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-2xl sm:rounded-3xl object-cover shadow-lg sm:shadow-xl hover:shadow-2xl mx-auto"
+                class="select-schedule carousel-img w-40 h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-2xl sm:rounded-3xl object-cover shadow-lg sm:shadow-xl hover:shadow-2xl mx-auto"
                 data-index={i}
                 data-cal-teacher={teacher.name}
                 data-cal-namespace={id}
+                data-cal-host={teacher.cal_id}
+                data-cal-link={`team/amanah-academia/${id}`}
+                data-cal-config='{"price": 2500, "currency": "eur"}'
               />
-              <div class="text-black text-center space-y-2 px-4">
-                <div class="bg-opacity-70 px-4 py-2 rounded-lg ">
+              <div class="text-black text-center space-y-2 px-0 md:px-4">
+                <div class="bg-opacity-70 px-0 md:px-4 py-2 rounded-lg ">
                   <p class="text-sm sm:text-base md:text-lg lg:text-xl font-semibold">{teacher.name}</p>
                 </div>
-                <div class=" bg-opacity-70 px-4 py-2 rounded-lg ">
+                <div class=" bg-opacity-70 px-0 md:px-4 py-2 rounded-lg ">
                   <p class="text-xs sm:text-sm md:text-base">
                     <span class="font-medium">Idioma nativo:</span> {teacher.native_lang}
                   </p>
                 </div>
-                <div class="bg-opacity-70 px-4 py-2 rounded-lg max-w-xs sm:max-w-sm md:max-w-md mx-auto">
+                <div class="bg-opacity-70 px-0 md:px-4 py-2 rounded-lg max-w-xs sm:max-w-sm md:max-w-md mx-auto">
                   <p class="text-xs sm:text-sm md:text-base leading-relaxed">{teacher.description}</p>
                 </div>
               </div>

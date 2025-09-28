@@ -40,11 +40,7 @@ import ThemeIcon from "@/assets/theme.svg";
         applyTheme(newTheme);
 
         // Guardar en Astro cookies vía endpoint SSR
-        await fetch("/api/set-theme", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ theme: newTheme }),
-        });
+        document.cookie = `theme=${newTheme}; path=/; max-age=${60 * 60 * 24 * 365}`; // 1 año
       });
     }
   });
