@@ -1,7 +1,12 @@
 use {
-    crate::models::webhook::CalWebhookEvent,
-    axum::{Json, extract::State, http::StatusCode},
+    crate::models::{
+        response::ResponseAPI,
+        stripe::RelationalCalStripe,
+        webhook::{CalWebhookEvent, RefundResponse},
+    },
+    axum::{Json, extract::State, http::StatusCode, response::IntoResponse},
     std::sync::Arc,
+    stripe::{CreateRefund, PaymentIntentId, Refund},
 };
 
 use crate::state::AppState;
@@ -14,72 +19,128 @@ pub async fn health_check() -> &'static str {
 pub async fn handle_cal_webhook(
     State(state): State<Arc<AppState>>,
     Json(event): Json<CalWebhookEvent>,
-) -> StatusCode {
+) -> impl IntoResponse {
     tracing::info!("📨 Webhook received: {}", event.trigger_event);
     tracing::debug!("Full payload: {:?}", event);
 
-    tracing::debug!("Full cancellation payload: {:?}", event);
+    // Si el evento es cancelación, procesamos refund
     if event.trigger_event == "BOOKING_CANCELLED" {
         tracing::info!(
-            "❌ Booking cancelled: {} - Reason: {:?}",
+            "Booking cancelled: {} - Reason: {:?}",
             event.payload.uid,
             event.payload.cancellation_reason
         );
+
+        let booking_id = &event.payload.uid;
+
+        let url_firebase_db_relationship = format!(
+            "{}/relation_cal_stripe/{}.json",
+            state.firebase.firebase_database_url, booking_id
+        );
+
+        // Obtener relación booking <-> Stripe desde Firebase
+        let stripe_id: String = match state
+            .firebase_client
+            .get(&url_firebase_db_relationship)
+            .send()
+            .await
+        {
+            Ok(res) => match res.json::<Option<RelationalCalStripe>>().await {
+                Ok(Some(val)) => val.stripe_id,
+                Ok(None) => {
+                    tracing::error!(
+                        "No se encontró relación de Firebase para booking_id: {}",
+                        booking_id
+                    );
+                    return (
+                        StatusCode::OK,
+                        Json(ResponseAPI::<()>::error("No Stripe ID found".to_string())),
+                    )
+                        .into_response();
+                }
+                Err(e) => {
+                    tracing::error!("Error parseando respuesta de Firebase: {}", e);
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ResponseAPI::<()>::error("Firebase parse error".to_string())),
+                    )
+                        .into_response();
+                }
+            },
+            Err(e) => {
+                tracing::error!("Error obteniendo relación de Firebase: {}", e);
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ResponseAPI::<()>::error(
+                        "Firebase request error".to_string(),
+                    )),
+                )
+                    .into_response();
+            }
+        };
+
+        // Convertir a PaymentIntentId
+        let pi_id: PaymentIntentId = match stripe_id.parse() {
+            Ok(id) => id,
+            Err(e) => {
+                tracing::error!("Invalid PaymentIntent ID: {}", e);
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(ResponseAPI::<()>::error(
+                        "Invalid PaymentIntent ID".to_string(),
+                    )),
+                )
+                    .into_response();
+            }
+        };
+
+        // Crear refund en Stripe
+        match Refund::create(
+            &state.stripe_client,
+            CreateRefund {
+                payment_intent: Some(pi_id),
+                ..Default::default()
+            },
+        )
+        .await
+        {
+            Ok(refund) => {
+                tracing::info!("Reembolso creado en Stripe: {:?}", refund);
+
+                let response = RefundResponse {
+                    id: refund.id.to_string(),
+                    amount: refund.amount,
+                    currency: refund.currency.to_string(),
+                    status: refund.status.clone(),
+                    created: refund.created,
+                };
+                return (
+                    StatusCode::OK,
+                    Json(ResponseAPI::<RefundResponse>::success(
+                        "Refund created successfully".to_string(),
+                        response,
+                    )),
+                )
+                    .into_response();
+            }
+            Err(e) => {
+                tracing::error!("Error creando reembolso: {:?}", e);
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ResponseAPI::<()>::error(
+                        "Failed to create refund".to_string(),
+                    )),
+                )
+                    .into_response();
+            }
+        }
     }
 
-    // SIEMPRE retornar 200 OK
-    StatusCode::OK
+    (
+        StatusCode::NOT_ACCEPTABLE,
+        Json(ResponseAPI::<()>::error(
+            "Event received but not processed".to_string(),
+        )),
+    )
+        .into_response()
 }
-
-// backend/src/controllers/payments.rs - Actualizar webhook_handler existente
-// pub async fn webhook_handler(
-//     State(state): State<Arc<AppState>>,
-//     headers: axum::http::HeaderMap,
-//     body: String,
-// ) -> impl IntoResponse {
-//     let signature = match headers.get("stripe-signature") {
-//         Some(sig) => sig.to_str().unwrap_or(""),
-//         None => {
-//             return (
-//                 StatusCode::BAD_REQUEST,
-//                 Json(json!({"error": "Missing stripe-signature header"})),
-//             );
-//         }
-//     };
-//     let webhook_secret =
-//         std::env::var("STRIPE_WEBHOOK_SECRET").unwrap_or_else(|_| "whsec_...".to_string());
-//     // Verificar firma del webhook
-//     let event = match Webhook::construct_event(&body, signature, &webhook_secret) {
-//         Ok(event) => event,
-//         Err(e) => {
-//             return (
-//                 StatusCode::BAD_REQUEST,
-//                 Json(json!({"error": format!("Webhook signature verification failed: {}", e)})),
-//             );
-//         }
-//     };
-//     // Procesar evento
-//     match event.type_ {
-//         EventType::PaymentIntentSucceeded => {
-//             if let EventObject::PaymentIntent(payment_intent) = event.data.object {
-//                 tracing::info!("PaymentIntent succeeded: {}", payment_intent.id);
-//                 // Obtener pending booking de DB usando payment_intent.id
-//                 // let pending_booking = get_pending_booking(&state.db, &payment_intent.id).await?;
-//                 // Crear booking en Cal.com
-//                 // let booking = create_cal_booking_from_pending(&state, &pending_booking).await?;
-//                 // Marcar como completado en DB
-//                 // mark_booking_completed(&state.db, &payment_intent.id, &booking.uid).await?;
-//             }
-//         }
-//         EventType::PaymentIntentPaymentFailed => {
-//             if let EventObject::PaymentIntent(payment_intent) = event.data.object {
-//                 tracing::warn!("PaymentIntent failed: {}", payment_intent.id);
-//                 // Marcar pending booking como fallido
-//             }
-//         }
-//         _ => {
-//             tracing::debug!("Unhandled event type: {:?}", event.type_);
-//         }
-//     }
-//     (StatusCode::OK, Json(json!({"received": true})))
-// }

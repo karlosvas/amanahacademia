@@ -13,7 +13,7 @@ use {
     axum::{
         Extension, Json, debug_handler,
         extract::{Path, State},
-        http::{Response, StatusCode},
+        http::StatusCode,
         response::IntoResponse,
     },
     serde_json::json,

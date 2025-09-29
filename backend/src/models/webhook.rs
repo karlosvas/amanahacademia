@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Deserialize, Debug)]
@@ -35,4 +35,13 @@ pub struct Attendee {
     pub email: String,
     #[serde(rename = "timeZone")]
     pub time_zone: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RefundResponse {
+    pub id: String,
+    pub amount: i64,
+    pub currency: String,
+    pub status: Option<String>,
+    pub created: i64,
 }
