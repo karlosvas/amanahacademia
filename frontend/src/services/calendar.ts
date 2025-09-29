@@ -1,5 +1,5 @@
 import type { Class } from "@/enums/enums";
-import type { PricingApiResponse, CalPricingResponse } from "@/types/types";
+import type { PricingApiResponse } from "@/types/types";
 
 /**
  * Inicializa y configura el calendario embebido de Cal.com para el namespace dado.

@@ -10,7 +10,7 @@ const data = Astro.props.data as HeaderI18n;
 let { lang } = Astro.params;
 const theme = Astro.cookies.get("theme")?.value ?? "light";
 
-if (!lang) lang = "es";
+if (!lang) lang = "";
 Astro.cookies.set("lang", lang, { path: "/", maxAge: 31536000 });
 ---
 

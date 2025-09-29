@@ -104,7 +104,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
   import toast from "solid-toast";
   import type { Comment, UpdateComment } from "@/types/bakend-types";
   import { closeModalAnimation } from "@/utils/modals";
-  import { FrontendErrorCode, getErrorMessage } from "@/types/enums";
+  import { FrontendErrorCode, getErrorMessage } from "@/enums/enums";
 
   class CommentModal {
     private id: string;

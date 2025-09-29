@@ -2,7 +2,7 @@ import type { Comment, Result } from "@/types/bakend-types";
 import { toast } from "solid-toast";
 import { ApiService } from "./helper";
 import { getAuth, type User } from "firebase/auth";
-import { FrontendErrorCode, getErrorMessage } from "@/types/enums";
+import { FrontendErrorCode, getErrorMessage } from "@/enums/enums";
 
 export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanElement) {
   const helper = new ApiService();
