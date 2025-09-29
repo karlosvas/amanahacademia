@@ -104,7 +104,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
   import toast from "solid-toast";
   import type { Comment, UpdateComment } from "@/types/bakend-types";
   import { closeModalAnimation } from "@/utils/modals";
-  import { FrontendErrorCode, getErrorMessage } from "@/enums/enums";
+  import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 
   class CommentModal {
     private id: string;
@@ -268,7 +268,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
         try {
           const currentUser = auth.currentUser;
           if (!currentUser) {
-            toast.error(getErrorMessage(FrontendErrorCode.NEED_AUTHENTICATION));
+            toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
             return;
           }
 
@@ -288,7 +288,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
                 }, 1000);
               })
               .catch((_) => {
-                toast.error(getErrorMessage(FrontendErrorCode.UNKNOWN_ERROR));
+                toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
               });
           } else {
             const commentObj: Comment = {
@@ -309,11 +309,11 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
                 }, 1000);
               })
               .catch((_) => {
-                toast.error(getErrorMessage(FrontendErrorCode.UNKNOWN_ERROR));
+                toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
               });
           }
         } catch (error) {
-          toast.error(getErrorMessage(FrontendErrorCode.UNKNOWN_ERROR));
+          toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
         }
 
         this.resetForm();

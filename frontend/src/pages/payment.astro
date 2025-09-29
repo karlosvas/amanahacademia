@@ -20,9 +20,6 @@ const bookingUid = Astro.url.searchParams.get("uid") || Astro.url.searchParams.g
 if (!bookingUid) {
   return Astro.redirect("/");
 }
-
-// Opcional: Obtener detalles del booking desde Cal.com
-// const bookingDetails = await fetchBookingDetails(bookingUid);
 ---
 
 <Layout

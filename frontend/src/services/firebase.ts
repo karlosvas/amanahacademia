@@ -4,7 +4,7 @@ import { showModalAnimation } from "../utils/modals";
 import { auth, googleProvider } from "@/config/firebase";
 import type { ContactMailchimp, UserRequest } from "@/types/bakend-types";
 import { ApiService } from "./helper";
-import { FrontendErrorCode, getErrorMessage } from "@/enums/enums";
+import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 
 // Obtener el botón de identificación segun el tamaño de la pantalla
 export function getIdentificationButton() {
@@ -119,7 +119,7 @@ export function submitForm(
 
           if (!response.success) {
             console.error("Error adding user to newsletter");
-            toast.error(getErrorMessage(FrontendErrorCode.NEWSLETTER_ERROR));
+            toast.error(getErrorToast(FrontendErrorCode.NEWSLETTER_ERROR));
           }
         }
 

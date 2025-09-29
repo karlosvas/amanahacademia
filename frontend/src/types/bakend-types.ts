@@ -117,7 +117,6 @@ export interface CheckoutPaymentIntentResponse {
 export interface CheckoutPaymentIntentRequest {
   amount: number;
   currency: string;
-  payment_method: string;
 }
 
 export interface RelationalCalStripe {

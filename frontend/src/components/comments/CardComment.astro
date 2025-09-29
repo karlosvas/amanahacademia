@@ -90,7 +90,7 @@ const avatar: AvatarProps = {
   import type { Result, Comment } from "@/types/bakend-types";
   import { showModalAnimation } from "@/utils/modals";
   import toast from "solid-toast";
-  import { FrontendErrorCode, getErrorMessage } from "@/enums/enums";
+  import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 
   const options = document.querySelectorAll(".comment-config");
   const menus = document.querySelectorAll(".comment-config-menu");
@@ -100,7 +100,7 @@ const avatar: AvatarProps = {
     option.addEventListener("click", (e) => {
       e.stopPropagation();
       if (!auth.currentUser) {
-        toast.error(getErrorMessage(FrontendErrorCode.NEED_AUTHENTICATION));
+        toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
         return;
       }
       menus[index].classList.toggle("hidden");
@@ -142,9 +142,9 @@ const avatar: AvatarProps = {
         } else {
           console.error("Error al eliminar el comentario");
           if (res.error.message && res.error.statusCode == 403) {
-            toast.error(getErrorMessage(FrontendErrorCode.MUST_BE_OWNER));
+            toast.error(getErrorToast(FrontendErrorCode.MUST_BE_OWNER));
           } else {
-            toast.error(getErrorMessage(FrontendErrorCode.UNKNOWN_ERROR));
+            toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
           }
         }
       });
@@ -169,12 +169,12 @@ const avatar: AvatarProps = {
       const comment: Result<Comment> = await helper.getCommentById(commentId);
 
       if (!comment.success) {
-        toast.error(getErrorMessage(FrontendErrorCode.UNKNOWN_ERROR));
+        toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
         return;
       }
 
       if (auth.currentUser?.uid !== comment.data.author_uid) {
-        toast.error(getErrorMessage(FrontendErrorCode.MUST_BE_OWNER));
+        toast.error(getErrorToast(FrontendErrorCode.MUST_BE_OWNER));
         return;
       }
 

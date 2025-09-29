@@ -79,7 +79,6 @@ export async function updatePricing() {
     // Obtener el país de la URL si existe
     const urlParams: URLSearchParams = new URLSearchParams(window.location.search);
     const testCountry: string | null = urlParams.get("test_country");
-
     const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
     const response: Response = await fetch(apiUrl);
 
@@ -91,34 +90,17 @@ export async function updatePricing() {
       const tier: string | null = card.getAttribute("card-pricing-tier");
       const symbolElement: NodeListOf<HTMLElement> = card.querySelectorAll(".currency-symbol");
       const amountElement: NodeListOf<HTMLElement> = card.querySelectorAll(".price-amount");
-      const perStudentElement: NodeListOf<HTMLElement> = card.querySelectorAll(".per-student-price");
 
-      let tierPrice,
-        perStudentPrice = null;
-
-      switch (tier) {
-        case "standard-class":
-          tierPrice = pricingData.prices.individual_standard;
-          break;
-        case "conversation-class":
-          tierPrice = pricingData.prices.individual_conversation;
-          break;
-        case "group-class":
-          tierPrice = pricingData.prices.group;
-          break;
-        default:
-          tierPrice = pricingData.prices.individual_standard;
+      if (!tier) {
+        console.error("Dont find card-pracing-tier");
+        return;
       }
+
+      let tierPrice: number = getPrice(tier, pricingData);
 
       if (symbolElement && symbolElement.length > 0)
         symbolElement.forEach((el) => (el.textContent = pricingData.symbol));
       if (amountElement) amountElement.forEach((el) => (el.textContent = tierPrice.toString()));
-
-      // Mostrar precio por estudiante si aplica
-      if (perStudentElement && perStudentPrice) {
-        perStudentElement.forEach((el) => (el.textContent = perStudentPrice));
-        perStudentElement.forEach((el) => el.classList.remove("hidden"));
-      }
     });
 
     // Actualizar Cal.com después de actualizar las cards
@@ -143,14 +125,22 @@ function updateCalendarPricing(pricingData: PricingApiResponse) {
     let price = calPrices["standard-class"]; // Default
 
     // Mejorar detección de tipo de clase
-    if (calLink?.includes("conversation-class")) {
-      price = calPrices["conversation-class"];
-    } else if (calLink?.includes("group-class")) {
-      price = calPrices["group-class"];
-    } else if (calLink?.includes("free-class")) {
-      price = calPrices["free-class"];
-    } else if (calLink?.includes("standard-class")) {
-      price = calPrices["standard-class"];
-    }
+    if (calLink?.includes("conversation-class")) price = calPrices["conversation-class"];
+    else if (calLink?.includes("group-class")) price = calPrices["group-class"];
+    else if (calLink?.includes("free-class")) price = calPrices["free-class"];
+    else if (calLink?.includes("standard-class")) price = calPrices["standard-class"];
   });
+}
+
+export function getPrice(tier: string, pricingData: PricingApiResponse): number {
+  switch (tier) {
+    case "standard-class":
+      return pricingData.prices.individual_standard;
+    case "conversation-class":
+      return pricingData.prices.individual_conversation;
+    case "group-class":
+      return pricingData.prices.group;
+    default:
+      return pricingData.prices.individual_standard;
+  }
 }

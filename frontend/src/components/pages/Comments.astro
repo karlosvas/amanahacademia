@@ -121,7 +121,7 @@ try {
   import { toast } from "solid-toast";
   import { updateLikeState } from "@/services/comments";
   import { showModalAnimation } from "@/utils/modals";
-  import { FrontendErrorCode, getErrorMessage } from "@/enums/enums";
+  import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 
   // Espera a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", function () {
@@ -170,7 +170,7 @@ try {
           }, 300);
         } else {
           // Si el usuario no está logueado, muestra un toast de error
-          toast.error(getErrorMessage(FrontendErrorCode.NEED_AUTHENTICATION));
+          toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
         }
       });
     });
@@ -189,7 +189,7 @@ try {
     const openBtn = document.getElementById("open-comment-modal");
     openBtn?.addEventListener("click", () => {
       if (!auth.currentUser) {
-        toast.error(getErrorMessage(FrontendErrorCode.NEED_AUTHENTICATION));
+        toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
         return;
       }
       openCommentModal("comment-modal"); // donde "123" es tu ID único

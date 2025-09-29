@@ -2,7 +2,7 @@ import type { Comment, Result } from "@/types/bakend-types";
 import { toast } from "solid-toast";
 import { ApiService } from "./helper";
 import { getAuth, type User } from "firebase/auth";
-import { FrontendErrorCode, getErrorMessage } from "@/enums/enums";
+import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 
 export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanElement) {
   const helper = new ApiService();
@@ -11,7 +11,7 @@ export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanEleme
   const currentUser = auth.currentUser;
 
   if (!currentUser) {
-    toast.error(getErrorMessage(FrontendErrorCode.NEED_AUTHENTICATION));
+    toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
     return;
   }
 
