@@ -1,0 +1,92 @@
+---
+import { getI18N } from "@/../i18n/index";
+import Layout from "@/layouts/Layout.astro";
+import { getSEOData } from "@/utils/seo";
+import type { I18nTranslations, PropsSEO } from "@/types/types";
+
+const { lang } = Astro.params;
+const data = getI18N({ lang }) as I18nTranslations;
+
+const currentLang = lang || "es";
+const seoData = getSEOData("info", currentLang) as PropsSEO;
+---
+
+<Layout
+  lang={seoData.lang}
+  title={seoData.title}
+  description={seoData.description}
+  canonical={seoData.canonical}
+  ogImage={seoData.ogImage}
+  noindex={seoData.noindex}
+  keywords={seoData.keywords}
+  structuredDataType={seoData.structuredDataType}
+  structuredData={seoData.structuredData}
+>
+  <main class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 px-4">
+    <div class="max-w-md w-full text-center space-y-8 animate-fade-in">
+      <!-- Icono de éxito -->
+      <div class="mx-auto w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center animate-scale-in">
+        <svg class="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+
+      <!-- Título -->
+      <div class="space-y-3">
+        <h1 class="text-4xl font-bold text-gray-900">¡Pago confirmado!</h1>
+        <p class="text-gray-600 text-lg">Tu reserva ha sido procesada exitosamente</p>
+      </div>
+
+      <!-- Detalles -->
+      <div class="rounded-2xl shadow-sm p-6 space-y-4 border border-gray-100 bg-gray-50">
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-gray-500">Estado</span>
+          <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full font-medium"> Confirmado </span>
+        </div>
+        <div class="pt-4 border-t border-gray-100">
+          <p class="text-sm text-gray-600">Recibirás un correo de confirmación con todos los detalles de tu clase</p>
+        </div>
+      </div>
+
+      <!-- Botón de acción -->
+
+      <a
+        href={`/${currentLang}`}
+        class="inline-block w-full px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl transition-colors
+      duration-200 shadow-sm"
+      >
+        Volver al inicio
+      </a>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+</style>

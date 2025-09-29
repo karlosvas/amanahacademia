@@ -347,3 +347,29 @@ export type PricingApiResponse = {
     group: number;
   };
 };
+
+export interface CalPricingResponse {
+  prices: {
+    individual_standard: number;
+    individual_conversation: number;
+    group: number;
+  };
+  symbol: string;
+  country?: string;
+  // Añadir precios para Cal.com (en centavos)
+  cal_standard: number;
+  cal_conversation: number;
+  cal_group: number;
+}
+
+export interface BookingPaymentRequest {
+  amount: number;
+  currency: string;
+  payment_method: string;
+  event_type_id: number;
+  start_time: string; // ISO 8601
+  attendee_name: string;
+  attendee_email: string;
+  attendee_timezone: string;
+  attendee_phone?: string;
+}

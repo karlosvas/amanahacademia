@@ -1,5 +1,5 @@
 import type { Class } from "@/enums/enums";
-import type { PricingApiResponse } from "@/types/types";
+import type { PricingApiResponse, CalPricingResponse } from "@/types/types";
 
 /**
  * Inicializa y configura el calendario embebido de Cal.com para el namespace dado.
@@ -86,6 +86,7 @@ export async function updatePricing() {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const pricingData: PricingApiResponse = (await response.json()) as PricingApiResponse;
+
     document.querySelectorAll("[card-pricing-tier]").forEach((card) => {
       const tier: string | null = card.getAttribute("card-pricing-tier");
       const symbolElement: NodeListOf<HTMLElement> = card.querySelectorAll(".currency-symbol");
@@ -96,13 +97,13 @@ export async function updatePricing() {
         perStudentPrice = null;
 
       switch (tier) {
-        case "standard-class":
+        case "standard-class": // ✅ Cambiar a "standard" sin "-class"
           tierPrice = pricingData.prices.individual_standard;
           break;
-        case "conversation-class":
+        case "conversation-class": // ✅ Cambiar a "conversation" sin "-class"
           tierPrice = pricingData.prices.individual_conversation;
           break;
-        case "group-class":
+        case "group-class": // ✅ Cambiar a "group" sin "-class"
           tierPrice = pricingData.prices.group;
           break;
         default:
@@ -119,7 +120,58 @@ export async function updatePricing() {
         perStudentElement.forEach((el) => el.classList.remove("hidden"));
       }
     });
+
+    // ✅ Actualizar Cal.com después de actualizar las cards
+    updateCalendarPricing(pricingData);
   } catch (error) {
     console.error("Error loading pricing:", error);
   }
+}
+
+// Nueva función para actualizar Cal.com
+function updateCalendarPricing(pricingData: PricingApiResponse) {
+  // Convertir precios a centavos para Cal.com
+  const calPrices = {
+    "standard-class": pricingData.prices.individual_standard * 100,
+    "conversation-class": pricingData.prices.individual_conversation * 100,
+    "group-class": pricingData.prices.group * 100,
+    "free-class": 0, // ✅ Añadir clase gratuita explícitamente
+  };
+
+  document.querySelectorAll(".select-schedule").forEach((element) => {
+    const calLink = element.getAttribute("data-cal-link");
+    let price = calPrices["standard-class"]; // Default
+
+    // ✅ Mejorar detección de tipo de clase
+    if (calLink?.includes("conversation-class")) {
+      price = calPrices["conversation-class"];
+    } else if (calLink?.includes("group-class")) {
+      price = calPrices["group-class"];
+    } else if (calLink?.includes("free-class")) {
+      price = calPrices["free-class"];
+    } else if (calLink?.includes("standard-class")) {
+      price = calPrices["standard-class"];
+    }
+
+    // Actualizar data-cal-config
+    const calConfig = {
+      price: price,
+      currency: "eur",
+      // ✅ Añadir metadata útil para debugging
+      metadata: {
+        country: pricingData.country || "unknown",
+        priceEur: (price / 100).toFixed(2),
+      },
+    };
+
+    element.setAttribute("data-cal-config", JSON.stringify(calConfig));
+  });
+
+  // ✅ Log para debugging
+  console.log("Cal.com precios actualizados:", {
+    country: pricingData.country || "default",
+    standard: `${(calPrices["standard-class"] / 100).toFixed(2)}€`,
+    conversation: `${(calPrices["conversation-class"] / 100).toFixed(2)}€`,
+    group: `${(calPrices["group-class"] / 100).toFixed(2)}€`,
+  });
 }

@@ -129,6 +129,7 @@ async fn main() {
         stripe_client,
         resend_client,
         mailchimp_client,
+        booking_client: HttpClient::new(),
     });
 
     // Configurar CORS

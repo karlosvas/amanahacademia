@@ -1,8 +1,11 @@
 use {
     crate::{
-        models::stripe::{
-            CurrencyMap, PayloadCreacteProduct, PaymentPayload, PaymentResponse, PricePayload,
-            ProductPayload,
+        models::{
+            response::ResponseAPI,
+            stripe::{
+                CurrencyMap, PayloadCreacteProduct, PaymentPayload, PaymentResponse, PricePayload,
+                ProductPayload,
+            },
         },
         services::payments::insert_options_by_country,
         state::AppState,
@@ -16,10 +19,10 @@ use {
     serde_json::json,
     std::{collections::HashMap, str::FromStr, sync::Arc},
     stripe::{
-        CreatePaymentIntent, CreateProduct, CreateProductDefaultPriceData,
-        CreateProductDefaultPriceDataCurrencyOptions, Currency, Expandable, List, ListPrices,
-        ListProducts, PaymentIntent, PaymentIntentStatus, Price, PriceId, Product, ProductId,
-        StripeError, UpdatePrice, UpdateProduct,
+        CreatePaymentIntent, CreatePaymentIntentAutomaticPaymentMethods, CreateProduct,
+        CreateProductDefaultPriceData, CreateProductDefaultPriceDataCurrencyOptions, Currency,
+        Expandable, List, ListPrices, ListProducts, PaymentIntent, Price, PriceId, Product,
+        ProductId, StripeError, UpdatePrice, UpdateProduct,
     },
     tracing::instrument,
 };
@@ -31,29 +34,50 @@ use {
     fields(
         amount = %payload.amount,
         currency = %payload.currency,
-        operation = "generic_payment"
+        operation = "payment_intent"
     )
 )]
-pub async fn generic_payment(
+pub async fn payment_intent(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<PaymentPayload>,
 ) -> impl IntoResponse {
+    tracing::debug!(
+        "[payment_intent] payload: amount={}, currency={}",
+        payload.amount,
+        payload.currency
+    );
+
     // Validar el monto mínimo (ejemplo: $5.00 USD = 500 centavos)
     if payload.amount < 500 {
-        return Json(json!({
-            "succes": false,
-            "message": Some("El monto mínimo es 5.00€".to_string()),
-        }));
+        tracing::warn!("[payment_intent] Monto menor al mínimo: {}", payload.amount);
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(ResponseAPI::<()>::error(
+                "El monto mínimo es 5.00€".to_string(),
+            )),
+        )
+            .into_response();
     }
 
     // Crear el PaymentIntent
-    let payment_intent: CreatePaymentIntent = CreatePaymentIntent {
+    let currency: Currency =
+        Currency::from_str(&payload.currency.to_string()).unwrap_or(Currency::EUR);
+    tracing::debug!("[payment_intent] Usando currency: {:?}", currency);
+
+    let payment_intent = CreatePaymentIntent {
         amount: payload.amount,
-        currency: Currency::from_str(&payload.currency.to_string()).unwrap_or(Currency::EUR),
-        application_fee_amount: None,
-        automatic_payment_methods: None,
+        currency,
+        payment_method: None,
+        payment_method_types: None,
+        confirm: Some(false),
+        return_url: None,
+        automatic_payment_methods: Some(CreatePaymentIntentAutomaticPaymentMethods {
+            enabled: true,
+            allow_redirects: Some(
+                stripe::CreatePaymentIntentAutomaticPaymentMethodsAllowRedirects::Never,
+            ),
+        }),
         capture_method: None,
-        confirm: Some(true),
         confirmation_method: None,
         customer: None,
         description: None,
@@ -64,14 +88,11 @@ pub async fn generic_payment(
         metadata: None,
         off_session: None,
         on_behalf_of: None,
-        payment_method: Some(stripe::PaymentMethodId::from_str(&payload.payment_method).unwrap()),
         payment_method_configuration: None,
         payment_method_data: None,
         payment_method_options: None,
-        payment_method_types: None,
         radar_options: None,
         receipt_email: None,
-        return_url: Some("https://amanahacademia.com"),
         setup_future_usage: None,
         shipping: None,
         statement_descriptor: None,
@@ -79,144 +100,59 @@ pub async fn generic_payment(
         transfer_data: None,
         transfer_group: None,
         use_stripe_sdk: None,
-    };
-
-    match PaymentIntent::create(&state.stripe_client, payment_intent).await {
-        Ok(payment_intent) => match payment_intent.status {
-            PaymentIntentStatus::Succeeded => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: "succes".to_string(),
-                error: None,
-            })),
-            PaymentIntentStatus::RequiresAction => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: "requires_action".to_string(),
-                error: Some("Requires additional authentication".to_string()),
-            })),
-            PaymentIntentStatus::RequiresPaymentMethod => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: "requires_payment_method".to_string(),
-                error: Some("Invalid payment method".to_string()),
-            })),
-            PaymentIntentStatus::Canceled => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: "canceled".to_string(),
-                error: Some("Payment canceled".to_string()),
-            })),
-            PaymentIntentStatus::Processing => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: "processing".to_string(),
-                error: Some("Payment processing".to_string()),
-            })),
-            _ => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: payment_intent.status.to_string(),
-                error: None,
-            })),
-        },
-        Err(_) => Json(json!(PaymentResponse {
-            client_secret: None,
-            status: "error".to_string(),
-            error: Some("Error processing payment".to_string()),
-        })),
-    }
-}
-
-// Comprar clase individual
-#[debug_handler]
-#[instrument(
-    skip(state, payload),
-    fields(
-        amount = %payload.amount,
-        currency = %payload.currency,
-        operation = "basic_class_payment"
-    )
-)]
-pub async fn basic_class_payment(
-    State(state): State<Arc<AppState>>,
-    Json(payload): Json<PaymentPayload>,
-) -> impl IntoResponse {
-    // Validar el monto mínimo (ejemplo: $5.00 USD = 500 centavos)
-    if payload.amount < 500 {
-        return Json(json!({
-            "succes": false,
-            "message": Some("El monto mínimo es 5.00€".to_string()),
-        }));
-    }
-
-    // Crear el PaymentIntent
-    let payment_intent: CreatePaymentIntent = CreatePaymentIntent {
-        amount: payload.amount,
-        currency: Currency::from_str(&payload.currency.to_string()).unwrap_or(Currency::EUR),
         application_fee_amount: None,
-        automatic_payment_methods: None,
-        capture_method: None,
-        confirm: Some(true),
-        confirmation_method: None,
-        customer: None,
-        description: None,
-        error_on_requires_action: None,
-        expand: &[],
-        mandate: None,
-        mandate_data: None,
-        metadata: None,
-        off_session: None,
-        on_behalf_of: None,
-        payment_method: Some(stripe::PaymentMethodId::from_str(&payload.payment_method).unwrap()),
-        payment_method_configuration: None,
-        payment_method_data: None,
-        payment_method_options: None,
-        payment_method_types: None,
-        radar_options: None,
-        receipt_email: None,
-        return_url: Some("https://amanahacademia.com"),
-        setup_future_usage: None,
-        shipping: None,
-        statement_descriptor: None,
-        statement_descriptor_suffix: None,
-        transfer_data: None,
-        transfer_group: None,
-        use_stripe_sdk: None,
     };
 
+    tracing::debug!("[payment_intent] Creando PaymentIntent con Stripe...");
     match PaymentIntent::create(&state.stripe_client, payment_intent).await {
-        Ok(payment_intent) => match payment_intent.status {
-            PaymentIntentStatus::Succeeded => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: "succes".to_string(),
-                error: Some("Payment successful".to_string()),
-            })),
-            PaymentIntentStatus::RequiresAction => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: "requires_action".to_string(),
-                error: Some("Requires additional authentication".to_string()),
-            })),
-            PaymentIntentStatus::RequiresPaymentMethod => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: "requires_payment_method".to_string(),
-                error: Some("Invalid payment method".to_string()),
-            })),
-            PaymentIntentStatus::Canceled => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: "canceled".to_string(),
-                error: Some("Payment canceled".to_string()),
-            })),
-            PaymentIntentStatus::Processing => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: "processing".to_string(),
-                error: Some("Payment processing".to_string()),
-            })),
-            _ => Json(json!(PaymentResponse {
-                client_secret: payment_intent.client_secret,
-                status: payment_intent.status.to_string(),
-                error: None,
-            })),
-        },
-        Err(_) => Json(json!(PaymentResponse {
-            client_secret: None,
-            status: "error".to_string(),
-            error: Some("Error processing payment".to_string()),
-        })),
+        Ok(payment_intent) => {
+            tracing::info!(
+                "[payment_intent] PaymentIntent creado: id={}, status={:?}",
+                payment_intent.id,
+                payment_intent.status
+            );
+
+            // Extraer el client_secret
+            let client_secret = match payment_intent.client_secret {
+                Some(secret) => secret,
+                None => {
+                    tracing::error!("[payment_intent] No se recibió client_secret");
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ResponseAPI::<()>::error("Error interno".to_string())),
+                    )
+                        .into_response();
+                }
+            };
+
+            // Con confirm=false, el status DEBE ser RequiresPaymentMethod
+            // Esto es correcto y esperado
+            (
+                StatusCode::OK,
+                Json(ResponseAPI::success(
+                    "PaymentIntent creado".to_string(),
+                    PaymentResponse {
+                        client_secret: Some(client_secret),
+                        status: format!("{:?}", payment_intent.status),
+                        error: None,
+                    },
+                )),
+            )
+                .into_response()
+        }
+        Err(stripe_error) => {
+            tracing::error!(
+                error = ?stripe_error,
+                "Stripe API error"
+            );
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(
+                    "Error processing payment".to_string(),
+                )),
+            )
+                .into_response()
+        }
     }
 }
 

@@ -101,19 +101,34 @@ try {
     });
 
     // Obtenemos todos los enlaces de seleccionar horario, button o img
-    const scheduleCalendar = document.querySelectorAll(".select-schedule");
-    // Por cada botón seteamos el tema actual al atributo data-cal-config
-    scheduleCalendar.forEach((element) => {
+    const calElements = document.querySelectorAll("[data-cal-link]");
+
+    calElements.forEach((element) => {
       element.addEventListener("click", async () => {
         const modal = document.querySelector("dialog[open]") as HTMLDialogElement | null;
         if (modal) closeModalAnimation(modal);
 
         // Obtenemos el tema actual
         const theme = getThemeFromCookie();
-        // Para cada .select-schedule: elimina el atributo si existe y pon el nuevo valor
-        scheduleCalendar.forEach((el) => {
-          el.removeAttribute("data-cal-config");
-          el.setAttribute("data-cal-config", `{"theme":"${theme}"}`);
+
+        // Para cada .select-schedule: COMBINAR tema con precios existentes
+        calElements.forEach((el) => {
+          // ✅ Obtener config existente (que ya tiene precios)
+          const existingConfig = el.getAttribute("data-cal-config");
+          let calConfig: { [key: string]: any } = {};
+
+          try {
+            calConfig = existingConfig ? JSON.parse(existingConfig) : {};
+          } catch (e) {
+            console.warn("Error parsing existing cal-config:", e);
+            calConfig = {};
+          }
+
+          // ✅ Añadir solo el tema, preservando precios
+          calConfig.theme = theme;
+
+          // ✅ Actualizar con configuración completa
+          el.setAttribute("data-cal-config", JSON.stringify(calConfig));
         });
       });
     });

@@ -57,6 +57,7 @@ const theme = Astro.cookies.get("theme")?.value;
       https://cdnjs.cloudflare.com
       https://challenges.cloudflare.com
       https://unpkg.com
+      https://js.stripe.com
       *;
     style-src 'self' 'unsafe-inline'
       https://fonts.googleapis.com
@@ -74,17 +75,24 @@ const theme = Astro.cookies.get("theme")?.value;
       https://accounts.google.com
       https://challenges.cloudflare.com
       https://amanahacademia.fly.dev
+      https://api.stripe.com
+      https://api.cal.com
+      https://cal.com
       http://localhost:3000
       ws://localhost:*
       *;
-    frame-src *;
+    frame-src 
+      https://js.stripe.com
+      https://hooks.stripe.com
+      https://cal.com
+      https://app.cal.com
+      *;
     img-src * data: blob:;
     object-src 'none';
     base-uri 'self';
-    form-action 'self';
+    form-action 'self' https://api.stripe.com;
   "
     />
-
     <!-- Preloads -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

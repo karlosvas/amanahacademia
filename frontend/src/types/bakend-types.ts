@@ -107,3 +107,15 @@ export interface MergeFields {
   FNAME?: string;
   LNAME?: string;
 }
+
+export interface CheckoutPaymentIntentResponse {
+  client_secret: string;
+  status: string;
+  error?: string;
+}
+
+export interface CheckoutPaymentIntentRequest {
+  amount: number;
+  currency: string;
+  payment_method: string;
+}

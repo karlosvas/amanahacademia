@@ -9,6 +9,8 @@ import {
   type UserRequest,
   type UpdateComment,
   type ContactMailchimp,
+  type CheckoutPaymentIntentResponse,
+  type CheckoutPaymentIntentRequest,
 } from "@/types/bakend-types";
 import { ApiErrorType } from "@/enums/enums";
 import { ApiError } from "@/services/globalHandler";
@@ -263,6 +265,25 @@ export class ApiService {
       body: JSON.stringify(contactMailchimp),
     });
     return this.handleResponse<AddContactResponse>(res);
+  }
+
+  //////////////////// STRIPE /////////////////////
+  async checkout(payload: CheckoutPaymentIntentRequest): Promise<Result<CheckoutPaymentIntentResponse>> {
+    const currentUser = auth.currentUser;
+    const token = currentUser ? await currentUser.getIdToken(true) : null;
+    let url = `${this.baseUrl}/payment/intent`;
+
+    // Crear Payment Intent en el backend
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    return this.handleResponse<CheckoutPaymentIntentResponse>(response);
   }
 }
 

@@ -9,6 +9,7 @@ pub struct AppState {
     pub stripe_client: StripeClient,
     pub resend_client: Resend,
     pub mailchimp_client: MailchimpClient,
+    pub booking_client: HttpClient,
 }
 
 #[derive(Clone)]
