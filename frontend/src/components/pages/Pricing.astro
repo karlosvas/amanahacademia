@@ -72,6 +72,7 @@ try {
     </div>
   </div>
 </main>
+<div id="cal-inline-root" class="relative mx-auto"></div>
 
 <script>
   import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
@@ -113,7 +114,7 @@ try {
 
         // Para cada .select-schedule: COMBINAR tema con precios existentes
         calElements.forEach((el) => {
-          // ✅ Obtener config existente (que ya tiene precios)
+          // Obtener config existente (que ya tiene precios)
           const existingConfig = el.getAttribute("data-cal-config");
           let calConfig: { [key: string]: any } = {};
 
@@ -124,10 +125,10 @@ try {
             calConfig = {};
           }
 
-          // ✅ Añadir solo el tema, preservando precios
+          // Añadir solo el tema, preservando precios
           calConfig.theme = theme;
 
-          // ✅ Actualizar con configuración completa
+          // Actualizar con configuración completa
           el.setAttribute("data-cal-config", JSON.stringify(calConfig));
         });
       });

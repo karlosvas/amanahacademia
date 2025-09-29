@@ -17,7 +17,6 @@ pub fn router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     let public_routes = Router::new()
         .route("/register", post(register_user)) // POST /user/register
         .route("/login", post(login_user)); // GET /user/login
-    // .route("/me", post(create_user_in_db)); // POST /user/add
 
     let protected_routes = Router::new()
         .route("/update/me", put(update_user)) // PUT /user/

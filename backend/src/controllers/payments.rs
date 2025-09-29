@@ -4,16 +4,16 @@ use {
             response::ResponseAPI,
             stripe::{
                 CurrencyMap, PayloadCreacteProduct, PaymentPayload, PaymentResponse, PricePayload,
-                ProductPayload,
+                ProductPayload, RelationalCalStripe,
             },
         },
         services::payments::insert_options_by_country,
         state::AppState,
     },
     axum::{
-        Json, debug_handler,
+        Extension, Json, debug_handler,
         extract::{Path, State},
-        http::StatusCode,
+        http::{Response, StatusCode},
         response::IntoResponse,
     },
     serde_json::json,
@@ -179,11 +179,6 @@ pub async fn refund_payment(// Path(id): Path<String>,
 
 // Consultar el historial de pagos del usuario
 pub async fn get_payment_history() -> impl IntoResponse {
-    StatusCode::NO_CONTENT.into_response()
-}
-
-// Webhook para recibir eventos de Stripe
-pub async fn webhook_handler() -> impl IntoResponse {
     StatusCode::NO_CONTENT.into_response()
 }
 
@@ -424,5 +419,72 @@ pub async fn delete_price(
             StatusCode::BAD_REQUEST,
             Json(json!({"success": false, "error": format!("Error archiving price: {}", err) })),
         ),
+    }
+}
+
+// Estructura para recibir la relacion entre cal y stripe
+pub async fn archive_cal_connection(
+    State(state): State<Arc<AppState>>,
+    Extension(id_token): Extension<String>,
+    Json(payload): Json<RelationalCalStripe>,
+) -> impl IntoResponse {
+    let url_firebase_db: String = format!(
+        "{}/relation_cal_stripe/{}.json?auth={}",
+        state.firebase.firebase_database_url, payload.cal_id, id_token
+    );
+
+    tracing::info!(
+        "💾 Saving Cal-Stripe relation: {} -> {}",
+        payload.cal_id,
+        payload.stripe_id
+    );
+
+    match state
+        .firebase_client
+        .put(&url_firebase_db)
+        .json(&json!({
+            "stripe_id": payload.stripe_id
+        }))
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status().is_success() {
+                tracing::info!("Relation saved successfully");
+                let mut data = HashMap::new();
+                data.insert("cal_id".to_string(), payload.cal_id.clone());
+                data.insert("stripe_id".to_string(), payload.stripe_id.clone());
+                (
+                    StatusCode::OK,
+                    Json(ResponseAPI::<HashMap<String, String>>::success(
+                        "Relation saved successfully".to_string(),
+                        data,
+                    )),
+                )
+                    .into_response()
+            } else {
+                let error_text: String = response.text().await.unwrap_or_default();
+                tracing::error!("Firebase error: {}", error_text);
+
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ResponseAPI::<()>::error(
+                        "Failed to save relation".to_string(),
+                    )),
+                )
+                    .into_response()
+            }
+        }
+        Err(e) => {
+            tracing::error!("Request failed: {}", e);
+
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(
+                    "Failed to send request".to_string(),
+                )),
+            )
+                .into_response()
+        }
     }
 }

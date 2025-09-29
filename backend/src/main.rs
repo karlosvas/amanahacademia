@@ -5,7 +5,7 @@ mod routes;
 mod services;
 mod state;
 use {
-    crate::models::mailchimp::MailchimpClient,
+    crate::{models::mailchimp::MailchimpClient, state::CalOptions},
     axum::{
         Router,
         http::{
@@ -122,6 +122,14 @@ async fn main() {
         env::var("MAILCHIMP_LIST_ID").expect("MAILCHIMP_LIST_ID must be set"),
     );
 
+    // Opciones de Cal.com
+    let cal_options: CalOptions = CalOptions {
+        client: HttpClient::new(),
+        api_version: env::var("CAL_API_VERSION").expect("CAL_API_VERSION must be set"),
+        base_url: env::var("CAL_BASE_URL").expect("CAL_BASE_URL must be set"),
+        api_key: env::var("CAL_API_KEY").expect("CAL_API_KEY must be set"),
+    };
+
     // Inicializar el estado de la aplicación y el enrutador
     let state: Arc<AppState> = Arc::new(AppState {
         firebase,
@@ -130,6 +138,7 @@ async fn main() {
         resend_client,
         mailchimp_client,
         booking_client: HttpClient::new(),
+        cal_options,
     });
 
     // Configurar CORS
@@ -148,7 +157,8 @@ async fn main() {
         .nest("/payment", routes::payments::router(state.clone())) // Stripe
         .nest("/teachers", routes::teachers::router(state.clone())) // FB Auth, FB Realtime DB
         .nest("/email", routes::email::router(state.clone())) // Email
-        .nest("/mailchimp", routes::mailchimp::router(state.clone())) // Email
+        .nest("/mailchimp", routes::mailchimp::router(state.clone())) // Mailchimp
+        .nest("/cal", routes::cal::router(state.clone())) // Cal
         .nest("/webhook", routes::webhooks::router(state.clone())) // Webhooks
         .layer(cors) // CORS abierto
         .layer(TraceLayer::new_for_http()) // Logging básico

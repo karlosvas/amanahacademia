@@ -7,9 +7,6 @@ const teachers = Astro.props.teachers as Teacher[];
 ---
 
 <div class="max-w-2xl mx-auto py-4 sm:py-6 md:py-8 px-0 md:px-4">
-  <h1 class="text-red text-center text-lg sm:text-xl md:text-2xl font-semibold font-jomolhari mb-4 sm:mb-6">
-    Selecciona tu profesor
-  </h1>
   <div class="relative flex items-center justify-center">
     <button
       type="button"
@@ -25,43 +22,44 @@ const teachers = Astro.props.teachers as Teacher[];
       id={`carousel-track-${id}`}
     >
       {
-        teachers.map((teacher, i) => (
-          <div
-            class={`carousel-slide absolute top-1/2 left-1/2 flex flex-col items-center justify-center ${i === 0 ? "active" : ""} w-full h-full max-w-lg`}
-            style="transform: translate(-50%, -50%);"
-            data-index={i}
-          >
-            <div class="flex flex-col items-center text-center space-y-4">
-              <div class="relative group mb-5">
-                <div class="absolute -inset-1 bg-salmon rounded-3xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
-                <img
-                  src={teacher.url_image + ".webp"}
-                  alt={`Profesor ${teacher.name}`}
-                  class="select-schedule carousel-img relative w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 rounded-3xl object-cover shadow-xl ring-4 ring-white "
-                  data-index={i}
-                  data-cal-teacher={teacher.name}
-                  data-cal-namespace={id}
-                  data-cal-host={teacher.cal_id}
-                  data-cal-link={`team/amanah-academia/${id}`}
-                />
-              </div>
-              <div class="text-black text-center space-y-2 md:px-3">
-                <div class="bg-opacity-70 px-0 md:px-4  rounded-lg ">
-                  <p class="text-xl lg:text-2xl font-semibold">{teacher.name}</p>
+        teachers &&
+          teachers.map((teacher, i) => (
+            <div
+              class={` carousel-slide absolute top-1/2 left-1/2 flex flex-col items-center justify-center ${i === 0 ? "active" : ""} w-full h-full max-w-lg`}
+              style="transform: translate(-50%, -50%);"
+              data-index={i}
+            >
+              <div class="flex flex-col items-center text-center space-y-4">
+                <div class="relative group mb-5">
+                  <div class="absolute -inset-0 bg-salmon rounded-3xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
+                  <img
+                    src={teacher.url_image + ".webp"}
+                    alt={`Profesor ${teacher.name}`}
+                    class="select-schedule carousel-img relative w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 rounded-3xl object-cover shadow-xl"
+                    data-index={i}
+                    data-cal-teacher={teacher.name}
+                    data-cal-namespace={id}
+                    data-cal-host={teacher.cal_id}
+                    data-cal-link={`team/amanah-academia/${id}`}
+                  />
                 </div>
-                <div class="bg-opacity-70 bg-lightBrown rounded-xl py-2 w-fit px-5 m-auto">
-                  <p class="text-xs sm:text-sm md:text-base flex items-center justify-center">
-                    <span class="font-medium pr-3">{teacher.native_lang}</span>
-                    <SpainIcon height={20} width={20} />
-                  </p>
-                </div>
-                <div class="bg-opacity-70 px-0 md:px-4  rounded-lg max-w-xs sm:max-w-sm md:max-w-md mx-auto">
-                  <p class="text-xs sm:text-sm md:text-base leading-relaxed">{teacher.description}</p>
+                <div class="text-black text-center space-y-2 md:px-3">
+                  <div class="bg-opacity-70 rounded-lg flex justify-center items-center ">
+                    <p class="text-xl lg:text-2xl font-semibold ">{teacher.name}</p>
+                  </div>
+                  <div class="bg-opacity-70 bg-lightBrown rounded-xl py-2 w-fit px-5 m-auto">
+                    <p class="text-xs sm:text-sm md:text-base flex items-center justify-center">
+                      <span class="font-medium pr-3">{teacher.native_lang}</span>
+                      <SpainIcon height={20} width={20} />
+                    </p>
+                  </div>
+                  <div class="bg-opacity-70 px-0 md:px-4  rounded-lg max-w-xs sm:max-w-sm md:max-w-md mx-auto">
+                    <p class="text-xs sm:text-sm md:text-base leading-relaxed">{teacher.description}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))
+          ))
       }
     </div>
 

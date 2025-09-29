@@ -2,7 +2,6 @@
 import Title from "../common/Title.astro";
 
 const bookingUid = Astro.props.bookingUid as string;
-console.log(bookingUid);
 ---
 
 <div id="app-config" class="container h-screen">
@@ -28,11 +27,17 @@ console.log(bookingUid);
 <script src="https://js.stripe.com/v3/"></script>
 <script>
   import { ApiService } from "@/services/helper";
-  import type { CheckoutPaymentIntentResponse, Result, CheckoutPaymentIntentRequest } from "@/types/bakend-types";
+  import type {
+    CheckoutPaymentIntentResponse,
+    Result,
+    CheckoutPaymentIntentRequest,
+    RelationalCalStripe,
+  } from "@/types/bakend-types";
 
   // Obtenemos la configuracion inicial
   const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_API_KEY;
   const url_backend = import.meta.env.PUBLIC_BACKEND_URL;
+  const helper = new ApiService();
 
   let stripe: any;
   let elements: any;
@@ -109,26 +114,27 @@ console.log(bookingUid);
       paymentElement = elements.create("payment");
 
       // Ocultar loading y mostrar el elemento de pago
-      const loading = document.querySelector(".loading");
+      const loading = document.querySelector(".loading") as HTMLDivElement | null;
       if (!loading || !loading.style) return;
       loading.style.display = "none";
       await paymentElement.mount("#payment-element");
 
       // 4️Habilitar el botón de pago
-      const submitButton = document.getElementById("submit-button");
+      const submitButton = document.getElementById("submit-button") as HTMLButtonElement | null;
+      if (!submitButton) return;
       submitButton.disabled = false;
 
       // 5️Manejar cambios en el elemento de pago
-      paymentElement.on("change", (event) => {
+      paymentElement.on("change", (event: any) => {
         if (event.error) {
           showError(event.error.message);
         } else {
           clearMessages();
         }
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error inicializando Stripe:", error);
-      showError(`Error de inicialización: ${error.message}`);
+      showError(`Error de inicialización de Stripe`);
     }
   }
 
@@ -139,8 +145,13 @@ console.log(bookingUid);
       return;
     }
 
-    const submitButton = document.getElementById("submit-button");
-    const buttonText = document.getElementById("button-text");
+    const submitButton = document.getElementById("submit-button") as HTMLButtonElement | null;
+    const buttonText = document.getElementById("button-text") as HTMLButtonElement | null;
+
+    if (!submitButton || !buttonText) {
+      showError("No se pudo encontrar el botón de pago");
+      return;
+    }
 
     // Deshabilitar botón y mostrar loading
     submitButton.disabled = true;
@@ -152,7 +163,7 @@ console.log(bookingUid);
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: window.location.origin + "/payment-success",
+          return_url: window.location.origin + "/payment/payment-success",
         },
         redirect: "if_required",
       });
@@ -170,28 +181,28 @@ console.log(bookingUid);
 
         const bookingUid = new URLSearchParams(window.location.search).get("bookingUid");
 
-        if (bookingUid) {
-          try {
-            const response = await fetch(`https://api.cal.com/v2/bookings/${bookingUid}/confirm`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                bookingUid,
-                paymentIntentId: paymentIntent.id,
-              }),
-            });
+        if (!bookingUid) {
+          showError("No se encontró el ID de la reserva.");
+          return;
+        }
 
-            if (!response.ok) {
-              console.error("Error confirmando booking");
-            }
-          } catch (e) {
-            console.error("Error al confirmar booking:", e);
-          }
+        try {
+          const responseBookingConfirm = await helper.confirmBooking(bookingUid);
+          if (!responseBookingConfirm.success) throw new Error("Error confirmando booking");
+
+          const relation: RelationalCalStripe = {
+            cal_id: bookingUid,
+            stripe_id: paymentIntent.id,
+          };
+          const responseSaveRelation = await helper.saveCalStripeConnection(relation);
+          if (!responseSaveRelation.success) throw new Error("Error guardando relación en la base de datos");
+        } catch (e) {
+          console.error("Error al confirmar booking:", e);
         }
 
         // Opcional: redirigir después de unos segundos
         setTimeout(() => {
-          window.location.href = "/payment-success";
+          window.location.href = "/payment/payment-success";
         }, 2000);
       } else {
         showError("El estado del pago es incierto. Por favor, verifica tu cuenta.");
@@ -207,20 +218,24 @@ console.log(bookingUid);
   }
 
   // Funciones de utilidad para mostrar mensajes
-  function showError(message) {
+  function showError(message: string) {
     clearMessages();
     const errorDiv = document.getElementById("error-message");
+    if (!errorDiv) return;
     errorDiv.textContent = message;
     errorDiv.style.display = "block";
   }
 
-  function showSuccess(message) {
+  // Mostrar mensaje de éxito
+  function showSuccess(message: string) {
     clearMessages();
     const successDiv = document.getElementById("success-message");
+    if (!successDiv) return;
     successDiv.textContent = message;
     successDiv.style.display = "block";
   }
 
+  // Limpiar mensajes
   function clearMessages() {
     document.getElementById("error-message").style.display = "none";
     document.getElementById("success-message").style.display = "none";

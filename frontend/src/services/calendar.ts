@@ -97,13 +97,13 @@ export async function updatePricing() {
         perStudentPrice = null;
 
       switch (tier) {
-        case "standard-class": // ✅ Cambiar a "standard" sin "-class"
+        case "standard-class":
           tierPrice = pricingData.prices.individual_standard;
           break;
-        case "conversation-class": // ✅ Cambiar a "conversation" sin "-class"
+        case "conversation-class":
           tierPrice = pricingData.prices.individual_conversation;
           break;
-        case "group-class": // ✅ Cambiar a "group" sin "-class"
+        case "group-class":
           tierPrice = pricingData.prices.group;
           break;
         default:
@@ -121,7 +121,7 @@ export async function updatePricing() {
       }
     });
 
-    // ✅ Actualizar Cal.com después de actualizar las cards
+    // Actualizar Cal.com después de actualizar las cards
     updateCalendarPricing(pricingData);
   } catch (error) {
     console.error("Error loading pricing:", error);
@@ -135,14 +135,14 @@ function updateCalendarPricing(pricingData: PricingApiResponse) {
     "standard-class": pricingData.prices.individual_standard * 100,
     "conversation-class": pricingData.prices.individual_conversation * 100,
     "group-class": pricingData.prices.group * 100,
-    "free-class": 0, // ✅ Añadir clase gratuita explícitamente
+    "free-class": 0,
   };
 
   document.querySelectorAll(".select-schedule").forEach((element) => {
     const calLink = element.getAttribute("data-cal-link");
     let price = calPrices["standard-class"]; // Default
 
-    // ✅ Mejorar detección de tipo de clase
+    // Mejorar detección de tipo de clase
     if (calLink?.includes("conversation-class")) {
       price = calPrices["conversation-class"];
     } else if (calLink?.includes("group-class")) {
@@ -152,26 +152,5 @@ function updateCalendarPricing(pricingData: PricingApiResponse) {
     } else if (calLink?.includes("standard-class")) {
       price = calPrices["standard-class"];
     }
-
-    // Actualizar data-cal-config
-    const calConfig = {
-      price: price,
-      currency: "eur",
-      // ✅ Añadir metadata útil para debugging
-      metadata: {
-        country: pricingData.country || "unknown",
-        priceEur: (price / 100).toFixed(2),
-      },
-    };
-
-    element.setAttribute("data-cal-config", JSON.stringify(calConfig));
-  });
-
-  // ✅ Log para debugging
-  console.log("Cal.com precios actualizados:", {
-    country: pricingData.country || "default",
-    standard: `${(calPrices["standard-class"] / 100).toFixed(2)}€`,
-    conversation: `${(calPrices["conversation-class"] / 100).toFixed(2)}€`,
-    group: `${(calPrices["group-class"] / 100).toFixed(2)}€`,
   });
 }

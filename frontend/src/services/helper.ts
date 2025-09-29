@@ -11,6 +11,7 @@ import {
   type ContactMailchimp,
   type CheckoutPaymentIntentResponse,
   type CheckoutPaymentIntentRequest,
+  type RelationalCalStripe,
 } from "@/types/bakend-types";
 import { ApiErrorType } from "@/enums/enums";
 import { ApiError } from "@/services/globalHandler";
@@ -268,6 +269,7 @@ export class ApiService {
   }
 
   //////////////////// STRIPE /////////////////////
+  // Payment intent para la sesiond e firebase
   async checkout(payload: CheckoutPaymentIntentRequest): Promise<Result<CheckoutPaymentIntentResponse>> {
     const currentUser = auth.currentUser;
     const token = currentUser ? await currentUser.getIdToken(true) : null;
@@ -284,6 +286,39 @@ export class ApiService {
     });
 
     return this.handleResponse<CheckoutPaymentIntentResponse>(response);
+  }
+
+  // Confirmación del booking al pagar
+  async confirmBooking(bookingUid: string): Promise<Result<void>> {
+    const currentUser = auth.currentUser;
+    const token = currentUser ? await currentUser.getIdToken(true) : null;
+
+    const response = await fetch(`${this.baseUrl}/bookings/${bookingUid}/confirm`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return this.handleResponse<void>(response);
+  }
+
+  //////////////////// STRIPE /////////////////////
+  // Guardar la relacion entre cal.com y stripe en firebase
+  async saveCalStripeConnection(payload: RelationalCalStripe): Promise<Result<void>> {
+    const currentUser = auth.currentUser;
+    const token = currentUser ? await currentUser.getIdToken(true) : null;
+
+    const response = await fetch(`${this.baseUrl}/payments/cal/connection`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    return this.handleResponse<void>(response);
   }
 }
 

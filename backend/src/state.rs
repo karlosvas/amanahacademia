@@ -10,6 +10,14 @@ pub struct AppState {
     pub resend_client: Resend,
     pub mailchimp_client: MailchimpClient,
     pub booking_client: HttpClient,
+    pub cal_options: CalOptions,
+}
+
+pub struct CalOptions {
+    pub client: HttpClient,
+    pub api_version: String,
+    pub base_url: String,
+    pub api_key: String,
 }
 
 #[derive(Clone)]

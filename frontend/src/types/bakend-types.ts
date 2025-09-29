@@ -119,3 +119,8 @@ export interface CheckoutPaymentIntentRequest {
   currency: string;
   payment_method: string;
 }
+
+export interface RelationalCalStripe {
+  cal_id: string;
+  stripe_id: string;
+}

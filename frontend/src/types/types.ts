@@ -187,6 +187,7 @@ export type CommentI18n = {
   best: string;
   button: string;
   modal: ModalComent;
+  loading: string;
   evaluations: {
     title: string;
     types: string[];

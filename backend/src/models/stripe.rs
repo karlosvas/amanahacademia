@@ -59,3 +59,9 @@ pub struct BookingPaymentPayload {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub attendee_phone: Option<String>,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct RelationalCalStripe {
+    pub cal_id: String,
+    pub stripe_id: String,
+}
