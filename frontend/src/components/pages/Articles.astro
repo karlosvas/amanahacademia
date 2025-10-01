@@ -3,17 +3,10 @@ import Title from "@/components/common/Title.astro";
 import type { ArticleI18n } from "@/types/types";
 import { getCollection } from "astro:content";
 import type { ArticlesAstro } from "@/types/types";
-import { Image } from "astro:assets";
 
 const data = Astro.props.data as ArticleI18n;
-
-// Obtenemos los artículos desde la colección "articles"
 const articles = (await getCollection("articles")) as ArticlesAstro[];
-
-// Importación dinámica de imágenes, import.meta.glob es una feature de vite
-const images = import.meta.glob<{ default: ImageMetadata }>("/src/assets/articles/*.webp", {
-  eager: true, // Carga inmediata durante la compilación (no lazy, siíncrono)
-});
+const R2_URL = import.meta.env.PUBLIC_R2_PUBLIC_URL;
 ---
 
 <main class="w-11/12 md:w-3/4 m-auto text-black">
@@ -22,60 +15,28 @@ const images = import.meta.glob<{ default: ImageMetadata }>("/src/assets/article
     <p class="text-center font-semibold text-red">{data.summary[0]}</p>
     <p class="px-10 pb-5">{data.summary[1]}</p>
   </div>
+
   <div id="articles" class="mb-20 columns-1 sm:columns-2 md:columns-3 gap-4 p-4">
     {
       articles.map((article: ArticlesAstro) => {
-        const imagePath = `/src/assets/${article.data.image}`;
         return (
-          <div
-            class="scroll-fade-in mb-4 break-inside-avoid rounded-lg bg-salmon shadow overflow-hidden"
-            style={`height: ${120 + Math.random() * 180}px; width: 100%`}
+          <a
+            href={R2_URL + article.data.pdfUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="scroll-fade-in mb-4 break-inside-avoid rounded-lg bg-salmon overflow-hidden cursor-pointer block"
+            style={`height: ${150 + Math.random() * 180}px; width: 100%`}
           >
-            <a
-              href={article.data.pdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="block w-full h-full p-1 pdf-link"
-              data-pdf-url={article.data.pdfUrl}
-            >
-              <Image
-                src={images[imagePath]!.default}
-                alt={article.data.title}
-                class="w-full h-full rounded-lg object-cover object-top"
-                widths={[400, 800]}
-                sizes="(max-width: 768px) 100vw, 400px"
-              />
-            </a>
-          </div>
+            <img
+              src={R2_URL + article.data.imageUrl}
+              alt={article.data.title}
+              class="w-full h-full rounded-lg object-cover object-top transition-transform duration-300 ease-out hover:scale-105"
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
         );
       })
     }
   </div>
 </main>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const pdfLinks = document.querySelectorAll(".pdf-link");
-
-    pdfLinks.forEach((link) => {
-      link.addEventListener("click", (e) => {
-        e.preventDefault();
-
-        const pdfUrl = (e.currentTarget as HTMLAnchorElement).dataset.pdfUrl;
-
-        if (!pdfUrl) return;
-
-        // Abrir en nueva pestaña
-        window.open(pdfUrl, "_blank");
-
-        // Descargar automáticamente
-        const downloadLink = document.createElement("a");
-        downloadLink.href = pdfUrl;
-        downloadLink.download = pdfUrl.split("/").pop() || "document.pdf";
-        downloadLink.style.display = "none";
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-      });
-    });
-  });
-</script>

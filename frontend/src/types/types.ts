@@ -374,7 +374,7 @@ export interface BookingPaymentRequest {
 export type Articles = {
   title: string;
   pdfUrl: string;
-  image: string;
+  imageUrl: string;
 };
 
 export interface ArticlesAstro {
