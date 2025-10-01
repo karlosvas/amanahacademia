@@ -104,6 +104,9 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
   import type { Comment, UpdateComment } from "@/types/bakend-types";
   import { closeModalAnimation } from "@/utils/modals";
   import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
+  import { onAuthStateChanged } from "@/services/firebase";
+  import type { User } from "firebase/auth";
+  import { getFirebaseAuth } from "@/services/firebase";
 
   class CommentModal {
     private id: string;
@@ -238,10 +241,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
 
     private async loadUserInfo() {
       // Esperar a que Firebase esté listo
-      const { getFirebaseAuth } = await import("@/services/firebase");
-      const auth = await getFirebaseAuth();
-      type User = import("firebase/auth").User;
-      auth.onAuthStateChanged((user: User | null) => {
+      onAuthStateChanged((user: User | null) => {
         if (user) {
           const displayName = user.displayName || user.email || "Usuario";
           this.avatarName.textContent = displayName;
@@ -268,12 +268,6 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
 
       if (comment && rating > 0) {
         try {
-          const currentUser = auth.currentUser;
-          if (!currentUser) {
-            toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
-            return;
-          }
-
           const helper = new ApiService();
           if (this.edit) {
             const commentObj: UpdateComment = {
@@ -293,6 +287,11 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
                 toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
               });
           } else {
+            const currentUser = getFirebaseAuth().currentUser;
+            if (!currentUser) {
+              toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
+              return;
+            }
             const commentObj: Comment = {
               author_uid: currentUser.uid,
               name: typeof currentUser.displayName === "string" ? currentUser.displayName : "Anonimo",

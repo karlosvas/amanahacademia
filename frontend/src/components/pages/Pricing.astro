@@ -14,9 +14,8 @@ try {
   const response = await helper.getTeachers();
 
   // Check if the response is successful and has data
-  if (response.success && response.data) {
-    teachers = Object.values(response.data);
-  } else if ("error" in response) console.error("Error fetching teachers:", response.error);
+  if (response.success && response.data) teachers = Object.values(response.data);
+  else if ("error" in response) console.error("Error fetching teachers:", response.error);
   else console.error("Unknown error fetching teachers");
 } catch (e) {
   console.error("Error fetching teachers:", e);

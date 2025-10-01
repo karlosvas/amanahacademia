@@ -16,7 +16,6 @@ let bestComments: Comment[] = [];
 let mediaStars: number = 0.0;
 try {
   const response: Result<Comment[]> = await helper.getAllComments();
-
   if (response.success) {
     const commentsData = Object.entries(response.data).map(([key, value]) => ({
       id: key,
@@ -54,7 +53,7 @@ try {
   <div class="w-full max-w-sm mx-auto justify-self-center md:justify-self-center lg:justify-self-start section-1">
     <div class="text-center mb-4 sm:mb-6">
       <p class="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-800 font-sans">{mediaStars.toFixed(2)}</p>
-      <StarGroup star={mediaStars} size={50} />
+      <StarGroup star={mediaStars | 1} size={50} />
     </div>
     <h5 class="text-salmon ml-2 sm:ml-3 mb-10 sm:mb-4 font-semibold text-sm sm:text-base">
       {data.best}
@@ -115,7 +114,7 @@ try {
 
 <script>
   // Importa la instancia de autenticación de Firebase y el listener de cambios de usuario
-  const { onAuthStateChanged } = await import("firebase/auth");
+  import { onAuthStateChanged } from "@/services/firebase";
   import { submitLike } from "@/services/comments";
   import { toast } from "solid-toast";
   import { updateLikeState } from "@/services/comments";
@@ -132,7 +131,7 @@ try {
     const likeIcons = document.querySelectorAll(".like-icon");
 
     // Itera sobre cada comentario
-    likeIcons.forEach((likeIcon) => {
+    likeIcons.forEach(async (likeIcon) => {
       // Selecciona el icono de "like" dentro del comentario
       // Selecciona el span que muestra el número de likes
       const likeCountSpan = likeIcon.querySelector("span");
@@ -144,7 +143,7 @@ try {
       const comment = JSON.parse(commentAttr);
 
       // Escucha los cambios de autenticación y actualiza el estado visual del like
-      onAuthStateChanged(auth, (user) => {
+      onAuthStateChanged((user) => {
         updateLikeState(user, likeIcon, comment);
       });
 

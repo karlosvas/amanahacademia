@@ -107,8 +107,7 @@ const labels: Record<
 </header>
 
 <script>
-  const { onAuthStateChanged } = await import("firebase/auth");
-  import { getFirebaseAuth, setupAuth } from "@/services/firebase";
+  import { getFirebaseAuth, setupAuth, onAuthStateChanged } from "@/services/firebase";
 
   // Referencias al modal de login y register
   const authModalLogin = document.getElementById("authModalLogin") as HTMLDialogElement;
@@ -126,7 +125,7 @@ const labels: Record<
     });
 
     // Firebase auth state
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged((user) => {
       setupAuth(user, authModalLogin, formLogin, headerData);
     });
   });

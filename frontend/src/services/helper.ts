@@ -88,6 +88,7 @@ export class ApiService {
     try {
       const response = await fetch(`${this.baseUrl}/comments/all`, {
         method: "GET",
+        headers: { "Content-Type": "application/json" },
       });
 
       return this.handleResponse<Comment[]>(response);
