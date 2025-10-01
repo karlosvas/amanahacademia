@@ -1,5 +1,5 @@
 ---
-import InfoCard from "@/components/home/InfoCard.astro";
+import LegalCard from "@/components/home/LegalCard.astro";
 import IconPeople from "@/assets/people.svg";
 import IconDiana from "@/assets/diana.svg";
 import IconClock from "@/assets/clock.svg";
@@ -23,7 +23,16 @@ const data = Astro.props.data as HomeI18n;
     <div
       class="w-full max-w-xs sm:max-w-sm md:max-w-md h-48 sm:h-52 md:w-[400px] md:h-[350px] rounded-md overflow-hidden flex items-center justify-center mx-auto md:mx-0"
     >
-      <Image src={pinkHouse} alt="" class="w-full h-full object-cover" />
+      <Image
+        src={pinkHouse}
+        alt=""
+        aria-hidden="true"
+        fetchpriority="high"
+        sizes="100vw"
+        loading="eager"
+        decoding="sync"
+        class="w-full h-full object-cover"
+      />
     </div>
     <div class="py-4 sm:py-6 px-3 sm:px-4 md:px-6 lg:px-10 flex-1 w-full">
       <h3 class="text-red mb-3 sm:mb-5 font-semibold text-lg sm:text-xl">{data.about_us.title}</h3>
@@ -57,21 +66,21 @@ const data = Astro.props.data as HomeI18n;
       {data.focus.title}
     </h3>
     <div class="flex flex-col md:flex-row gap-4 sm:gap-6 mb-8 sm:mb-10 justify-center">
-      <InfoCard colourRectangle="bg-salmon">
+      <LegalCard colourRectangle="bg-salmon">
         <span slot="icon"><IconPeople /></span>
         <span slot="title">{data.focus.cards[0].title}</span>
         <span slot="description">{data.focus.cards[0].description}</span>
-      </InfoCard>
-      <InfoCard colourRectangle="bg-lightRed">
+      </LegalCard>
+      <LegalCard colourRectangle="bg-lightRed">
         <span slot="icon"><IconDiana /></span>
         <span slot="title">{data.focus.cards[1].title}</span>
         <span slot="description"> {data.focus.cards[1].description}</span>
-      </InfoCard>
-      <InfoCard colourRectangle="bg-lightBrown">
+      </LegalCard>
+      <LegalCard colourRectangle="bg-lightBrown">
         <span slot="icon"><IconClock /></span>
         <span slot="title">{data.focus.cards[2].title}</span>
         <span slot="description"> {data.focus.cards[2].description}</span>
-      </InfoCard>
+      </LegalCard>
     </div>
   </div>
 </section>

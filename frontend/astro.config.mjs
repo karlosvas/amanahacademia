@@ -38,5 +38,8 @@ export default defineConfig({
       },
       filter: (page) => !page.includes('/admin/') && !page.includes('/404'),
     })
-  ]
+  ],
+  devToolbar: {
+    enabled: false
+  }
 });

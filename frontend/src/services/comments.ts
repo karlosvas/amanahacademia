@@ -1,21 +1,9 @@
 import type { Comment, Result } from "@/types/bakend-types";
-import { toast } from "solid-toast";
 import { ApiService } from "./helper";
-import { getAuth, type User } from "firebase/auth";
-import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
+type User = import("firebase/auth").User;
 
 export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanElement) {
   const helper = new ApiService();
-
-  const auth = getAuth();
-  const currentUser = auth.currentUser;
-
-  if (!currentUser) {
-    toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
-    return;
-  }
-
-  const tokenID = await currentUser?.getIdToken();
 
   // Obtenemos el commentId del atributo data-id del likeIcon
   let commentId = likeIcon.getAttribute("data-id");
@@ -25,7 +13,7 @@ export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanEleme
   }
 
   // Llamamos a la API para registrar el like
-  const commentResponse: Result<Comment> = await helper.setLike(tokenID, commentId);
+  const commentResponse: Result<Comment> = await helper.setLike(commentId);
 
   if (commentResponse.success) {
     // Obtenemos el span dentro de likeIcon y actualizamos el conteo

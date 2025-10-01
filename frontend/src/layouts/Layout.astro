@@ -12,6 +12,7 @@ declare global {
     Cal?: any;
     api?: any;
     Stripe: any;
+    dataLayer: any[];
   }
 }
 
@@ -27,23 +28,19 @@ const {
   structuredData,
 } = Astro.props as PropsSEO;
 
+const GA_ID = "G-CW35G9DQ63";
 const theme = Astro.cookies.get("theme")?.value;
 ---
 
 <!doctype html>
 <html lang={lang} class={`m-0 w-full h-full ${theme ? ` ${theme}` : ""}`}>
   <head>
-    <script>
-      // Solo aplica si no hay cookie de tema
-      if (
-        !document.documentElement.classList.contains("dark") &&
-        !document.documentElement.classList.contains("light")
-      ) {
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        document.documentElement.classList.add(prefersDark ? "dark" : "light");
-        document.cookie = `theme=${prefersDark ? "dark" : "light"}; path=/; max-age=${60 * 60 * 24 * 30}`;
-      }
-    </script>
+    <!-- Codificacion -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Políticas de seguridad -->
     <meta http-equiv="Cross-Origin-Opener-Policy" content="unsafe-none" />
     <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none" />
     <meta
@@ -51,9 +48,9 @@ const theme = Astro.cookies.get("theme")?.value;
       content="
     default-src 'self' 'unsafe-inline';
     script-src 'self' 'unsafe-inline' 'unsafe-eval'
-      https://www.gstatic.com 
-      https://apis.google.com 
-      https://accounts.google.com 
+      https://www.gstatic.com
+      https://apis.google.com
+      https://accounts.google.com
       https://www.googleapis.com
       https://cdnjs.cloudflare.com
       https://challenges.cloudflare.com
@@ -100,10 +97,6 @@ const theme = Astro.cookies.get("theme")?.value;
     <link rel="preconnect" href="https://challenges.cloudflare.com" />
     <link rel="dns-prefetch" href="https://apis.google.com" />
 
-    <!-- Codificacion -->
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
     <!-- Favicon clásico para compatibilidad total -->
     <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico" />
     <!-- Favicon SVG (para navegadores que lo soporten) -->
@@ -125,6 +118,34 @@ const theme = Astro.cookies.get("theme")?.value;
       structuredDataType={structuredDataType}
       structuredData={structuredData}
     />
+    <!-- Google tag (gtag.js) -->
+    <script async defer src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
+    <script is:inline define:vars={{ GA_ID }}>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(...args) {
+        window.dataLayer.push(args);
+      }
+      gtag("js", new Date());
+
+      // Denegado por defecto
+      gtag("consent", "default", {
+        analytics_storage: "denied",
+      });
+
+      gtag("config", GA_ID);
+    </script>
+    <!-- End Google tag (gtag.js) -->
+    <script>
+      // Solo aplica si no hay cookie de tema
+      if (
+        !document.documentElement.classList.contains("dark") &&
+        !document.documentElement.classList.contains("light")
+      ) {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.classList.add(prefersDark ? "dark" : "light");
+        document.cookie = `theme=${prefersDark ? "dark" : "light"}; path=/; max-age=${60 * 60 * 24 * 30}`;
+      }
+    </script>
   </head>
   <body class="m-0 w-full h-full bg-background">
     <slot />
@@ -136,45 +157,148 @@ const theme = Astro.cookies.get("theme")?.value;
         duration: 5000,
       }}
     />
+    <!-- Banner de cookies profesional -->
+    <aside
+      id="cookie-banner"
+      class="fixed bottom-0 left-0 right-0 bg-smoothBrown border-t-2 border-lightBrown shadow-lg z-[1000] hidden animate-slide-up"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <!-- Contenido del mensaje -->
+          <div class="flex items-center gap-3 flex-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-lightBrown flex-shrink-0 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <p class="text-sm text-black font-semibold">Usamos cookies para mejorar tu experiencia</p>
+              <p class="text-xs text-black opacity-80 mt-1 flex sm:flex-col">
+                <span> Utilizamos cookies para analizar el tráfico del sitio y mejorar nuestros servicios. </span>
+                <a
+                  href="/legal"
+                  title="Política de privacidad y cookies"
+                  rel="license"
+                  aria-label="Leer la política de privacidad y cookies"
+                  class="text-lightRed hover:text-salmon font-semibold underline decoration-lightRed/30 hover:decoration-salmon/50 transition-colors"
+                >
+                  Más información sobre nuestra política de privacidad y cookies.
+                </a>
+              </p>
+            </div>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="flex gap-3 flex-shrink-0">
+            <button
+              id="rejectCookies"
+              class="px-5 py-2.5 text-sm font-semibold text-black border-2 border-lightBrown rounded-lg hover:bg-brown hover:text-white hover:border-brown transition-all duration-200 shadow-sm"
+            >
+              Rechazar
+            </button>
+            <button
+              id="acceptCookies"
+              class="px-5 py-2.5 text-sm font-semibold text-white bg-lightRed hover:bg-salmon rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+            >
+              Aceptar
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
   </body>
 </html>
 <script>
   import { closeModalsEvents } from "@/utils/modals";
+  import { acceptCookies, rejectCookies } from "@/utils/cookie";
 
-  document.addEventListener("DOMContentLoaded", () => {
-    closeModalsEvents();
-    // Botón para volver al inicio
-    const backToTopButton = document.getElementById("backToTop");
+  // Eventos para poder cerrar con animacion caulquier modal
+  closeModalsEvents();
 
-    if (backToTopButton) {
-      window.addEventListener("scroll", () => {
-        if (window.pageYOffset > 300) {
-          backToTopButton.classList.remove("opacity-0", "invisible");
-          backToTopButton.classList.add("opacity-100", "visible");
-        } else {
-          backToTopButton.classList.remove("opacity-100", "visible");
-          backToTopButton.classList.add("opacity-0", "invisible");
-        }
+  // Mostrar banner si no hay decisión previa
+  const cookieBanner = document.getElementById("cookie-banner");
+  setTimeout(() => {
+    if (!localStorage.getItem("cookieConsent") && cookieBanner) cookieBanner.classList.remove("hidden");
+  }, 5000);
+
+  // Aceptar las cookies
+  const acceptCookiesElement = document.getElementById("acceptCookies");
+  if (acceptCookiesElement) {
+    acceptCookiesElement.addEventListener("click", () => acceptCookies());
+  }
+
+  // Rechazar las cookies
+  const rejectCookiesElement = document.getElementById("rejectCookies");
+  if (rejectCookiesElement) {
+    rejectCookiesElement.addEventListener("click", () => rejectCookies());
+  }
+
+  // Botón para volver al inicio
+  const backToTopButton = document.getElementById("backToTop");
+  if (backToTopButton) {
+    window.addEventListener("scroll", () => {
+      if (window.pageYOffset > 300) {
+        backToTopButton.classList.remove("opacity-0", "invisible");
+        backToTopButton.classList.add("opacity-100", "visible");
+      } else {
+        backToTopButton.classList.remove("opacity-100", "visible");
+        backToTopButton.classList.add("opacity-0", "invisible");
+      }
+    });
+
+    backToTopButton.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
       });
+    });
+  }
 
-      backToTopButton.addEventListener("click", () => {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
+  // Animacion de fade-in al hacer scroll
+  const elements = document.querySelectorAll(".scroll-fade-in");
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("visible");
       });
-    }
-    // Animacion de fade-in al hacer scroll
-    const elements = document.querySelectorAll(".scroll-fade-in");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("visible");
-        });
-      },
-      { threshold: 0 }
-    );
+    },
+    { threshold: 0 }
+  );
 
-    elements.forEach((el) => observer.observe(el));
-  });
+  elements.forEach((el) => observer.observe(el));
 </script>
+<style>
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+
+  @keyframes slide-down {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+</style>

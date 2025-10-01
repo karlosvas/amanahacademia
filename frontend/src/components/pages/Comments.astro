@@ -115,8 +115,7 @@ try {
 
 <script>
   // Importa la instancia de autenticación de Firebase y el listener de cambios de usuario
-  import { auth } from "@/config/firebase";
-  import { onAuthStateChanged } from "firebase/auth";
+  const { onAuthStateChanged } = await import("firebase/auth");
   import { submitLike } from "@/services/comments";
   import { toast } from "solid-toast";
   import { updateLikeState } from "@/services/comments";
@@ -124,7 +123,11 @@ try {
   import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 
   // Espera a que el DOM esté completamente cargado
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", async function () {
+    // Obtiene la instancia de autenticación de Firebase
+    const { getFirebaseAuth } = await import("@/services/firebase");
+    const auth = await getFirebaseAuth();
+
     // Selecciona todos los comentarios en la página
     const likeIcons = document.querySelectorAll(".like-icon");
 

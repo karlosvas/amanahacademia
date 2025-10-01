@@ -100,7 +100,6 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
 
 <script>
   import { ApiService } from "@/services/helper";
-  import { auth } from "@/config/firebase";
   import toast from "solid-toast";
   import type { Comment, UpdateComment } from "@/types/bakend-types";
   import { closeModalAnimation } from "@/utils/modals";
@@ -239,7 +238,10 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
 
     private async loadUserInfo() {
       // Esperar a que Firebase esté listo
-      auth.onAuthStateChanged((user) => {
+      const { getFirebaseAuth } = await import("@/services/firebase");
+      const auth = await getFirebaseAuth();
+      type User = import("firebase/auth").User;
+      auth.onAuthStateChanged((user: User | null) => {
         if (user) {
           const displayName = user.displayName || user.email || "Usuario";
           this.avatarName.textContent = displayName;

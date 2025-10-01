@@ -4,20 +4,76 @@ import Hamburger from "@/components/common/Hamburger.astro";
 import Traductor from "@/components/common/Traductor.astro";
 import Theme from "@/components/common/Theme.astro";
 import AuthModal from "@/components/common/AuthModal.astro";
+import type { Lang } from "@/types/types";
 
 // Obtener las traduccciones
 const data = Astro.props.data as HeaderI18n;
-let { lang } = Astro.params;
+let { lang } = Astro.params as { lang?: Lang };
 const theme = Astro.cookies.get("theme")?.value ?? "light";
 
-if (!lang) lang = "";
+// Si no hay lang en la URL, usar la cookie o "es" por defecto
+if (!lang) lang = "es";
+
+// Guardamos el lengauje en las cookies
 Astro.cookies.set("lang", lang, { path: "/", maxAge: 31536000 });
+
+const labels: Record<
+  Lang,
+  {
+    traductor: string;
+    identificationButton: string;
+    legalLink: string;
+  }
+> = {
+  es: {
+    traductor: "Cambiar idioma",
+    identificationButton: "Iniciar sesión en Amanah Academia",
+    legalLink:
+      "Página de información legal de Amanah Academia: Licencia, Política de privacidad y Términos y condiciones",
+  },
+  en: {
+    traductor: "Change language",
+    identificationButton: "Log in to Amanah Academia",
+    legalLink: "Amanah Academia legal information page: License, Privacy Policy, and Terms and Conditions",
+  },
+  fr: {
+    traductor: "Changer de langue",
+    identificationButton: "Se connecter à Amanah Academia",
+    legalLink:
+      "Page d'informations légales d'Amanah Academia : Licence, Politique de confidentialité et Conditions générales",
+  },
+  de: {
+    traductor: "Sprache ändern",
+    identificationButton: "Bei Amanah Academia anmelden",
+    legalLink:
+      "Rechtliche Informationsseite von Amanah Academia: Lizenz, Datenschutzrichtlinie und Allgemeine Geschäftsbedingungen",
+  },
+  ar: {
+    traductor: "تغيير اللغة",
+    identificationButton: "تسجيل الدخول إلى أكاديمية أمانة",
+    legalLink: "صفحة المعلومات القانونية لأكاديمية أمانة: الترخيص، سياسة الخصوصية والشروط والأحكام",
+  },
+  it: {
+    traductor: "Cambia lingua",
+    identificationButton: "Accedi ad Amanah Academia",
+    legalLink:
+      "Pagina delle informazioni legali di Amanah Academia: Licenza, Informativa sulla privacy e Termini e condizioni",
+  },
+  pt: {
+    traductor: "Mudar idioma",
+    identificationButton: "Entrar na Amanah Academia",
+    legalLink: "Página de informações legais da Amanah Academia: Licença, Política de Privacidade e Termos e Condições",
+  },
+};
 ---
 
 <header
   class="font-semibold fixed top-0 left-0 w-full z-50 h-20 bg-background flex items-center justify-between px-5 md:px-10"
 >
-  <AuthModal data={data.identification.modal} />
+  <AuthModal
+    data={data.identification.modal}
+    label={labels[lang]?.identificationButton || "Iniciar sesión en Amanah Academia"}
+  />
   <Hamburger data={data} />
   <img
     src={theme === "dark" ? "/img/logo_amanah_dark.webp" : "/img/logo_amanah.webp"}
@@ -41,18 +97,18 @@ Astro.cookies.set("lang", lang, { path: "/", maxAge: 31536000 });
       id="identification"
       class="bg-lightRed hover:bg-salmon transition-colors rounded-lg text-gray-50 font-semibold py-2 mr-3 shadow-lg hover:shadow-xl transition-all duration-200 text-xs px-3 hidden lg:block"
       data-header={JSON.stringify(data.identification)}
+      aria-label={labels[lang]?.identificationButton || "Iniciar sesión en Amanah Academia"}
     >
       {data.identification.button.login}
     </button>
     <Theme />
-    <Traductor />
+    <Traductor label={labels[lang]?.traductor || "Cambiar idioma"} />
   </div>
 </header>
 
 <script>
-  import { auth } from "@/config/firebase.js";
-  import { onAuthStateChanged } from "firebase/auth";
-  import { setupAuth } from "@/services/firebase";
+  const { onAuthStateChanged } = await import("firebase/auth");
+  import { getFirebaseAuth, setupAuth } from "@/services/firebase";
 
   // Referencias al modal de login y register
   const authModalLogin = document.getElementById("authModalLogin") as HTMLDialogElement;
@@ -62,13 +118,16 @@ Astro.cookies.set("lang", lang, { path: "/", maxAge: 31536000 });
 
   // Actualizamos segun el tamaño de la ventana
   document.addEventListener("DOMContentLoaded", async () => {
-    window.addEventListener("resize", () => {
+    // Obtenemos la instancia de auth
+    const auth = await getFirebaseAuth();
+
+    window.addEventListener("resize", async () => {
       setupAuth(auth.currentUser, authModalLogin, formLogin, headerData);
     });
-  });
 
-  // Firebase auth state
-  onAuthStateChanged(auth, async (user) => {
-    setupAuth(user, authModalLogin, formLogin, headerData);
+    // Firebase auth state
+    onAuthStateChanged(auth, async (user) => {
+      setupAuth(user, authModalLogin, formLogin, headerData);
+    });
   });
 </script>

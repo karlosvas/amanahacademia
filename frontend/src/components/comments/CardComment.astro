@@ -85,20 +85,21 @@ const avatar: AvatarProps = {
 <CommentModal id={idCommentShared} edit={true} data={data} />
 
 <script>
-  import { auth } from "@/config/firebase";
   import { ApiService } from "@/services/helper";
   import type { Result, Comment } from "@/types/bakend-types";
   import { showModalAnimation } from "@/utils/modals";
   import toast from "solid-toast";
   import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
+  import { getFirebaseAuth } from "@/services/firebase";
 
   const options = document.querySelectorAll(".comment-config");
   const menus = document.querySelectorAll(".comment-config-menu");
   const helper = new ApiService();
 
   options.forEach((option, index) => {
-    option.addEventListener("click", (e) => {
+    option.addEventListener("click", async (e) => {
       e.stopPropagation();
+      const auth = await getFirebaseAuth();
       if (!auth.currentUser) {
         toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
         return;

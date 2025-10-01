@@ -2,9 +2,10 @@
 import TraductorIcon from "@/assets/traductor.svg";
 
 const customStyle = (Astro.props.customStyle || "bg-salmon") as string;
+const label = Astro.props.label;
 ---
 
-<button id="btnTraductor">
+<button id="btnTraductor" aria-label={label}>
   <TraductorIcon />
 </button>
 <div
@@ -30,12 +31,14 @@ const customStyle = (Astro.props.customStyle || "bg-salmon") as string;
 >
 </div>
 <script>
+  // Espera a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", function () {
     const btnTraductor = document.getElementById("btnTraductor");
     const bocadilloTraductor = document.getElementById("bocadilloTraductor");
     const trianguloTraductor = document.getElementById("trianguloTraductor");
 
     if (btnTraductor && bocadilloTraductor && trianguloTraductor) {
+      // Manejar clic en el botón del traductor
       btnTraductor.addEventListener("click", function (e) {
         e.stopPropagation();
         bocadilloTraductor.classList.toggle("hidden");
@@ -53,13 +56,7 @@ const customStyle = (Astro.props.customStyle || "bg-salmon") as string;
           const pathWithoutLang = currentPath.replace(/^\/(ar|de|en|fr|it|pt)\//, "/");
 
           // Construir nueva URL
-          let newPath;
-          if (lang === "es") {
-            newPath = pathWithoutLang || "/";
-          } else {
-            newPath = `/${lang}${pathWithoutLang || "/"}`;
-          }
-
+          let newPath = lang === "es" ? pathWithoutLang || "/" : `/${lang}${pathWithoutLang || "/"}`;
           // Limpiar dobles barras
           newPath = newPath.replace(/\/+/g, "/");
 
@@ -68,6 +65,7 @@ const customStyle = (Astro.props.customStyle || "bg-salmon") as string;
       });
     }
 
+    // Cerrar el menú si se hace clic fuera de él
     document.addEventListener("click", function (e) {
       if (
         bocadilloTraductor &&

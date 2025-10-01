@@ -1,15 +1,41 @@
-import { signInWithEmailAndPassword, signInWithPopup, type User } from "firebase/auth";
+type User = import("firebase/auth").User;
 import toast from "solid-toast";
 import { showModalAnimation } from "../utils/modals";
-import { auth, googleProvider } from "@/config/firebase";
 import type { ContactMailchimp, UserRequest } from "@/types/bakend-types";
 import { ApiService } from "./helper";
 import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 
-// Obtener el botón de identificación segun el tamaño de la pantalla
-export function getIdentificationButton() {
-  if (window.matchMedia("(min-width: 1024px)").matches) return document.getElementById("identification");
-  else return document.getElementById("identification-menu");
+const firebaseConfig = {
+  apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY,
+  authDomain: import.meta.env.PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.PUBLIC_FIREBASE_APP_ID,
+  measurementId: import.meta.env.PUBLIC_FIREBASE_MEASUREMENT_ID,
+};
+
+// Cache de la instancia
+let firebaseApp: any = null;
+let firebaseAuth: any = null;
+
+// Función para obtener auth (lazy load)
+export async function getFirebaseAuth() {
+  if (!firebaseAuth) {
+    const { initializeApp } = await import("firebase/app");
+    const { getAuth } = await import("firebase/auth");
+
+    firebaseApp = initializeApp(firebaseConfig);
+    firebaseAuth = getAuth(firebaseApp);
+  }
+
+  return firebaseAuth;
+}
+
+// Funciones helper con lazy load
+export async function getGoogleProvider() {
+  const { GoogleAuthProvider } = await import("firebase/auth");
+  return new GoogleAuthProvider();
 }
 
 // Cambiar de login a register
@@ -124,6 +150,8 @@ export function submitForm(
         }
 
         // Si salió bien, hacer login directo en Firebase, con email y contraseña
+        const auth = await getFirebaseAuth();
+        const { signInWithEmailAndPassword } = await import("firebase/auth");
         await signInWithEmailAndPassword(auth, credentials.email as string, credentials.password as string);
         modal.close();
         // Esperamos a que se cierre para mostrar el mensaje de exito
@@ -171,14 +199,16 @@ export function submitForm(
 // Función mejorada para logout
 export async function handleLogout(): Promise<void> {
   try {
+    const auth = await getFirebaseAuth();
     await auth.signOut();
     toast.success("Sesión cerrada correctamente");
   } catch (error) {
-    console.error("❌ Error during logout:", error);
+    console.error("Error during logout:", error);
     try {
+      const auth = await getFirebaseAuth();
       await auth.signOut();
     } catch (firebaseError) {
-      console.error("❌ Firebase logout also failed:", firebaseError);
+      console.error("Firebase logout also failed:", firebaseError);
     }
   }
 }
@@ -190,12 +220,16 @@ export function setupAuth(
   formLogin: HTMLFormElement,
   headerData: { button: { login: string; logout: string } }
 ) {
-  const identificationButton = getIdentificationButton();
+  // Obtener el botón de identificación segun el tamaño de la pantalla
+  let identificationButton = window.matchMedia("(min-width: 1024px)").matches
+    ? document.getElementById("identification")
+    : document.getElementById("identification-menu");
+
   if (!identificationButton) return;
 
   // Validación defensiva
   if (!headerData?.button) {
-    console.error("❌ headerData or headerData.button is undefined", headerData);
+    console.error("headerData or headerData.button is undefined", headerData);
     return;
   }
 
@@ -222,7 +256,10 @@ export async function handleLogGoogleProvider(
   loginError: HTMLDivElement
 ) {
   try {
-    await signInWithPopup(auth, googleProvider);
+    const auth = await getFirebaseAuth();
+    const provider = await getGoogleProvider();
+    const { signInWithPopup } = await import("firebase/auth");
+    await signInWithPopup(auth, provider);
     modal.close();
     setTimeout(() => {
       toast.success(isRegister ? "¡Registro exitoso! Vamos a empezar con tu primer curso." : "¡Bienvenido de vuelta!");
@@ -234,4 +271,11 @@ export async function handleLogGoogleProvider(
     loginError.textContent = "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo.";
     loginError.classList.remove("hidden");
   }
+}
+
+// Obtener el token actual
+export async function getCurrentUserToken(): Promise<string | null> {
+  const auth = await getFirebaseAuth();
+  const currentUser = auth.currentUser;
+  return currentUser ? await currentUser.getIdToken() : null;
 }

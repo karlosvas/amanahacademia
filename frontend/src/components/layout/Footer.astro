@@ -14,33 +14,48 @@ const data = Astro.props.data as FooterI18n;
 >
   <ArrowIcon height={25} />
 </div>
-<footer class="text-xs md:text-sm">
-  <div class="bg-brown w-full h-28 flex justify-between items-center px-3 md:px-8 text-gray-100">
-    <div class="w-42">
-      <ul>
-        <li class="flex">
-          <PhoneIcon />
-          <a class="px-1" href="tel:+34644502077">+34 644 502 077</a>
-        </li>
-        <li class="flex">
-          <GmailIcon />
-          <a class="px-2" href="mailto:anaortegagutierrez99@gmail.com">support@amanahacademia.com</a>
-        </li>
-        <li class="flex">
-          <InstagramIcon />
-          <a href="https://www.instagram.com/amanahacademia" class="px-2" target="_blank" rel="noopener noreferrer"
-            >@amanahacademia</a
-          ><br />
-        </li>
-      </ul>
-    </div>
-    <p class="text-[8px] md:text-sm text-center px-2">© Amanah Academia 2025</p>
-    <div>
-      <ul>
-        <li><a href="/info">{data.license}</a></li>
-        <li><a href="/info">{data.privacy_policy}</a></li>
-        <li><a href="/info">{data.terms_of_service}</a></li>
-      </ul>
-    </div>
-  </div>
+<footer class="text-xs md:text-sm bg-brown w-full h-28 flex justify-between items-center px-3 md:px-8 text-gray-100">
+  <ul class="w-42 space-y-1">
+    <li>
+      <a class="flex items-center px-2" href="tel:+34644502077">
+        <PhoneIcon width={20} height={20} class="mr-2" />
+        +34 644 502 077
+      </a>
+    </li>
+    <li>
+      <a class="flex items-center px-2" href="mailto:anaortegagutierrez99@gmail.com">
+        <GmailIcon width={20} height={20} class="mr-2" />
+        support@amanahacademia.com
+      </a>
+    </li>
+    <li>
+      <a
+        class="flex items-center px-2"
+        href="https://www.instagram.com/amanahacademia"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <InstagramIcon width={20} height={20} class="mr-2" />
+        @amanahacademia
+      </a>
+    </li>
+  </ul>
+  <p class="text-[8px] md:text-sm text-center px-2">© Amanah Academia 2025</p>
+  <ul class="w-42 space-y-1 text-left">
+    <li>
+      <a href="/legal" title={data.license} rel="license" aria-label={data.license}>
+        {data.license}
+      </a>
+    </li>
+    <li>
+      <a href="/legal" title={data.privacy_policy} rel="noopener" aria-label={data.privacy_policy}>
+        {data.privacy_policy}
+      </a>
+    </li>
+    <li>
+      <a href="/legal" title={data.terms_of_service} rel="noopener" aria-label={data.terms_of_service}>
+        {data.terms_of_service}
+      </a>
+    </li>
+  </ul>
 </footer>

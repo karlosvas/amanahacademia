@@ -16,8 +16,11 @@ const data = Astro.props.data as HomeI18n;
       alt=""
       aria-hidden="true"
       fetchpriority="high"
-      sizes="100vw"
+      widths={[350, 525, 700, 1050]}
+      sizes="(max-width: 640px) 350px, 525px"
       class="w-full h-full object-cover object-top m-0 p-0"
+      loading="eager"
+      decoding="sync"
     />
     <div
       class="absolute inset-0 pointer-events-none"
@@ -36,7 +39,7 @@ const data = Astro.props.data as HomeI18n;
   </h2>
 </section>
 
-<AboutUs data={data} />
+<AboutUs data={data} client:visible />
 
 <p class="m-0 md:m-10 px-4 sm:px-6 md:px-10 text-red text-center text-xs sm:text-sm font-jomolhari leading-relaxed font-semibold scroll-fade-in">
     {data.focus.note.map((note, _) => <span >{note}</span> <br />)}

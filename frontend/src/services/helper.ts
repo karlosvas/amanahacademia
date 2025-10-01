@@ -15,7 +15,7 @@ import {
 } from "@/types/bakend-types";
 import { ApiErrorType } from "@/enums/enums";
 import { ApiError } from "@/services/globalHandler";
-import { auth } from "@/config/firebase";
+import { getCurrentUserToken } from "@/services/firebase";
 
 export class ApiService {
   private readonly baseUrl: string;
@@ -100,8 +100,7 @@ export class ApiService {
 
   // Enviar comentario (POST)
   async postComment(comment: Comment): Promise<Result<Comment>> {
-    const currentUser = auth.currentUser;
-    const token = currentUser ? await currentUser.getIdToken() : null;
+    const token = await getCurrentUserToken();
     let res = await fetch(`${this.baseUrl}/comments/add`, {
       method: "POST",
       headers: {
@@ -115,8 +114,9 @@ export class ApiService {
   }
 
   // Darle like a un comentario (PUT)
-  async setLike(token: string, commentId: string): Promise<Result<Comment>> {
+  async setLike(commentId: string): Promise<Result<Comment>> {
     try {
+      const token = await getCurrentUserToken();
       const response = await fetch(`${this.baseUrl}/comments/like/${commentId}`, {
         method: "PUT",
         headers: {
@@ -135,13 +135,7 @@ export class ApiService {
 
   // Delete a comment (DELETE)
   async deleteComment(commentId: string): Promise<Result<void>> {
-    const currentUser = auth.currentUser;
-
-    if (!currentUser) {
-      return ResultUtils.error(new ApiError(ApiErrorType.AUTHENTICATION_ERROR, "Usuario no autenticado"));
-    }
-
-    const token = await currentUser.getIdToken();
+    const token = await getCurrentUserToken();
     let res = await fetch(`${this.baseUrl}/comments/del/${commentId}`, {
       method: "DELETE",
       headers: {
@@ -154,8 +148,7 @@ export class ApiService {
 
   // Editar un comentario (PUT)
   async editComment(commentId: string, comment: UpdateComment): Promise<Result<Comment>> {
-    const currentUser = auth.currentUser;
-    const token = currentUser ? await currentUser.getIdToken() : null;
+    const token = await getCurrentUserToken();
     let res = await fetch(`${this.baseUrl}/comments/edit/${commentId}`, {
       method: "PUT",
       headers: {
@@ -169,8 +162,7 @@ export class ApiService {
 
   // Obtener un comentario con una id especifica (GET)
   async getCommentById(commentId: string): Promise<Result<Comment>> {
-    const currentUser = auth.currentUser;
-    const token = currentUser ? await currentUser.getIdToken() : null;
+    const token = await getCurrentUserToken();
     let res = await fetch(`${this.baseUrl}/comments/${commentId}`, {
       method: "GET",
       headers: {
@@ -242,8 +234,7 @@ export class ApiService {
 
   // Obtener el usuario actual (GET)
   async getUser(): Promise<Result<UserMerged>> {
-    const currentUser = auth.currentUser;
-    const token = currentUser ? await currentUser.getIdToken() : null;
+    const token = await getCurrentUserToken();
     let url = `${this.baseUrl}/users/me`;
     let res = await fetch(url, {
       method: "GET",
@@ -271,8 +262,7 @@ export class ApiService {
   //////////////////// STRIPE /////////////////////
   // Payment intent para la sesiond e firebase
   async checkout(payload: CheckoutPaymentIntentRequest): Promise<Result<CheckoutPaymentIntentResponse>> {
-    const currentUser = auth.currentUser;
-    const token = currentUser ? await currentUser.getIdToken(true) : null;
+    const token = await getCurrentUserToken();
     let url = `${this.baseUrl}/payment/intent`;
 
     // Crear Payment Intent en el backend
@@ -290,9 +280,7 @@ export class ApiService {
 
   // Confirmación del booking al pagar
   async confirmBooking(bookingUid: string): Promise<Result<void>> {
-    const currentUser = auth.currentUser;
-    const token = currentUser ? await currentUser.getIdToken(true) : null;
-
+    const token = await getCurrentUserToken();
     const response = await fetch(`${this.baseUrl}/bookings/${bookingUid}/confirm`, {
       method: "POST",
       headers: {
@@ -307,9 +295,7 @@ export class ApiService {
   //////////////////// STRIPE /////////////////////
   // Guardar la relacion entre cal.com y stripe en firebase
   async saveCalStripeConnection(payload: RelationalCalStripe): Promise<Result<void>> {
-    const currentUser = auth.currentUser;
-    const token = currentUser ? await currentUser.getIdToken(true) : null;
-
+    const token = await getCurrentUserToken();
     const response = await fetch(`${this.baseUrl}/payments/cal/connection`, {
       method: "POST",
       headers: {

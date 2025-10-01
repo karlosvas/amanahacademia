@@ -8,10 +8,10 @@ import type { ModalI18n } from "@/types/types";
 import GoogleIcon from "@/assets/google.svg";
 
 const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
-if (!TURNSTILE_SITE_KEY) {
-  console.warn("No TURNSTILE_SITE_KEY provided");
-}
+if (!TURNSTILE_SITE_KEY) console.warn("No TURNSTILE_SITE_KEY provided");
+
 const data = Astro.props.data as ModalI18n;
+const label = Astro.props.label;
 ---
 
 <!-- Login -->
@@ -190,7 +190,15 @@ const data = Astro.props.data as ModalI18n;
             <li>
               <label class="flex items-center">
                 <input type="checkbox" name={TERMNS[index]} class="mr-2" />
-                <a href="/info" target="_blank" class="text-lightBrown text-xs  hover:underline hover:text-red">
+                <a
+                  href="/legal"
+                  title={label}
+                  rel="license"
+                  aria-label={label}
+                  aria-describedby="legal"
+                  target="_blank"
+                  class="text-lightBrown text-xs  hover:underline hover:text-red"
+                >
                   {item}
                 </a>
               </label>

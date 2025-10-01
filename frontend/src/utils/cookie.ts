@@ -14,16 +14,27 @@ export function getLangFromCookie(): string {
   return match ? match[1] : "es";
 }
 
-function getCarryFromCookies() {
-  const carryCookie = document.cookie.split(";").find((cookie) => cookie.trim().startsWith("carry="));
-  if (carryCookie) {
-    const carryValue = carryCookie.split("=")[1];
-    try {
-      return JSON.parse(decodeURIComponent(carryValue));
-    } catch (error) {
-      console.error("Error parsing carry cookie:", error);
-      return null;
-    }
+export function acceptCookies() {
+  if (typeof window.gtag !== "undefined") {
+    window.gtag("consent", "update", {
+      analytics_storage: "granted",
+    });
   }
-  return null;
+  localStorage.setItem("cookieConsent", "accepted");
+  hideBanner();
+}
+
+export function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  hideBanner();
+}
+
+function hideBanner() {
+  const banner = document.getElementById("cookie-banner");
+  if (banner) {
+    banner.style.animation = "slide-down 0.3s ease-out";
+    setTimeout(() => {
+      banner.classList.add("hidden");
+    }, 300);
+  }
 }

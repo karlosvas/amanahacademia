@@ -147,10 +147,6 @@ export type ContactI18n = {
 export type ArticleI18n = {
   title: string;
   summary: string[];
-  articles: {
-    title: string;
-    summary: string[];
-  }[];
 };
 
 export type CardModuleType = {
@@ -374,3 +370,19 @@ export interface BookingPaymentRequest {
   attendee_timezone: string;
   attendee_phone?: string;
 }
+
+export type Articles = {
+  title: string;
+  pdfUrl: string;
+  image: string;
+};
+
+export interface ArticlesAstro {
+  id: string;
+  data: Articles;
+  filePath: string;
+  digest: string;
+  collection: string;
+}
+
+export type Lang = "es" | "en" | "fr" | "de" | "ar" | "it" | "pt";
