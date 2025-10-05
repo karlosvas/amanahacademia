@@ -9,15 +9,34 @@ pub struct UserRequest {
     // Datos obligatorios requeridos por firebase auth
     pub email: String,
     pub password: String,
+    pub provider: Provider, // "email" o "google"
 
     // Datos opcionales que el cliente puede enviar
     pub name: Option<String>, // Solo necesario en los register o en los update
     pub phone_number: Option<String>,
+    pub id_token: Option<String>, // Token JWT de Firebase Auth
 
     // Datos especificos para la DB
     pub role: Option<ROLE>,
     pub permissions: Option<HashSet<String>>,
     pub subscription_tier: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Provider {
+    Email,
+    Google,
+}
+
+impl Provider {
+    /// Returns the string representation used by the API/frontend for this provider
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Provider::Email => "email",
+            Provider::Google => "google",
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

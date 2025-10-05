@@ -19,7 +19,13 @@
           "email": "Email",
           "password": "Contraseña",
           "toggleModal": "¿No tienes cuenta? Regístrate aquí",
-          "forgot_password": "¿Has olvidado tu contraseña?"
+          "forgot_password": "¿Has olvidado tu contraseña?",
+          "validation": {
+            "email_required": "El email es obligatorio",
+            "email_invalid": "Introduce un email válido",
+            "password_required": "La contraseña es obligatoria",
+            "password_min": "Mínimo 6 caracteres"
+          }
         },
         "register": {
           "title": "¡Únete a nosotros!",
@@ -30,7 +36,12 @@
             "Acepto recibir novedades y comunicaciones por email (newsletter)."
           ],
           "button": "Registrarse",
-          "toggleModal": "¿Ya tienes cuenta? Inicia sesión aquí"
+          "toggleModal": "¿Ya tienes cuenta? Inicia sesión aquí",
+          "validation": {
+            "name_required": "El nombre es obligatorio",
+            "privacy_required": "Debes aceptar la política de privacidad",
+            "terms_required": "Debes aceptar los términos y condiciones"
+          }
         },
         "utils": {
           "loading": "Cargando...",

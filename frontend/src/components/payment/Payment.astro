@@ -31,10 +31,14 @@ import Title from "../common/Title.astro";
   import { showError, clearMessages, handlePayment } from "@/services/payment";
   import { getPrice } from "@/services/calendar";
   import type { PricingApiResponse } from "@/types/types";
+  import { getErrorFrontStripe, FrontendStripe } from "@/enums/enums";
 
   // Obtenemos la configuracion inicial
   const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_API_KEY;
-  const url_backend = import.meta.env.PUBLIC_BACKEND_URL;
+  const URL_BACKEND = import.meta.env.PUBLIC_BACKEND_URL;
+
+  if (!STRIPE_PUBLIC_KEY || !URL_BACKEND) showError(getErrorFrontStripe(FrontendStripe.MISSING_CONFIG));
+
   const helper = new ApiService();
   let stripe: any;
   let elements: any;
@@ -46,42 +50,42 @@ import Title from "../common/Title.astro";
 
   async function initializePrice(): Promise<number | undefined> {
     try {
+      // Obtenemos la lista de precios desde el backend
       const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
       const response: Response = await fetch(apiUrl);
       const pricingData: PricingApiResponse = (await response.json()) as PricingApiResponse;
 
       if (!slugType) {
-        showError("No se proporcionó el slug de la clase.");
+        showError(getErrorFrontStripe(FrontendStripe.MISSING_SLUG));
         return;
       } else if (!response.ok) {
-        showError("No se pudo obtener el precio");
+        showError(getErrorFrontStripe(FrontendStripe.PRICING_FETCH_ERROR));
         return;
       }
 
-      // Obtenemos el precio de la clase actual
+      // Obtenemos el precio para el tipo de clase seleccionado
       const pricing = getPrice(slugType, pricingData);
       const pricingElement = document.getElementById("pricing");
-      if (!pricingElement) return;
+      if (!pricingElement) {
+        showError(getErrorFrontStripe(FrontendStripe.PRICING_ELEMENT_NOT_FOUND));
+        return;
+      }
 
       pricingElement.textContent = `${pricing} €`;
 
       return pricing;
     } catch (error: any) {
-      showError(error.message);
+      showError(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
     }
   }
 
   async function initializeStripe(pricing: number | undefined) {
     try {
       // Obtenemos el booking UID
-      if (!STRIPE_PUBLIC_KEY || !url_backend)
-        throw new Error("Configuración incompleta para el .env. Por favor, contacta al soporte.");
-
-      // Inicializar Stripe, obtenemos el token JWT de Firebase
       stripe = window.Stripe(STRIPE_PUBLIC_KEY);
 
       if (!pricing) {
-        showError("No se pudo obtener el precio para inicializar el pago.");
+        showError(getErrorFrontStripe(FrontendStripe.MISSING_PRICING));
         return;
       }
 
@@ -93,13 +97,13 @@ import Title from "../common/Title.astro";
         currency: "EUR",
       };
 
-      if (!carry) throw new Error("No se pudo obtener el pedido.");
+      if (!carry) throw new Error(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
 
       // Obtenemos el clinet secreat para elements
       let response: Result<CheckoutPaymentIntentResponse> = await helper.checkout(carry);
 
       // Comprobamos que la respuesta sea válida
-      if (!response.success) throw new Error(`Error del servidor: ${response.error}`);
+      if (!response.success) throw new Error(getErrorFrontStripe(FrontendStripe.SERVER_ERROR));
 
       // Obtenemos el secreto de cliente
       const data = response.data;
@@ -152,23 +156,26 @@ import Title from "../common/Title.astro";
 
       // Ocultar loading y mostrar el elemento de pago
       const loading = document.querySelector(".loading") as HTMLDivElement | null;
-      if (!loading || !loading.style) return;
+      if (!loading || !loading.style) {
+        showError(getErrorFrontStripe(FrontendStripe.PAYMENT_FORM_ERROR));
+        return;
+      }
       loading.style.display = "none";
       await paymentElement.mount("#payment-element");
 
-      // 4️ Habilitar el botón de pago
+      // Habilitar el botón de pago
       const submitButton = document.getElementById("submit-button") as HTMLButtonElement | null;
       if (!submitButton) return;
       submitButton.disabled = false;
 
-      // 5 Manejar cambios en el elemento de pago
+      // Manejar cambios en el elemento de pago
       paymentElement.on("change", (event: any) => {
         if (event.error) showError(event.error.message);
         else clearMessages();
       });
     } catch (error: any) {
       console.error("Error inicializando Stripe:", error);
-      showError(`Error de inicialización de Stripe`);
+      showError(getErrorFrontStripe(FrontendStripe.STRIPE_INITIALIZATION_ERROR));
     }
   }
 

@@ -25,7 +25,7 @@ export function initCalendar(namespaceId: Class) {
           cal.loaded = true;
         }
         if (args[0] === initKey) {
-          const api = function () {
+          const api: any = function () {
             enqueue(api, arguments);
           };
           const namespace = args[1];
@@ -102,34 +102,9 @@ export async function updatePricing() {
         symbolElement.forEach((el) => (el.textContent = pricingData.symbol));
       if (amountElement) amountElement.forEach((el) => (el.textContent = tierPrice.toString()));
     });
-
-    // Actualizar Cal.com después de actualizar las cards
-    updateCalendarPricing(pricingData);
   } catch (error) {
     console.error("Error loading pricing:", error);
   }
-}
-
-// Nueva función para actualizar Cal.com
-function updateCalendarPricing(pricingData: PricingApiResponse) {
-  // Convertir precios a centavos para Cal.com
-  const calPrices = {
-    "standard-class": pricingData.prices.individual_standard * 100,
-    "conversation-class": pricingData.prices.individual_conversation * 100,
-    "group-class": pricingData.prices.group * 100,
-    "free-class": 0,
-  };
-
-  document.querySelectorAll(".select-schedule").forEach((element) => {
-    const calLink = element.getAttribute("data-cal-link");
-    let price = calPrices["standard-class"]; // Default
-
-    // Mejorar detección de tipo de clase
-    if (calLink?.includes("conversation-class")) price = calPrices["conversation-class"];
-    else if (calLink?.includes("group-class")) price = calPrices["group-class"];
-    else if (calLink?.includes("free-class")) price = calPrices["free-class"];
-    else if (calLink?.includes("standard-class")) price = calPrices["standard-class"];
-  });
 }
 
 export function getPrice(tier: string, pricingData: PricingApiResponse): number {

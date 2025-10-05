@@ -6,7 +6,7 @@ use {
     ecow::EcoString,
     resend_rs::types::CreateEmailBaseOptions,
     std::sync::Arc,
-    tracing::{error, info},
+    tracing::{error},
 };
 
 use crate::{

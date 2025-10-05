@@ -255,7 +255,7 @@ const label = Astro.props.label;
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer is:inline></script>
 <!-- Logica de registro y login -->
 <script>
-  import { toggleLoginToRegister, submitForm, handleLogGoogleProvider } from "@/services/firebase";
+  import { toggleLoginToRegister, submitFormToRegisterOrLogin, handleLogGoogleProvider } from "@/services/firebase";
 
   // Estado actual de registro o Login
   let isRegister = false;
@@ -290,8 +290,8 @@ const label = Astro.props.label;
     });
 
     // Gestiona los formularios, las validaciones y los envios de formulario
-    submitForm(authModalLogin, loginLoading, "#loginForm", false, loginError);
-    submitForm(authModalRegister, registerLoading, "#registerForm", true, registerError);
+    submitFormToRegisterOrLogin(authModalLogin, loginLoading, "#loginForm", false, loginError);
+    submitFormToRegisterOrLogin(authModalRegister, registerLoading, "#registerForm", true, registerError);
 
     const googleBtns = document.querySelectorAll(".googleLoginBtn") as NodeListOf<HTMLButtonElement>;
     googleBtns.forEach((googleBtn) => {

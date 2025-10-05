@@ -1,3 +1,5 @@
+import { getLangFromCookie } from "@/utils/cookie";
+
 export enum Class {
   Standard = "standard-class",
   Conversacion = "conversation-class",
@@ -15,8 +17,6 @@ export enum ApiErrorType {
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
 }
 
-import { getLangFromCookie } from "@/utils/cookie";
-
 export enum FrontendErrorCode {
   NEED_AUTHENTICATION = "NEED_AUTHENTICATION",
   MUST_BE_OWNER = "MUST_BE_OWNER",
@@ -24,70 +24,9 @@ export enum FrontendErrorCode {
   FORBIDDEN = "FORBIDDEN",
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
   NEWSLETTER_ERROR = "NEWSLETTER_ERROR",
-}
-
-export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, string>> = {
-  ar: {
-    [FrontendErrorCode.NEED_AUTHENTICATION]: "يجب عليك تسجيل الدخول للمتابعة",
-    [FrontendErrorCode.MUST_BE_OWNER]: "يجب أن تكون مالك العنصر لتنفيذ هذا الإجراء",
-    [FrontendErrorCode.NOT_FOUND]: "العنصر غير موجود",
-    [FrontendErrorCode.FORBIDDEN]: "ليس لديك إذن للوصول",
-    [FrontendErrorCode.UNKNOWN_ERROR]: "حدث خطأ غير معروف",
-    [FrontendErrorCode.NEWSLETTER_ERROR]: "حدث خطأ في الاشتراك في النشرة الإخبارية",
-  },
-  de: {
-    [FrontendErrorCode.NEED_AUTHENTICATION]: "Sie müssen sich anmelden, um fortzufahren",
-    [FrontendErrorCode.MUST_BE_OWNER]: "Sie müssen Eigentümer sein, um diese Aktion auszuführen",
-    [FrontendErrorCode.NOT_FOUND]: "Element nicht gefunden",
-    [FrontendErrorCode.FORBIDDEN]: "Keine Berechtigung zum Zugriff",
-    [FrontendErrorCode.UNKNOWN_ERROR]: "Unbekannter Fehler ist aufgetreten",
-    [FrontendErrorCode.NEWSLETTER_ERROR]: "Fehler beim Abonnieren des Newsletters",
-  },
-  en: {
-    [FrontendErrorCode.NEED_AUTHENTICATION]: "You must log in to continue",
-    [FrontendErrorCode.MUST_BE_OWNER]: "You must be the owner to perform this action",
-    [FrontendErrorCode.NOT_FOUND]: "Item not found",
-    [FrontendErrorCode.FORBIDDEN]: "You do not have permission to access",
-    [FrontendErrorCode.UNKNOWN_ERROR]: "An unknown error occurred",
-    [FrontendErrorCode.NEWSLETTER_ERROR]: "Error subscribing to the newsletter",
-  },
-  es: {
-    [FrontendErrorCode.NEED_AUTHENTICATION]: "Debes iniciar sesión para continuar",
-    [FrontendErrorCode.MUST_BE_OWNER]: "Debes de ser dueño para realizar esta acción",
-    [FrontendErrorCode.NOT_FOUND]: "Elemento no encontrado",
-    [FrontendErrorCode.FORBIDDEN]: "No tienes permiso para acceder",
-    [FrontendErrorCode.UNKNOWN_ERROR]: "Ha ocurrido un error desconocido",
-    [FrontendErrorCode.NEWSLETTER_ERROR]: "Error al suscribirse al newsletter",
-  },
-  fr: {
-    [FrontendErrorCode.NEED_AUTHENTICATION]: "Vous devez vous connecter pour continuer",
-    [FrontendErrorCode.MUST_BE_OWNER]: "Vous devez être le propriétaire pour effectuer cette action",
-    [FrontendErrorCode.NOT_FOUND]: "Élément introuvable",
-    [FrontendErrorCode.FORBIDDEN]: "Vous n'avez pas la permission d'accéder",
-    [FrontendErrorCode.UNKNOWN_ERROR]: "Une erreur inconnue s'est produite",
-    [FrontendErrorCode.NEWSLETTER_ERROR]: "Erreur lors de l'abonnement à la newsletter",
-  },
-  it: {
-    [FrontendErrorCode.NEED_AUTHENTICATION]: "Devi accedere per continuare",
-    [FrontendErrorCode.MUST_BE_OWNER]: "Devi essere il proprietario per eseguire questa azione",
-    [FrontendErrorCode.NOT_FOUND]: "Elemento non trovato",
-    [FrontendErrorCode.FORBIDDEN]: "Non hai il permesso di accedere",
-    [FrontendErrorCode.UNKNOWN_ERROR]: "Si è verificato un errore sconosciuto",
-    [FrontendErrorCode.NEWSLETTER_ERROR]: "Errore durante l'iscrizione alla newsletter",
-  },
-  pt: {
-    [FrontendErrorCode.NEED_AUTHENTICATION]: "Você deve fazer login para continuar",
-    [FrontendErrorCode.MUST_BE_OWNER]: "Você deve ser o dono para realizar esta ação",
-    [FrontendErrorCode.NOT_FOUND]: "Item não encontrado",
-    [FrontendErrorCode.FORBIDDEN]: "Você não tem permissão para acessar",
-    [FrontendErrorCode.UNKNOWN_ERROR]: "Ocorreu um erro desconhecido",
-    [FrontendErrorCode.NEWSLETTER_ERROR]: "Erro ao se inscrever na newsletter",
-  },
-};
-
-export function getErrorToast(code: FrontendErrorCode) {
-  const lang = getLangFromCookie();
-  return FrontendErrorMessages[lang]?.[code] || FrontendErrorMessages["es"][code];
+  USER_NOT_EXISTS = "USER_NOT_EXISTS",
+  GOOGLE_LOGIN_ERROR = "GOOGLE_LOGIN_ERROR",
+  NETWORK_ERROR = "NETWORK_ERROR",
 }
 
 export enum FrontendStripe {
@@ -101,7 +40,102 @@ export enum FrontendStripe {
   UNCERTAIN_PAYMENT = "UNCERTAIN_PAYMENT",
   CONNECTION_ERROR = "CONNECTION_ERROR",
   GENERIC_ERROR = "GENERIC_ERROR",
+  MISSING_CONFIG = "MISSING_CONFIG",
+  MISSING_SLUG = "MISSING_SLUG",
+  PRICING_FETCH_ERROR = "PRICING_FETCH_ERROR",
+  PRICING_ELEMENT_NOT_FOUND = "PRICING_ELEMENT_NOT_FOUND",
+  MISSING_PRICING = "MISSING_PRICING",
+  PAYMENT_FORM_ERROR = "PAYMENT_FORM_ERROR",
+  STRIPE_INITIALIZATION_ERROR = "STRIPE_INITIALIZATION_ERROR",
+  SERVER_ERROR = "SERVER_ERROR",
 }
+
+// Manejar en todos los idiomas erroes de los toast
+export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, string>> = {
+  ar: {
+    [FrontendErrorCode.NEED_AUTHENTICATION]: "يجب عليك تسجيل الدخول للمتابعة",
+    [FrontendErrorCode.MUST_BE_OWNER]: "يجب أن تكون مالك العنصر لتنفيذ هذا الإجراء",
+    [FrontendErrorCode.NOT_FOUND]: "العنصر غير موجود",
+    [FrontendErrorCode.FORBIDDEN]: "ليس لديك إذن للوصول",
+    [FrontendErrorCode.UNKNOWN_ERROR]: "حدث خطأ غير معروف",
+    [FrontendErrorCode.NEWSLETTER_ERROR]: "حدث خطأ في الاشتراك في النشرة الإخبارية",
+    [FrontendErrorCode.USER_NOT_EXISTS]: "المستخدم غير موجود. يرجى التسجيل أولاً",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "خطأ في تسجيل الدخول باستخدام Google. يرجى المحاولة مرة أخرى",
+    [FrontendErrorCode.NETWORK_ERROR]: "خطأ في الشبكة. يرجى المحاولة مرة أخرى لاحقًا",
+  },
+  de: {
+    [FrontendErrorCode.NEED_AUTHENTICATION]: "Sie müssen sich anmelden, um fortzufahren",
+    [FrontendErrorCode.MUST_BE_OWNER]: "Sie müssen Eigentümer sein, um diese Aktion auszuführen",
+    [FrontendErrorCode.NOT_FOUND]: "Element nicht gefunden",
+    [FrontendErrorCode.FORBIDDEN]: "Keine Berechtigung zum Zugriff",
+    [FrontendErrorCode.UNKNOWN_ERROR]: "Unbekannter Fehler ist aufgetreten",
+    [FrontendErrorCode.NEWSLETTER_ERROR]: "Fehler beim Abonnieren des Newsletters",
+    [FrontendErrorCode.USER_NOT_EXISTS]: "Benutzer existiert nicht. Bitte registrieren Sie sich zuerst",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Fehler bei der Google-Anmeldung. Bitte versuchen Sie es erneut",
+    [FrontendErrorCode.NETWORK_ERROR]: "Netzwerkfehler. Bitte versuchen Sie es später erneut",
+  },
+  en: {
+    [FrontendErrorCode.NEED_AUTHENTICATION]: "You must log in to continue",
+    [FrontendErrorCode.MUST_BE_OWNER]: "You must be the owner to perform this action",
+    [FrontendErrorCode.NOT_FOUND]: "Item not found",
+    [FrontendErrorCode.FORBIDDEN]: "You do not have permission to access",
+    [FrontendErrorCode.UNKNOWN_ERROR]: "An unknown error occurred",
+    [FrontendErrorCode.NEWSLETTER_ERROR]: "Error subscribing to the newsletter",
+    [FrontendErrorCode.USER_NOT_EXISTS]: "User does not exist. Please register first",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Error logging in with Google. Please try again",
+    [FrontendErrorCode.NETWORK_ERROR]: "Network error. Please try again later",
+  },
+  es: {
+    [FrontendErrorCode.NEED_AUTHENTICATION]: "Debes iniciar sesión para continuar",
+    [FrontendErrorCode.MUST_BE_OWNER]: "Debes de ser dueño para realizar esta acción",
+    [FrontendErrorCode.NOT_FOUND]: "Elemento no encontrado",
+    [FrontendErrorCode.FORBIDDEN]: "No tienes permiso para acceder",
+    [FrontendErrorCode.UNKNOWN_ERROR]: "Ha ocurrido un error desconocido",
+    [FrontendErrorCode.NEWSLETTER_ERROR]: "Error al suscribirse al newsletter",
+    [FrontendErrorCode.USER_NOT_EXISTS]: "El usuario no existe. Por favor, regístrate primero",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo",
+    [FrontendErrorCode.NETWORK_ERROR]: "Error de red. Por favor, inténtalo de nuevo más tarde",
+  },
+  fr: {
+    [FrontendErrorCode.NEED_AUTHENTICATION]: "Vous devez vous connecter pour continuer",
+    [FrontendErrorCode.MUST_BE_OWNER]: "Vous devez être le propriétaire pour effectuer cette action",
+    [FrontendErrorCode.NOT_FOUND]: "Élément introuvable",
+    [FrontendErrorCode.FORBIDDEN]: "Vous n'avez pas la permission d'accéder",
+    [FrontendErrorCode.UNKNOWN_ERROR]: "Une erreur inconnue s'est produite",
+    [FrontendErrorCode.NEWSLETTER_ERROR]: "Erreur lors de l'abonnement à la newsletter",
+    [FrontendErrorCode.USER_NOT_EXISTS]: "L'utilisateur n'existe pas. Veuillez vous inscrire d'abord",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Erreur lors de la connexion avec Google. Veuillez réessayer",
+    [FrontendErrorCode.NETWORK_ERROR]: "Erreur réseau. Veuillez réessayer plus tard",
+  },
+  it: {
+    [FrontendErrorCode.NEED_AUTHENTICATION]: "Devi accedere per continuare",
+    [FrontendErrorCode.MUST_BE_OWNER]: "Devi essere il proprietario per eseguire questa azione",
+    [FrontendErrorCode.NOT_FOUND]: "Elemento non trovato",
+    [FrontendErrorCode.FORBIDDEN]: "Non hai il permesso di accedere",
+    [FrontendErrorCode.UNKNOWN_ERROR]: "Si è verificato un errore sconosciuto",
+    [FrontendErrorCode.NEWSLETTER_ERROR]: "Errore durante l'iscrizione alla newsletter",
+    [FrontendErrorCode.USER_NOT_EXISTS]: "L'utente non esiste. Per favore, registrati prima",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Errore durante l'accesso con Google. Per favore, riprova",
+    [FrontendErrorCode.NETWORK_ERROR]: "Errore di rete. Per favore, riprova più tardi",
+  },
+  pt: {
+    [FrontendErrorCode.NEED_AUTHENTICATION]: "Você deve fazer login para continuar",
+    [FrontendErrorCode.MUST_BE_OWNER]: "Você deve ser o dono para realizar esta ação",
+    [FrontendErrorCode.NOT_FOUND]: "Item não encontrado",
+    [FrontendErrorCode.FORBIDDEN]: "Você não tem permissão para acessar",
+    [FrontendErrorCode.UNKNOWN_ERROR]: "Ocorreu um erro desconhecido",
+    [FrontendErrorCode.NEWSLETTER_ERROR]: "Erro ao se inscrever na newsletter",
+    [FrontendErrorCode.USER_NOT_EXISTS]: "O usuário não existe. Por favor, cadastre-se primeiro",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Erro ao fazer login com Google. Por favor, tente novamente",
+    [FrontendErrorCode.NETWORK_ERROR]: "Erro de rede. Por favor, tente novamente mais tarde",
+  },
+};
+export function getErrorToast(code: FrontendErrorCode) {
+  const lang = getLangFromCookie();
+  return FrontendErrorMessages[lang]?.[code] || FrontendErrorMessages["es"][code];
+}
+
+// Manejar en todos los idiomas errores de stripe
 export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, string>> = {
   es: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "No se pudo inicializar el sistema de pago",
@@ -114,6 +148,14 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.UNCERTAIN_PAYMENT]: "Estado del pago incierto. Por favor, revisa tu cuenta",
     [FrontendStripe.CONNECTION_ERROR]: "Error de conexión. Inténtalo de nuevo",
     [FrontendStripe.GENERIC_ERROR]: "Ocurrió un error inesperado. Inténtalo de nuevo",
+    [FrontendStripe.MISSING_CONFIG]: "Configuración incompleta. Por favor, contacta al soporte",
+    [FrontendStripe.MISSING_SLUG]: "No se proporcionó el tipo de clase",
+    [FrontendStripe.PRICING_FETCH_ERROR]: "No se pudo obtener el precio",
+    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "No se pudo mostrar el precio",
+    [FrontendStripe.MISSING_PRICING]: "No se pudo obtener el precio para inicializar el pago",
+    [FrontendStripe.PAYMENT_FORM_ERROR]: "No se pudo inicializar el formulario de pago",
+    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Error de inicialización de Stripe",
+    [FrontendStripe.SERVER_ERROR]: "Error del servidor",
   },
   en: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Payment system could not be initialized",
@@ -126,6 +168,14 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.UNCERTAIN_PAYMENT]: "Payment status uncertain. Please check your account",
     [FrontendStripe.CONNECTION_ERROR]: "Connection error. Please try again",
     [FrontendStripe.GENERIC_ERROR]: "An unexpected error occurred. Please try again",
+    [FrontendStripe.MISSING_CONFIG]: "Incomplete configuration. Please contact support",
+    [FrontendStripe.MISSING_SLUG]: "Class type not provided",
+    [FrontendStripe.PRICING_FETCH_ERROR]: "Could not fetch pricing",
+    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Could not display pricing",
+    [FrontendStripe.MISSING_PRICING]: "Could not get pricing to initialize payment",
+    [FrontendStripe.PAYMENT_FORM_ERROR]: "Could not initialize payment form",
+    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Stripe initialization error",
+    [FrontendStripe.SERVER_ERROR]: "Server error",
   },
   pt: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "O sistema de pagamento não pôde ser inicializado",
@@ -138,6 +188,14 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.UNCERTAIN_PAYMENT]: "Status do pagamento incerto. Por favor, verifique sua conta",
     [FrontendStripe.CONNECTION_ERROR]: "Erro de conexão. Por favor, tente novamente",
     [FrontendStripe.GENERIC_ERROR]: "Ocorreu um erro inesperado. Por favor, tente novamente",
+    [FrontendStripe.MISSING_CONFIG]: "Configuração incompleta. Por favor, entre em contato com o suporte",
+    [FrontendStripe.MISSING_SLUG]: "Tipo de aula não fornecido",
+    [FrontendStripe.PRICING_FETCH_ERROR]: "Não foi possível obter o preço",
+    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Não foi possível exibir o preço",
+    [FrontendStripe.MISSING_PRICING]: "Não foi possível obter o preço para inicializar o pagamento",
+    [FrontendStripe.PAYMENT_FORM_ERROR]: "Não foi possível inicializar o formulário de pagamento",
+    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Erro ao inicializar Stripe",
+    [FrontendStripe.SERVER_ERROR]: "Erro do servidor",
   },
   it: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Il sistema di pagamento non è stato inizializzato",
@@ -151,6 +209,14 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.UNCERTAIN_PAYMENT]: "Stato del pagamento incerto. Si prega di controllare il proprio account",
     [FrontendStripe.CONNECTION_ERROR]: "Errore di connessione. Si prega di riprovare",
     [FrontendStripe.GENERIC_ERROR]: "Si è verificato un errore imprevisto. Si prega di riprovare",
+    [FrontendStripe.MISSING_CONFIG]: "Configurazione incompleta. Si prega di contattare il supporto",
+    [FrontendStripe.MISSING_SLUG]: "Tipo di classe non fornito",
+    [FrontendStripe.PRICING_FETCH_ERROR]: "Impossibile ottenere il prezzo",
+    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Impossibile visualizzare il prezzo",
+    [FrontendStripe.MISSING_PRICING]: "Impossibile ottenere il prezzo per inizializzare il pagamento",
+    [FrontendStripe.PAYMENT_FORM_ERROR]: "Impossibile inizializzare il modulo di pagamento",
+    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Errore di inizializzazione Stripe",
+    [FrontendStripe.SERVER_ERROR]: "Errore del server",
   },
   fr: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Le système de paiement n'a pas pu être initialisé",
@@ -163,6 +229,14 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.UNCERTAIN_PAYMENT]: "Statut de paiement incertain. Veuillez vérifier votre compte",
     [FrontendStripe.CONNECTION_ERROR]: "Erreur de connexion. Veuillez réessayer",
     [FrontendStripe.GENERIC_ERROR]: "Une erreur inattendue s'est produite. Veuillez réessayer",
+    [FrontendStripe.MISSING_CONFIG]: "Configuration incomplète. Veuillez contacter le support",
+    [FrontendStripe.MISSING_SLUG]: "Type de cours non fourni",
+    [FrontendStripe.PRICING_FETCH_ERROR]: "Impossible de récupérer le prix",
+    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Impossible d'afficher le prix",
+    [FrontendStripe.MISSING_PRICING]: "Impossible d'obtenir le prix pour initialiser le paiement",
+    [FrontendStripe.PAYMENT_FORM_ERROR]: "Impossible d'initialiser le formulaire de paiement",
+    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Erreur d'initialisation Stripe",
+    [FrontendStripe.SERVER_ERROR]: "Erreur du serveur",
   },
   de: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Das Zahlungssystem konnte nicht initialisiert werden",
@@ -175,6 +249,14 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.UNCERTAIN_PAYMENT]: "Zahlungsstatus ungewiss. Bitte überprüfen Sie Ihr Konto",
     [FrontendStripe.CONNECTION_ERROR]: "Verbindungsfehler. Bitte versuchen Sie es erneut",
     [FrontendStripe.GENERIC_ERROR]: "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut",
+    [FrontendStripe.MISSING_CONFIG]: "Unvollständige Konfiguration. Bitte kontaktieren Sie den Support",
+    [FrontendStripe.MISSING_SLUG]: "Klassentyp nicht angegeben",
+    [FrontendStripe.PRICING_FETCH_ERROR]: "Preis konnte nicht abgerufen werden",
+    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Preis konnte nicht angezeigt werden",
+    [FrontendStripe.MISSING_PRICING]: "Preis konnte nicht abgerufen werden, um Zahlung zu initialisieren",
+    [FrontendStripe.PAYMENT_FORM_ERROR]: "Zahlungsformular konnte nicht initialisiert werden",
+    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Stripe-Initialisierungsfehler",
+    [FrontendStripe.SERVER_ERROR]: "Serverfehler",
   },
   ar: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "تعذر تهيئة نظام الدفع",
@@ -187,10 +269,139 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.UNCERTAIN_PAYMENT]: "حالة الدفع غير مؤكدة. يرجى التحقق من حسابك",
     [FrontendStripe.CONNECTION_ERROR]: "خطأ في الاتصال. يرجى المحاولة مرة أخرى",
     [FrontendStripe.GENERIC_ERROR]: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى",
+    [FrontendStripe.MISSING_CONFIG]: "إعداد غير مكتمل. يرجى الاتصال بالدعم",
+    [FrontendStripe.MISSING_SLUG]: "لم يتم توفير نوع الفصل",
+    [FrontendStripe.PRICING_FETCH_ERROR]: "تعذر الحصول على السعر",
+    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "تعذر عرض السعر",
+    [FrontendStripe.MISSING_PRICING]: "تعذر الحصول على السعر لتهيئة الدفع",
+    [FrontendStripe.PAYMENT_FORM_ERROR]: "تعذر تهيئة نموذج الدفع",
+    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "خطأ في تهيئة Stripe",
+    [FrontendStripe.SERVER_ERROR]: "خطأ في الخادم",
   },
 };
-
 export function getErrorFrontStripe(code: FrontendStripe): string {
   const lang = getLangFromCookie();
   return FrontendStripeTranslations[lang]?.[code] || FrontendStripeTranslations["es"][code];
+}
+
+// Auth success messages
+export enum AuthSuccessCode {
+  REGISTER_SUCCESS = "REGISTER_SUCCESS",
+  LOGIN_SUCCESS = "LOGIN_SUCCESS",
+}
+export const AuthSuccessMessages: Record<string, Record<AuthSuccessCode, string>> = {
+  es: {
+    [AuthSuccessCode.REGISTER_SUCCESS]: "¡Registro exitoso! Vamos a empezar con tu primer curso.",
+    [AuthSuccessCode.LOGIN_SUCCESS]: "¡Bienvenido de vuelta!",
+  },
+  en: {
+    [AuthSuccessCode.REGISTER_SUCCESS]: "Registration successful! Let's start with your first course.",
+    [AuthSuccessCode.LOGIN_SUCCESS]: "Welcome back!",
+  },
+  pt: {
+    [AuthSuccessCode.REGISTER_SUCCESS]: "Registro bem-sucedido! Vamos começar com seu primeiro curso.",
+    [AuthSuccessCode.LOGIN_SUCCESS]: "Bem-vindo de volta!",
+  },
+  it: {
+    [AuthSuccessCode.REGISTER_SUCCESS]: "Registrazione riuscita! Iniziamo con il tuo primo corso.",
+    [AuthSuccessCode.LOGIN_SUCCESS]: "Bentornato!",
+  },
+  fr: {
+    [AuthSuccessCode.REGISTER_SUCCESS]: "Inscription réussie ! Commençons par votre premier cours.",
+    [AuthSuccessCode.LOGIN_SUCCESS]: "Bon retour !",
+  },
+  de: {
+    [AuthSuccessCode.REGISTER_SUCCESS]: "Registrierung erfolgreich! Beginnen wir mit Ihrem ersten Kurs.",
+    [AuthSuccessCode.LOGIN_SUCCESS]: "Willkommen zurück!",
+  },
+  ar: {
+    [AuthSuccessCode.REGISTER_SUCCESS]: "تم التسجيل بنجاح! لنبدأ مع دورتك الأولى.",
+    [AuthSuccessCode.LOGIN_SUCCESS]: "مرحباً بعودتك!",
+  },
+};
+export function getAuthSuccessMessage(code: AuthSuccessCode): string {
+  const lang = getLangFromCookie();
+  return AuthSuccessMessages[lang]?.[code] || AuthSuccessMessages["es"][code];
+}
+
+// Validation messages
+export enum ValidationCode {
+  EMAIL_REQUIRED = "EMAIL_REQUIRED",
+  EMAIL_INVALID = "EMAIL_INVALID",
+  PASSWORD_REQUIRED = "PASSWORD_REQUIRED",
+  PASSWORD_MIN = "PASSWORD_MIN",
+  NAME_REQUIRED = "NAME_REQUIRED",
+  PRIVACY_REQUIRED = "PRIVACY_REQUIRED",
+  TERMS_REQUIRED = "TERMS_REQUIRED",
+}
+
+export const ValidationMessages: Record<string, Record<ValidationCode, string>> = {
+  es: {
+    [ValidationCode.EMAIL_REQUIRED]: "El email es obligatorio",
+    [ValidationCode.EMAIL_INVALID]: "Introduce un email válido",
+    [ValidationCode.PASSWORD_REQUIRED]: "La contraseña es obligatoria",
+    [ValidationCode.PASSWORD_MIN]: "Mínimo 6 caracteres",
+    [ValidationCode.NAME_REQUIRED]: "El nombre es obligatorio",
+    [ValidationCode.PRIVACY_REQUIRED]: "Debes aceptar la política de privacidad",
+    [ValidationCode.TERMS_REQUIRED]: "Debes aceptar los términos y condiciones",
+  },
+  en: {
+    [ValidationCode.EMAIL_REQUIRED]: "Email is required",
+    [ValidationCode.EMAIL_INVALID]: "Enter a valid email",
+    [ValidationCode.PASSWORD_REQUIRED]: "Password is required",
+    [ValidationCode.PASSWORD_MIN]: "Minimum 6 characters",
+    [ValidationCode.NAME_REQUIRED]: "Name is required",
+    [ValidationCode.PRIVACY_REQUIRED]: "You must accept the privacy policy",
+    [ValidationCode.TERMS_REQUIRED]: "You must accept the terms and conditions",
+  },
+  pt: {
+    [ValidationCode.EMAIL_REQUIRED]: "O email é obrigatório",
+    [ValidationCode.EMAIL_INVALID]: "Digite um email válido",
+    [ValidationCode.PASSWORD_REQUIRED]: "A senha é obrigatória",
+    [ValidationCode.PASSWORD_MIN]: "Mínimo 6 caracteres",
+    [ValidationCode.NAME_REQUIRED]: "O nome é obrigatório",
+    [ValidationCode.PRIVACY_REQUIRED]: "Você deve aceitar a política de privacidade",
+    [ValidationCode.TERMS_REQUIRED]: "Você deve aceitar os termos e condições",
+  },
+  it: {
+    [ValidationCode.EMAIL_REQUIRED]: "L'email è obbligatoria",
+    [ValidationCode.EMAIL_INVALID]: "Inserisci un'email valida",
+    [ValidationCode.PASSWORD_REQUIRED]: "La password è obbligatoria",
+    [ValidationCode.PASSWORD_MIN]: "Minimo 6 caratteri",
+    [ValidationCode.NAME_REQUIRED]: "Il nome è obbligatorio",
+    [ValidationCode.PRIVACY_REQUIRED]: "Devi accettare la politica sulla privacy",
+    [ValidationCode.TERMS_REQUIRED]: "Devi accettare i termini e le condizioni",
+  },
+  fr: {
+    [ValidationCode.EMAIL_REQUIRED]: "L'email est obligatoire",
+    [ValidationCode.EMAIL_INVALID]: "Entrez un email valide",
+    [ValidationCode.PASSWORD_REQUIRED]: "Le mot de passe est obligatoire",
+    [ValidationCode.PASSWORD_MIN]: "Minimum 6 caractères",
+    [ValidationCode.NAME_REQUIRED]: "Le nom est obligatoire",
+    [ValidationCode.PRIVACY_REQUIRED]: "Vous devez accepter la politique de confidentialité",
+    [ValidationCode.TERMS_REQUIRED]: "Vous devez accepter les termes et conditions",
+  },
+  de: {
+    [ValidationCode.EMAIL_REQUIRED]: "E-Mail ist erforderlich",
+    [ValidationCode.EMAIL_INVALID]: "Geben Sie eine gültige E-Mail ein",
+    [ValidationCode.PASSWORD_REQUIRED]: "Passwort ist erforderlich",
+    [ValidationCode.PASSWORD_MIN]: "Mindestens 6 Zeichen",
+    [ValidationCode.NAME_REQUIRED]: "Name ist erforderlich",
+    [ValidationCode.PRIVACY_REQUIRED]: "Sie müssen die Datenschutzrichtlinie akzeptieren",
+    [ValidationCode.TERMS_REQUIRED]: "Sie müssen die Allgemeinen Geschäftsbedingungen akzeptieren",
+  },
+  ar: {
+    [ValidationCode.EMAIL_REQUIRED]: "البريد الإلكتروني مطلوب",
+    [ValidationCode.EMAIL_INVALID]: "أدخل بريدًا إلكترونيًا صالحًا",
+    [ValidationCode.PASSWORD_REQUIRED]: "كلمة المرور مطلوبة",
+    [ValidationCode.PASSWORD_MIN]: "6 أحرف كحد أدنى",
+    [ValidationCode.NAME_REQUIRED]: "الاسم مطلوب",
+    [ValidationCode.PRIVACY_REQUIRED]: "يجب عليك قبول سياسة الخصوصية",
+    [ValidationCode.TERMS_REQUIRED]: "يجب عليك قبول الشروط والأحكام",
+  },
+};
+
+export function getValidationMessage(code: ValidationCode): string {
+  const lang = getLangFromCookie();
+  return ValidationMessages[lang]?.[code] || ValidationMessages["es"][code];
 }

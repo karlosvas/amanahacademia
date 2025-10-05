@@ -82,7 +82,26 @@ export interface AddContactResponse {
   status: string;
 }
 
+export type ProviderType = "email" | "google";
+
 export type UserRequest = {
+  // Datos obligatorios requeridos por firebase auth
+  email: string;
+  password: string;
+  name?: string;
+  provider: ProviderType;
+
+  // Datos opcionales que el cliente puede enviar
+  phone_number?: string;
+  id_token?: string; // Token JWT de Firebase Auth (required for Google provider)
+
+  // Datos específicos para la DB
+  role?: string; // Si tienes un enum ROLE, puedes usarlo aquí
+  permissions?: string[];
+  subscription_tier?: string;
+};
+
+export type UserRequestGoogle = {
   // Datos obligatorios requeridos por firebase auth
   email: string;
   password: string;

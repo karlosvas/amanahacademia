@@ -1,17 +1,17 @@
-import {
-  type ResponseAPI,
-  type Result,
-  type Comment,
-  type Teacher,
-  type UserMerged,
-  type EmailResend,
-  type AddContactResponse,
-  type UserRequest,
-  type UpdateComment,
-  type ContactMailchimp,
-  type CheckoutPaymentIntentResponse,
-  type CheckoutPaymentIntentRequest,
-  type RelationalCalStripe,
+import type {
+  ResponseAPI,
+  Result,
+  Comment,
+  Teacher,
+  UserMerged,
+  EmailResend,
+  AddContactResponse,
+  UserRequest,
+  UpdateComment,
+  ContactMailchimp,
+  CheckoutPaymentIntentResponse,
+  CheckoutPaymentIntentRequest,
+  RelationalCalStripe,
 } from "@/types/bakend-types";
 import { ApiErrorType } from "@/enums/enums";
 import { ApiError } from "@/services/globalHandler";
@@ -22,64 +22,6 @@ export class ApiService {
 
   constructor() {
     this.baseUrl = import.meta.env.PUBLIC_BACKEND_URL || "http://localhost:3000";
-  }
-
-  // Helper privado para manejar respuestas
-  private async handleResponse<T>(response: Response): Promise<Result<T>> {
-    try {
-      if (!response.ok) {
-        return this.handleHttpError(response);
-      }
-
-      // Para 204 No Content (CREATE/DELETE)
-      if (response.status === 204) {
-        return ResultUtils.ok(null as T);
-      }
-
-      const data: ResponseAPI<T> = await response.json();
-
-      if (data.success && data.data !== undefined) {
-        return ResultUtils.ok(data.data);
-      } else {
-        return ResultUtils.error(
-          new ApiError(ApiErrorType.SERVER_ERROR, data.error || data.message || "Error del servidor")
-        );
-      }
-    } catch (error) {
-      return ResultUtils.error(
-        new ApiError(ApiErrorType.NETWORK_ERROR, "Error de red o parsing", undefined, error as Error)
-      );
-    }
-  }
-
-  // Helper privado para manejar errores HTTP
-  private handleHttpError<T>(response: Response): Result<T> {
-    let errorType: ApiErrorType;
-    let message: string;
-
-    switch (response.status) {
-      case 401:
-        errorType = ApiErrorType.AUTHENTICATION_ERROR;
-        message = "No autorizado";
-        break;
-      case 404:
-        errorType = ApiErrorType.SESSION_NOT_FOUND;
-        message = "Sesión no encontrada";
-        break;
-      case 422:
-        errorType = ApiErrorType.VALIDATION_ERROR;
-        message = "Datos inválidos";
-        break;
-      case 500:
-        errorType = ApiErrorType.SERVER_ERROR;
-        message = "Error interno del servidor";
-        break;
-      default:
-        errorType = ApiErrorType.UNKNOWN_ERROR;
-        message = `Error HTTP ${response.status}`;
-    }
-
-    return ResultUtils.error(new ApiError(errorType, message, response.status));
   }
 
   //////////////////// COMENTARIOS /////////////////////
@@ -193,7 +135,7 @@ export class ApiService {
     return this.handleResponse<Teacher[]>(res);
   }
 
-  //////////////////// EMAIL /////////////////////
+  //////////////////// RESEND /////////////////////
   // Enviar email de contacto (Resend) (POST)
   async sendContact(resendEmail: EmailResend): Promise<Result<Record<string, string>>> {
     let res = await fetch(`${this.baseUrl}/email/contact`, {
@@ -210,7 +152,7 @@ export class ApiService {
   //////////////////// USUARIOS /////////////////////
 
   // Registrar a un usuario
-  async registerUser(userRequest: UserRequest): Promise<Result<UserMerged>> {
+  async registerUser(userRequest: UserRequest): Promise<Result<string>> {
     let res = await fetch(`${this.baseUrl}/users/register`, {
       method: "POST",
       headers: {
@@ -218,11 +160,11 @@ export class ApiService {
       },
       body: JSON.stringify(userRequest),
     });
-    return this.handleResponse<UserMerged>(res);
+    return this.handleResponse<string>(res);
   }
 
   // Logear a un usuario
-  async loginUser(userRequest: UserRequest): Promise<Result<UserMerged>> {
+  async loginUser(userRequest: UserRequest): Promise<Result<string>> {
     let res = await fetch(`${this.baseUrl}/users/login`, {
       method: "POST",
       headers: {
@@ -230,7 +172,7 @@ export class ApiService {
       },
       body: JSON.stringify(userRequest),
     });
-    return this.handleResponse<UserMerged>(res);
+    return this.handleResponse<string>(res);
   }
 
   // Obtener el usuario actual (GET)
@@ -247,10 +189,10 @@ export class ApiService {
     return this.handleResponse<UserMerged>(res);
   }
 
-  //////////////////// Mailchimp /////////////////////
+  //////////////////// MAILCHIMP /////////////////////
   // Añadir usuarios a la newsletter
   async addContactToNewsletter(contactMailchimp: ContactMailchimp): Promise<Result<AddContactResponse>> {
-    let res = await fetch(`${this.baseUrl}/mailchimp/add_newsletter`, {
+    let res = await fetch(`${this.baseUrl}/mailchimp/add_contact`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -279,6 +221,21 @@ export class ApiService {
     return this.handleResponse<CheckoutPaymentIntentResponse>(response);
   }
 
+  // Guardar la relacion entre cal.com y stripe en firebase
+  async saveCalStripeConnection(payload: RelationalCalStripe): Promise<Result<void>> {
+    const token = await getCurrentUserToken();
+    const response = await fetch(`${this.baseUrl}/payments/cal/connection`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    return this.handleResponse<void>(response);
+  }
+
+  //////////////////// CAL.COM ////////////////////
   // Confirmación del booking al pagar
   async confirmBooking(bookingUid: string): Promise<Result<void>> {
     const token = await getCurrentUserToken();
@@ -293,23 +250,67 @@ export class ApiService {
     return this.handleResponse<void>(response);
   }
 
-  //////////////////// STRIPE /////////////////////
-  // Guardar la relacion entre cal.com y stripe en firebase
-  async saveCalStripeConnection(payload: RelationalCalStripe): Promise<Result<void>> {
-    const token = await getCurrentUserToken();
-    const response = await fetch(`${this.baseUrl}/payments/cal/connection`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-    return this.handleResponse<void>(response);
+  //////////////////// Utilidades de respuesta ////////////////////
+  // Helper privado para manejar respuestas
+  private async handleResponse<T>(response: Response): Promise<Result<T>> {
+    try {
+      if (!response.ok) {
+        return this.handleHttpError(response);
+      }
+
+      // Para 204 No Content (CREATE/DELETE)
+      if (response.status === 204) {
+        return ResultUtils.ok(null as T);
+      }
+
+      const data: ResponseAPI<T> = await response.json();
+
+      if (data.success && data.data !== undefined) {
+        return ResultUtils.ok(data.data);
+      } else {
+        return ResultUtils.error(
+          new ApiError(ApiErrorType.SERVER_ERROR, data.error || data.message || "Error del servidor")
+        );
+      }
+    } catch (error) {
+      return ResultUtils.error(
+        new ApiError(ApiErrorType.NETWORK_ERROR, "Error de red o parsing", undefined, error as Error)
+      );
+    }
+  }
+
+  // Helper privado para manejar errores HTTP
+  private handleHttpError<T>(response: Response): Result<T> {
+    let errorType: ApiErrorType;
+    let message: string;
+
+    switch (response.status) {
+      case 401:
+        errorType = ApiErrorType.AUTHENTICATION_ERROR;
+        message = "Not authorized";
+        break;
+      case 404:
+        errorType = ApiErrorType.SESSION_NOT_FOUND;
+        message = "Session not found";
+        break;
+      case 422:
+        errorType = ApiErrorType.VALIDATION_ERROR;
+        message = "Invalid data";
+        break;
+      case 500:
+        errorType = ApiErrorType.SERVER_ERROR;
+        message = "Internal server error";
+        break;
+      default:
+        errorType = ApiErrorType.UNKNOWN_ERROR;
+        message = `HTTP error ${response.status}`;
+    }
+
+    return ResultUtils.error(new ApiError(errorType, message, response.status));
   }
 }
 
-class ResultUtils {
+export class ResultUtils {
   static ok<T>(data: T): Result<T> {
     return { success: true, data };
   }
@@ -318,12 +319,11 @@ class ResultUtils {
     return { success: false, error };
   }
 
-  static isOk<T, E>(result: Result<T, E>): result is { success: true; data: T } {
-    return result.success;
-  }
-
-  static isError<T, E>(result: Result<T, E>): result is { success: false; error: E } {
-    return !result.success;
+  static getErrorType<T>(result: Result<T, ApiError>): ApiErrorType | null {
+    if (!result.success && result.error instanceof ApiError) {
+      return result.error.type;
+    }
+    return null;
   }
 }
 
