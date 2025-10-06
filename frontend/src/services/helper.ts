@@ -224,7 +224,7 @@ export class ApiService {
   // Guardar la relacion entre cal.com y stripe en firebase
   async saveCalStripeConnection(payload: RelationalCalStripe): Promise<Result<void>> {
     const token = await getCurrentUserToken();
-    const response = await fetch(`${this.baseUrl}/payments/cal/connection`, {
+    const response = await fetch(`${this.baseUrl}/payment/cal/connection`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -239,7 +239,7 @@ export class ApiService {
   // Confirmación del booking al pagar
   async confirmBooking(bookingUid: string): Promise<Result<void>> {
     const token = await getCurrentUserToken();
-    const response = await fetch(`${this.baseUrl}/bookings/${bookingUid}/confirm`, {
+    const response = await fetch(`${this.baseUrl}/cal/bookings/${bookingUid}/confirm`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
