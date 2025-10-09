@@ -11,7 +11,6 @@ const data = Astro.props.data as HeaderI18n;
 let { lang } = Astro.params as { lang?: Lang };
 const theme = Astro.cookies.get("theme")?.value ?? "light";
 
-// Si no hay lang en la URL, usar la cookie o "es" por defecto
 if (!lang) lang = "es";
 
 // Guardamos el lengauje en las cookies
@@ -84,12 +83,12 @@ const labels: Record<
   />
   <nav class="hidden lg:block absolute left-1/2 top-8 h-full flex items-center z-10 -translate-x-1/2">
     <ul class="flex flex-row gap-6 items-center color-red text-red font-jomolhari justify-center whitespace-nowrap">
-      <li><a href={!lang ? "/" : `/${lang}/`}>{data.about_us}</a></li>
-      <li><a href={!lang ? "/articles" : `/${lang}/articles`}>{data.articles}</a></li>
-      <li><a href={!lang ? "/pricing" : `/${lang}/pricing`}>{data.pricing}</a></li>
-      <li><a href={!lang ? "/courses" : `/${lang}/courses`}>{data.courses}</a></li>
-      <li><a href={!lang ? "/comments" : `/${lang}/comments`}>{data.comments}</a></li>
-      <li><a href={!lang ? "/contact" : `/${lang}/contact`}>{data.contact}</a></li>
+      <li><a href={Astro.params.lang ? `/${Astro.params.lang}/` : "/"}>{data.about_us}</a></li>
+      <li><a href={Astro.params.lang ? `/${Astro.params.lang}/articles` : "/articles"}>{data.articles}</a></li>
+      <li><a href={Astro.params.lang ? `/${Astro.params.lang}/pricing` : "/pricing"}>{data.pricing}</a></li>
+      <li><a href={Astro.params.lang ? `/${Astro.params.lang}/courses` : "/courses"}>{data.courses}</a></li>
+      <li><a href={Astro.params.lang ? `/${Astro.params.lang}/comments` : "/comments"}>{data.comments}</a></li>
+      <li><a href={Astro.params.lang ? `/${Astro.params.lang}/contact` : "/contact"}>{data.contact}</a></li>
     </ul>
   </nav>
   <div class="flex z-10">
