@@ -10,18 +10,82 @@ const label = Astro.props.label;
 </button>
 <div
   id="bocadilloTraductor"
-  class={`${customStyle} h-40 w-32 absolute text-sm top-16 right-4 rounded-md flex items-center justify-center text-white hidden z-50 font-jomolhari font-normal`}
+  class={`${customStyle} min-h-fit w-32 absolute text-sm top-16 right-4 rounded-lg shadow-lg text-white hidden z-50 font-jomolhari font-normal py-3 px-2 backdrop-blur-sm`}
 >
-  <ul>
-    <li><a href="#" data-lang="ar" class="hover:text-red">العربية</a></li>
-    <li><a href="#" data-lang="de" class="hover:text-red">Deutsch</a></li>
-    <li><a href="#" data-lang="en" class="hover:text-red">English</a></li>
-    <li><a href="#" data-lang="es" class="hover:text-red">Español</a></li>
-    <li><a href="#" data-lang="fr" class="hover:text-red">Français</a></li>
-    <li><a href="#" data-lang="it" class="hover:text-red">Italiano</a></li>
-    <li><a href="#" data-lang="pt" class="hover:text-red">Português</a></li>
+  <ul class="w-full">
+    <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
+      <a
+        href="#"
+        data-lang="ar"
+        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
+      >
+        <span class="text-lg">🇸🇦</span>
+        <span class="font-medium">العربية</span>
+      </a>
+    </li>
+    <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
+      <a
+        href="#"
+        data-lang="de"
+        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
+      >
+        <span class="text-lg">🇩🇪</span>
+        <span class="font-medium">Deutsch</span>
+      </a>
+    </li>
+    <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
+      <a
+        href="#"
+        data-lang="en"
+        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
+      >
+        <span class="text-lg">🇬🇧</span>
+        <span class="font-medium">English</span>
+      </a>
+    </li>
+    <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
+      <a
+        href="#"
+        data-lang="es"
+        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
+      >
+        <span class="text-lg">🇪🇸</span>
+        <span class="font-medium">Español</span>
+      </a>
+    </li>
+    <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
+      <a
+        href="#"
+        data-lang="fr"
+        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
+      >
+        <span class="text-lg">🇫🇷</span>
+        <span class="font-medium">Français</span>
+      </a>
+    </li>
+    <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
+      <a
+        href="#"
+        data-lang="it"
+        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
+      >
+        <span class="text-lg">🇮🇹</span>
+        <span class="font-medium">Italiano</span>
+      </a>
+    </li>
+    <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
+      <a
+        href="#"
+        data-lang="pt"
+        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
+      >
+        <span class="text-lg">🇵🇹</span>
+        <span class="font-medium">Português</span>
+      </a>
+    </li>
   </ul>
 </div>
+
 <div
   id="trianguloTraductor"
   class="absolute top-[3.5rem] right-8 w-0 h-0 hidden z-50"
@@ -30,6 +94,7 @@ const label = Astro.props.label;
     : "border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 12px solid #374151;"}
 >
 </div>
+
 <script>
   // Espera a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", function () {

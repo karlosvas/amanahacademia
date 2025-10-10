@@ -39,7 +39,7 @@ const data = Astro.props.data as HomeI18n;
   </h2>
 </section>
 
-<AboutUs data={data} client:visible />
+<AboutUs data={data} />
 
 <p class="m-0 md:m-10 px-4 sm:px-6 md:px-10 text-red text-center text-xs sm:text-sm font-jomolhari leading-relaxed font-semibold scroll-fade-in">
     {data.focus.note.map((note, _) => <span >{note}</span> <br />)}

@@ -1,8 +1,8 @@
 ---
-const { sizeText, sizeLine, sizeWidth } = Astro.props;
+const { customStyleText, customStyleLine } = Astro.props;
 ---
 
-<h2 class=`select-none mt-5 text-center px-10  text-[--color-red] font-bold ${sizeText}`>
+<h2 class=`font-jomolhari select-none mt-5 text-center px-10  text-red font-bold ${customStyleText} `>
   <slot />
 </h2>
-<div class=`bg-salmon ${sizeWidth} h-1 m-auto mb-10 ${sizeLine}`></div>
+<div class=`bg-salmon  h-1 m-auto ${customStyleLine}`></div>

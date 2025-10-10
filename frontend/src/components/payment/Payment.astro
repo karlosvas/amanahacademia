@@ -48,13 +48,6 @@ import Title from "../common/Title.astro";
   const bookingUid: string | null = params.get("uid");
   const testCountry: string | null = params.get("test_country");
 
-  console.log("═══════════════════════════════════════");
-  console.log("PARAMS:");
-  console.log("type:", slugType);
-  console.log("uid:", bookingUid);
-  console.log("test_country:", testCountry);
-  console.log("═══════════════════════════════════════");
-
   async function initializePrice(): Promise<number | undefined> {
     try {
       // Obtenemos la lista de precios desde el backend

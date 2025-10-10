@@ -4,60 +4,10 @@ import CardModule from "@/components/courses/CardModule.astro";
 import Title from "@/components/common/Title.astro";
 
 const data = Astro.props.data as CourseI18n;
-// const courses = [
-//   {
-//     sessions: [4, "Sesiones de video"],
-//     homeworks: [1, "Tareas y recursos"],
-//     title: "Conceptos básicos del español",
-//     description:
-//       "Empieza tu viaje en el español con este módulo introductorio. Aprende las bases del idioma de manera práctica y sencilla, y adquiere confianza para tus primeras conversaciones.",
-//     content: [
-//       "Aprende las bases del idioma español: saludos, presentaciones y frases esenciales.",
-//       "Perfecto para principiantes que quieren empezar a hablar desde el primer día.",
-//       "Incluye un cuaderno de ejercicios para practicar en casa.",
-//     ],
-//   },
-//   {
-//     sessions: [3, "Sesiones de video"],
-//     homeworks: [2, "Tareas y recursos"],
-//     title: "Vocabulario diario y expresiones útiles",
-//     description:
-//       "Mejora tu vocabulario para situaciones cotidianas y comunícate con seguridad en la vida diaria. Este módulo te ayuda a entender y usar expresiones reales que usan los hablantes nativos.",
-//     content: [
-//       "Amplía tu vocabulario para usarlo en situaciones cotidianas: compras, viajes y restaurante.",
-//       "Recibe dos ejercicios imprimibles para reforzar lo aprendido.",
-//       "Aprende expresiones típicas y modismos que usan los hablantes nativos.",
-//     ],
-//   },
-//   {
-//     sessions: [2, "Sesiones de video"],
-//     homeworks: [1, "Tareas y recursos"],
-//     title: "Gramática esencial sin complicaciones",
-//     description:
-//       "Domina la gramática del español sin sentirte abrumado. Este módulo te enseña las reglas más importantes de manera clara, para que puedas hablar correctamente desde el principio.",
-//     content: [
-//       "Domina los tiempos verbales más importantes de forma sencilla y práctica.",
-//       "Incluye un mini-libro de ejercicios para repasar y memorizar las reglas.",
-//       "Perfecto para quienes quieren hablar correctamente sin abrumarse.",
-//     ],
-//   },
-//   {
-//     sessions: [1, "Sesiones de video"],
-//     homeworks: [3, "Tareas y recursos"],
-//     title: "Comprensión auditiva y conversación",
-//     description:
-//       "Mejora tu comprensión auditiva y habilidades conversacionales a través de audios auténticos y prácticas guiadas. Aprende a entender y responder con confianza en conversaciones reales.",
-//     content: [
-//       "Escucha podcasts y audios auténticos para mejorar tu oído en español.",
-//       "Realiza ejercicios interactivos para practicar la comprensión.",
-//       "Recibe material extra: tarjetas de vocabulario, ejercicios y un pequeño regalo sorpresa.",
-//     ],
-//   },
-// ];
 ---
 
 <div class="mb-20 text-black">
-  <Title sizeText="text-2xl" sizeLine="h-1" sizeWidth="w-16">{data.title}</Title>
+  <Title customStyleText="text-2xl " customStyleLine="w-20 mb-10">{data.title}</Title>
   <div class="text-center m-auto w-3/4 xl:w-1/2">
     {data.summary.map((data, _) => <p>{data}</p>)}
   </div>
@@ -76,7 +26,7 @@ const data = Astro.props.data as CourseI18n;
               <div class="bg-salmon min-w-6 h-6 rounded-full m-3 text-white flex justify-center align-middle">
                 {i + 1}
               </div>
-              <h2 class="font-semibold text-red min-w-20 lg:min-w-36 text-sm lg:text-base max-w-96 lg:max-w-36">
+              <h2 class="font-semibold text-red min-w-20 lg:min-w-36 text-sm lg:text-base max-w-96 lg:max-w-36 md:mx-3">
                 {data.title}
               </h2>
             </div>
@@ -87,6 +37,12 @@ const data = Astro.props.data as CourseI18n;
     </div>
   </div>
   <div class="w-full md:w-1/2 p-10 md:m-auto scroll-fade-in">
-    {data.modules.map((module, index) => <CardModule data={module} index={index} />)}
+    {
+      data.modules.length > 0 ? (
+        data.modules.map((module, index) => <CardModule data={module} index={index} />)
+      ) : (
+        <h3 class="text-center text-3xl text-red text-bold font-jomolhari">Proximamente...</h3>
+      )
+    }
   </div>
 </div>

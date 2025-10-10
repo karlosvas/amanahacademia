@@ -5,6 +5,7 @@ import PhoneIcon from "@/assets/phone.svg";
 import type { ContactI18n } from "@/types/types";
 import { Image } from "astro:assets";
 import coffe from "@/assets/img/coffe.webp";
+import Title from "../common/Title.astro";
 
 const data = Astro.props.data as ContactI18n;
 ---
@@ -13,26 +14,25 @@ const data = Astro.props.data as ContactI18n;
 <Image
   src={coffe}
   alt=""
-  class="absolute w-full md:w-5/12 h-[300px] md:h-[600px] right-0 top-36 md:top-0 md:rounded-bl-2xl object-cover z-0 pointer-events-none rounded-3xl md:rounded-none hidden xl:block"
+  class="scroll-fade-in absolute w-full md:w-5/12 h-[300px] md:h-[600px] right-0 top-36 md:top-0 md:rounded-bl-2xl object-cover z-0 pointer-events-none rounded-3xl md:rounded-none hidden xl:block"
 />
 <!-- Circulo1 -->
 <Image
   src={coffe}
   alt=""
-  class="hidden md:block absolute w-20 md:w-28 h-20 md:h-28 left-1/2 md:left-[440px] top-32 md:top-20 rounded-full object-cover z-0 pointer-events-none"
+  class="scroll-fade-in hidden md:block absolute w-20 md:w-28 h-20 md:h-28 left-1/2 md:left-[440px] top-32 md:top-20 rounded-full object-cover z-0 pointer-events-none"
 />
 <!-- Circulo2 -->
 <Image
   src={coffe}
   alt=""
-  class="hidden md:block absolute w-40 md:w-80 h-40 md:h-80 left-5 md:left-10 top-24 md:top-32 rounded-full object-cover z-0 pointer-events-none"
+  class="scroll-fade-in hidden md:block absolute w-40 md:w-80 h-40 md:h-80 left-5 md:left-10 top-24 md:top-32 rounded-full object-cover z-0 pointer-events-none"
 />
 
-<main class="pb-20 md:pb-32 flex flex-col items-center relative">
-  <h2 class="mt-10 md:mt-24 text-center px-4 pb-1 text-red font-bold text-2xl relative">
-    {data.title}
-  </h2>
-  <div class="bg-salmon w-24 h-1 mx-auto mb-10"></div>
+<main class="scroll-fade-in mt-20 md:mt-0 pb-20 md:pb-32 flex flex-col items-center relative">
+  <Title customStyleText="mt-10 text-center px-4  text-red font-bold text-2xl relative" customStyleLine="w-20 mb-10"
+    >{data.title}</Title
+  >
   <div class="w-full flex flex-col md:flex-row items-center md:items-start justify-center gap-10 relative">
     <div class="absolute w-1/2 h-full right-0 border-y-2 border-gray-700 hidden md:block"></div>
     <form
@@ -41,7 +41,7 @@ const data = Astro.props.data as ContactI18n;
          md:border-t-2 md:border-b-2 md:border-l-2 bg-transparent border-gray-700 rounded-xl md:rounded-l-3xl rounded-tr-none rounded-br-none
          bg-opacity-80"
     >
-      <label for="name" class="my-4 text-red w-full">
+      <label for="name" class="my-4 text-red w-full font-semibold">
         {data.form.name}
         <input
           name="name"
@@ -49,7 +49,7 @@ const data = Astro.props.data as ContactI18n;
           class="mt-2 bg-transparent border-b-2 outline-none border-gray-700 focus:border-salmon w-full text-black transition-all"
         />
       </label>
-      <label for="subject" class="my-4 text-red w-full">
+      <label for="subject" class="my-4 text-red w-full font-semibold">
         {data.form.subject}
         <input
           type="text"
@@ -57,7 +57,7 @@ const data = Astro.props.data as ContactI18n;
           class="mt-2 bg-transparent border-b-2 border-gray-700 focus:border-salmon outline-none w-full text-black transition-all"
         />
       </label>
-      <label for="message" class="my-4 text-red w-full">
+      <label for="message" class="my-4 text-red w-full font-semibold">
         {data.form.message}
         <textarea
           name="message"

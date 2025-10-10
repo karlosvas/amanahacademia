@@ -15,48 +15,48 @@ const { lang } = Astro.params;
   class="fixed top-20 left-0 w-80 max-w-[90vw] h-[calc(100vh-5rem)] bg-background shadow-xl z-10 transition-all duration-300 text-black m-0"
 >
   <div class="flex flex-col h-full p-6">
-    <div class="flex items-center justify-between mb-8">
-      <h2 class="text-2xl font-bold text-red">Menú</h2>
-      <button id="closeMenu" class="text-2xl text-lightSalmon hover:text-red font-bold">&times;</button>
-    </div>
-    <nav class="flex flex-col gap-6">
-      <ul>
-        <li>
-          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/" : `/${lang}/`}
-            >{data.about_us}</a
-          >
-        </li>
-        <li>
-          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/articles" : `/${lang}/articles`}
-            >{data.articles}</a
-          >
-        </li>
-        <li>
-          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/pricing" : `/${lang}/pricing`}
-            >{data.pricing}</a
-          >
-        </li>
-        <li>
-          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/courses" : `/${lang}/courses`}
-            >{data.courses}</a
-          >
-        </li>
-        <li>
-          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/comments" : `/${lang}/comments`}
-            >{data.comments}</a
-          >
-        </li>
-        <li>
-          <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/contact" : `/${lang}/contact`}
-            >{data.contact}</a
-          >
-        </li>
-      </ul>
-    </nav>
-    <div class="mt-auto flex flex-col gap-3">
+    <div class="flex items-start justify-between flex-col mt-20">
+      <button id="closeMenu" class="text-2xl text-lightSalmon hover:text-red font-bold absolute right-10 top-3"
+        >&times;</button
+      >
+      <nav class="flex flex-col gap-10 font-jomolhari ml-3">
+        <ul>
+          <li>
+            <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/" : `/${lang}/`}
+              >{data.about_us}</a
+            >
+          </li>
+          <li>
+            <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/articles" : `/${lang}/articles`}
+              >{data.articles}</a
+            >
+          </li>
+          <li>
+            <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/pricing" : `/${lang}/pricing`}
+              >{data.pricing}</a
+            >
+          </li>
+          <li>
+            <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/courses" : `/${lang}/courses`}
+              >{data.courses}</a
+            >
+          </li>
+          <li>
+            <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/comments" : `/${lang}/comments`}
+              >{data.comments}</a
+            >
+          </li>
+          <li>
+            <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/contact" : `/${lang}/contact`}
+              >{data.contact}</a
+            >
+          </li>
+        </ul>
+      </nav>
       <button
         id="identification-menu"
-        class="w-full py-2 rounded-xl font-semibold bg-lightRed hover:bg-lightSalmon transition">Identifícate</button
+        class="w-full py-2 mt-10 rounded-xl font-semibold bg-lightRed hover:bg-lightSalmon transition"
+        >Identifícate</button
       >
     </div>
   </div>
@@ -83,6 +83,15 @@ const { lang } = Astro.params;
     closeMenu.addEventListener("click", (e) => {
       e.stopPropagation();
       closeModalAnimation(menu);
+    });
+
+    // Al presionar fuera del modal lo cerramos
+    document.addEventListener("click", (e) => {
+      const target = e.target as Node;
+      // Verificamos si el menú está abierto y si el clic fue fuera del menú y del hamburger
+      if (menu.open && !menu.contains(target) && !hamburger.contains(target)) {
+        closeModalAnimation(menu);
+      }
     });
   });
 </script>

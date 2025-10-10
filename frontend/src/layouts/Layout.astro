@@ -272,7 +272,10 @@ const theme = Astro.cookies.get("theme")?.value;
         if (entry.isIntersecting) entry.target.classList.add("visible");
       });
     },
-    { threshold: 0 }
+    {
+      threshold: 0.1,
+      rootMargin: "-50px 0px -50px 0px"
+    }
   );
 
   elements.forEach((el) => observer.observe(el));

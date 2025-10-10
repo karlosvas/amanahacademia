@@ -17,24 +17,19 @@ const data = Astro.props.data as FooterI18n;
 <footer class="text-xs md:text-sm bg-brown w-full h-28 flex justify-between items-center px-3 md:px-8 text-gray-100">
   <ul class="w-42 space-y-1">
     <li>
-      <a class="flex items-center px-2" href="tel:+34644502077">
+      <a class="flex items-center px-2" href="tel:+34644502077" rel="noopener noreferrer">
         <PhoneIcon width={20} height={20} class="mr-2" />
         +34 644 502 077
       </a>
     </li>
     <li>
-      <a class="flex items-center px-2" href="mailto:anaortegagutierrez99@gmail.com">
+      <a class="flex items-center px-2" href="mailto:anaortegagutierrez99@gmail.com" rel="noopener noreferrer">
         <GmailIcon width={20} height={20} class="mr-2" />
         support@amanahacademia.com
       </a>
     </li>
     <li>
-      <a
-        class="flex items-center px-2"
-        href="https://www.instagram.com/amanahacademia"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a class="flex items-center px-2" href="https://www.instagram.com/amanahacademia" rel="noopener noreferrer">
         <InstagramIcon width={20} height={20} class="mr-2" />
         @amanahacademia
       </a>
@@ -43,17 +38,29 @@ const data = Astro.props.data as FooterI18n;
   <p class="text-[8px] md:text-sm text-center px-2">© Amanah Academia 2025</p>
   <ul class="w-42 space-y-1 text-left">
     <li>
-      <a href="/legal" title={data.license} rel="license" aria-label={data.license}>
+      <a target="_blank" href="/legal" title={data.license} rel="license" aria-label={data.license}>
         {data.license}
       </a>
     </li>
     <li>
-      <a href="/legal" title={data.privacy_policy} rel="noopener" aria-label={data.privacy_policy}>
+      <a
+        target="_blank"
+        href="/legal"
+        title={data.privacy_policy}
+        rel="noopener noreferrer"
+        aria-label={data.privacy_policy}
+      >
         {data.privacy_policy}
       </a>
     </li>
     <li>
-      <a href="/legal" title={data.terms_of_service} rel="noopener" aria-label={data.terms_of_service}>
+      <a
+        target="_blank"
+        href="/legal"
+        title={data.terms_of_service}
+        rel="noopener noreferrer"
+        aria-label={data.terms_of_service}
+      >
         {data.terms_of_service}
       </a>
     </li>

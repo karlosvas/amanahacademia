@@ -6,20 +6,14 @@ import IconClock from "@/assets/clock.svg";
 import type { HomeI18n } from "@/types/types";
 import { Image } from "astro:assets";
 import pinkHouse from "@/assets/img/pink_house.webp";
+import Title from "../common/Title.astro";
 
 const data = Astro.props.data as HomeI18n;
 ---
 
-<section class="font-raleway scroll-fade-in">
-  <h2
-    class="select-none mt-6 sm:mt-10 lg:mt-24 text-center px-4 sm:px-6 md:px-10 text-red font-bold text-xl sm:text-2xl"
-  >
-    {data.title}
-  </h2>
-  <div class="bg-salmon h-1 m-auto w-24 sm:w-32 md:w-36"></div>
-  <div
-    class="flex flex-col md:flex-row w-full max-w-3xl mx-auto px-2 sm:px-4 items-center gap-6 sm:gap-8 md:gap-0 mt-6 sm:mt-10 md:mt-0"
-  >
+<section class="scroll-fade-in">
+  <Title customStyleText="text-xl" customStyleLine="w-20 mb-10 md:mb-0">{data.title}</Title>
+  <div class="flex flex-col md:flex-row w-full max-w-3xl mx-auto px-2 sm:px-4 items-center gap-6 sm:gap-8 md:gap-0">
     <div
       class="w-full max-w-xs sm:max-w-sm md:max-w-md h-48 sm:h-52 md:w-[400px] md:h-[350px] rounded-md overflow-hidden flex items-center justify-center mx-auto md:mx-0"
     >
@@ -60,12 +54,7 @@ const data = Astro.props.data as HomeI18n;
     </div>
   </div>
   <div class="w-full xl:w-8/12 2xl:w-3/4 mx-auto px-2 sm:px-4 mb-12 sm:mb-16 md:mb-20 scroll-fade-in">
-    <h3
-      class="mt-12 sm:mt-16 md:mt-20 lg:mt-24 text-center text-red font-semibold mb-4 sm:mb-5 text-lg sm:text-xl px-4"
-    >
-      {data.focus.title}
-      <div class="bg-salmon h-1 m-auto w-24 sm:w-32 md:w-36"></div>
-    </h3>
+    <Title customStyleText="text-md mt-16" customStyleLine="w-20 mb-10 md:mb-3">{data.focus.title}</Title>
     <div class="flex flex-col md:flex-row gap-4 sm:gap-6 mb-8 sm:mb-10 justify-center">
       <LegalCard colourRectangle="bg-salmon">
         <span slot="icon"><IconPeople /></span>

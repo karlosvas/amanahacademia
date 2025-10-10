@@ -180,52 +180,7 @@
           }
         ]
       },
-      "modules": [
-        {
-          "sessions": [4, "Sessions vidéo"],
-          "homeworks": [1, "Devoirs et ressources"],
-          "title": "Concepts de base en espagnol",
-          "description": "Commencez votre apprentissage de l'espagnol avec ce module d'introduction. Apprenez les bases de la langue de manière pratique et simple, et gagnez en confiance pour vos premières conversations.",
-          "content": [
-            "Apprenez les bases de l'espagnol : salutations, présentations et phrases essentielles.",
-            "Parfait pour les débutants souhaitant commencer à parler dès le premier jour.",
-            "Comprend un cahier d'exercices pour pratiquer à la maison."
-          ]
-        },
-        {
-          "sessions": [3, "Sessions vidéo"],
-          "homeworks": [2, "Devoirs et ressources"],
-          "title": "Vocabulaire quotidien et expressions utiles",
-          "description": "Améliorez votre vocabulaire pour les situations quotidiennes et communiquez en toute confiance dans la vie de tous les jours. Ce module vous aide à comprendre et utiliser des expressions réelles utilisées par les locuteurs natifs.",
-          "content": [
-            "Élargissez votre vocabulaire pour l'utiliser dans des situations quotidiennes : achats, voyages et restaurant.",
-            "Recevez deux exercices imprimables pour renforcer vos acquis.",
-            "Apprenez les expressions typiques et les idiomes utilisés par les locuteurs natifs."
-          ]
-        },
-        {
-          "sessions": [2, "Sessions vidéo"],
-          "homeworks": [1, "Devoirs et ressources"],
-          "title": "Grammaire essentielle sans complications",
-          "description": "Maîtrisez la grammaire espagnole sans vous sentir dépassé. Ce module vous enseigne les règles les plus importantes de manière claire, pour que vous puissiez parler correctement dès le départ.",
-          "content": [
-            "Maîtrisez les temps verbaux les plus importants de manière simple et pratique.",
-            "Comprend un mini-cahier pour réviser et mémoriser les règles.",
-            "Parfait pour ceux qui veulent parler correctement sans se sentir dépassés."
-          ]
-        },
-        {
-          "sessions": [1, "Sessions vidéo"],
-          "homeworks": [3, "Devoirs et ressources"],
-          "title": "Compréhension orale et conversation",
-          "description": "Améliorez votre compréhension orale et vos compétences conversationnelles grâce à des audios authentiques et des exercices guidés. Apprenez à comprendre et à répondre avec confiance lors de conversations réelles.",
-          "content": [
-            "Écoutez des podcasts et des audios authentiques pour améliorer votre oreille en espagnol.",
-            "Faites des exercices interactifs pour pratiquer la compréhension.",
-            "Recevez du matériel supplémentaire : cartes de vocabulaire, exercices et un petit cadeau surprise."
-          ]
-        }
-      ]
+      "modules": []
     },
     "comments": {
       "best": "Commentaires les plus aimés",

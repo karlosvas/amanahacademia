@@ -170,52 +170,7 @@
           }
         ]
       },
-      "modules": [
-        {
-          "sessions": [4, "Sessões de vídeo"],
-          "homeworks": [1, "Tarefas e recursos"],
-          "title": "Conceitos básicos de espanhol",
-          "description": "Comece sua jornada no espanhol com este módulo introdutório. Aprenda as bases do idioma de maneira prática e simples, e ganhe confiança para suas primeiras conversas.",
-          "content": [
-            "Aprenda as bases do idioma espanhol: cumprimentos, apresentações e frases essenciais.",
-            "Perfeito para iniciantes que querem começar a falar desde o primeiro dia.",
-            "Inclui um caderno de exercícios para praticar em casa."
-          ]
-        },
-        {
-          "sessions": [3, "Sessões de vídeo"],
-          "homeworks": [2, "Tarefas e recursos"],
-          "title": "Vocabulário diário e expressões úteis",
-          "description": "Melhore seu vocabulário para situações do dia a dia e comunique-se com segurança na vida cotidiana. Este módulo ajuda você a entender e usar expressões reais utilizadas por falantes nativos.",
-          "content": [
-            "Amplie seu vocabulário para usar em situações cotidianas: compras, viagens e restaurantes.",
-            "Receba dois exercícios imprimíveis para reforçar o aprendido.",
-            "Aprenda expressões típicas e expressões idiomáticas usadas por falantes nativos."
-          ]
-        },
-        {
-          "sessions": [2, "Sessões de vídeo"],
-          "homeworks": [1, "Tarefas e recursos"],
-          "title": "Gramática essencial sem complicações",
-          "description": "Domine a gramática espanhola sem se sentir sobrecarregado. Este módulo ensina as regras mais importantes de maneira clara, para que você possa falar corretamente desde o início.",
-          "content": [
-            "Domine os tempos verbais mais importantes de maneira simples e prática.",
-            "Inclui um mini-caderno de exercícios para revisar e memorizar as regras.",
-            "Perfeito para quem quer falar corretamente sem se sentir sobrecarregado."
-          ]
-        },
-        {
-          "sessions": [1, "Sessões de vídeo"],
-          "homeworks": [3, "Tarefas e recursos"],
-          "title": "Compreensão auditiva e conversação",
-          "description": "Melhore suas habilidades de compreensão auditiva e conversação através de áudios autênticos e práticas guiadas. Aprenda a entender e responder com confiança em conversas reais.",
-          "content": [
-            "Ouça podcasts e áudios autênticos para melhorar sua compreensão do espanhol.",
-            "Realize exercícios interativos para praticar a compreensão.",
-            "Receba material extra: cartões de vocabulário, exercícios e um pequeno presente surpresa."
-          ]
-        }
-      ]
+      "modules": []
     },
     "comments": {
       "best": "Comentários com mais curtidas",

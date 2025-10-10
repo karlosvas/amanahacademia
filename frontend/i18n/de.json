@@ -183,52 +183,7 @@
           }
         ]
       },
-      "modules": [
-        {
-          "sessions": [4, "Video-Sitzungen"],
-          "homeworks": [1, "Hausaufgaben und Ressourcen"],
-          "title": "Grundlagen der spanischen Sprache",
-          "description": "Beginnen Sie Ihre Reise in die spanische Sprache mit diesem Einführungskurs. Lernen Sie die Grundlagen der Sprache auf praktische und einfache Weise und gewinnen Sie Vertrauen für Ihre ersten Gespräche.",
-          "content": [
-            "Lernen Sie die Grundlagen der spanischen Sprache: Begrüßungen, Vorstellungen und grundlegende Sätze.",
-            "Perfekt für Anfänger, die ab dem ersten Tag sprechen möchten.",
-            "Beinhaltet ein Übungsheft für das Üben zu Hause."
-          ]
-        },
-        {
-          "sessions": [3, "Video-Sitzungen"],
-          "homeworks": [2, "Hausaufgaben und Ressourcen"],
-          "title": "Täglicher Wortschatz und nützliche Ausdrücke",
-          "description": "Verbessern Sie Ihren Wortschatz für alltägliche Situationen und kommunizieren Sie sicher im täglichen Leben. Dieser Kurs hilft Ihnen, echte Ausdrücke zu verstehen und zu verwenden, die von Muttersprachlern genutzt werden.",
-          "content": [
-            "Erweitern Sie Ihren Wortschatz für den Einsatz in alltäglichen Situationen: Einkaufen, Reisen und Restaurantbesuche.",
-            "Erhalten Sie zwei ausdruckbare Übungen zur Verstärkung des Gelernten.",
-            "Lernen Sie typische Ausdrücke und Redewendungen, die von Muttersprachlern verwendet werden."
-          ]
-        },
-        {
-          "sessions": [2, "Video-Sitzungen"],
-          "homeworks": [1, "Hausaufgaben und Ressourcen"],
-          "title": "Essentielle Grammatik ohne Komplikationen",
-          "description": "Meistern Sie die spanische Grammatik, ohne sich überfordert zu fühlen. Dieser Kurs lehrt Ihnen die wichtigsten Regeln auf klare Weise, damit Sie von Anfang an korrekt sprechen können.",
-          "content": [
-            "Meistern Sie die wichtigsten Verbzeiten auf einfache und praktische Weise.",
-            "Beinhaltet ein kleines Übungsbuch zum Überprüfen und Auswendiglernen der Regeln.",
-            "Perfekt für diejenigen, die korrekt sprechen möchten, ohne sich überfordert zu fühlen."
-          ]
-        },
-        {
-          "sessions": [1, "Video-Sitzungen"],
-          "homeworks": [3, "Hausaufgaben und Ressourcen"],
-          "title": "Hörverständnis und Konversation",
-          "description": "Verbessern Sie Ihr Hörverständnis und Ihre Konversationsfähigkeiten durch authentische Audios und geführte Übungen. Lernen Sie, mit Vertrauen in echten Gesprächen zu verstehen und zu antworten.",
-          "content": [
-            "Hören Sie Podcasts und authentische Audios, um Ihr Gehör im Spanischen zu verbessern.",
-            "Führen Sie interaktive Übungen zur Verbesserung des Hörverständnisses durch.",
-            "Erhalten Sie zusätzliches Material: Vokabelkarten, Übungen und ein kleines Überraschungsgeschenk."
-          ]
-        }
-      ]
+      "modules": []
     },
     "comments": {
       "best": "Kommentare mit den meisten Likes",

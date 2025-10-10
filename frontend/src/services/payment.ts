@@ -6,17 +6,12 @@ import { getErrorFrontStripe, FrontendStripe } from "@/enums/enums";
 export async function handlePayment(stripe: any, elements: any, bookingUid: string | null) {
   const helper = new ApiService();
 
-  console.log("═══════════════════════════════════════");
-  console.log("🚀 INICIO handlePayment");
-  console.log("═══════════════════════════════════════");
-
   // Verificar que Stripe esté inicializado
   if (!stripe || !elements) {
     console.error("❌ Stripe o Elements no inicializados");
     showError(getErrorFrontStripe(FrontendStripe.STRIPE_NOT_INITIALIZED));
     return;
   }
-  console.log("✅ Stripe y Elements inicializados correctamente");
 
   // Verificar elementos del DOM
   const submitButton = document.getElementById("submit-button") as HTMLButtonElement | null;
@@ -27,10 +22,6 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
     showError(getErrorFrontStripe(FrontendStripe.MISSING_ELEMENTS));
     return;
   }
-  console.log("✅ Elementos del DOM encontrados");
-
-  // Verificar bookingUid
-  console.log("📋 BookingUid:", bookingUid || "NO PROPORCIONADO");
 
   // Deshabilitar botón y mostrar loading
   submitButton.disabled = true;
@@ -38,10 +29,6 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
   clearMessages();
 
   try {
-    console.log("───────────────────────────────────────");
-    console.log("🔄 Llamando a stripe.confirmPayment()...");
-    console.log("───────────────────────────────────────");
-
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
@@ -49,8 +36,6 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
       },
       redirect: "if_required",
     });
-
-    console.log("📦 Resultado completo de confirmPayment:", result);
 
     const { error, paymentIntent } = result;
 
@@ -97,31 +82,15 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
     // ═══════════════════════════════════════
     // PAGO EXITOSO - PROCESAR
     // ═══════════════════════════════════════
-    console.log("───────────────────────────────────────");
-    console.log("✅ NO HAY ERRORES, procesando paymentIntent...");
-    console.log("───────────────────────────────────────");
 
     if (!paymentIntent) {
-      console.warn("⚠️ PaymentIntent es null o undefined");
-      console.warn("Esto puede significar que hubo un redirect automático");
       showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
       submitButton.disabled = false;
       buttonText.textContent = "Pagar ahora";
       return;
     }
 
-    console.log("📄 PaymentIntent recibido:");
-    console.log("  - ID:", paymentIntent.id);
-    console.log("  - Status:", paymentIntent.status);
-    console.log("  - Amount:", paymentIntent.amount);
-    console.log("  - Currency:", paymentIntent.currency);
-    console.log("  - Cliente secret (primeros 20 chars):", paymentIntent.client_secret?.substring(0, 20) + "...");
-
     if (paymentIntent.status === "succeeded") {
-      console.log("═══════════════════════════════════════");
-      console.log("🎉 PAGO EXITOSO - Status: succeeded");
-      console.log("═══════════════════════════════════════");
-
       showSuccess(getErrorFrontStripe(FrontendStripe.PAYMENT_SUCCESS));
 
       if (!bookingUid) {
@@ -130,44 +99,27 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
         return;
       }
 
-      console.log("───────────────────────────────────────");
-      console.log("📅 Confirmando booking:", bookingUid);
-      console.log("───────────────────────────────────────");
-
       try {
         const responseBookingConfirm = await helper.confirmBooking(bookingUid);
-        console.log("📥 Respuesta de confirmBooking:", responseBookingConfirm);
 
         if (!responseBookingConfirm.success) {
           console.error("❌ Error al confirmar booking");
           showError(getErrorFrontStripe(FrontendStripe.BOOKING_CONFIRM_ERROR));
           return;
         }
-        console.log("✅ Booking confirmado exitosamente");
-
-        console.log("───────────────────────────────────────");
-        console.log("💾 Guardando relación Cal-Stripe");
-        console.log("───────────────────────────────────────");
 
         const relation: RelationalCalStripe = {
           cal_id: bookingUid,
           stripe_id: paymentIntent.id,
         };
-        console.log("📝 Relación a guardar:", relation);
 
         const responseSaveRelation = await helper.saveCalStripeConnection(relation);
-        console.log("📥 Respuesta de saveCalStripeConnection:", responseSaveRelation);
 
         if (!responseSaveRelation.success) {
           console.error("❌ Error al guardar relación");
           showError(getErrorFrontStripe(FrontendStripe.RELATION_SAVE_ERROR));
           return;
         }
-        console.log("✅ Relación guardada exitosamente");
-
-        console.log("═══════════════════════════════════════");
-        console.log("🎊 TODO COMPLETADO - Redirigiendo...");
-        console.log("═══════════════════════════════════════");
 
         window.location.href = "/payment/payment-success";
         return;
@@ -181,18 +133,9 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
         showError(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
       }
     } else {
-      console.warn("═══════════════════════════════════════");
-      console.warn("⚠️ STATUS NO ES 'SUCCEEDED'");
-      console.warn("═══════════════════════════════════════");
-      console.warn("Status actual:", paymentIntent.status);
-      console.warn("Posibles valores: requires_action, processing, requires_payment_method, etc.");
-
       if (paymentIntent.status === "requires_action") {
-        console.warn("🔐 Requiere acción adicional (probablemente 3D Secure)");
       } else if (paymentIntent.status === "processing") {
-        console.warn("⏳ Pago en proceso, puede tardar");
       } else if (paymentIntent.status === "requires_payment_method") {
-        console.warn("💳 Requiere método de pago");
       }
 
       showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
@@ -207,21 +150,11 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
     console.error("Error name:", (error as Error).name);
     showError(getErrorFrontStripe(FrontendStripe.CONNECTION_ERROR));
   } finally {
-    console.log("───────────────────────────────────────");
-    console.log("🏁 FINALLY - Limpieza");
-    console.log("Botón deshabilitado:", submitButton.disabled);
-    console.log("───────────────────────────────────────");
-
     if (!submitButton.disabled) {
       submitButton.disabled = false;
       buttonText.textContent = "Pagar ahora";
-      console.log("✅ Botón rehabilitado");
     }
   }
-
-  console.log("═══════════════════════════════════════");
-  console.log("FIN handlePayment");
-  console.log("═══════════════════════════════════════");
 }
 
 // Funciones de utilidad para mostrar mensajes

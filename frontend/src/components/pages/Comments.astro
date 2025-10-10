@@ -42,12 +42,14 @@ try {
   // Opcional: Puedes tener comentarios por defecto o vacío
   comments = [];
 }
+
+const percentaje = ["90", "70", "95", "80", "89"];
 ---
 
 <main
   class="py-6 sm:py-8 md:py-10 lg:mt-0 mb-12 sm:mb-16 md:mb-20 m-auto w-full 2xl:w-3/4
               grid grid-cols-1 lg:grid-cols-3
-              gap-4 sm:gap-6 lg:gap-8 items-start justify-items-center px-2 sm:px-4 comments-grid"
+              gap-4 sm:gap-6 lg:gap-8 items-start justify-items-center px-2 sm:px-4 comments-grid scroll-fade-in"
 >
   <!-- Sección 1: Estadísticas y comentarios destacados -->
   <div class="w-full max-w-sm mx-auto justify-self-center md:justify-self-center lg:justify-self-start section-1">
@@ -102,11 +104,7 @@ try {
 
     <!-- Contenido -->
     <div class="p-3 sm:p-4 space-y-8 sm:space-y-10 lg:space-y-14 pb-6 sm:pb-8 lg:pb-10">
-      <Stadistics title={data.evaluations.types[0]} percentage="70" />
-      <Stadistics title={data.evaluations.types[1]} percentage="50" />
-      <Stadistics title={data.evaluations.types[2]} percentage="90" />
-      <Stadistics title={data.evaluations.types[3]} percentage="60" />
-      <Stadistics title={data.evaluations.types[4]} percentage="89" />
+      {data.evaluations.types.map((element, i) => <Stadistics title={element} percentage={percentaje[i] ?? "100"} />)}
     </div>
   </div>
 </main>
