@@ -81,7 +81,7 @@ const labels: Record<
     id="logo_amanah"
     fetchpriority="high"
   />
-  <nav class="hidden lg:block absolute left-1/2 top-8 h-full flex items-center z-10 -translate-x-1/2">
+  <nav id="select-page" class="hidden lg:block absolute left-1/2 top-8 h-full flex items-center z-10 -translate-x-1/2">
     <ul class="flex flex-row gap-6 items-center color-red text-red font-jomolhari justify-center whitespace-nowrap">
       <li><a href={Astro.params.lang ? `/${Astro.params.lang}/` : "/"}>{data.about_us}</a></li>
       <li><a href={Astro.params.lang ? `/${Astro.params.lang}/articles` : "/articles"}>{data.articles}</a></li>

@@ -10,6 +10,34 @@ export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElem
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
       document.body.style.paddingRight = "";
+
+      // Restaurar ancho del header
+      const header = document.querySelector("header");
+      if (header instanceof HTMLElement) {
+        header.style.width = "";
+        header.removeAttribute("data-original-width");
+      }
+
+      // Restaurar posición del menú de navegación
+      const selectPage = document.getElementById("select-page");
+      if (selectPage instanceof HTMLElement) {
+        selectPage.style.left = "";
+        selectPage.removeAttribute("data-original-left");
+      }
+
+      // Restaurar padding original de otros elementos fixed
+      const fixedElements = document.querySelectorAll(".fixed");
+      fixedElements.forEach((el) => {
+        if (el instanceof HTMLElement) {
+          const originalPadding = el.getAttribute("data-original-padding");
+          if (originalPadding) {
+            el.style.paddingRight = `${originalPadding}px`;
+            el.removeAttribute("data-original-padding");
+          } else {
+            el.style.paddingRight = "";
+          }
+        }
+      });
     },
     { once: true }
   );
@@ -28,8 +56,38 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
   }
 
   // Compensar el ancho de la scrollbar para evitar el salto de contenido
-  if (scrollbarWidth > 0) {
-    document.body.style.paddingRight = `${scrollbarWidth}px`;
+  if (scrollbarWidth > 0 && background) {
+    // Guardar y sumar el padding original del body
+    const bodyPaddingRight = parseInt(window.getComputedStyle(document.body).paddingRight) || 0;
+    document.body.style.paddingRight = `${bodyPaddingRight + scrollbarWidth}px`;
+
+    // Para el header: fijar su ancho ANTES de que el viewport cambie
+    const header = document.querySelector("header");
+    if (header instanceof HTMLElement) {
+      // Guardamos el ancho actual del header (incluyendo la scrollbar)
+      const currentWidth = header.offsetWidth;
+      header.style.width = `${currentWidth}px`;
+      header.setAttribute("data-original-width", currentWidth.toString());
+    }
+
+    // Aplicar compensación al menú de navegación para evitar desplazamiento
+    const selectPage = document.getElementById("select-page");
+    if (selectPage instanceof HTMLElement) {
+      const currentLeft = selectPage.offsetLeft;
+      selectPage.style.left = `${currentLeft - scrollbarWidth / 2}px`;
+      selectPage.setAttribute("data-original-left", currentLeft.toString());
+    }
+
+    // Aplicar padding a otros elementos fixed
+    const fixedElements = document.querySelectorAll(".fixed");
+    fixedElements.forEach((el) => {
+      if (el instanceof HTMLElement) {
+        const currentPadding = parseInt(window.getComputedStyle(el).paddingRight) || 0;
+        el.style.paddingRight = `${currentPadding + scrollbarWidth}px`;
+        // Guardar el padding original como data attribute
+        el.setAttribute("data-original-padding", currentPadding.toString());
+      }
+    });
   }
 
   // Añadir clase de apertura antes de mostrar el modal
