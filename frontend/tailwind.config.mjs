@@ -1,6 +1,13 @@
 export const content = [
     "./src/**/*.{astro,js,ts,jsx,tsx}"
 ];
+export const safelist = [
+    'bg-salmon',
+    'bg-black',
+    'bg-lightSalmon',
+    'text-salmon',
+    'border-salmon'
+];
 export const theme = {
     darkMode: 'class',
     extend: {

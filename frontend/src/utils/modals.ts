@@ -6,6 +6,10 @@ export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElem
     () => {
       modal.removeAttribute("closing");
       modal.close();
+      // Restaurar el scroll del body y html
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      document.body.style.paddingRight = "";
     },
     { once: true }
   );
@@ -14,6 +18,20 @@ export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElem
 
 // Abrir el modal
 export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormElement | null, background: boolean) {
+  // Calcular el ancho de la scrollbar para evitar el salto de contenido
+  const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+  // Bloquear el scroll del body y html
+  if (background) {
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+  }
+
+  // Compensar el ancho de la scrollbar para evitar el salto de contenido
+  if (scrollbarWidth > 0) {
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
+  }
+
   // Añadir clase de apertura antes de mostrar el modal
   modal.classList.add("modal-opening");
   // Mostrar el modal
@@ -25,9 +43,7 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
     const firstInput = form.querySelector("input, select, textarea, button");
     if (firstInput && firstInput instanceof HTMLElement) firstInput.focus();
   } else {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
   }
 
   // Después de la animación, quitar la clase de apertura

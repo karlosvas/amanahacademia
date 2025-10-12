@@ -10,12 +10,12 @@ const data = Astro.props.data as FooterI18n;
 
 <div
   id="backToTop"
-  class="fixed bottom-20 right-8 w-14 h-14 bg-salmon hover:bg-lightSalmon text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1 opacity-0 invisible"
+  class="fixed bottom-20 right-8 w-14 h-14 bg-salmon hover:bg-lightSalmon text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1 opacity-0 invisible z-50"
 >
   <ArrowIcon height={25} />
 </div>
-<footer class="text-xs md:text-sm bg-brown w-full h-28 flex justify-between items-center px-3 md:px-8 text-gray-100">
-  <ul class="w-42 space-y-1">
+<footer class="text-xs md:text-sm bg-brown w-full h-28 flex items-center px-3 md:px-8 text-gray-100 relative">
+  <ul class="flex-1 space-y-1">
     <li>
       <a class="flex items-center px-2" href="tel:+34644502077" rel="noopener noreferrer">
         <PhoneIcon width={20} height={20} class="mr-2" />
@@ -35,8 +35,11 @@ const data = Astro.props.data as FooterI18n;
       </a>
     </li>
   </ul>
-  <p class="text-[8px] md:text-sm text-center px-2">© Amanah Academia 2025</p>
-  <ul class="w-42 space-y-1 text-left">
+  <small
+    class="text-[8px] md:text-sm text-center px-2 absolute left-1/2 -translate-x-1/2 bottom-2 md:bottom-auto md:top-1/2 md:-translate-y-1/2"
+    >© {new Date().getFullYear()} Amanah Academia</small
+  >
+  <ul class="flex-1 space-y-1 text-right">
     <li>
       <a target="_blank" href="/legal" title={data.license} rel="license" aria-label={data.license}>
         {data.license}

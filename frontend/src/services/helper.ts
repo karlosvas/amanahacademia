@@ -12,6 +12,7 @@ import type {
   CheckoutPaymentIntentResponse,
   CheckoutPaymentIntentRequest,
   RelationalCalStripe,
+  ReplyComment,
 } from "@/types/bakend-types";
 import { ApiErrorType } from "@/enums/enums";
 import { ApiError } from "@/services/globalHandler";
@@ -107,6 +108,81 @@ export class ApiService {
   async getCommentById(commentId: string): Promise<Result<Comment>> {
     const token = await getCurrentUserToken();
     let res = await fetch(`${this.baseUrl}/comments/${commentId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    });
+    return this.handleResponse<Comment>(res);
+  }
+
+  // Crear una respuesta a un comentario (POST)
+  async createReply(parentCommentId: string, content: ReplyComment): Promise<Result<ReplyComment>> {
+    try {
+      const token = await getCurrentUserToken();
+      const response = await fetch(`${this.baseUrl}/comments/reply/${parentCommentId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify(content),
+      });
+
+      return this.handleResponse<ReplyComment>(response);
+    } catch (error) {
+      return ResultUtils.error(
+        new ApiError(ApiErrorType.NETWORK_ERROR, "Error de conexión", undefined, error as Error)
+      );
+    }
+  }
+
+  // Editar una respuesta específica (PUT)
+  async editReply(commentId: string, replyIndex: string, content: ReplyComment): Promise<Result<ReplyComment>> {
+    try {
+      const token = await getCurrentUserToken();
+      const response = await fetch(`${this.baseUrl}/comments/reply/${commentId}/${replyIndex}/edit`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify(content),
+      });
+
+      return this.handleResponse<ReplyComment>(response);
+    } catch (error) {
+      return ResultUtils.error(
+        new ApiError(ApiErrorType.NETWORK_ERROR, "Error de conexión", undefined, error as Error)
+      );
+    }
+  }
+
+  // Eliminar una respuesta específica (DELETE)
+  async deleteReply(parentCommentId: string, replyId: string): Promise<Result<void>> {
+    try {
+      const token = await getCurrentUserToken();
+      const response = await fetch(`${this.baseUrl}/comments/del/${parentCommentId}/reply/${replyId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      });
+
+      return this.handleResponse<void>(response);
+    } catch (error) {
+      return ResultUtils.error(
+        new ApiError(ApiErrorType.NETWORK_ERROR, "Error de conexión", undefined, error as Error)
+      );
+    }
+  }
+
+  // Obtener un reply con una id especifica (GET)
+  async getCommentReplyById(commentId: string, replyId: string): Promise<Result<Comment>> {
+    const token = await getCurrentUserToken();
+    let res = await fetch(`${this.baseUrl}/comments/${commentId}/reply/${replyId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

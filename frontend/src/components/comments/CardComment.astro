@@ -5,6 +5,7 @@ import Like from "@/assets/like.svg";
 import Avatar from "../common/Avatar.astro";
 import type { AvatarProps, ModalComent } from "@/types/types";
 import CommentModal from "@/components/comments/CommentModal.astro";
+import EditCommentButtons from "./EditCommentButtons.astro";
 
 const comment = Astro.props.comment as Comment;
 const idCommentShared = Astro.props.id as string;
@@ -16,23 +17,84 @@ const avatar: AvatarProps = {
   name: comment.name ?? "Invitado",
   url_img: comment.url_img ?? "",
 };
+
+const buttonsCommentTraductions: Record<
+  string,
+  { edit: string; delete: string; reply: string; cancel: string; send: string; response: string; responses: string }
+> = {
+  es: {
+    edit: "Editar",
+    delete: "Eliminar",
+    reply: "Responder",
+    cancel: "Cancelar",
+    send: "Enviar",
+    response: "respuesta",
+    responses: "respuestas",
+  },
+  en: {
+    edit: "Edit",
+    delete: "Delete",
+    reply: "Reply",
+    cancel: "Cancel",
+    send: "Send",
+    response: "response",
+    responses: "responses",
+  },
+  de: {
+    edit: "Bearbeiten",
+    delete: "Löschen",
+    reply: "Antworten",
+    cancel: "Abbrechen",
+    send: "Senden",
+    response: "Antwort",
+    responses: "Antworten",
+  },
+  ar: {
+    edit: "تعديل",
+    delete: "حذف",
+    reply: "رد",
+    cancel: "إلغاء",
+    send: "إرسال",
+    response: "رد",
+    responses: "ردود",
+  },
+  fr: {
+    edit: "Modifier",
+    delete: "Supprimer",
+    reply: "Répondre",
+    cancel: "Annuler",
+    send: "Envoyer",
+    response: "réponse",
+    responses: "réponses",
+  },
+  it: {
+    edit: "Modifica",
+    delete: "Elimina",
+    reply: "Rispondi",
+    cancel: "Annulla",
+    send: "Invia",
+    response: "risposta",
+    responses: "risposte",
+  },
+  pt: {
+    edit: "Editar",
+    delete: "Excluir",
+    reply: "Responder",
+    cancel: "Cancelar",
+    send: "Enviar",
+    response: "resposta",
+    responses: "respostas",
+  },
+};
+
+const lang = Astro.cookies.get("lang")?.value || "es";
 ---
 
 <div
   data-comment-id={comment.id}
   class="relative bg-lightSalmon w-full rounded-lg scroll-fade-in overflow-hidden flex flex-col h-full"
 >
-  <div class="comment-config flex flex-col items-end justify-center absolute top-2 right-2 h-5 space-y-0.5 px-1">
-    <div class="w-1 h-1 bg-black rounded-full"></div>
-    <div class="w-1 h-1 bg-black rounded-full"></div>
-    <div class="w-1 h-1 bg-black rounded-full"></div>
-  </div>
-  <div class="comment-config-menu hidden bg-salmon absolute right-1 top-8 text-xs rounded-md w-fit h-fit">
-    <ul>
-      <li class="p-1 hover:text-lightRed"><button>Editar</button></li>
-      <li class="p-1 hover:text-lightRed"><button>Eliminar</button></li>
-    </ul>
-  </div>
+  <EditCommentButtons buttonsCommentTraductions={buttonsCommentTraductions} lang={lang} isReply={false} />
   <!-- Header compacto -->
   <div class="p-4">
     <div class="flex items-center space-x-3">
@@ -65,7 +127,21 @@ const avatar: AvatarProps = {
 
   <!-- Footer minimalista -->
   <div class="px-4 py-1 bg-salmon mt-auto">
-    <div class="flex items-center justify-end">
+    <div class="flex items-center justify-between">
+      <!-- Botón de responder -->
+      <button
+        class="reply-btn flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-[var(--color-light-red)] transition-colors duration-200"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+        </svg>
+        <span class="text-xs font-medium">{buttonsCommentTraductions[lang].reply}</span>
+      </button>
+
       <!-- Botón de like compacto -->
       <button
         class="flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-[var(--color-light-red)] transition-colors duration-200 like-icon cursor-pointer"
@@ -81,111 +157,476 @@ const avatar: AvatarProps = {
       </button>
     </div>
   </div>
+
+  <!-- Formulario de respuesta (oculto por defecto) -->
+  <div class="reply-form hidden px-4 py-3 bg-[#fff5f2] border-t border-salmon">
+    <div class="flex space-x-2">
+      <textarea
+        class="reply-textarea flex-1 p-2 text-sm border border-salmon rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-red)]"
+        placeholder={buttonsCommentTraductions[lang].reply + "..."}
+        rows="2"></textarea>
+    </div>
+    <div class="flex justify-end space-x-2 mt-2">
+      <button class="cancel-reply-btn px-3 py-1 text-xs rounded-md hover:bg-salmon transition-colors">
+        {buttonsCommentTraductions[lang].cancel}
+      </button>
+      <button
+        class="submit-reply-btn px-3 py-1 text-xs bg-lightRed text-white rounded-md hover:bg-[var(--color-red)] transition-colors"
+      >
+        {buttonsCommentTraductions[lang].send}
+      </button>
+    </div>
+  </div>
+
+  <!-- Respuestas anidadas -->
+  {
+    comment.reply && comment.reply.length > 0 && (
+      <div class="replies-section px-4 py-3 bg-[#fff5f2] border-t border-salmon">
+        <div class="text-xs font-medium mb-2 text-gray-600 replies-count">
+          {comment.reply.length}{" "}
+          {comment.reply.length === 1
+            ? buttonsCommentTraductions[lang].response
+            : buttonsCommentTraductions[lang].responses}
+        </div>
+        <div class="space-y-3 replies-container">
+          {comment.reply.map((reply, _) => (
+            <div
+              class="reply-item flex space-x-2 p-2 bg-lightSalmon rounded-md shadow-sm relative"
+              data-reply-id={reply.id}
+              data-reply-author={reply.author_uid}
+              data-debug-name={reply.name}
+            >
+              <Avatar info={{ name: reply.name, url_img: reply.url_img }} />
+              <div class="flex-1 pr-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-medium">{reply.name}</span>
+                  <div class="flex items-center space-x-2">
+                    <time class="text-xs text-gray-700">{reply.timestamp}</time>
+                  </div>
+                </div>
+                <p class="text-xs mt-1 text-gray-700 reply-content">{reply.content}</p>
+              </div>
+              <EditCommentButtons buttonsCommentTraductions={buttonsCommentTraductions} lang={lang} isReply={true} />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 </div>
 <CommentModal id={idCommentShared} edit={true} data={data} />
 
 <script>
   import { ApiService } from "@/services/helper";
-  import type { Result, Comment } from "@/types/bakend-types";
+  import type { ReplyComment, Result } from "@/types/bakend-types";
   import { showModalAnimation } from "@/utils/modals";
   import toast from "solid-toast";
   import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
   import { getFirebaseAuth } from "@/services/firebase";
+  import { verifyAuthorInComment, verifyAuthorInCommentReply } from "@/services/comments";
+  import { isFrontendError, FrontendError } from "@/types/types";
+  import { handleSubmitReply } from "@/services/comments";
 
-  const options = document.querySelectorAll(".comment-config");
-  const menus = document.querySelectorAll(".comment-config-menu");
   const helper = new ApiService();
+  // Traducciones para los botones de comentarios
+  const buttonsCommentTraductions: Record<
+    string,
+    { edit: string; delete: string; reply: string; cancel: string; send: string; response: string; responses: string }
+  > = {
+    es: {
+      edit: "Editar",
+      delete: "Eliminar",
+      reply: "Responder",
+      cancel: "Cancelar",
+      send: "Enviar",
+      response: "respuesta",
+      responses: "respuestas",
+    },
+    en: {
+      edit: "Edit",
+      delete: "Delete",
+      reply: "Reply",
+      cancel: "Cancel",
+      send: "Send",
+      response: "response",
+      responses: "responses",
+    },
+    de: {
+      edit: "Bearbeiten",
+      delete: "Löschen",
+      reply: "Antworten",
+      cancel: "Abbrechen",
+      send: "Senden",
+      response: "Antwort",
+      responses: "Antworten",
+    },
+    ar: {
+      edit: "تعديل",
+      delete: "حذف",
+      reply: "رد",
+      cancel: "إلغاء",
+      send: "إرسال",
+      response: "رد",
+      responses: "ردود",
+    },
+    fr: {
+      edit: "Modifier",
+      delete: "Supprimer",
+      reply: "Répondre",
+      cancel: "Annuler",
+      send: "Envoyer",
+      response: "réponse",
+      responses: "réponses",
+    },
+    it: {
+      edit: "Modifica",
+      delete: "Elimina",
+      reply: "Rispondi",
+      cancel: "Annulla",
+      send: "Invia",
+      response: "risposta",
+      responses: "risposte",
+    },
+    pt: {
+      edit: "Editar",
+      delete: "Excluir",
+      reply: "Responder",
+      cancel: "Cancelar",
+      send: "Enviar",
+      response: "resposta",
+      responses: "respostas",
+    },
+  };
 
+  // Obtener el idioma de la cookie o usar español por defecto
+  const lang = document.cookie.match(/lang=([^;]+)/)?.[1] || "es";
+  const options = document.querySelectorAll(".comment-config");
+  const replyButton = document.querySelectorAll(".reply-btn");
+
+  const replyConfigs = document.querySelectorAll(".reply-config");
+  const menus = document.querySelectorAll(".comment-config-menu");
+  const replyMenus = document.querySelectorAll(".reply-config-menu");
+
+  // Buttons comments
+  const editButtonsComment = document.querySelectorAll(".comment-config-menu li:first-child button");
+  const deleteButtonsComment = document.querySelectorAll(".comment-config-menu li:last-child button");
+
+  // Buttons reply
+  const editReplyButtons = document.querySelectorAll(".reply-config-menu li:first-child button");
+  const deleteReplyButtons = document.querySelectorAll(".reply-config-menu li:last-child button");
+
+  // Abrir y cerrar menus
+  document.addEventListener("click", () =>
+    menus.forEach((menu) => !menu.classList.contains("hidden") && menu.classList.add("hidden"))
+  );
+
+  // Abrir y cerrar menus de reply
+  document.addEventListener("click", () =>
+    replyMenus.forEach((menu) => !menu.classList.contains("hidden") && menu.classList.add("hidden"))
+  );
+
+  // Manejo de abrir/cerrar formulario de reply
+  replyButton.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const commentEl = (btn as HTMLElement).closest("[data-comment-id]") as HTMLElement | null;
+      if (!commentEl) return;
+
+      const replyForm = commentEl.querySelector<HTMLElement>(".reply-form");
+      if (!replyForm) return;
+
+      // Toggle visibilidad
+      replyForm.classList.toggle("hidden");
+      const isNowHidden = replyForm.classList.contains("hidden");
+
+      if (!isNowHidden) {
+        // Mostrar -> focus en textarea
+        const ta = replyForm.querySelector<HTMLTextAreaElement>(".reply-textarea");
+        ta?.focus();
+      }
+    });
+  });
+
+  // Manejar envío de respuestas (event delegation)
+  document.addEventListener("click", async (e) => {
+    const target = e.target as HTMLElement;
+
+    // Si el click es en el botón de submit reply
+    if (target.classList.contains("submit-reply-btn")) {
+      e.stopPropagation();
+      const commentEl = target.closest("[data-comment-id]") as HTMLElement | null;
+      if (commentEl) await handleSubmitReply(helper, commentEl, buttonsCommentTraductions[lang]);
+    }
+
+    // Si el click es en el botón de cancelar reply
+    if (target.classList.contains("cancel-reply-btn")) {
+      e.stopPropagation();
+      const replyForm = target.closest(".reply-form") as HTMLElement | null;
+      if (replyForm) {
+        replyForm.classList.add("hidden");
+        const textarea = replyForm.querySelector<HTMLTextAreaElement>(".reply-textarea");
+        if (textarea) textarea.value = ""; // Limpiar el textarea al cancelar
+      }
+    }
+  });
+
+  // Abrir las opciones
   options.forEach((option, index) => {
     option.addEventListener("click", async (e) => {
       e.stopPropagation();
-      const auth = await getFirebaseAuth();
-      if (!auth.currentUser) {
-        toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
-        return;
-      }
-      menus[index].classList.toggle("hidden");
-    });
-  });
-
-  document.addEventListener("click", (e) => {
-    menus.forEach((menu) => {
-      if (!menu.classList.contains("hidden")) {
-        menu.classList.add("hidden");
+      try {
+        const auth = await getFirebaseAuth();
+        if (!auth.currentUser) throw new FrontendError(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
+        menus[index].classList.toggle("hidden");
+      } catch (e) {
+        isFrontendError(e) ? toast.error(e.message) : toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
       }
     });
   });
 
-  const deleteButtons = document.querySelectorAll(".comment-config-menu li:last-child button");
-  deleteButtons.forEach((btn, idx) => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const commentDiv = btn.closest("[data-comment-id]");
-
-      if (!commentDiv) {
-        console.error("No se encontró el contenedor del comentario");
-        return;
-      }
-
-      const commentId: string = commentDiv.getAttribute("data-comment-id") as string;
-
-      if (!commentId) {
-        console.error("No se encontró el ID del comentario");
-        return;
-      }
-
-      helper.deleteComment(commentId).then((res) => {
-        if (res.success) {
-          menus[idx].classList.add("hidden");
-          toast.success("Comentario eliminado");
-          // Optimistic UI - eliminamos el comentario del DOM
-          commentDiv.remove();
-        } else {
-          console.error("Error al eliminar el comentario");
-          if (res.error.message && res.error.statusCode == 403) {
-            toast.error(getErrorToast(FrontendErrorCode.MUST_BE_OWNER));
-          } else {
-            toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
-          }
-        }
-      });
-    });
-  });
-
-  const editButtons = document.querySelectorAll(".comment-config-menu li:first-child button");
-  editButtons.forEach((btn, idx) => {
+  // Botón de elimar comentario
+  deleteButtonsComment.forEach((btn, idx) => {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
-      const commentDiv = btn.closest("[data-comment-id]");
-      if (!commentDiv) {
-        console.error("No se encontró el contenedor del comentario");
-        return;
-      }
-      const commentId: string = commentDiv.getAttribute("data-comment-id") as string;
-      if (!commentId) {
-        console.error("No se encontró el ID del comentario");
-        return;
-      }
-      const helper = new ApiService();
-      const comment: Result<Comment> = await helper.getCommentById(commentId);
+      try {
+        const commentDiv = btn.closest("[data-comment-id]");
+        if (!commentDiv) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
-      if (!comment.success) {
-        toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
-        return;
-      }
+        const commentId: string = commentDiv.getAttribute("data-comment-id") as string;
+        if (!commentId) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
-      const auth = await getFirebaseAuth();
-      if (auth.currentUser?.uid !== comment.data.author_uid) {
-        toast.error(getErrorToast(FrontendErrorCode.MUST_BE_OWNER));
-        return;
-      }
+        // Capa extra de seguridad verificamos si es el owner
+        await verifyAuthorInComment(helper, commentId);
 
-      const modal = document.getElementById(commentId) as HTMLDialogElement;
-      const form = modal.querySelector("form");
-      showModalAnimation(modal, form, true);
+        // Eliminamos el comentario
+        const res: Result<void> = await helper.deleteComment(commentId);
+        if (!res.success)
+          throw new FrontendError(
+            res.error.message && res.error.statusCode == 403
+              ? getErrorToast(FrontendErrorCode.MUST_BE_OWNER)
+              : getErrorToast(FrontendErrorCode.UNKNOWN_ERROR)
+          );
+
+        menus[idx].classList.add("hidden");
+        toast.success("Comentario eliminado");
+
+        // Optimistic UI - eliminamos el comentario del DOM
+        commentDiv.remove();
+      } catch (e) {
+        isFrontendError(e) ? toast.error(e.message) : toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+      }
+    });
+  });
+
+  // Botón de editar comentario
+  editButtonsComment.forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      try {
+        const commentDiv = btn.closest("[data-comment-id]");
+        if (!commentDiv) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+        const commentId: string = commentDiv.getAttribute("data-comment-id") as string;
+        if (!commentId) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+        // Verificamos que quien hace la peticion sea la misma persona quien escribir el comentario
+        await verifyAuthorInComment(helper, commentId);
+
+        // Cambiamos el comentario desde un modal
+        const modal = document.getElementById(commentId) as HTMLDialogElement;
+        const form = modal.querySelector("form");
+        showModalAnimation(modal, form, true);
+      } catch (e) {
+        isFrontendError(e) ? toast.error(e.message) : toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+      }
+    });
+  });
+
+  ////////////////////// REPLY //////////////////////
+  // Abrir las configuraciones de las reply
+  replyConfigs.forEach((config, index) => {
+    config.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      replyMenus[index].classList.toggle("hidden");
+    });
+  });
+
+  // // Eliminar respuesta
+  deleteReplyButtons.forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      try {
+        // btn.closest returns Element | null. Cast to HTMLElement to access .dataset
+        const replyItem = btn.closest(".reply-item") as HTMLElement | null;
+        if (!replyItem) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+        // dataset exists on HTMLElement (not Element)
+        const replyId = replyItem.dataset.replyId ?? replyItem.getAttribute("data-reply-id") ?? null;
+        const commentId = replyItem.closest("[data-comment-id]")?.getAttribute("data-comment-id") ?? null;
+
+        if (!replyId || !commentId) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+        // Verificamos si es el mismo usuario
+        await verifyAuthorInCommentReply(helper, commentId, replyId);
+
+        // Eliminamos el comentario
+        const result = await helper.deleteReply(commentId, replyId);
+        if (!result.success) {
+          throw new FrontendError(
+            result.error.message == "NOT FOUND"
+              ? getErrorToast(FrontendErrorCode.NOT_FOUND)
+              : getErrorToast(FrontendErrorCode.UNKNOWN_ERROR)
+          );
+        }
+
+        // IMPORTANTE: Obtener referencias ANTES de eliminar del DOM
+        const commentDiv = replyItem.closest("[data-comment-id]");
+        if (!commentDiv) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+        // Eliminar del DOM
+        replyItem.remove();
+
+        const repliesSection = commentDiv.querySelector(".replies-section");
+        if (!repliesSection) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+        const repliesContainer = repliesSection.querySelector(".replies-container");
+        const countElement = repliesSection.querySelector(".replies-count");
+        if (!repliesContainer || !countElement) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+        const newCount = repliesContainer.children.length;
+        newCount === 0
+          ? repliesSection.remove()
+          : (countElement.textContent = `${newCount} ${newCount === 1 ? "respuesta" : "respuestas"}`);
+
+        toast.success("Respuesta eliminada correctamente");
+      } catch (e) {
+        isFrontendError(e) ? toast.error(e.message) : toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+      }
+    });
+  });
+
+  // Editar respuesta abriendo el textarea
+  editReplyButtons.forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+
+      try {
+        const replyItem = btn.closest(".reply-item");
+        if (!replyItem) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+        const commentDiv = btn.closest("[data-comment-id]");
+        if (!commentDiv) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+        // Verificar propiedad
+        const auth = await getFirebaseAuth();
+        const replyAuthor = replyItem.getAttribute("data-reply-author");
+
+        if (replyAuthor !== auth.currentUser?.uid)
+          throw new FrontendError(getErrorToast(FrontendErrorCode.MUST_BE_OWNER));
+
+        const commentId = commentDiv.getAttribute("data-comment-id");
+        const contentElement = replyItem.querySelector(".reply-content") as HTMLElement;
+
+        if (!commentId || !contentElement) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+        const currentContent = contentElement.textContent?.trim() || "";
+
+        // Ocultar el contenido actual y mostrar el formulario de edición
+        contentElement.style.display = "none";
+
+        // Crear el formulario de edición si no existe
+        let editForm = replyItem.querySelector(".edit-reply-form") as HTMLElement;
+        if (!editForm) {
+          editForm = document.createElement("div");
+          editForm.className = "edit-reply-form mt-2";
+          editForm.innerHTML = `
+          <textarea class="edit-reply-textarea w-full p-2 text-xs border border-salmon rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-red)]" rows="3">${currentContent}</textarea>
+          <div class="flex justify-end space-x-2 mt-2">
+            <button class="cancel-edit-reply-btn px-3 py-1 text-xs rounded-md hover:bg-salmon transition-colors">
+              ${btn.closest(".reply-item")?.parentElement?.closest("[data-comment-id]")?.querySelector(".cancel-reply-btn")?.textContent?.trim() || "Cancelar"}
+            </button>
+            <button class="save-edit-reply-btn px-3 py-1 text-xs bg-lightRed text-white rounded-md hover:bg-[var(--color-red)] transition-colors">
+              ${btn.closest(".reply-item")?.parentElement?.closest("[data-comment-id]")?.querySelector(".submit-reply-btn")?.textContent?.trim() || "Guardar"}
+            </button>
+          </div>
+        `;
+          contentElement.parentElement?.appendChild(editForm);
+        } else {
+          const textarea = editForm.querySelector(".edit-reply-textarea") as HTMLTextAreaElement;
+          if (textarea) textarea.value = currentContent;
+          editForm.style.display = "block";
+        }
+
+        // Ocultar el menú de configuración
+        const replyMenu = btn.closest(".reply-config-menu");
+        if (replyMenu) replyMenu.classList.add("hidden");
+
+        // Manejar cancelación
+        const cancelBtn = editForm.querySelector(".cancel-edit-reply-btn");
+        cancelBtn?.addEventListener(
+          "click",
+          () => {
+            contentElement.style.display = "block";
+            editForm.style.display = "none";
+          },
+          { once: true }
+        );
+
+        // Manejar guardado
+        const saveBtn = editForm.querySelector(".save-edit-reply-btn");
+        if (!saveBtn) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+        saveBtn.addEventListener(
+          "click",
+          async () => {
+            const textarea = editForm.querySelector(".edit-reply-textarea") as HTMLTextAreaElement;
+            const newContent = textarea?.value.trim() || "";
+
+            if (newContent && newContent !== currentContent) {
+              const helper = new ApiService();
+              const replyId = replyItem.getAttribute("data-reply-id");
+
+              if (!replyId) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+              const auth = await getFirebaseAuth();
+              if (!auth.currentUser) throw new FrontendError(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
+
+              const reply: ReplyComment = {
+                id: replyId,
+                content: newContent,
+                timestamp: new Date().toISOString(),
+                author_uid: auth.currentUser.uid,
+                name: auth.currentUser.displayName || "Anónimo",
+                url_img: auth.currentUser.photoURL || null,
+                like: 0,
+                users_liked: [],
+              };
+
+              const result: Result<ReplyComment> = await helper.editReply(commentId, replyId, reply);
+
+              if (!result.success)
+                throw new FrontendError(result.error.message || getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+              toast.success("Respuesta editada correctamente");
+              contentElement.textContent = newContent;
+
+              window.location.reload();
+            } else if (newContent === currentContent) {
+              contentElement.style.display = "block";
+              editForm.style.display = "none";
+            }
+          },
+          { once: true }
+        );
+      } catch (error) {
+        isFrontendError(error)
+          ? toast.error(error.message)
+          : toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+      }
     });
   });
 </script>
+
 <style>
   .like-svg {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -239,5 +680,42 @@ const avatar: AvatarProps = {
     100% {
       transform: scale(1);
     }
+  }
+
+  /* Animaciones para respuestas */
+  .reply-item {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Transición suave para la sección de respuestas */
+  .replies-section {
+    animation: fadeIn 0.2s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Estilo para el textarea de respuesta */
+  .reply-textarea:focus {
+    outline: none;
+    border-color: var(--color-red);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
   }
 </style>

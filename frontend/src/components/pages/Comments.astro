@@ -107,12 +107,11 @@ const percentaje = ["90", "70", "95", "80", "89"];
       {data.evaluations.types.map((element, i) => <Stadistics title={element} percentage={percentaje[i] ?? "100"} />)}
     </div>
   </div>
+  <CommentModal id={"comment-modal"} edit={false} data={data.modal} />
 </main>
-<CommentModal id={"comment-modal"} edit={false} data={data.modal} />
-
 <script>
   // Importa la instancia de autenticación de Firebase y el listener de cambios de usuario
-  import { onAuthStateChanged } from "@/services/firebase";
+  import { onAuthStateChanged, getFirebaseAuth } from "@/services/firebase";
   import { submitLike } from "@/services/comments";
   import { toast } from "solid-toast";
   import { updateLikeState } from "@/services/comments";

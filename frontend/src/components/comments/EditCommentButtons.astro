@@ -1,0 +1,25 @@
+---
+const { buttonsCommentTraductions, lang } = Astro.props;
+const { isReply } = Astro.props;
+---
+
+<div
+  class={` ${isReply ? "reply-config" : "comment-config"} flex flex-col items-end justify-center absolute top-2 right-2 h-5 space-y-0.5 px-1`}
+>
+  <div class="w-1 h-1 bg-black rounded-full"></div>
+  <div class="w-1 h-1 bg-black rounded-full"></div>
+  <div class="w-1 h-1 bg-black rounded-full"></div>
+</div>
+
+<div
+  class={`${isReply ? "reply-config-menu" : "comment-config-menu"} hidden bg-salmon absolute right-1 top-1 text-xs rounded-md w-fit h-fit`}
+>
+  <ul class="space-y-0.5 p-1">
+    <li class="p-1 hover:text-lightRed">
+      <button>{buttonsCommentTraductions[lang].edit}</button>
+    </li>
+    <li class="p-1 hover:text-lightRed">
+      <button>{buttonsCommentTraductions[lang].delete}</button>
+    </li>
+  </ul>
+</div>

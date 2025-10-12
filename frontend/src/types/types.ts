@@ -1,3 +1,5 @@
+import type { FrontendErrorCode } from "@/enums/enums";
+
 // I18n traducciones
 export interface I18nTranslations {
   header: HeaderI18n;
@@ -386,3 +388,21 @@ export interface ArticlesAstro {
 }
 
 export type Lang = "es" | "en" | "fr" | "de" | "ar" | "it" | "pt";
+
+export class FrontendError extends Error {
+  public readonly code?: FrontendErrorCode;
+
+  constructor(message: string, code?: FrontendErrorCode) {
+    super(message);
+    this.name = "FrontendError";
+    this.code = code;
+    // Maintains proper stack trace (only in V8)
+    if (typeof Error.captureStackTrace === "function") {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
+}
+
+export function isFrontendError(err: unknown): err is FrontendError {
+  return err instanceof FrontendError;
+}

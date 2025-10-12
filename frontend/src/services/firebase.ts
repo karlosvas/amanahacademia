@@ -11,7 +11,7 @@ import {
   ValidationCode,
   getValidationMessage,
 } from "@/enums/enums";
-import type { User } from "firebase/auth";
+import type { Auth, User } from "firebase/auth";
 
 // Import estático de Firebase
 import { initializeApp } from "firebase/app";
@@ -40,19 +40,12 @@ const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
 
 // Funciones helper
-export function getFirebaseAuth() {
+export function getFirebaseAuth(): Auth {
   return firebaseAuth;
 }
 
 export function getGoogleProvider() {
   return new GoogleAuthProvider();
-}
-
-function getErrorMessageFromResult(error: unknown): string {
-  if (!error) return "";
-  if (typeof error === "string") return error;
-  if (typeof error === "object" && error !== null && "message" in error) return String((error as any).message);
-  return "";
 }
 
 // Cambiar de login a register

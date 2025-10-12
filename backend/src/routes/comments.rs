@@ -1,8 +1,8 @@
 use {
     crate::{
         controllers::comments::{
-            add_comment, add_reply, delete_comment, edit_comment, get_all_comments,
-            get_comment_by_id, toggle_like,
+            add_comment, add_reply, delete_comment, delete_reply, edit_comment, edit_reply,
+            get_all_comments, get_comment_by_id, get_reply_by_id, toggle_like,
         },
         middleware::auth::firebase_auth_middleware,
         state::AppState,
@@ -22,7 +22,10 @@ pub fn router(state: Arc<AppState>) -> Router<Arc<AppState>> {
         .route("/:id", get(get_comment_by_id))
         .route("/edit/:comment_id", put(edit_comment))
         .route("/like/:comment_id", put(toggle_like))
-        .route("/reply/:comment_id", put(add_reply))
+        .route("/reply/:comment_id", post(add_reply))
+        .route("/reply/:comment_id/:reply_id/edit", put(edit_reply))
+        .route("/:comment_id/reply/:reply_id", get(get_reply_by_id))
+        .route("/del/:comment_id/reply/:reply_id", delete(delete_reply))
         .route("/del/:comment_id", delete(delete_comment))
         .layer(middleware::from_fn_with_state(
             state.clone(),

@@ -1,7 +1,7 @@
 use {
     crate::{
         models::{
-            comments::{Comment, UpdateComment},
+            comments::{Comment, ReplyComment, UpdateComment},
             firebase::UserAuthentication,
             response::ResponseAPI,
         },
@@ -17,6 +17,7 @@ use {
     chrono::Utc,
     std::{collections::HashMap, sync::Arc},
     tracing::instrument,
+    uuid::Uuid,
 };
 
 // Crear un comentario
@@ -414,10 +415,10 @@ pub async fn add_reply(
     State(state): State<Arc<AppState>>,
     Extension(id_token): Extension<String>,
     Extension(user_claims): Extension<UserAuthentication>,
-    Json(reply_comment): Json<Comment>,
+    Json(reply_comment): Json<ReplyComment>,
 ) -> impl IntoResponse {
-    // Obtenemos el comentario al que se va a responder
-    let comment: Comment = match get_comment_data(&comment_id, &id_token, &state).await {
+    // Obtenemos el comentario padre
+    let mut comment: Comment = match get_comment_data(&comment_id, &id_token, &state).await {
         Some(comment) => comment,
         None => {
             return (
@@ -428,49 +429,44 @@ pub async fn add_reply(
         }
     };
 
-    // URL para obtener el comentario
-    let url_firebase_db_comment: String = format!(
+    // URL del comentario en Firebase
+    let url_firebase_db_comment = format!(
         "{}/comments/{}.json?auth={}",
         state.firebase.firebase_database_url, comment_id, id_token
     );
 
-    // Creamos el nuevo comentario
-    let new_comment: Comment = Comment {
-        reply: {
-            let mut replies: Vec<Comment> = comment.reply.clone();
-            replies.push(Comment {
-                author_uid: Some(user_claims.user_id),
-                name: reply_comment.name,
-                timestamp: Utc::now().format("%d/%m/%Y %H:%M").to_string(),
-                content: reply_comment.content,
-                url_img: reply_comment.url_img,
-                stars: reply_comment.stars,
-                like: 0,
-                reply: Vec::new(),
-                users_liked: Vec::new(),
-            });
-            replies
-        },
-        ..comment
+    // Generar ID único para la nueva reply
+    let reply_id = Uuid::new_v4().to_string();
+
+    // Crear la nueva reply con todos los campos
+    let new_reply = ReplyComment {
+        id: reply_id,
+        author_uid: user_claims.user_id.clone(),
+        name: reply_comment.name.clone(),
+        timestamp: Utc::now().format("%d/%m/%Y %H:%M").to_string(),
+        content: reply_comment.content.clone(),
+        url_img: reply_comment.url_img.clone(),
+        like: 0,
+        users_liked: Vec::new(),
     };
 
-    // Añadir el comentario a la base de datos
+    // Agregar la reply al comentario
+    comment.reply.push(new_reply.clone()); // ✅ clonamos para poder devolver luego
+
+    // Guardar el comentario actualizado en Firebase
     match state
         .firebase_client
         .put(&url_firebase_db_comment)
-        .json(&new_comment)
+        .json(&comment)
         .send()
         .await
     {
         Ok(response) => match handle_firebase_response::<Comment>(response).await {
-            Ok(comment) => (
+            Ok(_) => (
                 StatusCode::CREATED,
-                Json(ResponseAPI::<Comment>::success(
-                    "Comment added successfully".to_string(),
-                    Comment {
-                        author_uid: None,
-                        ..comment
-                    },
+                Json(ResponseAPI::<ReplyComment>::success(
+                    "Reply added successfully".to_string(),
+                    new_reply, // ✅ devolvemos la reply creada
                 )),
             )
                 .into_response(),
@@ -478,9 +474,7 @@ pub async fn add_reply(
         },
         Err(_) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ResponseAPI::<()>::error(
-                "Failed to add comment".to_string(),
-            )),
+            Json(ResponseAPI::<()>::error("Failed to add reply".to_string())),
         )
             .into_response(),
     }
@@ -544,4 +538,297 @@ pub async fn get_comment_by_id(
         )
             .into_response(),
     }
+}
+
+// Editar una respuesta específica
+#[debug_handler]
+#[instrument(
+    skip(state, id_token, user_claims, reply_update),
+    fields(
+        comment_id = %comment_id,
+        reply_id = %reply_id,
+        user_id = %user_claims.user_id,
+        operation = "edit_reply"
+    )
+)]
+pub async fn edit_reply(
+    Path((comment_id, reply_id)): Path<(String, String)>,
+    State(state): State<Arc<AppState>>,
+    Extension(id_token): Extension<String>,
+    Extension(user_claims): Extension<UserAuthentication>,
+    Json(reply_update): Json<ReplyComment>,
+) -> impl IntoResponse {
+    // Obtenemos el comentario padre
+    let mut comment: Comment = match get_comment_data(&comment_id, &id_token, &state).await {
+        Some(comment) => comment,
+        None => {
+            return (
+                StatusCode::NOT_FOUND,
+                Json(ResponseAPI::<()>::error("Comment not found".to_string())),
+            )
+                .into_response();
+        }
+    };
+
+    // Limitar scope del mutable borrow
+    let updated_reply = {
+        let reply = comment.reply.iter_mut().find(|r| r.id == reply_id);
+
+        let reply = match reply {
+            Some(r) => r,
+            None => {
+                return (
+                    StatusCode::NOT_FOUND,
+                    Json(ResponseAPI::<()>::error("Reply not found".to_string())),
+                )
+                    .into_response();
+            }
+        };
+
+        // Verificamos ownership
+        if reply.author_uid != user_claims.user_id {
+            return (
+                StatusCode::FORBIDDEN,
+                Json(ResponseAPI::<()>::error(
+                    "You are not authorized to edit this reply".to_string(),
+                )),
+            )
+                .into_response();
+        }
+
+        // Actualizamos contenido y timestamp
+        reply.content = reply_update.content.clone();
+        reply.timestamp = Utc::now().format("%d/%m/%Y %H:%M").to_string();
+
+        reply.clone() // ✅ Clonamos para devolverla después
+    }; // <- aquí termina el mutable borrow
+
+    // Guardamos el comentario actualizado en Firebase
+    let url_firebase_db = format!(
+        "{}/comments/{}.json?auth={}",
+        state.firebase.firebase_database_url, comment_id, id_token
+    );
+
+    match state
+        .firebase_client
+        .put(&url_firebase_db)
+        .json(&comment)
+        .send()
+        .await
+    {
+        Ok(response) => match handle_firebase_response::<Comment>(response).await {
+            Ok(_) => (
+                StatusCode::OK,
+                Json(ResponseAPI::<ReplyComment>::success(
+                    "Reply updated successfully".to_string(),
+                    updated_reply, // devolvemos la reply editada
+                )),
+            )
+                .into_response(),
+            Err((status, error)) => (status, Json(ResponseAPI::<()>::error(error))).into_response(),
+        },
+        Err(_) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(ResponseAPI::<()>::error(
+                "Failed to update reply".to_string(),
+            )),
+        )
+            .into_response(),
+    }
+}
+
+// Eliminar una respuesta reply específica
+#[debug_handler]
+#[instrument(
+    skip(state, id_token, user_claims),
+    fields(
+        comment_id = %comment_id,
+        reply_id = %reply_id,
+        user_id = %user_claims.user_id,
+        operation = "delete_reply"
+    )
+)]
+pub async fn delete_reply(
+    Path((comment_id, reply_id)): Path<(String, String)>,
+    State(state): State<Arc<AppState>>,
+    Extension(id_token): Extension<String>,
+    Extension(user_claims): Extension<UserAuthentication>,
+) -> impl IntoResponse {
+    tracing::debug!(
+        "delete_reply called: comment_id={}, reply_id={}, user_id={}",
+        comment_id,
+        reply_id,
+        user_claims.user_id
+    );
+
+    // 1️Obtener el comentario padre
+    let mut comment: Comment = match get_comment_data(&comment_id, &id_token, &state).await {
+        Some(comment) => {
+            tracing::debug!("Found parent comment with {} replies", comment.reply.len());
+            comment
+        }
+        None => {
+            tracing::debug!("Parent comment not found: {}", comment_id);
+            return (
+                StatusCode::NOT_FOUND,
+                Json(ResponseAPI::<()>::error("Comment not found".to_string())),
+            )
+                .into_response();
+        }
+    };
+
+    // Buscar el reply a eliminar
+    let reply_index: Option<usize> = comment.reply.iter().position(|r| r.id == reply_id);
+    tracing::debug!("Computed reply_index: {:?}", reply_index);
+
+    if reply_index.is_none() {
+        tracing::debug!(
+            "Reply not found in comment: {} reply_id: {}",
+            comment_id,
+            reply_id
+        );
+        return (
+            StatusCode::NOT_FOUND,
+            Json(ResponseAPI::<()>::error("Reply not found".to_string())),
+        )
+            .into_response();
+    }
+
+    let index: usize = reply_index.unwrap();
+    let reply: &ReplyComment = &comment.reply[index];
+    tracing::debug!(
+        "Reply at index {} has author_uid={}",
+        index,
+        reply.author_uid
+    );
+
+    // Comprobar permisos
+    if reply.author_uid != user_claims.user_id.clone() {
+        tracing::debug!(
+            "Unauthorized delete attempt by user={} for reply author={}",
+            user_claims.user_id,
+            reply.author_uid
+        );
+        return (
+            StatusCode::FORBIDDEN,
+            Json(ResponseAPI::<()>::error(
+                "You are not authorized to delete this reply".to_string(),
+            )),
+        )
+            .into_response();
+    }
+
+    // Eliminar el reply del vector
+    tracing::debug!(
+        "Removing reply at index {} from comment {}",
+        index,
+        comment_id
+    );
+    comment.reply.remove(index);
+
+    // Guardar los cambios en Firebase
+    let url_firebase_db: String = format!(
+        "{}/comments/{}.json?auth={}",
+        state.firebase.firebase_database_url, comment_id, id_token
+    );
+
+    tracing::debug!(
+        "Putting updated comment to Firebase URL: {}",
+        url_firebase_db
+    );
+
+    match state
+        .firebase_client
+        .put(&url_firebase_db)
+        .json(&comment)
+        .send()
+        .await
+    {
+        Ok(mut response) => {
+            let status = response.status();
+            let body_text = response.text().await.unwrap_or_default();
+            tracing::debug!(
+                "Firebase PUT response status: {}, body: {}",
+                status,
+                body_text
+            );
+
+            if status.is_success() {
+                (
+                    StatusCode::NO_CONTENT,
+                    Json(ResponseAPI::<()>::success_no_data()),
+                )
+                    .into_response()
+            } else {
+                tracing::error!(
+                    "Failed to delete reply: firebase returned non-success status {}",
+                    status
+                );
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ResponseAPI::<()>::error(
+                        "Failed to delete reply".to_string(),
+                    )),
+                )
+                    .into_response()
+            }
+        }
+        Err(e) => {
+            tracing::error!("Failed to send PUT to Firebase: {:?}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(
+                    "Failed to delete reply".to_string(),
+                )),
+            )
+                .into_response()
+        }
+    }
+}
+
+// Obtener una respuesta específica por id
+#[debug_handler]
+#[instrument(
+    skip(state, id_token),
+    fields(
+        comment_id = %comment_id,
+        reply_id = %reply_id,
+        operation = "get_reply_by_id"
+    )
+)]
+pub async fn get_reply_by_id(
+    Path((comment_id, reply_id)): Path<(String, String)>,
+    Extension(id_token): Extension<String>,
+    State(state): State<Arc<AppState>>,
+) -> impl IntoResponse {
+    // Obtener el comentario
+    let comment = match get_comment_data(&comment_id, &id_token, &state).await {
+        Some(comment) => comment,
+        None => {
+            return (
+                StatusCode::NOT_FOUND,
+                Json(ResponseAPI::<()>::error("Comment not found".to_string())),
+            )
+                .into_response();
+        }
+    };
+
+    // Buscar la reply por ID
+    if let Some(reply) = comment.reply.into_iter().find(|r| r.id == reply_id) {
+        return (
+            StatusCode::OK,
+            Json(ResponseAPI::<ReplyComment>::success(
+                "Reply fetched successfully".to_string(),
+                reply,
+            )),
+        )
+            .into_response();
+    }
+
+    // Si no se encuentra la reply
+    (
+        StatusCode::NOT_FOUND,
+        Json(ResponseAPI::<()>::error("Reply not found".to_string())),
+    )
+        .into_response()
 }

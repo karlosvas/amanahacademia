@@ -19,8 +19,8 @@ const { lang } = Astro.params;
       <button id="closeMenu" class="text-2xl text-lightSalmon hover:text-red font-bold absolute right-10 top-3"
         >&times;</button
       >
-      <nav class="flex flex-col gap-10 font-jomolhari ml-3">
-        <ul>
+      <nav class="flex flex-col font-jomolhari ml-3">
+        <ul class="flex flex-col gap-0.5">
           <li>
             <a class="text-lg font-medium hover:text-salmon transition" href={!lang ? "/" : `/${lang}/`}
               >{data.about_us}</a

@@ -1,5 +1,9 @@
-import type { Comment, Result } from "@/types/bakend-types";
+import type { Comment, ReplyComment, Result } from "@/types/bakend-types";
 import { ApiService } from "./helper";
+import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
+import { getFirebaseAuth } from "./firebase";
+import { FrontendError, isFrontendError } from "@/types/types";
+import toast from "solid-toast";
 type User = import("firebase/auth").User;
 
 export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanElement) {
@@ -131,5 +135,127 @@ export function updateModalUser(user: User | null) {
       (avatarImg as HTMLImageElement).src = "";
       // Si el SVG ya está en el DOM, solo muéstralo
     }
+  }
+}
+
+export async function verifyAuthorInComment(helper: ApiService, commentId: string) {
+  const comment: Result<Comment> = await helper.getCommentById(commentId);
+  if (!comment.success) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+  const auth = await getFirebaseAuth();
+  if (auth.currentUser?.uid !== comment.data.author_uid)
+    throw new FrontendError(getErrorToast(FrontendErrorCode.MUST_BE_OWNER));
+}
+
+export async function verifyAuthorInCommentReply(helper: ApiService, commentId: string, replyId: string) {
+  const comment: Result<Comment> = await helper.getCommentReplyById(commentId, replyId);
+  if (!comment.success) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+  const auth = await getFirebaseAuth();
+  if (auth.currentUser?.uid !== comment.data.author_uid)
+    throw new FrontendError(getErrorToast(FrontendErrorCode.MUST_BE_OWNER));
+}
+
+// Función para manejar el envío de respuestas
+export async function handleSubmitReply(helper: ApiService, commentEl: HTMLElement, traductions: any) {
+  try {
+    console.log("handleSubmitReply ejecutado");
+    const commentDiv = commentEl.closest("[data-comment-id]");
+    if (!commentDiv) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+    const commentId: string = commentDiv.getAttribute("data-comment-id") as string;
+    if (!commentId) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+    const replyForm = commentDiv.querySelector<HTMLElement>(".reply-form");
+    if (!replyForm) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+    const textarea = replyForm.querySelector<HTMLTextAreaElement>(".reply-textarea");
+    if (!textarea) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+    const content = textarea.value.trim();
+    if (!content) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+
+    const auth = await getFirebaseAuth();
+    if (!auth.currentUser) throw new FrontendError(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
+
+    const newReply: ReplyComment = {
+      id: "", // El backend asignará el ID
+      content,
+      timestamp: new Date().toISOString(),
+      author_uid: auth.currentUser.uid,
+      name: auth.currentUser.displayName || "Anónimo",
+      url_img: auth.currentUser.photoURL || null,
+      like: 0,
+      users_liked: [],
+    };
+
+    console.log("Enviando reply:", { commentId, newReply });
+    const res: Result<ReplyComment> = await helper.createReply(commentId, newReply);
+    console.log("Respuesta del servidor:", res);
+
+    if (!res.success) {
+      console.error("Error creando respuesta:", {
+        error: res.error,
+        message: res.error?.message,
+        statusCode: res.error?.statusCode,
+        type: res.error?.type,
+      });
+      throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+    }
+
+    // Actualizar el DOM en lugar de recargar la página
+    const repliesSection = commentDiv.querySelector(".replies-section");
+    const repliesContainer = commentDiv.querySelector(".replies-container");
+
+    // Si no existe la sección de respuestas, crearla
+    if (!repliesSection || !repliesContainer) {
+      const newRepliesSection = document.createElement("div");
+      newRepliesSection.className = "replies-section px-4 py-3 bg-[#fff5f2] border-t border-salmon";
+      newRepliesSection.innerHTML = `
+          <div class="text-xs font-medium mb-2 text-gray-600 replies-count">
+            1 ${traductions.response}
+          </div>
+          <div class="space-y-3 replies-container"></div>
+        `;
+      commentDiv.appendChild(newRepliesSection);
+    }
+
+    // Añadir la nueva respuesta al DOM
+    const container = commentDiv.querySelector(".replies-container");
+    if (container) {
+      const newReplyElement = document.createElement("div");
+      newReplyElement.className = "reply-item flex space-x-2 p-2 bg-lightSalmon rounded-md shadow-sm relative";
+      newReplyElement.setAttribute("data-reply-id", res.data.id);
+      newReplyElement.setAttribute("data-reply-author", res.data.author_uid);
+      newReplyElement.innerHTML = `
+          <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+            ${res.data.url_img ? `<img src="${res.data.url_img}" alt="${res.data.name}" class="w-full h-full object-cover" />` : `<div class="w-full h-full bg-salmon flex items-center justify-center text-xs font-bold">${res.data.name.charAt(0).toUpperCase()}</div>`}
+          </div>
+          <div class="flex-1 pr-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium">${res.data.name}</span>
+              <div class="flex items-center space-x-2">
+                <time class="text-xs text-gray-700">${res.data.timestamp}</time>
+              </div>
+            </div>
+            <p class="text-xs mt-1 text-gray-700 reply-content">${res.data.content}</p>
+          </div>
+        `;
+      container.appendChild(newReplyElement);
+
+      // Actualizar contador
+      const countElement = commentDiv.querySelector(".replies-count");
+      if (countElement) {
+        const newCount = container.children.length;
+        countElement.textContent = `${newCount} ${newCount === 1 ? traductions.response : traductions.responses}`;
+      }
+    }
+
+    // Limpiar y ocultar el formulario
+    textarea.value = "";
+    replyForm.classList.add("hidden");
+    toast.success("Respuesta añadida correctamente");
+  } catch (e) {
+    isFrontendError(e) ? toast.error(e.message) : toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
   }
 }

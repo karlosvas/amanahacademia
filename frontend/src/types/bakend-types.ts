@@ -27,7 +27,7 @@ export interface Comment {
   url_img?: string; // ✅ Opcional
   stars: number; // ✅ Opcional, si lo usas
   like?: number; // Opcional
-  reply?: Comment[]; // Opcional
+  reply?: ReplyComment[]; // Opcional
   users_liked?: string[]; // Opcional
 }
 
@@ -141,4 +141,15 @@ export interface CheckoutPaymentIntentRequest {
 export interface RelationalCalStripe {
   cal_id: string;
   stripe_id: string;
+}
+
+export interface ReplyComment {
+  id: string;
+  author_uid: string; // author_uid
+  name: string;
+  timestamp: string;
+  content: string;
+  url_img?: string | null;
+  like?: number;
+  users_liked?: string[];
 }

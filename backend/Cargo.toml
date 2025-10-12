@@ -26,3 +26,4 @@ tracing-appender = "0.2"
 time = "0.3"
 resend-rs = "0.18.0"
 ecow = "0.2"
+uuid = { version = "1.4", features = ["v4", "serde"] }

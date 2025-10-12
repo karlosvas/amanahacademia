@@ -9,19 +9,30 @@ const server = Astro.props.server ?? true;
 <div class="flex-shrink-0" id="avatar-container">
   {
     !server ? (
-      // Si cargo desde el cliente se lo damos mediante JS
-      <img src="" alt="" class="avatar-img w-8 h-8 rounded-full object-cover " />
-      <div id="avatar-default" style="display: flex;">
-        <PersonIcon class="w-4 h-4 text-gray-800" />
-      </div>
+      // Si renderizas desde el cliente (no SSR)
+      <>
+        <img src="" alt="" class="avatar-img w-8 h-8 rounded-full object-cover" style="display:none" />
+        <div id="avatar-default" class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200">
+          <PersonIcon class="w-4 h-4 text-gray-800" />
+        </div>
+      </>
     ) : info?.url_img ? (
-      // Si hay info url la imagen, cargo desde el servidor y tiene foto
-      <img src={info.url_img} alt={`Avatar de ${info.name}`} class="w-8 h-8 rounded-full object-cover " />
+      // Si hay foto desde el servidor
+      <img src={info.url_img} alt={`Avatar de ${info.name}`} class="w-8 h-8 rounded-full object-cover" loading="lazy" />
     ) : (
-      // Si cargo del servvidor pero no tiene foto o no hay info
-      <div class="w-8 h-8 rounded-full bg-salmon flex items-center justify-center" id="avatar-default">
-        <PersonIcon class="w-4 h-4 text-gray-800" />
-      </div>
+      // Si no hay foto, usar UI Avatars
+      <img
+        src={`https://ui-avatars.com/api/?name=${info?.name ?? "Usuario"}&background=fe9090&color=b2443a&size=96&rounded=true`}
+        alt={`Avatar de ${info?.name ?? "Usuario"}`}
+        class="w-8 h-8 rounded-full object-cover"
+        loading="lazy"
+      />
     )
   }
 </div>
+
+<style>
+  #avatar-container img {
+    display: block;
+  }
+</style>

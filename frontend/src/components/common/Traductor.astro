@@ -12,73 +12,45 @@ const label = Astro.props.label;
   id="bocadilloTraductor"
   class={`${customStyle} min-h-fit w-32 absolute text-sm top-16 right-4 rounded-lg shadow-lg text-white hidden z-50 font-jomolhari font-normal py-3 px-2 backdrop-blur-sm`}
 >
-  <ul class="w-full">
+  <ul class="w-full space-y-2">
     <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
-      <a
-        href="#"
-        data-lang="ar"
-        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
-      >
+      <a href="#" data-lang="ar" class="flex items-center gap-3 px-4 hover:text-red transition-colors duration-200">
         <span class="text-lg">🇸🇦</span>
         <span class="font-medium">العربية</span>
       </a>
     </li>
     <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
-      <a
-        href="#"
-        data-lang="de"
-        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
-      >
+      <a href="#" data-lang="de" class="flex items-center gap-3 px-4 hover:text-red transition-colors duration-200">
         <span class="text-lg">🇩🇪</span>
         <span class="font-medium">Deutsch</span>
       </a>
     </li>
     <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
-      <a
-        href="#"
-        data-lang="en"
-        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
-      >
+      <a href="#" data-lang="en" class="flex items-center gap-3 px-4 hover:text-red transition-colors duration-200">
         <span class="text-lg">🇬🇧</span>
         <span class="font-medium">English</span>
       </a>
     </li>
     <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
-      <a
-        href="#"
-        data-lang="es"
-        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
-      >
+      <a href="#" data-lang="es" class="flex items-center gap-3 px-4 hover:text-red transition-colors duration-200">
         <span class="text-lg">🇪🇸</span>
         <span class="font-medium">Español</span>
       </a>
     </li>
     <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
-      <a
-        href="#"
-        data-lang="fr"
-        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
-      >
+      <a href="#" data-lang="fr" class="flex items-center gap-3 px-4 hover:text-red transition-colors duration-200">
         <span class="text-lg">🇫🇷</span>
         <span class="font-medium">Français</span>
       </a>
     </li>
     <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
-      <a
-        href="#"
-        data-lang="it"
-        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
-      >
+      <a href="#" data-lang="it" class="flex items-center gap-3 px-4 hover:text-red transition-colors duration-200">
         <span class="text-lg">🇮🇹</span>
         <span class="font-medium">Italiano</span>
       </a>
     </li>
     <li class="transition-all duration-200 hover:bg-white/10 rounded-md">
-      <a
-        href="#"
-        data-lang="pt"
-        class="flex items-center gap-3 px-4 py-2 hover:text-red transition-colors duration-200"
-      >
+      <a href="#" data-lang="pt" class="flex items-center gap-3 px-4 hover:text-red transition-colors duration-200">
         <span class="text-lg">🇵🇹</span>
         <span class="font-medium">Português</span>
       </a>
@@ -112,13 +84,17 @@ const label = Astro.props.label;
 
       // Manejar clics en los enlaces de idioma
       bocadilloTraductor.addEventListener("click", function (e) {
-        if (e.target && (e.target as HTMLElement).tagName === "A") {
+        const target = e.target as HTMLElement;
+        // Buscar el elemento <a> más cercano (puede ser el target o un ancestro)
+        const link = target.closest("a[data-lang]");
+
+        if (link) {
           e.preventDefault();
-          const lang = (e.target as HTMLElement).getAttribute("data-lang");
-          const currentPath = window.location.pathname; // Quitar el + "/"
+          const lang = link.getAttribute("data-lang");
+          const currentPath = window.location.pathname;
 
           // Remover el prefijo de idioma actual si existe
-          const pathWithoutLang = currentPath.replace(/^\/(ar|de|en|fr|it|pt)\//, "/");
+          const pathWithoutLang = currentPath.replace(/^\/(ar|de|en|es|fr|it|pt)(\/|$)/, "/");
 
           // Construir nueva URL
           let newPath = lang === "es" ? pathWithoutLang || "/" : `/${lang}${pathWithoutLang || "/"}`;
