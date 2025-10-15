@@ -13,6 +13,7 @@ declare global {
     api?: any;
     Stripe: any;
     dataLayer: any[];
+    gtag?: (...args: any[]) => void;
   }
 }
 
@@ -28,7 +29,6 @@ const {
   structuredData,
 } = Astro.props as PropsSEO;
 
-const GA_ID = "G-CW35G9DQ63";
 const theme = Astro.cookies.get("theme")?.value;
 ---
 
@@ -52,6 +52,8 @@ const theme = Astro.cookies.get("theme")?.value;
       https://apis.google.com
       https://accounts.google.com
       https://www.googleapis.com
+      https://www.googletagmanager.com
+      https://www.google-analytics.com
       https://cdnjs.cloudflare.com
       https://challenges.cloudflare.com
       https://unpkg.com
@@ -71,6 +73,11 @@ const theme = Astro.cookies.get("theme")?.value;
       https://identitytoolkit.googleapis.com
       https://securetoken.googleapis.com
       https://accounts.google.com
+      https://www.google-analytics.com
+      https://analytics.google.com
+      https://region1.google-analytics.com
+      https://www.googletagmanager.com
+      https://stats.g.doubleclick.net
       https://challenges.cloudflare.com
       https://amanahacademia.fly.dev
       https://api.stripe.com
@@ -120,23 +127,44 @@ const theme = Astro.cookies.get("theme")?.value;
       structuredDataType={structuredDataType}
       structuredData={structuredData}
     />
-    <!-- Google tag (gtag.js) -->
-    <script async defer src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
-    <script is:inline define:vars={{ GA_ID }}>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(...args) {
-        window.dataLayer.push(args);
-      }
-      gtag("js", new Date());
+    <!-- Google tag (gtag.js) - SIMPLIFICADO -->
+    <script is:inline>
+      const GA_ID = "G-CW35G9DQ63";
 
-      // Denegado por defecto
+      // Inicializar dataLayer
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        window.dataLayer.push(arguments);
+      }
+      window.gtag = gtag;
+
+      // Debug mode
+      const isDebug =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        new URLSearchParams(window.location.search).get("ga_debug") === "1";
+
+      // Consentimiento por defecto
       gtag("consent", "default", {
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
         analytics_storage: "denied",
       });
 
-      gtag("config", GA_ID);
+      // Configurar GA4
+      gtag("js", new Date());
+      gtag("config", GA_ID, {
+        debug_mode: isDebug,
+        send_page_view: false,
+      });
+
+      // Cargar el script de gtag.js
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+      document.head.appendChild(script);
     </script>
-    <!-- End Google tag (gtag.js) -->
     <script>
       // Solo aplica si no hay cookie de tema
       if (
@@ -220,16 +248,12 @@ const theme = Astro.cookies.get("theme")?.value;
 </html>
 <script>
   import { closeModalsEvents } from "@/utils/modals";
-  import { acceptCookies, rejectCookies } from "@/utils/cookie";
+  import { acceptCookies, rejectCookies, initializeCookieConsent } from "@/utils/cookie";
 
   // Eventos para poder cerrar con animacion caulquier modal
   closeModalsEvents();
-
-  // Mostrar banner si no hay decisión previa
-  const cookieBanner = document.getElementById("cookie-banner");
-  setTimeout(() => {
-    if (!localStorage.getItem("cookieConsent") && cookieBanner) cookieBanner.classList.remove("hidden");
-  }, 5000);
+  // Inicializar consentimiento al cargar
+  initializeCookieConsent();
 
   // Aceptar las cookies
   const acceptCookiesElement = document.getElementById("acceptCookies");
@@ -274,7 +298,7 @@ const theme = Astro.cookies.get("theme")?.value;
     },
     {
       threshold: 0.1,
-      rootMargin: "-50px 0px -50px 0px"
+      rootMargin: "-50px 0px -50px 0px",
     }
   );
 
