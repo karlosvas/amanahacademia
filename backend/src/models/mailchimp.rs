@@ -58,17 +58,17 @@ pub struct CampaignSettings {
     pub title: String,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct ListsResponse {
-    pub lists: Vec<MailchimpList>,
-    pub total_items: usize,
-}
+// #[derive(Debug, Deserialize)]
+// pub struct ListsResponse {
+//     pub lists: Vec<MailchimpList>,
+//     pub total_items: usize,
+// }
 
-#[derive(Debug, Deserialize)]
-pub struct MailchimpList {
-    pub id: String,
-    pub name: String,
-}
+// #[derive(Debug, Deserialize)]
+// pub struct MailchimpList {
+//     pub id: String,
+//     pub name: String,
+// }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ErrorMailchimp {
@@ -178,7 +178,7 @@ pub struct Link {
     pub rel: String,
     pub href: String,
     pub method: String,
-    pub targetSchema: Option<String>,
+    // pub targetSchema: Option<String>,
     pub schema: Option<String>,
 }
 

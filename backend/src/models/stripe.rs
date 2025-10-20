@@ -43,22 +43,20 @@ pub struct PayloadCreacteProduct {
 
 pub type CurrencyMap<T> = HashMap<Currency, T>;
 
-// backend/src/models/stripe.rs - Agregar al archivo existente
-
-#[derive(Debug, Deserialize)]
-pub struct BookingPaymentPayload {
-    pub amount: i64,
-    pub currency: String,
-    pub payment_method: String,
-    // Datos del booking
-    pub event_type_id: i64,
-    pub start_time: String, // ISO 8601
-    pub attendee_name: String,
-    pub attendee_email: String,
-    pub attendee_timezone: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub attendee_phone: Option<String>,
-}
+// #[derive(Debug, Deserialize)]
+// pub struct BookingPaymentPayload {
+//     pub amount: i64,
+//     pub currency: String,
+//     pub payment_method: String,
+//     // Datos del booking
+//     pub event_type_id: i64,
+//     pub start_time: String, // ISO 8601
+//     pub attendee_name: String,
+//     pub attendee_email: String,
+//     pub attendee_timezone: String,
+//     #[serde(skip_serializing_if = "Option::is_none")]
+//     pub attendee_phone: Option<String>,
+// }
 
 #[derive(Debug, Deserialize)]
 pub struct RelationalCalStripe {

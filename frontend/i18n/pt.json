@@ -19,7 +19,13 @@
           "email": "E-mail",
           "password": "Senha",
           "toggleModal": "Não tem uma conta? Cadastre-se aqui",
-          "forgot_password": "Esqueceu sua senha?"
+          "forgot_password": "Esqueceu sua senha?",
+          "validation": {
+            "email_required": "O e-mail é obrigatório",
+            "email_invalid": "Por favor, insira um e-mail válido",
+            "password_required": "A senha é obrigatória",
+            "password_min": "Mínimo 6 caracteres"
+          }
         },
         "register": {
           "title": "Junte-se a nós!",
@@ -30,7 +36,12 @@
             "Concordo em receber novidades e comunicações por e-mail (newsletter)."
           ],
           "button": "Cadastrar",
-          "toggleModal": "Já tem uma conta? Faça login aqui"
+          "toggleModal": "Já tem uma conta? Faça login aqui",
+          "validation": {
+            "name_required": "O nome é obrigatório",
+            "privacy_required": "Você deve aceitar a política de privacidade",
+            "terms_required": "Você deve aceitar os termos e condições"
+          }
         },
         "utils": {
           "loading": "Carregando...",

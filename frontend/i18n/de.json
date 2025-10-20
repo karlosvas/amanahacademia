@@ -19,7 +19,13 @@
           "email": "E-Mail",
           "password": "Passwort",
           "toggleModal": "Noch kein Konto? Hier registrieren",
-          "forgot_password": "Passwort vergessen?"
+          "forgot_password": "Passwort vergessen?",
+          "validation": {
+            "email_required": "E-Mail ist erforderlich",
+            "email_invalid": "Bitte geben Sie eine gültige E-Mail ein",
+            "password_required": "Passwort ist erforderlich",
+            "password_min": "Mindestens 6 Zeichen"
+          }
         },
         "register": {
           "title": "Mach mit!",
@@ -30,7 +36,12 @@
             "Ich stimme zu, Neuigkeiten und Mitteilungen per E-Mail (Newsletter) zu erhalten."
           ],
           "button": "Registrieren",
-          "toggleModal": "Du hast bereits ein Konto? Hier anmelden"
+          "toggleModal": "Du hast bereits ein Konto? Hier anmelden",
+          "validation": {
+            "name_required": "Name ist erforderlich",
+            "privacy_required": "Sie müssen die Datenschutzrichtlinie akzeptieren",
+            "terms_required": "Sie müssen die allgemeinen Geschäftsbedingungen akzeptieren"
+          }
         },
         "utils": {
           "loading": "Lädt...",

@@ -1,16 +1,22 @@
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use {
+    crate::models::cal::BookingStatus,
+    chrono::{DateTime, Utc},
+    serde::{Deserialize, Serialize},
+    serde_json::Value,
+};
 
 #[derive(Deserialize, Debug)]
 pub struct CalWebhookEvent {
     #[serde(rename = "triggerEvent")]
     pub trigger_event: String,
+    #[allow(dead_code)]
     #[serde(rename = "createdAt")]
     pub created_at: String,
     pub payload: CalBookingPayload,
 }
 
-#[derive(Deserialize, Debug)]
+#[allow(dead_code)]
+#[derive(Deserialize, Debug, Serialize, Clone)]
 pub struct CalBookingPayload {
     pub uid: String,
     #[serde(rename = "bookingId")]
@@ -24,12 +30,13 @@ pub struct CalBookingPayload {
     pub end_time: String,
     pub attendees: Vec<Attendee>,
     pub metadata: Option<Value>,
-    pub status: String,
+    pub status: BookingStatus,
     #[serde(rename = "cancellationReason")]
     pub cancellation_reason: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[allow(dead_code)]
+#[derive(Deserialize, Debug, Serialize, Clone)]
 pub struct Attendee {
     pub name: String,
     pub email: String,
@@ -44,4 +51,12 @@ pub struct RefundResponse {
     pub currency: String,
     pub status: Option<String>,
     pub created: i64,
+}
+
+#[derive(Debug, Clone)]
+pub struct BookingChange {
+    pub uid: String,
+    pub old_status: BookingStatus,
+    pub new_status: BookingStatus,
+    pub detected_at: DateTime<Utc>,
 }

@@ -3,13 +3,13 @@ import type { Comment } from "@/types/bakend-types";
 import StarGroup from "./StarGroup.astro";
 import Like from "@/assets/like.svg";
 import Avatar from "../common/Avatar.astro";
-import type { AvatarProps, ModalComent } from "@/types/types";
+import type { AvatarProps, CommentI18n } from "@/types/types";
 import CommentModal from "@/components/comments/CommentModal.astro";
 import EditCommentButtons from "./EditCommentButtons.astro";
 
 const comment = Astro.props.comment as Comment;
 const idCommentShared = Astro.props.id as string;
-const data = Astro.props.data as ModalComent;
+const data = Astro.props.data as CommentI18n;
 
 if (!comment) return;
 

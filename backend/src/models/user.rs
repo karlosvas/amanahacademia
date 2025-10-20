@@ -9,7 +9,8 @@ pub struct UserRequest {
     // Datos obligatorios requeridos por firebase auth
     pub email: String,
     pub password: String,
-    pub provider: Provider, // "email" o "google"
+    pub provider: Provider,     // "email" o "google"
+    pub first_free_class: bool, // Indica si es la primera clase gratis del usuario
 
     // Datos opcionales que el cliente puede enviar
     pub name: Option<String>, // Solo necesario en los register o en los update
@@ -27,16 +28,6 @@ pub struct UserRequest {
 pub enum Provider {
     Email,
     Google,
-}
-
-impl Provider {
-    /// Returns the string representation used by the API/frontend for this provider
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Provider::Email => "email",
-            Provider::Google => "google",
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -70,6 +61,7 @@ impl std::fmt::Display for ROLE {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct UserDB {
     pub email: String,
+    pub first_free_class: bool,
     pub role: Option<String>,
     pub subscription_tier: Option<String>,
     pub permissions: Option<HashSet<String>>,

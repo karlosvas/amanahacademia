@@ -80,7 +80,7 @@ pub async fn register_user(
     // Obtenemos la URL de registro de usuario con Firebase
     let url_register_auth: String = format!(
         "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={}",
-        state.firebase.firebase_api_key
+        state.firebase_options.firebase_api_key
     );
 
     // Creamos el usuario que se va a crear en Firebase Authentication
@@ -95,6 +95,7 @@ pub async fn register_user(
     let auth_response: FirebaseAuthResponse = if user.provider == Provider::Email {
         // POST:: Crear usuario en Firebase Authentication
         match state
+            .firebase_options
             .firebase_client
             .post(&url_register_auth)
             .json(&new_user_authentication)
@@ -127,10 +128,11 @@ pub async fn register_user(
                 // Verify the token by looking up the user
                 let url_firebase_admin = format!(
                     "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={}",
-                    state.firebase.firebase_api_key
+                    state.firebase_options.firebase_api_key
                 );
 
                 match state
+                    .firebase_options
                     .firebase_client
                     .post(&url_firebase_admin)
                     .json(&json!({ "idToken": token }))
@@ -201,12 +203,13 @@ pub async fn create_user_in_db(
     // URL de para crear usuario en la DB
     let url_firebase_db: String = format!(
         "{}/user_profiles/{}.json?auth={}",
-        state.firebase.firebase_database_url, user_id, id_token
+        state.firebase_options.firebase_database_url, user_id, id_token
     );
 
     // Creamos el usuario que se va a crear en la DB
     let user_db: UserDB = UserDB {
-        email: email.to_string().clone(),
+        email: email.to_string(),
+        first_free_class: user.first_free_class,
         role: Some(match &user.role {
             Some(role) => role.to_string(),
             None => "student".to_string(),
@@ -217,6 +220,7 @@ pub async fn create_user_in_db(
 
     // POST:: crear usuario
     match state
+        .firebase_options
         .firebase_client
         .put(&url_firebase_db)
         .json(&user_db)
@@ -265,7 +269,7 @@ pub async fn login_user(
         // Construir la URL para la autenticación con email/password
         let url_login_firebase: String = format!(
             "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={}",
-            state.firebase.firebase_api_key
+            state.firebase_options.firebase_api_key
         );
 
         // Crear el cuerpo de la solicitud para el login de usuario
@@ -279,6 +283,7 @@ pub async fn login_user(
 
         // Enviar la solicitud a Firebase Auth
         match state
+            .firebase_options
             .firebase_client
             .post(&url_login_firebase)
             .json(&login_payload)
@@ -309,10 +314,11 @@ pub async fn login_user(
             Some(token) => {
                 let url_firebase_admin = format!(
                     "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={}",
-                    state.firebase.firebase_api_key
+                    state.firebase_options.firebase_api_key
                 );
 
                 match state
+                    .firebase_options
                     .firebase_client
                     .post(&url_firebase_admin)
                     .json(&json!({ "idToken": token }))
@@ -426,7 +432,7 @@ pub async fn update_user(
     // URL para la actualización de usuario en Firebase
     let url_firebase_auth_update: String = format!(
         "https://identitytoolkit.googleapis.com/v1/accounts:update?key={}",
-        state.firebase.firebase_api_key
+        state.firebase_options.firebase_api_key
     );
 
     // Cuerpo de la solicitud para la actualización de usuario
@@ -440,6 +446,7 @@ pub async fn update_user(
 
     // Enviar la solicitud a Firebase Auth
     let _: Response<Body> = match state
+        .firebase_options
         .firebase_client
         .post(&url_firebase_auth_update)
         .json(&user_payload)
@@ -462,7 +469,7 @@ pub async fn update_user(
     // URL para la base de datos de Firebase
     let url_firebase_db: String = format!(
         "{}/user_profiles/{}.json?auth={}",
-        state.firebase.firebase_database_url, user_claims.sub, id_token
+        state.firebase_options.firebase_database_url, user_claims.sub, id_token
     );
 
     // Obtener los datos del usuario actual
@@ -482,6 +489,7 @@ pub async fn update_user(
     // Objeto con características del usuario nuevas
     let user_db: UserDB = UserDB {
         email: user_request.email, // El email es obligatorio darlo en la request
+        first_free_class: user_request.first_free_class, // Mantenemos el valor que venga en la request
         // Preguntamos si en la request se ha dado un nuevo role, si no lo dejamos como estaba
         role: user_request
             .role
@@ -505,6 +513,7 @@ pub async fn update_user(
 
     // Actualizar en la base de datos
     match state
+        .firebase_options
         .firebase_client
         .put(&url_firebase_db)
         .json(&user_db)
@@ -576,66 +585,70 @@ pub async fn get_all_users(
     // URL para obtener todos los usuarios de Firebase Realtime Database
     let url_firebase_db: String = format!(
         "{}/user_profiles.json?auth={}",
-        state.firebase.firebase_database_url, id_token
+        state.firebase_options.firebase_database_url, id_token
     );
 
     // Realizamos la petición a Firebase Realtime Database para obtener todos los usuarios
-    let user_data_db: HashMap<String, UserDB> =
-        match state.firebase_client.get(&url_firebase_db).send().await {
-            Ok(response) => {
-                if response.status().is_success() {
-                    match response.text().await {
-                        Ok(response_text) => {
-                            if response_text.trim().is_empty() || response_text.trim() == "null" {
-                                HashMap::new()
-                            } else {
-                                match serde_json::from_str::<HashMap<String, UserDB>>(
-                                    &response_text,
-                                ) {
-                                    Ok(value) => value,
-                                    Err(_) => {
-                                        return (
-                                            StatusCode::INTERNAL_SERVER_ERROR,
-                                            Json(ResponseAPI::<()>::error(
-                                                "Error parsing database users data".to_string(),
-                                            )),
-                                        )
-                                            .into_response();
-                                    }
+    let user_data_db: HashMap<String, UserDB> = match state
+        .firebase_options
+        .firebase_client
+        .get(&url_firebase_db)
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status().is_success() {
+                match response.text().await {
+                    Ok(response_text) => {
+                        if response_text.trim().is_empty() || response_text.trim() == "null" {
+                            HashMap::new()
+                        } else {
+                            match serde_json::from_str::<HashMap<String, UserDB>>(&response_text) {
+                                Ok(value) => value,
+                                Err(_) => {
+                                    return (
+                                        StatusCode::INTERNAL_SERVER_ERROR,
+                                        Json(ResponseAPI::<()>::error(
+                                            "Error parsing database users data".to_string(),
+                                        )),
+                                    )
+                                        .into_response();
                                 }
                             }
                         }
-                        Err(_) => HashMap::new(),
                     }
-                } else {
-                    return (
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        Json(ResponseAPI::<()>::error(
-                            "Error retrieving users from database".to_string(),
-                        )),
-                    )
-                        .into_response();
+                    Err(_) => HashMap::new(),
                 }
-            }
-            Err(_) => {
+            } else {
                 return (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(ResponseAPI::<()>::error(
-                        "Error connecting to Firebase".to_string(),
+                        "Error retrieving users from database".to_string(),
                     )),
                 )
                     .into_response();
             }
-        };
+        }
+        Err(_) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(
+                    "Error connecting to Firebase".to_string(),
+                )),
+            )
+                .into_response();
+        }
+    };
 
     // URL de los datos de Firebase Admin
     let url_firebase_admin: String = format!(
         "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={}",
-        state.firebase.firebase_api_key
+        state.firebase_options.firebase_api_key
     );
 
     // Realizamos la petición a Firebase Admin para obtener la información del usuario
     let user_data_auth: FirebaseAdminLookupResponse = match state
+        .firebase_options
         .firebase_client
         .post(&url_firebase_admin)
         .json(&json!({ "idToken": id_token }))
@@ -697,11 +710,17 @@ pub async fn get_user_data_db(
     // URL de Firebase Realtime Database para obtener los datos del usuario
     let url_firebase_db: String = format!(
         "{}/user_profiles/{}.json?auth={}",
-        state.firebase.firebase_database_url, user_claims.sub, id_token
+        state.firebase_options.firebase_database_url, user_claims.sub, id_token
     );
 
     // Realizamos la petición a Firebase Realtime Database
-    match state.firebase_client.get(url_firebase_db).send().await {
+    match state
+        .firebase_options
+        .firebase_client
+        .get(url_firebase_db)
+        .send()
+        .await
+    {
         Ok(response) => {
             println!("Firebase DB response status: {}", response.status());
             match handle_firebase_response::<UserDB>(response).await {
@@ -723,11 +742,12 @@ pub async fn refresh_token(
     // URL de Firebase para refrescar el token
     let url_firebase_auth_refresh_token: String = format!(
         "https://securetoken.googleapis.com/v1/token?key={}",
-        state.firebase.firebase_api_key
+        state.firebase_options.firebase_api_key
     );
 
     // Actualizamos el neuvo token, no hace falta devolber nada
     match state
+        .firebase_options
         .firebase_client
         .post(&url_firebase_auth_refresh_token)
         .json(&refresh_token)
@@ -778,12 +798,13 @@ pub async fn delete_me(
     // URL para eliminar el usuario especificado en Firebase Authentication
     let url_firebase_auth: String = format!(
         "https://identitytoolkit.googleapis.com/v1/accounts:delete?key={}",
-        state.firebase.firebase_api_key
+        state.firebase_options.firebase_api_key
     );
 
     // Obtenemos el usuario de las claims y lo borramos
     // Si falló la eliminación de Auth, retornar error inmediatamente
     let _: Response<Body> = match state
+        .firebase_options
         .firebase_client
         .post(url_firebase_auth) // Fb utiliza POST para eliminar usuarios
         .json(&json!({ "idToken": id_token }))
@@ -806,11 +827,17 @@ pub async fn delete_me(
     // URL de para eliminar usuario en la DB
     let url_firebase_db: String = format!(
         "{}/user_profiles/{}.json?auth={}",
-        state.firebase.firebase_database_url, user_claims.sub, id_token
+        state.firebase_options.firebase_database_url, user_claims.sub, id_token
     );
 
     // Eliminamos el usuario de Firebase Realtime Database
-    match state.firebase_client.delete(url_firebase_db).send().await {
+    match state
+        .firebase_options
+        .firebase_client
+        .delete(url_firebase_db)
+        .send()
+        .await
+    {
         Ok(response) if response.status().is_success() => (StatusCode::NO_CONTENT).into_response(),
         Ok(_) => (
             StatusCode::BAD_REQUEST,

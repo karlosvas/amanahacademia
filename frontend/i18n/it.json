@@ -19,18 +19,29 @@
           "email": "Email",
           "password": "Password",
           "toggleModal": "Non hai un account? Registrati qui",
-          "forgot_password": "Hai dimenticato la password?"
+          "forgot_password": "Hai dimenticato la password?",
+          "validation": {
+            "email_required": "L'email è obbligatoria",
+            "email_invalid": "Inserisci un'email valida",
+            "password_required": "La password è obbligatoria",
+            "password_min": "Minimo 6 caratteri"
+          }
         },
         "register": {
           "title": "Unisciti a noi!",
           "subtitle": "Crea un account per iniziare",
           "info": [
-            "Accetto l’informativa sulla privacy.",
+            "Accetto l'informativa sulla privacy.",
             "Accetto i termini e le condizioni.",
             "Accetto di ricevere novità e comunicazioni via email (newsletter)."
           ],
           "button": "Registrati",
-          "toggleModal": "Hai già un account? Accedi qui"
+          "toggleModal": "Hai già un account? Accedi qui",
+          "validation": {
+            "name_required": "Il nome è obbligatorio",
+            "privacy_required": "Devi accettare l'informativa sulla privacy",
+            "terms_required": "Devi accettare i termini e le condizioni"
+          }
         },
         "utils": {
           "loading": "Caricamento...",

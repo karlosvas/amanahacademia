@@ -38,7 +38,7 @@ pub async fn add_comment(
     // URL de para crear usuario en la DB
     let url_firebase_db: String = format!(
         "{}/comments.json?auth={}",
-        state.firebase.firebase_database_url, id_token
+        state.firebase_options.firebase_database_url, id_token
     );
 
     // Creamos el usuario que se va a crear en la DB
@@ -56,6 +56,7 @@ pub async fn add_comment(
 
     // Enviamos el comentario a la base de datos para su creación
     match state
+        .firebase_options
         .firebase_client
         .post(&url_firebase_db)
         .json(&new_comment)
@@ -106,7 +107,7 @@ pub async fn edit_comment(
     // Obtenemos el ID del comentario a editar
     let url_firebase_db: String = format!(
         "{}/comments/{}.json?auth={}",
-        state.firebase.firebase_database_url, comment_id, id_token
+        state.firebase_options.firebase_database_url, comment_id, id_token
     );
 
     // Verificar si el comentario existe
@@ -142,6 +143,7 @@ pub async fn edit_comment(
 
     // Intentamos actualizar el comentario en la base de datos
     match state
+        .firebase_options
         .firebase_client
         .put(&url_firebase_db)
         .json(&updated_comment)
@@ -177,10 +179,19 @@ pub async fn edit_comment(
 #[instrument(skip(state), fields(operation = "get_all_comments"))]
 pub async fn get_all_comments(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     // URL para obtener todos los comentarios de la DB
-    let url_firebase_db: String = format!("{}/comments.json", state.firebase.firebase_database_url);
+    let url_firebase_db: String = format!(
+        "{}/comments.json",
+        state.firebase_options.firebase_database_url
+    );
 
     // Realizamos la petición a la base de datos
-    match state.firebase_client.get(&url_firebase_db).send().await {
+    match state
+        .firebase_options
+        .firebase_client
+        .get(&url_firebase_db)
+        .send()
+        .await
+    {
         Ok(response) => {
             let response_text: String = response.text().await.unwrap_or_default();
 
@@ -251,7 +262,7 @@ pub async fn delete_comment(
     // Obtenemos el ID del comentario a eliminar
     let url_firebase_db: String = format!(
         "{}/comments/{}.json?auth={}",
-        state.firebase.firebase_database_url, comment_id, id_token
+        state.firebase_options.firebase_database_url, comment_id, id_token
     );
 
     // Verificar si el comentario existe
@@ -278,7 +289,13 @@ pub async fn delete_comment(
     }
 
     // Intentamos eliminar el comentario
-    match state.firebase_client.delete(&url_firebase_db).send().await {
+    match state
+        .firebase_options
+        .firebase_client
+        .delete(&url_firebase_db)
+        .send()
+        .await
+    {
         Ok(response) => {
             if response.status().is_success() {
                 (
@@ -337,7 +354,7 @@ pub async fn toggle_like(
     // Actualizamos el estado del "like"
     let url_firebase_db_like: String = format!(
         "{}/comments/{}.json?auth={}",
-        state.firebase.firebase_database_url, comment_id, id_token
+        state.firebase_options.firebase_database_url, comment_id, id_token
     );
 
     // Comprobamos si ya le habiamos dado like
@@ -367,6 +384,7 @@ pub async fn toggle_like(
 
     // Actualizamos el comentario
     match state
+        .firebase_options
         .firebase_client
         .put(&url_firebase_db_like)
         .json(&new_comment)
@@ -432,7 +450,7 @@ pub async fn add_reply(
     // URL del comentario en Firebase
     let url_firebase_db_comment = format!(
         "{}/comments/{}.json?auth={}",
-        state.firebase.firebase_database_url, comment_id, id_token
+        state.firebase_options.firebase_database_url, comment_id, id_token
     );
 
     // Generar ID único para la nueva reply
@@ -455,6 +473,7 @@ pub async fn add_reply(
 
     // Guardar el comentario actualizado en Firebase
     match state
+        .firebase_options
         .firebase_client
         .put(&url_firebase_db_comment)
         .json(&comment)
@@ -496,11 +515,17 @@ async fn get_comment_data(
     // URL de Firebase Realtime Database para obtener los datos del comentario
     let url_firebase_db: String = format!(
         "{}/comments/{}.json?auth={}",
-        state.firebase.firebase_database_url, comment_id, id_token
+        state.firebase_options.firebase_database_url, comment_id, id_token
     );
 
     // Realizamos la petición a Firebase Realtime Database
-    match state.firebase_client.get(url_firebase_db).send().await {
+    match state
+        .firebase_options
+        .firebase_client
+        .get(url_firebase_db)
+        .send()
+        .await
+    {
         Ok(response) => match handle_firebase_response::<Comment>(response).await {
             Ok(comment) => Some(comment),
             Err(_) => None,
@@ -606,10 +631,11 @@ pub async fn edit_reply(
     // Guardamos el comentario actualizado en Firebase
     let url_firebase_db = format!(
         "{}/comments/{}.json?auth={}",
-        state.firebase.firebase_database_url, comment_id, id_token
+        state.firebase_options.firebase_database_url, comment_id, id_token
     );
 
     match state
+        .firebase_options
         .firebase_client
         .put(&url_firebase_db)
         .json(&comment)
@@ -729,7 +755,7 @@ pub async fn delete_reply(
     // Guardar los cambios en Firebase
     let url_firebase_db: String = format!(
         "{}/comments/{}.json?auth={}",
-        state.firebase.firebase_database_url, comment_id, id_token
+        state.firebase_options.firebase_database_url, comment_id, id_token
     );
 
     tracing::debug!(
@@ -738,13 +764,14 @@ pub async fn delete_reply(
     );
 
     match state
+        .firebase_options
         .firebase_client
         .put(&url_firebase_db)
         .json(&comment)
         .send()
         .await
     {
-        Ok(mut response) => {
+        Ok(response) => {
             let status = response.status();
             let body_text = response.text().await.unwrap_or_default();
             tracing::debug!(

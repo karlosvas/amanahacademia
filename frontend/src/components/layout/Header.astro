@@ -5,6 +5,7 @@ import Traductor from "@/components/common/Traductor.astro";
 import Theme from "@/components/common/Theme.astro";
 import AuthModal from "@/components/common/AuthModal.astro";
 import type { Lang } from "@/types/types";
+import { labels_header } from "../../../i18n/index";
 
 // Obtener las traduccciones
 const data = Astro.props.data as HeaderI18n;
@@ -15,55 +16,6 @@ if (!lang) lang = "es";
 
 // Guardamos el lengauje en las cookies
 Astro.cookies.set("lang", lang, { path: "/", maxAge: 31536000 });
-
-const labels: Record<
-  Lang,
-  {
-    traductor: string;
-    identificationButton: string;
-    legalLink: string;
-  }
-> = {
-  es: {
-    traductor: "Cambiar idioma",
-    identificationButton: "Iniciar sesión en Amanah Academia",
-    legalLink:
-      "Página de información legal de Amanah Academia: Licencia, Política de privacidad y Términos y condiciones",
-  },
-  en: {
-    traductor: "Change language",
-    identificationButton: "Log in to Amanah Academia",
-    legalLink: "Amanah Academia legal information page: License, Privacy Policy, and Terms and Conditions",
-  },
-  fr: {
-    traductor: "Changer de langue",
-    identificationButton: "Se connecter à Amanah Academia",
-    legalLink:
-      "Page d'informations légales d'Amanah Academia : Licence, Politique de confidentialité et Conditions générales",
-  },
-  de: {
-    traductor: "Sprache ändern",
-    identificationButton: "Bei Amanah Academia anmelden",
-    legalLink:
-      "Rechtliche Informationsseite von Amanah Academia: Lizenz, Datenschutzrichtlinie und Allgemeine Geschäftsbedingungen",
-  },
-  ar: {
-    traductor: "تغيير اللغة",
-    identificationButton: "تسجيل الدخول إلى أكاديمية أمانة",
-    legalLink: "صفحة المعلومات القانونية لأكاديمية أمانة: الترخيص، سياسة الخصوصية والشروط والأحكام",
-  },
-  it: {
-    traductor: "Cambia lingua",
-    identificationButton: "Accedi ad Amanah Academia",
-    legalLink:
-      "Pagina delle informazioni legali di Amanah Academia: Licenza, Informativa sulla privacy e Termini e condizioni",
-  },
-  pt: {
-    traductor: "Mudar idioma",
-    identificationButton: "Entrar na Amanah Academia",
-    legalLink: "Página de informações legais da Amanah Academia: Licença, Política de Privacidade e Termos e Condições",
-  },
-};
 ---
 
 <header
@@ -71,7 +23,7 @@ const labels: Record<
 >
   <AuthModal
     data={data.identification.modal}
-    label={labels[lang]?.identificationButton || "Iniciar sesión en Amanah Academia"}
+    label={labels_header[lang]?.identificationButton || "Iniciar sesión en Amanah Academia"}
   />
   <Hamburger data={data} />
   <img
@@ -96,12 +48,12 @@ const labels: Record<
       id="identification"
       class="bg-lightRed hover:bg-salmon transition-colors rounded-lg text-gray-50 font-semibold py-2 mr-3 shadow-lg hover:shadow-xl transition-all duration-200 text-xs px-3 hidden lg:block"
       data-header={JSON.stringify(data.identification)}
-      aria-label={labels[lang]?.identificationButton || "Iniciar sesión en Amanah Academia"}
+      aria-label={labels_header[lang]?.identificationButton || "Iniciar sesión en Amanah Academia"}
     >
       {data.identification.button.login}
     </button>
     <Theme />
-    <Traductor label={labels[lang]?.traductor || "Cambiar idioma"} />
+    <Traductor label={labels_header[lang]?.traductor || "Cambiar idioma"} />
   </div>
 </header>
 

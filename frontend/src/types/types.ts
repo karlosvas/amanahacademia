@@ -35,6 +35,12 @@ export type ModalI18n = {
     password: string;
     toggleModal: string;
     forgot_password: string;
+    validation: {
+      email_required: string;
+      email_invalid: string;
+      password_required: string;
+      password_min: string;
+    };
   };
   register: {
     title: string;
@@ -42,6 +48,11 @@ export type ModalI18n = {
     info: string[];
     button: string;
     toggleModal: string;
+    validation: {
+      name_required: string;
+      privacy_required: string;
+      terms_required: string;
+    };
   };
   utils: {
     loading: string;
@@ -75,20 +86,10 @@ export type HomeI18n = {
   };
   focus: {
     title: string;
-    cards: [
-      {
-        title: string;
-        description: string;
-      },
-      {
-        title: string;
-        description: string;
-      },
-      {
-        title: string;
-        description: string;
-      },
-    ];
+    cards: {
+      title: string;
+      description: string;
+    }[];
     note: string[];
   };
 };
@@ -111,17 +112,11 @@ export type PricingI18n = {
     conversation: CardPricingType;
     group: CardPricingType;
   };
-  info: [
-    {
-      title: string;
-      description: string;
-      button: string;
-    },
-    {
-      title: string;
-      description: string;
-    },
-  ];
+  info: {
+    title: string;
+    description: string;
+    button?: string;
+  }[];
 };
 
 export type ContactI18n = {
@@ -179,13 +174,14 @@ export type ModalComent = {
   submit: string;
   cleanup: string;
   placeholder: string;
+  loading: string;
 };
 
 export type CommentI18n = {
   best: string;
+  title: string;
   button: string;
   modal: ModalComent;
-  loading: string;
   evaluations: {
     title: string;
     types: string[];

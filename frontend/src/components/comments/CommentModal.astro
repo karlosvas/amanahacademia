@@ -1,10 +1,11 @@
 ---
 import Avatar from "@/components/common/Avatar.astro";
-import type { ModalComent } from "@/types/types";
+import type { CommentI18n, ModalComent } from "@/types/types";
 import StarsSelectionIcon from "@/assets/star-selecion.svg";
 import ArrowSubmitIcon from "@/assets/arrow-submit.svg";
 
-const data = Astro.props.data as ModalComent;
+const comment = Astro.props.data as CommentI18n;
+const dataModal = comment.modal as ModalComent;
 const edit = (Astro.props.edit as boolean) || false;
 const idCommentShared = Astro.props.id as string;
 
@@ -33,14 +34,14 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
       <!-- Header -->
       <div class="space-y-3">
         <h2 class="text-[var(--color-brown)] text-center font-medium text-lg">
-          {data.title}
+          {dataModal.title}
         </h2>
       </div>
 
       <!-- Rating Section -->
       <div class="space-y-3 mb-10">
         <label class="block text-[var(--color-brown)] text-center font-medium">
-          {data.description}
+          {dataModal.description}
         </label>
         <div id={starRatingId} class="flex justify-center space-x-2">
           {
@@ -65,7 +66,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
         >
           <Avatar info={null} server={false} />
         </div>
-        <span id={avatarNameId} class="text-black font-medium">{data.loading}</span>
+        <span id={avatarNameId} class="text-black font-medium">{comment.loading}</span>
       </div>
 
       <!-- Comment Section -->
@@ -73,7 +74,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
         id={commentTextId}
         rows="6"
         class="mt-2 bg-[--color-custom-gray] border-2 border-[--color-custom-gray] rounded-xl py-4 px-2 outline-none w-full focus:border-salmon focus:ring-1 focus:ring-salmon transition-all duration-200 shadow-sm resize-none placeholder-gray-400 text-black"
-        placeholder={data.placeholder}></textarea>
+        placeholder={dataModal.placeholder}></textarea>
 
       <!-- Action Buttons -->
       <div class="flex justify-between gap-3 pt-2">
@@ -82,7 +83,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
           id={resetBtnId}
           class="border-2 border-[var(--color-salmon)] text-[var(--color-salmon)] hover:bg-[var(--color-salmon)] hover:text-white transition-all duration-200 font-medium py-2 px-4 rounded-xl"
         >
-          {data.cleanup}
+          {dataModal.cleanup}
         </button>
         <button
           type="submit"
@@ -91,7 +92,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
           class="bg-[var(--color-light-red)] hover:bg-[var(--color-red)] text-white font-medium py-2 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           <ArrowSubmitIcon />
-          {data.submit}
+          {dataModal.submit}
         </button>
       </div>
     </form>

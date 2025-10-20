@@ -25,11 +25,17 @@ pub async fn get_teacher(
     // Lógica para obtener la información del profesor por su ID, creamos la url a el recurso y nos autentificamos.
     let url_firebase_db: String = format!(
         "{}/teacher_profiles/{}.json?auth={}",
-        state.firebase.firebase_database_url, id, id_token
+        state.firebase_options.firebase_database_url, id, id_token
     );
 
     // Realizamos la petición a Firebase Realtime Database
-    let teacher: Option<Teacher> = match state.firebase_client.get(url_firebase_db).send().await {
+    let teacher: Option<Teacher> = match state
+        .firebase_options
+        .firebase_client
+        .get(url_firebase_db)
+        .send()
+        .await
+    {
         Ok(response) => match handle_firebase_response::<Teacher>(response).await {
             Ok(user) => Some(user),
             Err(_) => None,
@@ -64,11 +70,12 @@ pub async fn create_teacher(
     // URL de para crear usuario en la DB
     let url_firebase_db: String = format!(
         "{}/teacher_profiles.json?auth={}",
-        state.firebase.firebase_database_url, id_token
+        state.firebase_options.firebase_database_url, id_token
     );
 
     // POST:: Crear profesor en FB_DATABASE
     match state
+        .firebase_options
         .firebase_client
         .post(&url_firebase_db)
         .json(&teacher)
@@ -101,52 +108,57 @@ pub async fn get_all_teachers(State(state): State<Arc<AppState>>) -> impl IntoRe
     // URL para obtener todos los usuarios de Firebase Realtime Database
     let url_firebase_db: String = format!(
         "{}/teacher_profiles.json",
-        state.firebase.firebase_database_url
+        state.firebase_options.firebase_database_url
     );
 
     // Realizamos la petición a Firebase Realtime Database para obtener todos los usuarios
-    let user_data_db: HashMap<String, Teacher> =
-        match state.firebase_client.get(&url_firebase_db).send().await {
-            Ok(response) if response.status().is_success() => match response.text().await {
-                Ok(response_text) => {
-                    if response_text.trim().is_empty() || response_text.trim() == "null" {
-                        HashMap::new()
-                    } else {
-                        match serde_json::from_str::<HashMap<String, Teacher>>(&response_text) {
-                            Ok(value) => value,
-                            Err(_) => {
-                                return (
-                                    StatusCode::INTERNAL_SERVER_ERROR,
-                                    Json(ResponseAPI::<()>::error(
-                                        "Error parsing database users data".to_string(),
-                                    )),
-                                )
-                                    .into_response();
-                            }
+    let user_data_db: HashMap<String, Teacher> = match state
+        .firebase_options
+        .firebase_client
+        .get(&url_firebase_db)
+        .send()
+        .await
+    {
+        Ok(response) if response.status().is_success() => match response.text().await {
+            Ok(response_text) => {
+                if response_text.trim().is_empty() || response_text.trim() == "null" {
+                    HashMap::new()
+                } else {
+                    match serde_json::from_str::<HashMap<String, Teacher>>(&response_text) {
+                        Ok(value) => value,
+                        Err(_) => {
+                            return (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Json(ResponseAPI::<()>::error(
+                                    "Error parsing database users data".to_string(),
+                                )),
+                            )
+                                .into_response();
                         }
                     }
                 }
-                Err(_) => HashMap::new(),
-            },
-            Ok(_) => {
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(ResponseAPI::<()>::error(
-                        "Error retrieving users from database".to_string(),
-                    )),
-                )
-                    .into_response();
             }
-            Err(_) => {
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(ResponseAPI::<()>::error(
-                        "Error connecting to Firebase".to_string(),
-                    )),
-                )
-                    .into_response();
-            }
-        };
+            Err(_) => HashMap::new(),
+        },
+        Ok(_) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(
+                    "Error retrieving users from database".to_string(),
+                )),
+            )
+                .into_response();
+        }
+        Err(_) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(
+                    "Error connecting to Firebase".to_string(),
+                )),
+            )
+                .into_response();
+        }
+    };
 
     (
         StatusCode::OK,
@@ -169,10 +181,16 @@ pub async fn delete_teacher(
     // Lógica para eliminar un profesor por su ID
     let url_firebase_db: String = format!(
         "{}/teacher_profiles/{}.json?auth={}",
-        state.firebase.firebase_database_url, id, id_token
+        state.firebase_options.firebase_database_url, id, id_token
     );
 
-    match state.firebase_client.delete(&url_firebase_db).send().await {
+    match state
+        .firebase_options
+        .firebase_client
+        .delete(&url_firebase_db)
+        .send()
+        .await
+    {
         Ok(response) => match handle_firebase_response::<()>(response).await {
             Ok(_) => (StatusCode::NO_CONTENT, Json(ResponseAPI::success_no_data())),
             Err((status, error)) => (status, Json(ResponseAPI::<()>::error(error.to_string()))),

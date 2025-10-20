@@ -16,7 +16,7 @@ use {
     reqwest::Client as HttpClient,
     resend_rs::Resend,
     state::{AppState, CustomFirebase},
-    std::{env, net::SocketAddr, sync::Arc},
+    std::{collections::HashMap, env, net::SocketAddr, sync::Arc},
     stripe::Client as StripeClient,
     tokio::net::TcpListener,
     tower_http::{
@@ -95,13 +95,14 @@ async fn main() {
     };
 
     // Crear la instancia de CustomFirebase, con todos los datos neceesarios para la autenticación
-    let firebase: CustomFirebase = CustomFirebase {
+    let firebase_options: CustomFirebase = CustomFirebase {
         firebase_keys,
         firebase_project_id: env::var("FIREBASE_PROJECT_ID")
             .expect("FIREBASE_PROJECT_ID must be set"),
         firebase_api_key: env::var("FIREBASE_API_KEY").expect("FIREBASE_API_KEY must be set"),
         firebase_database_url: env::var("FIREBASE_DATABASE_URL")
             .expect("FIREBASE_DATABASE_URL must be set"),
+        firebase_client: HttpClient::new(),
     };
 
     // Cliente de stripe
@@ -128,12 +129,13 @@ async fn main() {
         api_version: env::var("CAL_API_VERSION").expect("CAL_API_VERSION must be set"),
         base_url: env::var("CAL_BASE_URL").expect("CAL_BASE_URL must be set"),
         api_key: env::var("CAL_API_KEY").expect("CAL_API_KEY must be set"),
+        booking_cache: Arc::new(tokio::sync::RwLock::new(HashMap::new())),
+        recent_changes: Arc::new(tokio::sync::RwLock::new(Vec::new())),
     };
 
     // Inicializar el estado de la aplicación y el enrutador
     let state: Arc<AppState> = Arc::new(AppState {
-        firebase,
-        firebase_client: HttpClient::new(),
+        firebase_options,
         stripe_client,
         resend_client,
         mailchimp_client,
@@ -149,6 +151,14 @@ async fn main() {
         ])) // Origenes Permitidos
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE]) // Métodos permitidos
         .allow_headers([CONTENT_TYPE, AUTHORIZATION]); // Encabezados permitidos
+
+    // Iniciar tarea de polling ANTES de mover state a with_state
+    let state_for_polling = state.clone();
+    tokio::spawn(async move {
+        info!("🔄 Iniciando tarea de polling de Cal.com");
+        controllers::webhook::polling_task(state_for_polling).await;
+        error!("⚠️ La tarea de polling ha terminado inesperadamente");
+    });
 
     // Configurar el enrutador de la aplicación
     let app: Router = Router::new()

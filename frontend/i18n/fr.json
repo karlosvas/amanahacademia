@@ -19,18 +19,29 @@
           "email": "E-mail",
           "password": "Mot de passe",
           "toggleModal": "Pas de compte ? Inscrivez-vous ici",
-          "forgot_password": "Mot de passe oublié ?"
+          "forgot_password": "Mot de passe oublié ?",
+          "validation": {
+            "email_required": "L'e-mail est obligatoire",
+            "email_invalid": "Veuillez entrer un e-mail valide",
+            "password_required": "Le mot de passe est obligatoire",
+            "password_min": "Minimum 6 caractères"
+          }
         },
         "register": {
           "title": "Rejoignez-nous !",
           "subtitle": "Créez un compte pour commencer",
           "info": [
-            "J’accepte la politique de confidentialité.",
-            "J’accepte les termes et conditions.",
-            "J’accepte de recevoir des nouveautés et communications par e-mail (newsletter)."
+            "J'accepte la politique de confidentialité.",
+            "J'accepte les termes et conditions.",
+            "J'accepte de recevoir des nouveautés et communications par e-mail (newsletter)."
           ],
-          "button": "S’inscrire",
-          "toggleModal": "Vous avez déjà un compte ? Connectez-vous ici"
+          "button": "S'inscrire",
+          "toggleModal": "Vous avez déjà un compte ? Connectez-vous ici",
+          "validation": {
+            "name_required": "Le nom est obligatoire",
+            "privacy_required": "Vous devez accepter la politique de confidentialité",
+            "terms_required": "Vous devez accepter les termes et conditions"
+          }
         },
         "utils": {
           "loading": "Chargement...",

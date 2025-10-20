@@ -19,7 +19,13 @@
           "email": "Email",
           "password": "Password",
           "toggleModal": "Don't have an account? Register here",
-          "forgot_password": "Forgot your password?"
+          "forgot_password": "Forgot your password?",
+          "validation": {
+            "email_required": "Email is required",
+            "email_invalid": "Please enter a valid email",
+            "password_required": "Password is required",
+            "password_min": "Minimum 6 characters"
+          }
         },
         "register": {
           "title": "Join us!",
@@ -30,7 +36,12 @@
             "I agree to receive news and updates by email (newsletter)."
           ],
           "button": "Register",
-          "toggleModal": "Already have an account? Sign in here"
+          "toggleModal": "Already have an account? Sign in here",
+          "validation": {
+            "name_required": "Name is required",
+            "privacy_required": "You must accept the privacy policy",
+            "terms_required": "You must accept the terms and conditions"
+          }
         },
         "utils": {
           "loading": "Loading...",

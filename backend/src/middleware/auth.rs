@@ -43,8 +43,8 @@ pub async fn firebase_auth_middleware(
     // Verificar el token y obtener los claims del usuario
     let user_claims: TokenData<UserAuthentication> = match verify_firebase_token(
         &token,
-        &state.firebase.firebase_keys,
-        &state.firebase.firebase_project_id,
+        &state.firebase_options.firebase_keys,
+        &state.firebase_options.firebase_project_id,
     ) {
         Ok(claims) => claims,
         Err(err) => return Err(StatusCode::from(err)),

@@ -1,3 +1,4 @@
+pub mod cal;
 pub mod comments;
 pub mod email;
 pub mod error;

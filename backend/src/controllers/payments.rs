@@ -430,7 +430,7 @@ pub async fn archive_cal_connection(
 ) -> impl IntoResponse {
     let url_firebase_db: String = format!(
         "{}/relation_cal_stripe/{}.json?auth={}",
-        state.firebase.firebase_database_url, payload.cal_id, id_token
+        state.firebase_options.firebase_database_url, payload.cal_id, id_token
     );
 
     tracing::info!(
@@ -440,6 +440,7 @@ pub async fn archive_cal_connection(
     );
 
     match state
+        .firebase_options
         .firebase_client
         .put(&url_firebase_db)
         .json(&json!({

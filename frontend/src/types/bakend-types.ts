@@ -57,6 +57,7 @@ export interface UserMerged {
   phone_number?: string;
   disabled?: boolean;
   role?: string;
+  first_free_class: boolean;
   subscription_tier?: string;
   permissions?: string[];
   provider_user_info?: ProviderUserInfo[];
@@ -90,6 +91,7 @@ export type UserRequest = {
   password: string;
   name?: string;
   provider: ProviderType;
+  first_free_class: boolean;
 
   // Datos opcionales que el cliente puede enviar
   phone_number?: string;

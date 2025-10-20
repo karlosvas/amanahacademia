@@ -139,7 +139,10 @@ pub struct FirebaseAdminLookupResponse {
 
 #[derive(Debug, Serialize)]
 pub struct UserMerged {
+    // Obligatorios
     pub local_id: String,
+    pub first_free_class: bool,
+    // Opcionales
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -204,6 +207,7 @@ impl FirebaseAdminLookupResponse {
                     custom_auth: auth_user.custom_auth,
                     // Campos de DB
                     role: db_user.and_then(|db| db.role.clone()),
+                    first_free_class: db_user.map_or(false, |db| db.first_free_class),
                     subscription_tier: db_user.and_then(|db| db.subscription_tier.clone()),
                     permissions: db_user
                         .and_then(|db| db.permissions.clone().map(|set| set.into_iter().collect())),
