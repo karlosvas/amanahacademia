@@ -32,7 +32,7 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: window.location.origin + "/payment/payment-success",
+        return_url: window.location.origin + "/payments/payment-success",
       },
       redirect: "if_required",
     });
@@ -121,7 +121,7 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
           return;
         }
 
-        window.location.href = "/payment/payment-success";
+        window.location.href = "/payments/payment-success";
         return;
       } catch (e) {
         console.error("═══════════════════════════════════════");

@@ -781,6 +781,34 @@ pub async fn refresh_token(
     }
 }
 
+// Obtener el usuario actualmente autentificado
+pub async fn get_user_me(
+    State(state): State<Arc<AppState>>,
+    Extension(user_claims): Extension<UserAuthentication>,
+    Extension(id_token): Extension<String>,
+) -> impl IntoResponse {
+    // Obtener el usuario actualmente autentificado
+    let user: UserDB = match get_user_data_db(&user_claims, &id_token, &state).await {
+        Some(user) => user,
+        None => {
+            return (
+                StatusCode::UNAUTHORIZED,
+                Json(ResponseAPI::<()>::error("User not found".to_string())),
+            )
+                .into_response();
+        }
+    };
+
+    (
+        StatusCode::OK,
+        Json(ResponseAPI::<UserDB>::success(
+            "User retrieved successfully".to_string(),
+            user,
+        )),
+    )
+        .into_response()
+}
+
 // Eliminar el usuario actualmente autentificado
 #[debug_handler]
 #[instrument(
@@ -852,4 +880,118 @@ pub async fn delete_me(
         )
             .into_response(),
     }
+}
+
+/// Obtener el user por el email
+/// Obtener el usuario por email desde Firebase Realtime Database
+/// Retorna Some(UserDB) si lo encuentra, None si no existe o hay error
+pub async fn get_user_by_email_db(state: &AppState, email: &str) -> Option<UserDB> {
+    // URL de Firebase DB con query por email y autenticación admin
+    let url_firebase_db = format!(
+        "{}/user_profiles.json?orderBy=\"email\"&equalTo=\"{}\",&auth={}",
+        state.firebase_options.firebase_database_url,
+        email,
+        state.firebase_options.firebase_database_secret
+    );
+
+    tracing::debug!("🔍 Buscando usuario en Firebase: {}", email);
+
+    // Realizar petición a Firebase
+    let response = match state
+        .firebase_options
+        .firebase_client
+        .get(&url_firebase_db)
+        .send()
+        .await
+    {
+        Ok(resp) => resp,
+        Err(e) => {
+            tracing::error!("❌ Error conectando a Firebase DB: {}", e);
+            return None;
+        }
+    };
+
+    tracing::debug!("Firebase DB response status: {}", response.status());
+
+    // Manejar respuesta de Firebase
+    let users = match handle_firebase_response::<HashMap<String, UserDB>>(response).await {
+        Ok(users) => users,
+        Err((status, error)) => {
+            tracing::error!(
+                "Error parseando respuesta de Firebase: {} - {:?}",
+                status,
+                error
+            );
+            return None;
+        }
+    };
+
+    // Firebase devuelve un HashMap, extraer el primer (y único) usuario
+    let user = users.into_iter().next().map(|(_, user_data)| user_data);
+
+    match &user {
+        Some(_) => tracing::info!("✅ Usuario encontrado: ({})", email),
+        None => tracing::warn!("Usuario no encontrado: {}", email),
+    }
+
+    user
+}
+
+/// Actualizar el campo `first_free_class` de un usuario en Firebase Realtime Database
+pub async fn update_first_free_class(state: &AppState, email: &str) -> Result<(), String> {
+    tracing::debug!("🔄 Actualizando first_free_class=true para: {}", email);
+
+    // Obtener UID del usuario con autenticación admin
+    let url_query: String = format!(
+        "{}/user_profiles.json?orderBy=\"email\"&equalTo=\"{}\",&auth={}",
+        state.firebase_options.firebase_database_url,
+        email,
+        state.firebase_options.firebase_database_secret
+    );
+
+    let response = state
+        .firebase_options
+        .firebase_client
+        .get(&url_query)
+        .send()
+        .await
+        .map_err(|e| format!("Error conectando a Firebase: {}", e))?;
+
+    let users: HashMap<String, UserDB> = handle_firebase_response(response)
+        .await
+        .map_err(|(_, error)| format!("Error parseando respuesta: {}", error))?;
+
+    let (user_uid, _) = users
+        .into_iter()
+        .next()
+        .ok_or_else(|| format!("Usuario {} no encontrado", email))?;
+
+    // Actualizar solo el campo específico con autenticación admin
+    let url_update = format!(
+        "{}/user_profiles/{}.json?auth={}",
+        state.firebase_options.firebase_database_url,
+        user_uid,
+        state.firebase_options.firebase_database_secret
+    );
+
+    let update_data = serde_json::json!({
+        "first_free_class": true
+    });
+
+    let response = state
+        .firebase_options
+        .firebase_client
+        .patch(&url_update)
+        .json(&update_data)
+        .send()
+        .await
+        .map_err(|e| format!("Error actualizando Firebase: {}", e))?;
+
+    if !response.status().is_success() {
+        let error_text: String = response.text().await.unwrap_or_default();
+        return Err(format!("Firebase update failed: {}", error_text));
+    }
+
+    tracing::info!("✅ first_free_class actualizado para: {}", email);
+    Ok(())
 }

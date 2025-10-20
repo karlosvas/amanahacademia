@@ -4,21 +4,21 @@ use {
     std::fmt,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum BookingStatus {
-    ACCEPTED,
-    CANCELLED,
-    PENDING,
-    REJECTED,
+    Accepted,
+    Pending,
+    Cancelled,
+    Rejected,
 }
-
 impl fmt::Display for BookingStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            BookingStatus::ACCEPTED => write!(f, "ACCEPTED"),
-            BookingStatus::CANCELLED => write!(f, "CANCELLED"),
-            BookingStatus::PENDING => write!(f, "PENDING"),
-            BookingStatus::REJECTED => write!(f, "REJECTED"),
+            BookingStatus::Accepted => write!(f, "ACCEPTED"),
+            BookingStatus::Pending => write!(f, "PENDING"),
+            BookingStatus::Cancelled => write!(f, "CANCELLED"),
+            BookingStatus::Rejected => write!(f, "REJECTED"),
         }
     }
 }

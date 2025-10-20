@@ -34,5 +34,6 @@ pub struct CustomFirebase {
     pub firebase_project_id: String,
     pub firebase_api_key: String,
     pub firebase_database_url: String,
+    pub firebase_database_secret: String,
     pub firebase_client: HttpClient,
 }

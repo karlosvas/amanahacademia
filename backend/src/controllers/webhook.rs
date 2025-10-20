@@ -1,11 +1,15 @@
 use {
     crate::{
-        controllers::cal::fetch_and_detect_changes,
+        controllers::{
+            cal::fetch_and_detect_changes,
+            users::{get_user_by_email_db, update_first_free_class},
+        },
         models::{
             cal::BookingStatus,
             response::ResponseAPI,
             stripe::RelationalCalStripe,
-            webhook::{BookingChange, CalWebhookEvent, RefundResponse},
+            user::UserDB,
+            webhook::{Attendee, BookingChange, CalWebhookEvent, RefundResponse, WebhookTrigger},
         },
         state::AppState,
     },
@@ -23,7 +27,7 @@ pub async fn health_check() -> &'static str {
 /// Procesa el reembolso de un booking cancelado
 /// Retorna Ok(RefundResponse) si el reembolso fue exitoso
 async fn process_refund(state: &AppState, booking_id: &str) -> Result<RefundResponse, String> {
-    tracing::info!("💰 Procesando reembolso para booking: {}", booking_id);
+    tracing::info!("Procesando reembolso para booking: {}", booking_id);
 
     let url_firebase_db_relationship = format!(
         "{}/relation_cal_stripe/{}.json",
@@ -101,6 +105,48 @@ async fn process_refund(state: &AppState, booking_id: &str) -> Result<RefundResp
     }
 }
 
+/// Procesa un booking creado de tipo "free-class"
+/// Para permitir solo 1 por persona
+async fn process_created_free(
+    state: &AppState,
+    booking_id: &str,
+    attendees: &[Attendee],
+) -> Result<String, String> {
+    let user_email: String = match attendees.first() {
+        Some(attendee) => attendee.email.clone(),
+        None => {
+            let msg: String = format!("No attendees found for booking: {}", booking_id);
+            tracing::error!("{}", msg);
+            return Err(msg);
+        }
+    };
+
+    tracing::info!(
+        "Procesando booking gratuito creado: {} para usuario: {}",
+        booking_id,
+        user_email
+    );
+
+    // Obtener usuario de Firebase
+    let mut user: UserDB = get_user_by_email_db(state, user_email.clone().as_str())
+        .await
+        .ok_or_else(|| {
+            let msg = format!("Usuario no encontrado: {}", user_email.clone());
+            tracing::error!("{}", msg);
+            msg
+        })?;
+
+    // Verificar si el usuario ya tiene un booking gratuito confirmado
+    user.first_free_class = true;
+
+    // Actualizar solo el campo first_free_class
+    update_first_free_class(state, user_email.as_str()).await?;
+
+    tracing::info!("✅ Clase gratuita marcada para: {}", user_email);
+
+    Ok("First class to user reserved".to_string())
+}
+
 /// Obtener webhooks de cal
 pub async fn handle_cal_webhook(
     State(state): State<Arc<AppState>>,
@@ -110,31 +156,67 @@ pub async fn handle_cal_webhook(
     tracing::debug!("Full payload: {:?}", event);
 
     // Si el evento es cancelación, procesamos refund
-    if event.trigger_event == "BOOKING_CANCELLED" {
-        tracing::info!(
-            "📨 Booking cancelled: {} - Reason: {:?}",
-            event.payload.uid,
-            event.payload.cancellation_reason
-        );
+    match event.trigger_event {
+        WebhookTrigger::BookingCancelled => {
+            tracing::info!(
+                "📨 Booking cancelled: {} - Reason: {:?}",
+                event.payload.uid,
+                event.payload.cancellation_reason
+            );
 
-        match process_refund(&state, &event.payload.uid).await {
-            Ok(refund_response) => {
-                return (
-                    StatusCode::OK,
-                    Json(ResponseAPI::<RefundResponse>::success(
-                        "Refund created successfully".to_string(),
-                        refund_response,
-                    )),
-                )
-                    .into_response();
+            match process_refund(&state, &event.payload.uid).await {
+                Ok(refund_response) => {
+                    return (
+                        StatusCode::OK,
+                        Json(ResponseAPI::<RefundResponse>::success(
+                            "Refund created successfully".to_string(),
+                            refund_response,
+                        )),
+                    )
+                        .into_response();
+                }
+                Err(err_msg) => {
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ResponseAPI::<()>::error(err_msg)),
+                    )
+                        .into_response();
+                }
             }
-            Err(err_msg) => {
-                return (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(ResponseAPI::<()>::error(err_msg)),
-                )
-                    .into_response();
+        }
+        WebhookTrigger::BookingCreated => {
+            if event.payload.event_type_slug == "free-class" {
+                tracing::info!("📨 New booking created: {}", event.payload.uid);
+                // Procesamos el booking creado
+                match process_created_free(&state, &event.payload.uid, &event.payload.attendees)
+                    .await
+                {
+                    Ok(_) => {
+                        tracing::info!(
+                            "Booking gratuito creado procesado exitosamente - booking: {}",
+                            event.payload.uid
+                        );
+                    }
+                    Err(err_msg) => {
+                        tracing::error!(
+                            "Error procesando booking gratuito creado - booking: {}, Error: {}",
+                            event.payload.uid,
+                            err_msg
+                        );
+                        return (
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            Json(ResponseAPI::<()>::error(err_msg)),
+                        )
+                            .into_response();
+                    }
+                }
             }
+        }
+        _ => {
+            tracing::info!(
+                "📨 Webhook event received but no action taken: {}",
+                event.trigger_event
+            );
         }
     }
 
@@ -159,7 +241,8 @@ pub async fn polling_task(state: Arc<AppState>) {
     loop {
         interval.tick().await;
 
-        let changes_result = fetch_and_detect_changes(&state).await;
+        let changes_result: Result<Vec<BookingChange>, String> =
+            fetch_and_detect_changes(&state).await;
 
         match changes_result {
             Ok(changes) => {
@@ -190,7 +273,7 @@ pub async fn polling_task(state: Arc<AppState>) {
                 }
             }
             Err(e) => {
-                tracing::error!("❌ Error en polling de Cal.com: {}", e);
+                tracing::error!("Error en polling de Cal.com: {}", e);
             }
         }
     }
@@ -199,7 +282,7 @@ pub async fn polling_task(state: Arc<AppState>) {
 /// Maneja un cambio de booking detectado en polling
 async fn handle_booking_change(state: &AppState, change: BookingChange) {
     match change.new_status {
-        BookingStatus::CANCELLED => {
+        BookingStatus::Cancelled => {
             tracing::info!("🔄 Polling detectó cancelación - booking: {}", change.uid);
 
             // Procesar el reembolso usando la misma lógica que el webhook
@@ -213,16 +296,13 @@ async fn handle_booking_change(state: &AppState, change: BookingChange) {
                     );
                 }
                 Err(err_msg) => {
-                    tracing::error!("❌ Error procesando reembolso desde polling: {}", err_msg);
+                    tracing::error!("Error procesando reembolso desde polling: {}", err_msg);
                 }
             }
         }
-        BookingStatus::ACCEPTED => {
-            tracing::info!("✅ Booking confirmado: {}", change.uid);
-        }
         _ => {
             tracing::debug!(
-                "📝 Cambio de estado detectado: {:?} -> {:?}",
+                "Cambio de estado detectado HTTP Polling: {:?} -> {:?}",
                 change.uid,
                 change.new_status
             );

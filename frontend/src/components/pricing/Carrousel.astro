@@ -41,7 +41,7 @@ const teachers = Astro.props.teachers as Teacher[];
                   <img
                     src={teacher.url_image + ".webp"}
                     alt={`Fotografía de ${teacher.name}, profesor nativo de ${teacher.native_lang}`}
-                    class="select-schedule carousel-img relative w-40 h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 rounded-3xl object-cover shadow-xl hover:shadow-2xl hover:shadow-red-500/30 hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
+                    class="carousel-img relative w-40 h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 rounded-3xl object-cover shadow-xl hover:shadow-2xl hover:shadow-red-500/30 hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
                     data-index={i}
                     data-cal-teacher={teacher.name}
                     data-cal-namespace={id}

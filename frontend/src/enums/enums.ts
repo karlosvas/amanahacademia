@@ -27,6 +27,7 @@ export enum FrontendErrorCode {
   USER_NOT_EXISTS = "USER_NOT_EXISTS",
   GOOGLE_LOGIN_ERROR = "GOOGLE_LOGIN_ERROR",
   NETWORK_ERROR = "NETWORK_ERROR",
+  FREE_CLASS_ALREADY_USED = "FREE_CLASS_ALREADY_USED",
 }
 
 export enum FrontendStripe {
@@ -62,6 +63,7 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.USER_NOT_EXISTS]: "المستخدم غير موجود. يرجى التسجيل أولاً",
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "خطأ في تسجيل الدخول باستخدام Google. يرجى المحاولة مرة أخرى",
     [FrontendErrorCode.NETWORK_ERROR]: "خطأ في الشبكة. يرجى المحاولة مرة أخرى لاحقًا",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "لقد استخدمت بالفعل فصلك المجاني",
   },
   de: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Sie müssen sich anmelden, um fortzufahren",
@@ -73,6 +75,7 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.USER_NOT_EXISTS]: "Benutzer existiert nicht. Bitte registrieren Sie sich zuerst",
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Fehler bei der Google-Anmeldung. Bitte versuchen Sie es erneut",
     [FrontendErrorCode.NETWORK_ERROR]: "Netzwerkfehler. Bitte versuchen Sie es später erneut",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Sie haben Ihre kostenlose Klasse bereits genutzt",
   },
   en: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "You must log in to continue",
@@ -84,6 +87,7 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.USER_NOT_EXISTS]: "User does not exist. Please register first",
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Error logging in with Google. Please try again",
     [FrontendErrorCode.NETWORK_ERROR]: "Network error. Please try again later",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "You have already used your free class",
   },
   es: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Debes iniciar sesión para continuar",
@@ -95,6 +99,7 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.USER_NOT_EXISTS]: "El usuario no existe. Por favor, regístrate primero",
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo",
     [FrontendErrorCode.NETWORK_ERROR]: "Error de red. Por favor, inténtalo de nuevo más tarde",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Ya has utilizado tu clase gratuita",
   },
   fr: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Vous devez vous connecter pour continuer",
@@ -106,6 +111,7 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.USER_NOT_EXISTS]: "L'utilisateur n'existe pas. Veuillez vous inscrire d'abord",
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Erreur lors de la connexion avec Google. Veuillez réessayer",
     [FrontendErrorCode.NETWORK_ERROR]: "Erreur réseau. Veuillez réessayer plus tard",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Vous avez déjà utilisé votre cours gratuit",
   },
   it: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Devi accedere per continuare",
@@ -117,6 +123,7 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.USER_NOT_EXISTS]: "L'utente non esiste. Per favore, registrati prima",
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Errore durante l'accesso con Google. Per favore, riprova",
     [FrontendErrorCode.NETWORK_ERROR]: "Errore di rete. Per favore, riprova più tardi",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Hai già utilizzato la tua lezione gratuita",
   },
   pt: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Você deve fazer login para continuar",
@@ -128,6 +135,7 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.USER_NOT_EXISTS]: "O usuário não existe. Por favor, cadastre-se primeiro",
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Erro ao fazer login com Google. Por favor, tente novamente",
     [FrontendErrorCode.NETWORK_ERROR]: "Erro de rede. Por favor, tente novamente mais tarde",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Você já utilizou sua aula gratuita",
   },
 };
 export function getErrorToast(code: FrontendErrorCode) {

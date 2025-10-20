@@ -102,6 +102,8 @@ async fn main() {
         firebase_api_key: env::var("FIREBASE_API_KEY").expect("FIREBASE_API_KEY must be set"),
         firebase_database_url: env::var("FIREBASE_DATABASE_URL")
             .expect("FIREBASE_DATABASE_URL must be set"),
+        firebase_database_secret: env::var("FIREBASE_DATABASE_SECRET")
+            .expect("FIREBASE_DATABASE_SECRET must be set"),
         firebase_client: HttpClient::new(),
     };
 

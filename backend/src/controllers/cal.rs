@@ -17,6 +17,7 @@ use {
     tokio::sync::RwLockWriteGuard,
 };
 
+/// Confirmar un booking
 pub async fn confirm_booking(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
@@ -73,7 +74,7 @@ pub async fn confirm_booking(
     }
 }
 
-// Función auxiliar para fetch interno de bookings
+/// Obtener últimos bookings para HTTP Polling
 async fn fetch_cal_bookings_internal(
     client: &reqwest::Client,
     api_key: &str,
@@ -88,14 +89,15 @@ async fn fetch_cal_bookings_internal(
         .await
         .map_err(|e| format!("Error fetching bookings: {}", e))?;
 
-    let bookings: Vec<CalBookingPayload> = response.json::<Vec<CalBookingPayload>>().await
+    let bookings: Vec<CalBookingPayload> = response
+        .json::<Vec<CalBookingPayload>>()
+        .await
         .map_err(|e| format!("Error parsing bookings JSON: {}", e))?;
     Ok(bookings)
 }
 
-pub async fn fetch_and_detect_changes(
-    state: &AppState,
-) -> Result<Vec<BookingChange>, String> {
+// Comoparear cambios para HTTP Polling
+pub async fn fetch_and_detect_changes(state: &AppState) -> Result<Vec<BookingChange>, String> {
     // 1. Fetch bookings desde Cal.com API
     let current_bookings = fetch_cal_bookings_internal(
         &state.cal_options.client,
@@ -130,28 +132,48 @@ pub async fn fetch_and_detect_changes(
     Ok(changes)
 }
 
-// Handler público para endpoint GET /api/cal/bookings
-pub async fn fetch_cal_bookings(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    match fetch_cal_bookings_internal(
-        &state.cal_options.client,
-        &state.cal_options.api_key,
-        &state.cal_options.api_version,
-    )
-    .await
-    {
-        Ok(bookings) => (
-            StatusCode::OK,
-            Json(ResponseAPI::success(
-                "Last Bookings fetched successfully".to_string(),
-                bookings,
-            )),
-        )
-            .into_response(),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ResponseAPI::<Vec<CalBookingPayload>>::error(format!(
-                "Error fetching Cal.com bookings: {}",
-                e
+/// Obtener el booking por id
+#[axum::debug_handler]
+pub async fn get_booking(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    let url: String = format!("https://api.cal.com/v2/bookings/{}", id);
+
+    let resp_result = state
+        .cal_options
+        .client
+        .get(&url)
+        .header("Authorization", &state.cal_options.api_key)
+        .header("cal-api-version", &state.cal_options.api_version)
+        .send()
+        .await
+        .map_err(|e| format!("Error fetching booking: {}", e));
+
+    match resp_result {
+        Ok(resp) => match resp.json::<CalBookingPayload>().await {
+            Ok(booking) => (
+                StatusCode::OK,
+                Json(ResponseAPI::success(
+                    "Booking fetched successfully".to_string(),
+                    Some(booking),
+                )),
+            )
+                .into_response(),
+            Err(e) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<CalBookingPayload>::error(format!(
+                    "Error parsing booking JSON: {}",
+                    e
+                ))),
+            )
+                .into_response(),
+        },
+        Err(err_msg) => (
+            StatusCode::BAD_GATEWAY,
+            Json(ResponseAPI::<CalBookingPayload>::error(format!(
+                "Error fetching booking: {}",
+                err_msg
             ))),
         )
             .into_response(),

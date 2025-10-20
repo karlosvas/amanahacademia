@@ -17,9 +17,7 @@ const seoData = getSEOData("pricing", currentLang) as PropsSEO;
 // Obtener bookingUid de la URL
 const bookingUid = Astro.url.searchParams.get("uid") || Astro.url.searchParams.get("bookingUid");
 
-if (!bookingUid) {
-  return Astro.redirect("/");
-}
+if (!bookingUid) return Astro.redirect("/");
 ---
 
 <Layout

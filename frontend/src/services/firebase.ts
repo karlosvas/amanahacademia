@@ -114,6 +114,7 @@ export function submitFormToRegisterOrLogin(
       email: toStringFormValue(formData.get("email") || ""),
       password: toStringFormValue(formData.get("password") || ""),
       provider: "email",
+      first_free_class: false,
     };
 
     loading.classList.remove("hidden");
@@ -172,7 +173,7 @@ function toStringFormValue(v: FormDataEntryValue | undefined): string {
 export async function handleLogout(): Promise<void> {
   try {
     await firebaseAuth.signOut();
-    toast.success("Sesión cerrada correctamente");
+    window.location.reload();
   } catch (error) {
     console.error("Error during logout:", error);
   }
@@ -228,6 +229,7 @@ export async function handleLogGoogleProvider(
       password: "",
       provider: "google",
       id_token: idToken,
+      first_free_class: false,
     };
 
     // Intentamos registrar o logear al usuario

@@ -1,50 +1,77 @@
 import type { Class } from "@/enums/enums";
 import type { PricingApiResponse } from "@/types/types";
+import { getFirebaseAuth } from "./firebase";
+import toast from "solid-toast";
 
 /**
  * Inicializa y configura el calendario embebido de Cal.com para el namespace dado.
  * @param namespaceId - Identificador único del calendario (namespace)
+ * @returns true si se inicializa correctamente, false si requiere autenticación
  */
-export function initCalendar(namespaceId: Class) {
+export function initCalendar(namespaceId: Class): boolean {
+  const CAL_EMBED_SCRIPT_URL = "https://app.cal.com/embed/embed.js";
+  const CAL_INIT_COMMAND = "init";
+  const CAL_ORIGIN = "https://app.cal.com";
+
   // Embebe el script de Cal.com si no está cargado
-  (function (windowObj, scriptUrl, initKey) {
-    // Función para encolar comandos
-    let enqueue = function (calObj: any, args: any) {
-      calObj.q.push(args);
+  (function (globalWindow, embedScriptUrl, initCommandName) {
+    const documentReference = globalWindow.document;
+
+    // Función auxiliar para encolar comandos en la API de Cal
+    const enqueueCommand = function (calendarApi: any, commandArguments: any) {
+      calendarApi.q.push(commandArguments);
     };
-    let documentObj = windowObj.document;
-    windowObj.Cal =
-      windowObj.Cal ||
+
+    // Inicializa el objeto Cal en el contexto global si no existe
+    globalWindow.Cal =
+      globalWindow.Cal ||
       function () {
-        let cal = windowObj.Cal;
-        let args = arguments;
-        if (!cal.loaded) {
-          cal.ns = {};
-          cal.q = cal.q || [];
-          documentObj.head.appendChild(documentObj.createElement("script")).src = scriptUrl;
-          cal.loaded = true;
+        const calInstance = globalWindow.Cal;
+        const functionArguments = arguments;
+
+        // Primera carga: inicializa estructuras y carga el script
+        if (!calInstance.loaded) {
+          calInstance.ns = {}; // Namespaces para múltiples calendarios
+          calInstance.q = calInstance.q || []; // Cola de comandos
+
+          // Carga dinámica del script de Cal.com
+          const scriptElement = documentReference.createElement("script");
+          scriptElement.src = embedScriptUrl;
+          documentReference.head.appendChild(scriptElement);
+
+          calInstance.loaded = true;
         }
-        if (args[0] === initKey) {
-          const api: any = function () {
-            enqueue(api, arguments);
+
+        // Manejo del comando de inicialización
+        if (functionArguments[0] === initCommandName) {
+          // Crea una API proxy para el namespace
+          const namespaceApi: any = function () {
+            enqueueCommand(namespaceApi, arguments);
           };
-          const namespace = args[1];
-          api.q = api.q || [];
-          if (typeof namespace === "string") {
-            cal.ns[namespace] = cal.ns[namespace] || api;
-            enqueue(cal.ns[namespace], args);
-            enqueue(cal, ["initNamespace", namespace]);
-          } else enqueue(cal, args);
+
+          const calendarNamespace = functionArguments[1];
+          namespaceApi.q = namespaceApi.q || [];
+
+          // Si es un namespace válido, lo registra
+          if (typeof calendarNamespace === "string") {
+            calInstance.ns[calendarNamespace] = calInstance.ns[calendarNamespace] || namespaceApi;
+            enqueueCommand(calInstance.ns[calendarNamespace], functionArguments);
+            enqueueCommand(calInstance, ["initNamespace", calendarNamespace]);
+          } else {
+            enqueueCommand(calInstance, functionArguments);
+          }
           return;
         }
-        enqueue(cal, args);
+
+        // Encola cualquier otro comando
+        enqueueCommand(calInstance, functionArguments);
       };
-  })(window, "https://app.cal.com/embed/embed.js", "init");
+  })(window, CAL_EMBED_SCRIPT_URL, CAL_INIT_COMMAND);
 
   // Inicializa el calendario para el namespace específico
-  window.Cal("init", `${namespaceId}`, { origin: "https://app.cal.com" });
+  window.Cal(CAL_INIT_COMMAND, `${namespaceId}`, { origin: CAL_ORIGIN });
 
-  // Configura la UI del calendario embebido
+  // Configura la UI del calendario embebido con temas personalizados
   window.Cal.ns[`${namespaceId}`]("ui", {
     cssVarsPerTheme: {
       light: {
@@ -71,6 +98,8 @@ export function initCalendar(namespaceId: Class) {
       },
     },
   });
+
+  return true;
 }
 
 // Actualizar en el frontend los precios

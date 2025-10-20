@@ -52,10 +52,8 @@ try {
           {data.info[0].description}
         </p>
         <button
-          data-cal-namespace="free-class"
-          data-cal-link="team/amanah-academia/free-class"
-          data-cal-host="1735275"
-          class="select-schedule transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 bg-red text-salmon py-2 px-4 sm:px-6 md:px-8 lg:px-10 rounded-full mt-3 sm:mt-4 md:mt-5 text-xs sm:text-sm cal-btn font-semibold w-full sm:w-auto"
+          id="free-class-button"
+          class="transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 bg-red text-salmon py-2 px-4 sm:px-6 md:px-8 lg:px-10 rounded-full mt-3 sm:mt-4 md:mt-5 text-xs sm:text-sm cal-btn font-semibold w-full sm:w-auto"
         >
           {data.info[0].button}
         </button>
@@ -76,19 +74,21 @@ try {
 <script>
   import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
   import { initCalendar } from "@/services/calendar";
-  import { Class } from "@/enums/enums";
+  import { Class, FrontendErrorCode, getErrorToast } from "@/enums/enums";
   import { getThemeFromCookie } from "@/utils/cookie";
   import { updatePricing } from "@/services/calendar";
+  import { getAuth } from "firebase/auth";
+  import toast from "solid-toast";
+  import { ApiService } from "@/services/helper";
 
   // Evento al cargar el DOM
   document.addEventListener("DOMContentLoaded", () => {
-    [Class.Free, Class.Conversacion, Class.Grupales, Class.Standard].forEach(initCalendar);
+    [Class.Conversacion, Class.Grupales, Class.Standard].forEach(initCalendar);
 
     // Obtenemos todos los botones de reservar clase
     const reserveButtons = document.querySelectorAll(".reserve-class") as NodeListOf<HTMLButtonElement>;
     // Por cada botón obtenemos que modal pertenece, para abrir el que le corresponde al hacer click
-    if (!reserveButtons) return;
-    reserveButtons.forEach((button) => {
+    reserveButtons?.forEach((button) => {
       button.addEventListener("click", () => {
         // Obtenemos el modal correspondiente al botón
         const modalID: string | null = button.getAttribute("card-button");
@@ -100,9 +100,8 @@ try {
       });
     });
 
-    // Obtenemos todos los enlaces de seleccionar horario, button o img
+    // Añadimos el tema corres pondiente a cada uno de los calendarios
     const calElements = document.querySelectorAll("[data-cal-link]");
-
     calElements.forEach((element) => {
       element.addEventListener("click", async () => {
         const modal = document.querySelector("dialog[open]") as HTMLDialogElement | null;
@@ -111,7 +110,6 @@ try {
         // Obtenemos el tema actual
         const theme = getThemeFromCookie();
 
-        // Para cada .select-schedule: COMBINAR tema con precios existentes
         calElements.forEach((el) => {
           // Obtener config existente (que ya tiene precios)
           const existingConfig = el.getAttribute("data-cal-config");
@@ -131,6 +129,45 @@ try {
           el.setAttribute("data-cal-config", JSON.stringify(calConfig));
         });
       });
+    });
+
+    // Manejador para la clase gratuita
+    const freeButton = document.getElementById("free-class-button");
+    freeButton?.addEventListener("click", async (event) => {
+      event?.preventDefault();
+      const currentUser = getAuth().currentUser;
+
+      if (!currentUser) {
+        toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
+        return;
+      } else {
+        const helper = new ApiService();
+        const userDB = await helper.getUser();
+
+        if (userDB.success && userDB.data.first_free_class) {
+          toast.error(getErrorToast(FrontendErrorCode.FREE_CLASS_ALREADY_USED));
+          return;
+        }
+
+        // Inicializa el calendario si no está ya inicializado
+        if (!window.Cal.ns[Class.Free]) {
+          initCalendar(Class.Free);
+        }
+
+        // Obtener el tema actual para aplicarlo
+        const theme = getThemeFromCookie();
+
+        // Abrir el modal de Cal.com programáticamente
+        setTimeout(() => {
+          window.Cal.ns[Class.Free]("inline", {
+            elementOrSelector: "#cal-inline-root",
+            calLink: "team/amanah-academia/free-class",
+            config: {
+              theme: theme,
+            },
+          });
+        }, 200);
+      }
     });
 
     updatePricing();
