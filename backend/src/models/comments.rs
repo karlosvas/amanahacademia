@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// Comentario en Firebase DB
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Comment {
     pub author_uid: Option<String>, // Usuario que comento
@@ -17,6 +18,7 @@ pub struct Comment {
     pub users_liked: Vec<String>, // Usuarios que le dieron like
 }
 
+/// Constestación de comentarios
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReplyComment {
     pub id: String,
@@ -32,6 +34,7 @@ pub struct ReplyComment {
     pub users_liked: Vec<String>, // Usuarios que le dieron like
 }
 
+/// Actualización típica de comentario
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateComment {
     pub content: String,

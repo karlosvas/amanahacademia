@@ -1,28 +1,25 @@
 use {
     chrono::{DateTime, Utc},
     serde::{Deserialize, Serialize},
-    std::fmt,
 };
 
+/// Estado de los bookings de cal
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+/// Cal.com API v2 envía valores en lowercase, pero también acepta SCREAMING_SNAKE_CASE
+/// Usamos alias para compatibilidad con ambos formatos
+#[serde(rename_all = "lowercase")]
 pub enum BookingStatus {
+    #[serde(alias = "ACCEPTED")]
     Accepted,
+    #[serde(alias = "PENDING")]
     Pending,
+    #[serde(alias = "CANCELLED")]
     Cancelled,
+    #[serde(alias = "REJECTED")]
     Rejected,
 }
-impl fmt::Display for BookingStatus {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            BookingStatus::Accepted => write!(f, "ACCEPTED"),
-            BookingStatus::Pending => write!(f, "PENDING"),
-            BookingStatus::Cancelled => write!(f, "CANCELLED"),
-            BookingStatus::Rejected => write!(f, "REJECTED"),
-        }
-    }
-}
 
+/// Booking de reserva de calse en cal
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Booking {
     uid: String,

@@ -1,65 +1,68 @@
-use std::collections::HashMap;
+use {
+    serde::{Deserialize, Serialize},
+    std::collections::HashMap,
+    stripe::{CreateProductDefaultPriceDataRecurring, Currency},
+};
 
-use serde::{Deserialize, Serialize};
-use stripe::{CreateProductDefaultPriceDataRecurring, Currency};
-
-/// Estructura para el payload de creación de un PaymentIntent
+/// Payload para crear un PaymentIntent (pago único)
 #[derive(Debug, Deserialize)]
 pub struct PaymentPayload {
+    /// Cantidad en la unidad más pequeña de la moneda (céntimos para USD/EUR)
     pub amount: i64,
+    /// Código ISO de moneda en minúsculas (ej: "usd", "eur")
     pub currency: String,
 }
 
-/// Estructura para la respuesta de un PaymentIntent
+/// Respuesta tras crear o consultar un PaymentIntent
 #[derive(Debug, Serialize)]
 pub struct PaymentResponse {
+    /// Secret usado por Stripe.js en el frontend para confirmar el pago
     pub client_secret: Option<String>,
+    /// Estado del pago: "requires_payment_method", "succeeded", "canceled", etc.
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
 }
 
+/// Payload para crear un producto en Stripe
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProductPayload {
-    pub name: String,        // Nombre del producto (ejemplo: "Curso de Inglés").
-    pub description: String, // Descripción del producto (ejemplo: "Un curso de inglés para principiantes").
-    pub images: Vec<String>, // Imágenes del producto (ejemplo: ["http://example.com/image.png"]).
-    pub metadata: HashMap<String, String>, // Metadatos del producto (ejemplo: {"category": "digital", "tags": ["tag1", "tag2"]}).
-    pub active: bool,                      // Indica si el producto está activo o no.
+    pub name: String,
+    pub description: String,
+    /// URLs de imágenes del producto (máximo recomendado: 8)
+    pub images: Vec<String>,
+    /// Pares clave-valor arbitrarios para almacenar info adicional (máx 50 keys)
+    pub metadata: HashMap<String, String>,
+    /// Si false, el producto no estará disponible para nuevas compras
+    pub active: bool,
 }
 
+/// Payload para crear el precio de un producto
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PricePayload {
+    /// Código ISO de moneda en minúsculas
     pub currency: String,
+    /// Precio en la unidad más pequeña (céntimos). Ej: 1000 = $10.00
     pub unit_amount: i64,
+    /// Si es Some, el precio será recurrente (suscripción). Si None, pago único.
     pub recurring: Option<CreateProductDefaultPriceDataRecurring>,
 }
 
+/// Payload completo para crear un producto con su precio en una sola operación
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PayloadCreacteProduct {
     pub product: ProductPayload,
     pub price: PricePayload,
 }
 
+/// HashMap indexado por tipo de moneda (útil para precios multi-moneda)
 pub type CurrencyMap<T> = HashMap<Currency, T>;
 
-// #[derive(Debug, Deserialize)]
-// pub struct BookingPaymentPayload {
-//     pub amount: i64,
-//     pub currency: String,
-//     pub payment_method: String,
-//     // Datos del booking
-//     pub event_type_id: i64,
-//     pub start_time: String, // ISO 8601
-//     pub attendee_name: String,
-//     pub attendee_email: String,
-//     pub attendee_timezone: String,
-//     #[serde(skip_serializing_if = "Option::is_none")]
-//     pub attendee_phone: Option<String>,
-// }
-
+/// Relación entre un evento de Cal.com y un producto/precio de Stripe
 #[derive(Debug, Deserialize)]
 pub struct RelationalCalStripe {
+    /// ID del evento en Cal.com
     pub cal_id: String,
+    /// ID del producto o precio en Stripe (price_xxx o prod_xxx)
     pub stripe_id: String,
 }

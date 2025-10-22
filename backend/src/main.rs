@@ -3,9 +3,8 @@ mod middleware;
 mod models;
 mod routes;
 mod services;
-mod state;
 use {
-    crate::{models::mailchimp::MailchimpClient, state::CalOptions},
+    crate::models::state::{AppState, CalOptions, CustomFirebase, MailchimpOptions},
     axum::{
         Router,
         http::{
@@ -15,7 +14,7 @@ use {
     },
     reqwest::Client as HttpClient,
     resend_rs::Resend,
-    state::{AppState, CustomFirebase},
+    serde_json::Value,
     std::{collections::HashMap, env, net::SocketAddr, sync::Arc},
     stripe::Client as StripeClient,
     tokio::net::TcpListener,
@@ -33,10 +32,10 @@ use {
 
 #[tokio::main]
 async fn main() {
-    // Cargar variables de entorno desde un archivo .env
+    // Cargar variables de entorno
     dotenvy::dotenv().ok();
 
-    // Usar cfg!(debug_assertions) directamente para el logging
+    // Nivel de logging: debug en dev (mensajes verbosos), info en prod (solo eventos significativos)
     let env_filter: EnvFilter = EnvFilter::try_from_default_env().unwrap_or_else(|_| {
         if cfg!(debug_assertions) {
             EnvFilter::new("debug") // Desarrollo
@@ -44,7 +43,8 @@ async fn main() {
             EnvFilter::new("info") // Producción
         }
     });
-    // Inicializar tracing correctamente
+
+    // Inicializar tracing
     tracing_subscriber::registry()
         .with(env_filter)
         .with({
@@ -68,25 +68,28 @@ async fn main() {
         info!("🚀 Modo producción - debug_assertions desactivado");
     }
 
-    // Obtener las claves públicas de Firebase
+    // Las keys públicas de Firebase son necesarias para validar JWTs en cada request
     info!("Fetching Firebase public keys");
-    let firebase_keys = match reqwest::get(
+    let firebase_keys: Value = match reqwest::get(
         "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
     )
     .await
     {
         Ok(response) => {
             debug!("Firebase keys response status: {}", response.status());
-            match response.json().await {
-                Ok(keys) => {
-                    info!("Firebase public keys fetched successfully");
-                    keys
-                }
-                Err(e) => {
-                    error!("Failed to parse Firebase keys JSON: {}", e);
-                    panic!("Cannot start without Firebase keys");
-                }
+            let keys: Value = response.json().await.unwrap_or_else(|e| {
+                error!("Failed to parse Firebase keys JSON: {}", e);
+                panic!("Cannot start without valid Firebase keys");
+            });
+
+            // Verificar que sea un objeto no vacío (si no, panic)
+            if !keys.is_object() || keys.as_object().map_or(true, |m| m.is_empty()) {
+                error!("Firebase public keys are empty or invalid: {:?}", keys);
+                panic!("Cannot start without Firebase public keys");
             }
+
+            info!("Firebase public keys fetched and validated successfully");
+            keys
         }
         Err(e) => {
             error!("Failed to fetch Firebase keys: {}", e);
@@ -94,7 +97,6 @@ async fn main() {
         }
     };
 
-    // Crear la instancia de CustomFirebase, con todos los datos neceesarios para la autenticación
     let firebase_options: CustomFirebase = CustomFirebase {
         firebase_keys,
         firebase_project_id: env::var("FIREBASE_PROJECT_ID")
@@ -107,25 +109,21 @@ async fn main() {
         firebase_client: HttpClient::new(),
     };
 
-    // Cliente de stripe
     let stripe_client: StripeClient =
         StripeClient::new(env::var("STRIPE_API_KEY").expect("STRIPE_API_KEY must be set"));
 
-    // Cliente de resend
     let resend_client: Resend = Resend::new(
         env::var("RESEND_API_KEY")
             .expect("RESEND_API_KEY must be set")
             .as_str(),
     );
 
-    // Cliente de Mailchimp personalizado
-    let mailchimp_client: MailchimpClient = MailchimpClient::new(
+    let mailchimp_client: MailchimpOptions = MailchimpOptions::new(
         env::var("MAILCHIMP_API_KEY").expect("MAILCHIMP_API_KEY must be set"),
         env::var("MAILCHIMP_SERVER_PREFIX").expect("MAILCHIMP_SERVER_PREFIX must be set"),
         env::var("MAILCHIMP_LIST_ID").expect("MAILCHIMP_LIST_ID must be set"),
     );
 
-    // Opciones de Cal.com
     let cal_options: CalOptions = CalOptions {
         client: HttpClient::new(),
         api_version: env::var("CAL_API_VERSION").expect("CAL_API_VERSION must be set"),
@@ -141,48 +139,48 @@ async fn main() {
         stripe_client,
         resend_client,
         mailchimp_client,
-        booking_client: HttpClient::new(),
         cal_options,
     });
 
-    // Configurar CORS
+    // Configuración de CORS (Cross-Origin Resource Sharing)
     let cors: CorsLayer = CorsLayer::new()
         .allow_origin(AllowOrigin::list(vec![
             "http://localhost:4321".parse().unwrap(), // Frontend desarrollo
             "https://amanahacademia.com".parse().unwrap(), // Dominio de producción
-        ])) // Origenes Permitidos
-        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE]) // Métodos permitidos
-        .allow_headers([CONTENT_TYPE, AUTHORIZATION]); // Encabezados permitidos
+        ]))
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_headers([CONTENT_TYPE, AUTHORIZATION]);
 
-    // Iniciar tarea de polling ANTES de mover state a with_state
-    let state_for_polling = state.clone();
+    // Polling cada 5 minutos para recuperar bookings que no llegaron vía webhook.
+    // Se spawnea antes de `with_state` porque necesita ownership del clone.
+    let state_for_polling: Arc<AppState> = state.clone();
     tokio::spawn(async move {
-        info!("🔄 Iniciando tarea de polling de Cal.com");
+        info!("Iniciando tarea de polling de Cal.com");
         controllers::webhook::polling_task(state_for_polling).await;
-        error!("⚠️ La tarea de polling ha terminado inesperadamente");
+        error!("La tarea de polling ha terminado inesperadamente");
     });
 
     // Configurar el enrutador de la aplicación
     let app: Router = Router::new()
-        .nest("/users", routes::users::router(state.clone())) // FB Auth, FB Realtime DB
-        .nest("/comments", routes::comments::router(state.clone())) // FB Auth, FB Realtime DB
-        .nest("/payment", routes::payments::router(state.clone())) // Stripe
-        .nest("/teachers", routes::teachers::router(state.clone())) // FB Auth, FB Realtime DB
-        .nest("/email", routes::email::router(state.clone())) // Email
-        .nest("/mailchimp", routes::mailchimp::router(state.clone())) // Mailchimp
-        .nest("/cal", routes::cal::router(state.clone())) // Cal
-        .nest("/webhook", routes::webhooks::router(state.clone())) // Webhooks
-        .layer(cors) // CORS abierto
-        .layer(TraceLayer::new_for_http()) // Logging básico
-        .with_state(state);
+        .nest("/users", routes::users::router(state.clone()))
+        .nest("/comments", routes::comments::router(state.clone()))
+        .nest("/payment", routes::payments::router(state.clone()))
+        .nest("/teachers", routes::teachers::router(state.clone()))
+        .nest("/email", routes::email::router(state.clone()))
+        .nest("/mailchimp", routes::mailchimp::router(state.clone()))
+        .nest("/cal", routes::cal::router(state.clone()))
+        .nest("/webhook", routes::webhooks::router(state.clone()))
+        .layer(cors)
+        .layer(TraceLayer::new_for_http()) // Logging de requests para debugging
+        .with_state(state); // Estado compartido
 
-    // Inicializar el listener TCP y el servidor
+    // Inicializar el listener TCP y arrancar el servidor
     let addr: SocketAddr = SocketAddr::from(([0, 0, 0, 0], 3000));
     let listener: TcpListener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
-    println!("Server listening on http://{}", addr);
+    info!("Server listening on http://{}", addr);
     match axum::serve(listener, app).await {
-        Ok(_) => println!("Server finalized"),
-        Err(err) => eprintln!("Error in server: {}", err),
+        Ok(_) => info!("Server finalized"),
+        Err(err) => error!("Error in server: {}", err),
     };
 }

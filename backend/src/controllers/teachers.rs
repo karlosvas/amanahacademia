@@ -1,8 +1,7 @@
 use {
     crate::{
-        models::{response::ResponseAPI, teacher::Teacher},
+        models::{response::ResponseAPI, state::AppState, teacher::Teacher},
         services::firebase::handle_firebase_response,
-        state::AppState,
     },
     axum::{
         Extension, Json, debug_handler,

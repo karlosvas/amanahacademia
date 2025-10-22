@@ -3,9 +3,9 @@ use {
         models::{
             mailchimp::{AddContactResponse, Contact, MembersResponse},
             response::ResponseAPI,
+            state::AppState,
         },
         services::mailchimp::handle_mailchimp_response,
-        state::AppState,
     },
     axum::{
         extract::{Json, State},

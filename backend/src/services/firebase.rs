@@ -1,6 +1,6 @@
 use {axum::http::StatusCode, serde::de::DeserializeOwned, serde_json::Value};
 
-/// Maneja la respuesta de Firebase
+/// Maneja la respuesta de Firebase, serializandolo
 pub async fn handle_firebase_response<T>(
     response: reqwest::Response,
 ) -> Result<T, (StatusCode, String)>

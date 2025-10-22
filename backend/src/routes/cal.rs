@@ -2,7 +2,7 @@ use {
     crate::{
         controllers::cal::{confirm_booking, get_booking},
         middleware::auth::firebase_auth_middleware,
-        state::AppState,
+        models::state::AppState,
     },
     axum::{
         Router, middleware,

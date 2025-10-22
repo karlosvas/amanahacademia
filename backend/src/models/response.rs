@@ -1,5 +1,6 @@
 use serde::Serialize;
 
+/// Estructura genérica para respuestas de la API
 #[derive(Serialize)]
 pub struct ResponseAPI<T>
 where

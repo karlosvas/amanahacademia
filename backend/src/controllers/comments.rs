@@ -4,9 +4,9 @@ use {
             comments::{Comment, ReplyComment, UpdateComment},
             firebase::UserAuthentication,
             response::ResponseAPI,
+            state::AppState,
         },
         services::firebase::handle_firebase_response,
-        state::AppState,
     },
     axum::{
         Extension, Json, debug_handler,

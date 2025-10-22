@@ -1,10 +1,8 @@
 use {
-    crate::{
-        models::{
-            response::ResponseAPI,
-            webhook::{BookingChange, CalBookingPayload},
-        },
+    crate::models::{
+        response::ResponseAPI,
         state::AppState,
+        webhook::{BookingChange, CalBookingPayload, CalBookingsResponse},
     },
     axum::{
         Json,
@@ -13,6 +11,7 @@ use {
         response::IntoResponse,
     },
     chrono::Utc,
+    reqwest::Response,
     std::{collections::HashMap, sync::Arc},
     tokio::sync::RwLockWriteGuard,
 };
@@ -22,7 +21,7 @@ pub async fn confirm_booking(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
-    let url_cal = format!("{}/bookings/{}/confirm", state.cal_options.base_url, id);
+    let url_cal: String = format!("{}/bookings/{}/confirm", state.cal_options.base_url, id);
 
     match state
         .cal_options
@@ -80,7 +79,7 @@ async fn fetch_cal_bookings_internal(
     api_key: &str,
     api_version: &str,
 ) -> Result<Vec<CalBookingPayload>, String> {
-    let response = client
+    let response: Response = client
         .get("https://api.cal.com/v2/bookings")
         .header("Authorization", api_key)
         .header("cal-api-version", api_version)
@@ -89,17 +88,19 @@ async fn fetch_cal_bookings_internal(
         .await
         .map_err(|e| format!("Error fetching bookings: {}", e))?;
 
-    let bookings: Vec<CalBookingPayload> = response
-        .json::<Vec<CalBookingPayload>>()
+    // Cal.com API v2 devuelve un objeto con estructura { "data": [...] }
+    let bookings_response: CalBookingsResponse = response
+        .json::<CalBookingsResponse>()
         .await
         .map_err(|e| format!("Error parsing bookings JSON: {}", e))?;
-    Ok(bookings)
+
+    Ok(bookings_response.data)
 }
 
 // Comoparear cambios para HTTP Polling
 pub async fn fetch_and_detect_changes(state: &AppState) -> Result<Vec<BookingChange>, String> {
     // 1. Fetch bookings desde Cal.com API
-    let current_bookings = fetch_cal_bookings_internal(
+    let current_bookings: Vec<CalBookingPayload> = fetch_cal_bookings_internal(
         &state.cal_options.client,
         &state.cal_options.api_key,
         &state.cal_options.api_version,
@@ -140,7 +141,7 @@ pub async fn get_booking(
 ) -> impl IntoResponse {
     let url: String = format!("https://api.cal.com/v2/bookings/{}", id);
 
-    let resp_result = state
+    let resp_result: Result<Response, String> = state
         .cal_options
         .client
         .get(&url)

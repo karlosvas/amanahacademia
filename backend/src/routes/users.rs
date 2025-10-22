@@ -5,7 +5,7 @@ use {
             update_user,
         },
         middleware::auth::firebase_auth_middleware,
-        state::AppState,
+        models::state::AppState,
     },
     axum::{
         Router, middleware,

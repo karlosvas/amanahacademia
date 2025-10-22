@@ -42,15 +42,3 @@ where
         Err((status, error_msg))
     }
 }
-
-// EJEMPLO
-/*
-{
-    "success":false,
-    "error": {
-        "Mailchimp API error (400 Bad Request)": {
-            "title":"Member Exists","status":400,"detail":"tayeteg210@anysilo.com is already a list member. Use PUT to insert or update list members.","instance":"ac48260b-2e02-1034-d21a-d3a2061dd795"
-        }
-    }
-}
-*/

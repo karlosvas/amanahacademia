@@ -1,7 +1,7 @@
 use {
     crate::{
         controllers::mailchimp::{add_contact, get_all_contacts},
-        state::AppState,
+        models::state::AppState,
     },
     axum::{
         Router,

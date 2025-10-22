@@ -2,7 +2,7 @@ use {
     crate::{
         controllers::teachers::{create_teacher, delete_teacher, get_all_teachers, get_teacher},
         middleware::auth::firebase_auth_middleware,
-        state::AppState,
+        models::state::AppState,
     },
     axum::{
         Router, middleware,

@@ -6,10 +6,10 @@ use {
                 UserAuthentication, UserMerged,
             },
             response::ResponseAPI,
-            user::{Provider, UserDB, UserRequest},
+            state::AppState,
+            user::{Provider, Role, UserDB, UserRequest},
         },
         services::firebase::handle_firebase_response,
-        state::AppState,
     },
     axum::{
         Extension, Json,
@@ -54,18 +54,16 @@ pub async fn register_user(
     // Record email in tracing span
     tracing::Span::current().record("email", &user.email.as_str());
     // Comprobamos si quiere hacer cosas que solo podria hacer un admin como tener un rol, o asiganr permisos o tier de subscripción
-    match &user.role {
-        Some(role) if role == "admin" => {
-            return (
-                StatusCode::FORBIDDEN,
-                Json(ResponseAPI::<()>::error(
-                    "You do not have permission to assign this role".to_string(),
-                )),
-            )
-                .into_response();
-        }
-        _ => {}
+    if matches!(user.role.as_ref(), Some(Role::Admin)) {
+        return (
+            StatusCode::FORBIDDEN,
+            Json(ResponseAPI::<()>::error(
+                "You do not have permission to assign this role".to_string(),
+            )),
+        )
+            .into_response();
     }
+
     if user.permissions.as_ref().is_some() || user.subscription_tier.as_ref().is_some() {
         return (
             StatusCode::FORBIDDEN,

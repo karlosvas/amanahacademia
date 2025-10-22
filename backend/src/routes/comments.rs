@@ -5,7 +5,7 @@ use {
             get_all_comments, get_comment_by_id, get_reply_by_id, toggle_like,
         },
         middleware::auth::firebase_auth_middleware,
-        state::AppState,
+        models::state::AppState,
     },
     axum::{
         Router, middleware,

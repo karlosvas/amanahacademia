@@ -1,8 +1,5 @@
 use {
-    crate::{
-        models::{error::AuthError, firebase::UserAuthentication},
-        state::AppState,
-    },
+    crate::models::{error::AuthError, firebase::UserAuthentication, state::AppState},
     axum::{
         extract::{Request, State},
         http::{HeaderValue, StatusCode},

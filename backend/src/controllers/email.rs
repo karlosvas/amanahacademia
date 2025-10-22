@@ -1,25 +1,15 @@
-use axum::debug_handler;
-use tracing::instrument;
-
 use {
-    axum::{Json, extract::State, http::StatusCode, response::IntoResponse},
-    ecow::EcoString,
+    crate::models::{email::EmailResend, response::ResponseAPI, state::AppState},
+    axum::{Json, debug_handler, extract::State, http::StatusCode, response::IntoResponse},
     resend_rs::types::CreateEmailBaseOptions,
     std::sync::Arc,
-    tracing::{error},
+    tracing::{error, instrument},
 };
 
-use crate::{
-    models::{
-        email::{CreateEmailResponsePersonalized, EmailIdPersonalized, EmailResend},
-        response::ResponseAPI,
-    },
-    state::AppState,
-};
-
+/// Envía un correo electrónico de contacto utilizando la API de Resend.
 #[debug_handler]
 #[instrument(skip(state, payload))]
-pub async fn send_contact(
+pub async fn send_contact_email(
     State(state): State<Arc<AppState>>,
     Json(payload): Json<EmailResend>,
 ) -> impl IntoResponse {
@@ -139,38 +129,25 @@ pub async fn send_contact(
         </body>
         </html>
         "#,
-        payload.name,
-        payload
-            .from
-            .as_ref()
-            .unwrap_or(&"contact@amanahacademia.com".to_string()),
-        payload.subject,
-        payload.text
+        payload.name, "contact@amanahacademia.com", payload.subject, payload.text
     );
 
-    let email: CreateEmailBaseOptions = CreateEmailBaseOptions::new(
-        "contact@amanahacademia.com".to_string(), // from (remitente)
-        vec!["contact@amanahacademia.com".to_string()], // to (destinatarios)
-        &payload.subject,                         // subject
-    )
-    .with_html(html_content.as_str());
+    // Configura el email usando el modelo oficial de resend-rs
+    let email: CreateEmailBaseOptions =
+        CreateEmailBaseOptions::new("contact@amanahacademia.com", payload.to, &payload.subject)
+            .with_html(&html_content);
 
     match state.resend_client.emails.send(email).await {
-        Ok(response) => {
-            let response = CreateEmailResponsePersonalized {
-                id: EmailIdPersonalized(EcoString::from(response.id.to_string())),
-            };
-            (
-                StatusCode::OK,
-                Json(ResponseAPI::<CreateEmailResponsePersonalized>::success(
-                    "Email sent successfully".to_string(),
-                    response,
-                )),
-            )
-                .into_response()
-        }
+        Ok(response) => (
+            StatusCode::OK,
+            Json(ResponseAPI::<String>::success(
+                "Email sent successfully".to_string(),
+                response.id.to_string(),
+            )),
+        )
+            .into_response(),
         Err(e) => {
-            error!("[ERROR] Failed to send email: {:?}", e);
+            error!("Failed to send email: {:?}", e);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(ResponseAPI::<()>::error("Failed to send email".to_string())),

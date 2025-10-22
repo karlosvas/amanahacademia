@@ -5,6 +5,7 @@ pub mod error;
 pub mod firebase;
 pub mod mailchimp;
 pub mod response;
+pub mod state;
 pub mod stripe;
 pub mod teacher;
 pub mod user;

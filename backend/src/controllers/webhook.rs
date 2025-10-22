@@ -7,19 +7,19 @@ use {
         models::{
             cal::BookingStatus,
             response::ResponseAPI,
+            state::AppState,
             stripe::RelationalCalStripe,
             user::UserDB,
             webhook::{Attendee, BookingChange, CalWebhookEvent, RefundResponse, WebhookTrigger},
         },
-        state::AppState,
     },
     axum::{Json, extract::State, http::StatusCode, response::IntoResponse},
     std::sync::Arc,
     stripe::{CreateRefund, PaymentIntentId, Refund},
-    tokio::time::Interval,
+    tokio::time::{Interval, MissedTickBehavior},
 };
 
-// Health check endpoint
+/// Health check endpoint
 pub async fn health_check() -> &'static str {
     "OK"
 }
@@ -29,7 +29,7 @@ pub async fn health_check() -> &'static str {
 async fn process_refund(state: &AppState, booking_id: &str) -> Result<RefundResponse, String> {
     tracing::info!("Procesando reembolso para booking: {}", booking_id);
 
-    let url_firebase_db_relationship = format!(
+    let url_firebase_db_relationship: String = format!(
         "{}/relation_cal_stripe/{}.json",
         state.firebase_options.firebase_database_url, booking_id
     );
@@ -86,7 +86,7 @@ async fn process_refund(state: &AppState, booking_id: &str) -> Result<RefundResp
     .await
     {
         Ok(refund) => {
-            tracing::info!("✅ Reembolso creado en Stripe: {:?}", refund);
+            tracing::info!("Reembolso creado en Stripe: {:?}", refund);
 
             let response = RefundResponse {
                 id: refund.id.to_string(),
@@ -142,7 +142,7 @@ async fn process_created_free(
     // Actualizar solo el campo first_free_class
     update_first_free_class(state, user_email.as_str()).await?;
 
-    tracing::info!("✅ Clase gratuita marcada para: {}", user_email);
+    tracing::info!("Clase gratuita marcada para: {}", user_email);
 
     Ok("First class to user reserved".to_string())
 }
@@ -159,7 +159,7 @@ pub async fn handle_cal_webhook(
     match event.trigger_event {
         WebhookTrigger::BookingCancelled => {
             tracing::info!(
-                "📨 Booking cancelled: {} - Reason: {:?}",
+                "Booking cancelled: {} - Reason: {:?}",
                 event.payload.uid,
                 event.payload.cancellation_reason
             );
@@ -185,17 +185,26 @@ pub async fn handle_cal_webhook(
             }
         }
         WebhookTrigger::BookingCreated => {
-            if event.payload.event_type_slug == "free-class" {
-                tracing::info!("📨 New booking created: {}", event.payload.uid);
+            tracing::info!("Booking created: {}", event.payload.uid);
+            if event.payload.event_type_slug.as_deref() == Some("free-class") {
+                tracing::info!("New booking created: {}", event.payload.uid);
                 // Procesamos el booking creado
                 match process_created_free(&state, &event.payload.uid, &event.payload.attendees)
                     .await
                 {
-                    Ok(_) => {
+                    Ok(success_msg) => {
                         tracing::info!(
                             "Booking gratuito creado procesado exitosamente - booking: {}",
                             event.payload.uid
                         );
+                        return (
+                            StatusCode::OK,
+                            Json(ResponseAPI::<String>::success(
+                                "Free class booking processed successfully".to_string(),
+                                success_msg,
+                            )),
+                        )
+                            .into_response();
                     }
                     Err(err_msg) => {
                         tracing::error!(
@@ -214,7 +223,7 @@ pub async fn handle_cal_webhook(
         }
         _ => {
             tracing::info!(
-                "📨 Webhook event received but no action taken: {}",
+                "Webhook event received but no action taken: {}",
                 event.trigger_event
             );
         }
@@ -231,72 +240,101 @@ pub async fn handle_cal_webhook(
 
 /// Tarea de polling para detectar cambios en bookings de Cal.com
 pub async fn polling_task(state: Arc<AppState>) {
-    let mut interval: Interval = tokio::time::interval(std::time::Duration::from_secs(60));
+    let poll_interval_secs: u64 = 600; // 10 minutos
+    let mut interval: Interval =
+        tokio::time::interval(std::time::Duration::from_secs(poll_interval_secs));
 
-    // Primera tick es inmediata, la saltamos
-    interval.tick().await;
+    // MissedTickBehavior::Skip evita acumulación si el procesamiento tarda más que el intervalo
+    interval.set_missed_tick_behavior(MissedTickBehavior::Skip);
 
-    tracing::info!("📊 Cal.com polling task iniciada (cada {}s)", 60);
+    tracing::info!(
+        "Cal.com polling task initiated (cada {}s)",
+        poll_interval_secs
+    );
 
     loop {
+        // Esperar hasta el próximo tick (primera iteración es inmediata)
         interval.tick().await;
 
-        let changes_result: Result<Vec<BookingChange>, String> =
-            fetch_and_detect_changes(&state).await;
+        match fetch_and_detect_changes(&state).await {
+            Ok(changes) if !changes.is_empty() => {
+                tracing::info!(
+                    "Detected {} changes in Cal.com at {}",
+                    changes.len(),
+                    chrono::Utc::now()
+                );
+                for change in &changes {
+                    tracing::info!(
+                        "  Booking {}: {:?} -> {:?} (detected at: {})",
+                        change.uid,
+                        change.old_status,
+                        change.new_status,
+                        change.detected_at
+                    );
+                }
 
-        match changes_result {
-            Ok(changes) => {
-                if !changes.is_empty() {
-                    tracing::info!("🔍 Detectados {} cambios en Cal.com", changes.len());
+                // === BLOQUE DE ACTUALIZACIÓN DEL HISTORIAL ===
+                // RwLock permite múltiples lectores simultáneos PERO solo un escritor a la vez.
+                // Esto evita race conditions cuando varias tareas intentan leer/escribir.
+                {
+                    // .write() obtiene acceso EXCLUSIVO al Vec (bloquea a otros hasta que termine)
+                    // Este "lock" se libera automáticamente al salir del bloque {}
+                    let mut recent = state.cal_options.recent_changes.write().await;
 
-                    // Clonar los cambios antes de procesarlos
-                    let changes_to_process = changes.clone();
+                    // .iter().cloned(): itera sobre referencias y las clona
+                    // (necesario porque usamos `changes` más abajo)
+                    recent.extend(changes.iter().cloned());
 
-                    // Almacenar cambios para consulta posterior
-                    {
-                        let mut recent = state.cal_options.recent_changes.write().await;
-                        recent.extend(changes);
+                    // Limitar tamaño del historial
+                    if recent.len() > 1000 {
+                        tracing::debug!("Clearing cache (keeping last 500)");
 
-                        // Opcional: mantener solo últimos 1000 cambios
-                        if recent.len() > 1000 {
-                            tracing::debug!(
-                                "🗑️  Limpiando caché de cambios recientes (manteniendo últimos 500)"
-                            );
-                            recent.drain(0..500);
-                        }
-                    } // El lock se libera aquí
+                        // .drain(0..500): REMUEVE los primeros 500 elementos del Vec
+                        // Es más eficiente que crear un Vec nuevo con .skip()
+                        recent.drain(0..500);
+                    }
+                }
 
-                    // Procesar cada cambio
-                    for change in changes_to_process {
-                        handle_booking_change(&state, change).await;
+                // === PROCESAMIENTO DE CAMBIOS ===
+                // Procesar cada cambio detectado
+                for change in changes {
+                    // Si handle_booking_change falla, logueamos el error
+                    // pero continuamos procesando los demás cambios
+                    if let Err(e) = handle_booking_change(&state, change).await {
+                        tracing::error!("Error processing change: {}", e);
                     }
                 }
             }
+            Ok(_) => {
+                tracing::info!("No changes detected in Cal.com");
+            }
             Err(e) => {
-                tracing::error!("Error en polling de Cal.com: {}", e);
+                tracing::error!("Error in Cal.com polling: {}", e);
             }
         }
     }
 }
 
 /// Maneja un cambio de booking detectado en polling
-async fn handle_booking_change(state: &AppState, change: BookingChange) {
+async fn handle_booking_change(state: &AppState, change: BookingChange) -> Result<(), String> {
     match change.new_status {
         BookingStatus::Cancelled => {
-            tracing::info!("🔄 Polling detectó cancelación - booking: {}", change.uid);
+            tracing::info!("Polling detectó cancelación - booking: {}", change.uid);
 
             // Procesar el reembolso usando la misma lógica que el webhook
             match process_refund(state, &change.uid).await {
                 Ok(refund_response) => {
                     tracing::info!(
-                        "✅ Reembolso procesado exitosamente desde polling - Refund ID: {}, Amount: {}, Status: {:?}",
+                        "Reembolso procesado exitosamente desde polling - Refund ID: {}, Amount: {}, Status: {:?}",
                         refund_response.id,
                         refund_response.amount,
                         refund_response.status
                     );
+                    Ok(())
                 }
                 Err(err_msg) => {
                     tracing::error!("Error procesando reembolso desde polling: {}", err_msg);
+                    Err(err_msg)
                 }
             }
         }
@@ -306,6 +344,7 @@ async fn handle_booking_change(state: &AppState, change: BookingChange) {
                 change.uid,
                 change.new_status
             );
+            Ok(())
         }
     }
 }

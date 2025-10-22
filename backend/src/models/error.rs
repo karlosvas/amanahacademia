@@ -1,3 +1,4 @@
+/// Errores relacionados con la autenticación de Firebase
 #[derive(Debug, thiserror::Error)]
 pub enum AuthError {
     #[error("Missing authorization header")]
