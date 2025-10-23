@@ -1,0 +1,50 @@
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Frontend - install & coverage
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run test:coverage
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Backend - coverage (tarpaulin)
+        working-directory: ./backend
+        run: |
+          sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config
+          cargo install cargo-tarpaulin || true
+          cargo tarpaulin --out Xml --output-dir ./coverage
+          mv ./coverage/cargo-tarpaulin-report.xml ./coverage/cobertura.xml || true
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          projectBaseDir: .
+          args: >-
+            -Dsonar.sources=frontend/src,backend/src
+            -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
+            -Dsonar.coverageReportPaths=backend/coverage/cobertura.xml
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -130,6 +130,12 @@ Política: Consulta nuestra Security Hall of Fame
 - 📜 Cumplimiento con políticas de privacidad y GDPR
 - 🎖️ Reconocimiento en nuestro Security Hall of Fame
 
+## 🧰 Calidad / Sonar
+
+Analizamos la calidad del código con SonarCloud. Si quieres ejecutar los mismos checks localmente antes de abrir un PR, sigue las instrucciones en `docs/sonar.md` (genera cobertura y ejecuta el scanner localmente).
+
+El workflow de CI ya está incluido en `.github/workflows/sonar.yml` y se ejecutará automáticamente en pushes a `main` y en Pull Requests.
+
 ## 📄 Licencia
 
 Este proyecto está bajo una Licencia GPL. Ver el archivo LICENSE para detalles.

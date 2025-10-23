@@ -24,7 +24,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-
 # Rust build artifacts
 /target/
 **/*.rs.bk
@@ -35,7 +34,26 @@ Cargo.toml.orig
 
 # Rust coverage and test output
 /coverage/
-/*.profraw
+*.profraw
+*.profdata
+cobertura.xml
+lcov.info
+tarpaulin-report.html
+tarpaulin-report.xml
+
+# SonarQube/SonarCloud
+.sonar/
+.scannerwork/
+sonar-project.properties.backup
+*.sonar.log
+
+# Frontend coverage
+frontend/coverage/
+frontend/.nyc_output/
+
+# Backend coverage  
+backend/coverage/
+backend/tarpaulin/
 
 # Rust language server and IDE files
 .rls/
@@ -58,5 +76,5 @@ develop
 # Claude
 .claude
 
-# Claudflare
+# Cloudflare
 .wrangler

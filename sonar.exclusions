@@ -1,0 +1,20 @@
+# Node / frontend
+frontend/node_modules/**/*
+frontend/dist/**/*
+frontend/build/**/*
+frontend/public/**/*
+frontend/.astro/**/*
+frontend/coverage/**/*
+
+# Rust / backend
+backend/target/**/*
+backend/coverage/**/*
+
+# Varios
+**/node_modules/**/*
+**/dist/**/*
+**/build/**/*
+**/coverage/**/*
+**/.git/**/*
+**/*.lock
+**/*.map
