@@ -2,10 +2,10 @@
 import CardComment from "@/components/comments/CardComment.astro";
 import StarGroup from "@/components/comments/StarGroup.astro";
 import Stadistics from "@/components/comments/Stadistics.astro";
-import type { Comment, Result } from "@/types/bakend-types";
 import { ApiService } from "@/services/helper";
 import CommentModal from "@/components/comments/CommentModal.astro";
 import { processComments } from "@/services/comments";
+import type { Comment, Result } from "@/types/bakend-types";
 import type { CommentI18n } from "@/types/types";
 
 const data = Astro.props.data as CommentI18n;
@@ -39,7 +39,7 @@ try {
   }
 } catch (error) {
   console.error("Error de red al cargar comentarios:", error);
-  // Opcional: Puedes tener comentarios por defecto o vacío
+  // Opcional: Dejar tener comentarios por defecto o vacío
   comments = [];
 }
 
@@ -115,10 +115,9 @@ const percentaje = ["90", "70", "95", "80", "89"];
   // Importa la instancia de autenticación de Firebase y el listener de cambios de usuario
   import { onAuthStateChanged, getFirebaseAuth } from "@/services/firebase";
   import { submitLike } from "@/services/comments";
-  import { toast } from "solid-toast";
-  import { updateLikeState } from "@/services/comments";
-  import { showModalAnimation } from "@/utils/modals";
+  import toast from "solid-toast";
   import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
+  import { openCommentModal, updateLikeState } from "@/services/comments";
 
   // Espera a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", async function () {
@@ -176,16 +175,6 @@ const percentaje = ["90", "70", "95", "80", "89"];
       });
     });
 
-    // Para abrir el modal (por ejemplo, desde un botón)
-    function openCommentModal(idCommentShared: string, isEdit: boolean = false) {
-      const modal = document.getElementById(idCommentShared) as HTMLDialogElement;
-      const form = modal?.querySelector("form") as HTMLFormElement;
-
-      if (modal && form) {
-        showModalAnimation(modal, form, true); // true para showModal() en lugar de show()
-      }
-    }
-
     // Ejemplo de uso desde un botón
     const openBtn = document.getElementById("open-comment-modal");
     openBtn?.addEventListener("click", () => {
@@ -197,6 +186,7 @@ const percentaje = ["90", "70", "95", "80", "89"];
     });
   });
 </script>
+
 <style>
   @media (min-width: 768px) and (max-width: 1023px) {
     .comments-grid {

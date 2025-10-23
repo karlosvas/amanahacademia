@@ -2,8 +2,8 @@
 import { Class } from "@/enums/enums";
 import CardPricing from "@/components/pricing/CardPricing.astro";
 import Title from "@/components/common/Title.astro";
-import type { PricingI18n } from "@/types/types";
 import { ApiService } from "@/services/helper";
+import type { PricingI18n } from "@/types/types";
 
 const data = Astro.props.data as PricingI18n;
 
@@ -73,10 +73,9 @@ try {
 
 <script>
   import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
-  import { initCalendar } from "@/services/calendar";
   import { Class, FrontendErrorCode, getErrorToast } from "@/enums/enums";
   import { getThemeFromCookie } from "@/utils/cookie";
-  import { updatePricing } from "@/services/calendar";
+  import { updatePricing, initCalendar } from "@/services/calendar";
   import { getAuth } from "firebase/auth";
   import toast from "solid-toast";
   import { ApiService } from "@/services/helper";

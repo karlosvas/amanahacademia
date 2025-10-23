@@ -98,9 +98,9 @@ const data = Astro.props.data as ContactI18n;
 <script>
   const { getFirebaseAuth } = await import("@/services/firebase");
   import { ApiService } from "@/services/helper";
-  import type { EmailResend } from "@/types/bakend-types";
   import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
   import toast from "solid-toast";
+  import type { EmailResend } from "@/types/bakend-types";
 
   // DOOM content loaded
   document.addEventListener("DOMContentLoaded", async () => {

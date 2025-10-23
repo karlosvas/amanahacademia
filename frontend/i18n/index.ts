@@ -6,17 +6,7 @@ import italian from "./it.json" with { type: "json" };
 import portuguese from "./pt.json" with { type: "json" };
 import arabic from "./ar.json" with { type: "json" };
 import type { I18nTranslations, Lang } from "@/types/types";
-
-// Lenguajes permitidos
-const enum Languages {
-  ENGLISH = "en",
-  SPANISH = "es",
-  FRENCH = "fr",
-  GERMAN = "de",
-  ITALIAN = "it",
-  PORTUGUESE = "pt",
-  ARABIC = "ar",
-}
+import { Languages } from "@/enums/enums";
 
 // Obtener la traduccion correspondiente al idioma selecionado
 export const getI18N = ({ lang = "es" }: { lang: string | undefined }): I18nTranslations => {

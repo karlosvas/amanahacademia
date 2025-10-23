@@ -43,6 +43,7 @@ export enum FrontendStripe {
   GENERIC_ERROR = "GENERIC_ERROR",
   MISSING_CONFIG = "MISSING_CONFIG",
   MISSING_SLUG = "MISSING_SLUG",
+  MISSING_URL_PARAMS = "MISSING_URL_PARAMS",
   PRICING_FETCH_ERROR = "PRICING_FETCH_ERROR",
   PRICING_ELEMENT_NOT_FOUND = "PRICING_ELEMENT_NOT_FOUND",
   MISSING_PRICING = "MISSING_PRICING",
@@ -158,6 +159,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.GENERIC_ERROR]: "Ocurrió un error inesperado. Inténtalo de nuevo",
     [FrontendStripe.MISSING_CONFIG]: "Configuración incompleta. Por favor, contacta al soporte",
     [FrontendStripe.MISSING_SLUG]: "No se proporcionó el tipo de clase",
+    [FrontendStripe.MISSING_URL_PARAMS]: "Faltan parámetros requeridos en la URL",
     [FrontendStripe.PRICING_FETCH_ERROR]: "No se pudo obtener el precio",
     [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "No se pudo mostrar el precio",
     [FrontendStripe.MISSING_PRICING]: "No se pudo obtener el precio para inicializar el pago",
@@ -178,6 +180,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.GENERIC_ERROR]: "An unexpected error occurred. Please try again",
     [FrontendStripe.MISSING_CONFIG]: "Incomplete configuration. Please contact support",
     [FrontendStripe.MISSING_SLUG]: "Class type not provided",
+    [FrontendStripe.MISSING_URL_PARAMS]: "Missing required URL parameters",
     [FrontendStripe.PRICING_FETCH_ERROR]: "Could not fetch pricing",
     [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Could not display pricing",
     [FrontendStripe.MISSING_PRICING]: "Could not get pricing to initialize payment",
@@ -198,6 +201,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.GENERIC_ERROR]: "Ocorreu um erro inesperado. Por favor, tente novamente",
     [FrontendStripe.MISSING_CONFIG]: "Configuração incompleta. Por favor, entre em contato com o suporte",
     [FrontendStripe.MISSING_SLUG]: "Tipo de aula não fornecido",
+    [FrontendStripe.MISSING_URL_PARAMS]: "Faltam parâmetros obrigatórios na URL",
     [FrontendStripe.PRICING_FETCH_ERROR]: "Não foi possível obter o preço",
     [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Não foi possível exibir o preço",
     [FrontendStripe.MISSING_PRICING]: "Não foi possível obter o preço para inicializar o pagamento",
@@ -219,6 +223,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.GENERIC_ERROR]: "Si è verificato un errore imprevisto. Si prega di riprovare",
     [FrontendStripe.MISSING_CONFIG]: "Configurazione incompleta. Si prega di contattare il supporto",
     [FrontendStripe.MISSING_SLUG]: "Tipo di classe non fornito",
+    [FrontendStripe.MISSING_URL_PARAMS]: "Mancano parametri obbligatori nell'URL",
     [FrontendStripe.PRICING_FETCH_ERROR]: "Impossibile ottenere il prezzo",
     [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Impossibile visualizzare il prezzo",
     [FrontendStripe.MISSING_PRICING]: "Impossibile ottenere il prezzo per inizializzare il pagamento",
@@ -239,6 +244,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.GENERIC_ERROR]: "Une erreur inattendue s'est produite. Veuillez réessayer",
     [FrontendStripe.MISSING_CONFIG]: "Configuration incomplète. Veuillez contacter le support",
     [FrontendStripe.MISSING_SLUG]: "Type de cours non fourni",
+    [FrontendStripe.MISSING_URL_PARAMS]: "Paramètres d'URL requis manquants",
     [FrontendStripe.PRICING_FETCH_ERROR]: "Impossible de récupérer le prix",
     [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Impossible d'afficher le prix",
     [FrontendStripe.MISSING_PRICING]: "Impossible d'obtenir le prix pour initialiser le paiement",
@@ -259,6 +265,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.GENERIC_ERROR]: "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut",
     [FrontendStripe.MISSING_CONFIG]: "Unvollständige Konfiguration. Bitte kontaktieren Sie den Support",
     [FrontendStripe.MISSING_SLUG]: "Klassentyp nicht angegeben",
+    [FrontendStripe.MISSING_URL_PARAMS]: "Erforderliche URL-Parameter fehlen",
     [FrontendStripe.PRICING_FETCH_ERROR]: "Preis konnte nicht abgerufen werden",
     [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Preis konnte nicht angezeigt werden",
     [FrontendStripe.MISSING_PRICING]: "Preis konnte nicht abgerufen werden, um Zahlung zu initialisieren",
@@ -279,6 +286,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.GENERIC_ERROR]: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى",
     [FrontendStripe.MISSING_CONFIG]: "إعداد غير مكتمل. يرجى الاتصال بالدعم",
     [FrontendStripe.MISSING_SLUG]: "لم يتم توفير نوع الفصل",
+    [FrontendStripe.MISSING_URL_PARAMS]: "معلمات URL المطلوبة مفقودة",
     [FrontendStripe.PRICING_FETCH_ERROR]: "تعذر الحصول على السعر",
     [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "تعذر عرض السعر",
     [FrontendStripe.MISSING_PRICING]: "تعذر الحصول على السعر لتهيئة الدفع",
@@ -412,4 +420,15 @@ export const ValidationMessages: Record<string, Record<ValidationCode, string>> 
 export function getValidationMessage(code: ValidationCode): string {
   const lang = getLangFromCookie();
   return ValidationMessages[lang]?.[code] || ValidationMessages["es"][code];
+}
+
+// Lenguajes permitidos
+export const enum Languages {
+  ENGLISH = "en",
+  SPANISH = "es",
+  FRENCH = "fr",
+  GERMAN = "de",
+  ITALIAN = "it",
+  PORTUGUESE = "pt",
+  ARABIC = "ar",
 }

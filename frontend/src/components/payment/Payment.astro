@@ -26,20 +26,19 @@ import Title from "../common/Title.astro";
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-  import { ApiService } from "@/services/helper";
-  import type { CheckoutPaymentIntentResponse, Result, CheckoutPaymentIntentRequest } from "@/types/bakend-types";
-  import { showError, clearMessages, handlePayment } from "@/services/payment";
-  import { getPrice } from "@/services/calendar";
-  import type { PricingApiResponse } from "@/types/types";
+  import { showError, handlePayment } from "@/services/payment";
+  import { initializePrice, initializeStripe } from "@/services/payment";
   import { getErrorFrontStripe, FrontendStripe } from "@/enums/enums";
 
   // Obtenemos la configuracion inicial
   const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_API_KEY;
   const URL_BACKEND = import.meta.env.PUBLIC_BACKEND_URL;
 
-  if (!STRIPE_PUBLIC_KEY || !URL_BACKEND) showError(getErrorFrontStripe(FrontendStripe.MISSING_CONFIG));
+  if (!STRIPE_PUBLIC_KEY || !URL_BACKEND) {
+    showError(getErrorFrontStripe(FrontendStripe.MISSING_CONFIG));
+    throw new Error("Missing Stripe configuration");
+  }
 
-  const helper = new ApiService();
   let stripe: any;
   let elements: any;
   let paymentElement: any;
@@ -48,135 +47,9 @@ import Title from "../common/Title.astro";
   const bookingUid: string | null = params.get("uid");
   const testCountry: string | null = params.get("test_country");
 
-  async function initializePrice(): Promise<number | undefined> {
-    try {
-      // Obtenemos la lista de precios desde el backend
-      const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
-      const response: Response = await fetch(apiUrl);
-      const pricingData: PricingApiResponse = (await response.json()) as PricingApiResponse;
-
-      if (!slugType) {
-        showError(getErrorFrontStripe(FrontendStripe.MISSING_SLUG));
-        return;
-      } else if (!response.ok) {
-        showError(getErrorFrontStripe(FrontendStripe.PRICING_FETCH_ERROR));
-        return;
-      }
-
-      // Obtenemos el precio para el tipo de clase seleccionado
-      const pricing = getPrice(slugType, pricingData);
-      const pricingElement = document.getElementById("pricing");
-      if (!pricingElement) {
-        showError(getErrorFrontStripe(FrontendStripe.PRICING_ELEMENT_NOT_FOUND));
-        return;
-      }
-
-      pricingElement.textContent = `${pricing} €`;
-
-      return pricing;
-    } catch (error: any) {
-      showError(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
-    }
-  }
-
-  async function initializeStripe(pricing: number | undefined) {
-    try {
-      // Obtenemos el booking UID
-      stripe = window.Stripe(STRIPE_PUBLIC_KEY);
-
-      if (!pricing) {
-        showError(getErrorFrontStripe(FrontendStripe.MISSING_PRICING));
-        return;
-      }
-
-      // Transformamos de euros a centimos
-      const amount = Math.round(pricing * 100);
-
-      const carry: CheckoutPaymentIntentRequest = {
-        amount,
-        currency: "EUR",
-      };
-
-      if (!carry) throw new Error(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
-
-      // Obtenemos el clinet secreat para elements
-      let response: Result<CheckoutPaymentIntentResponse> = await helper.checkout(carry);
-
-      // Comprobamos que la respuesta sea válida
-      if (!response.success) throw new Error(getErrorFrontStripe(FrontendStripe.SERVER_ERROR));
-
-      // Obtenemos el secreto de cliente
-      const data = response.data;
-
-      // Crear Stripe Elements
-      const appearance = {
-        theme: "stripe",
-        variables: {
-          // Colores principales
-          colorPrimary: "#eb5e61", // Color principal botones
-          colorBackground: "transparent", // Fondo general
-          colorText: "#808080", // Texto principal (gris)
-          colorTextSecondary: "#8a4141", // Texto secundario / placeholders
-          colorDanger: "#fa8072", // Mensajes de error
-          colorSuccess: "#28a745", // Mensajes correctos
-
-          // Tipografía
-          fontSizeBase: "16px",
-          fontFamily: "Arial, sans-serif",
-
-          // Bordes
-          borderRadius: "8px",
-        },
-        rules: {
-          ".Input": {
-            padding: "10px",
-            border: "1px solid #ddd",
-          },
-          ".Input:focus": {
-            borderColor: "#6d0006",
-          },
-          ".Button": {
-            backgroundColor: "#6d0006",
-            color: "#fff",
-          },
-          ".Button:hover": {
-            backgroundColor: "#eb5e61", // Un color bonito, el mismo que el primario
-            color: "#fff", // Mantén el texto blanco
-            boxShadow: "0 2px 8px rgba(235, 94, 97, 0.2)", // Sombra suave
-          },
-        },
-      };
-      elements = stripe.elements({
-        clientSecret: data.client_secret,
-        appearance,
-      });
-
-      // Crear y montar el Payment Element
-      paymentElement = elements.create("payment");
-
-      // Ocultar loading y mostrar el elemento de pago
-      const loading = document.querySelector(".loading") as HTMLDivElement | null;
-      if (!loading || !loading.style) {
-        showError(getErrorFrontStripe(FrontendStripe.PAYMENT_FORM_ERROR));
-        return;
-      }
-      loading.style.display = "none";
-      await paymentElement.mount("#payment-element");
-
-      // Habilitar el botón de pago
-      const submitButton = document.getElementById("submit-button") as HTMLButtonElement | null;
-      if (!submitButton) return;
-      submitButton.disabled = false;
-
-      // Manejar cambios en el elemento de pago
-      paymentElement.on("change", (event: any) => {
-        if (event.error) showError(event.error.message);
-        else clearMessages();
-      });
-    } catch (error: any) {
-      console.error("Error inicializando Stripe:", error);
-      showError(getErrorFrontStripe(FrontendStripe.STRIPE_INITIALIZATION_ERROR));
-    }
+  if (!slugType || !bookingUid || !testCountry) {
+    showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
+    throw new Error("Missing URL parameters");
   }
 
   // Inicializar cuando el DOM esté listo
@@ -184,8 +57,8 @@ import Title from "../common/Title.astro";
     try {
       // Esperamos a que cargue firebase antes de inicializar Stripe
       setTimeout(async () => {
-        const price = await initializePrice();
-        await initializeStripe(price);
+        const price = await initializePrice(testCountry, slugType);
+        await initializeStripe(paymentElement, stripe, STRIPE_PUBLIC_KEY, elements, price);
 
         const submitButton = document.getElementById("submit-button");
         if (!submitButton) return;
@@ -196,6 +69,7 @@ import Title from "../common/Title.astro";
     }
   });
 </script>
+
 <style>
   .container {
     max-width: 600px;

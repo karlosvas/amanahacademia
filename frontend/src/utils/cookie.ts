@@ -1,5 +1,3 @@
-// src/utils/cookie.ts
-
 declare global {
   interface Window {
     gtag?: (...args: any[]) => void;

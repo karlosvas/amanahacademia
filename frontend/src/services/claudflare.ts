@@ -17,3 +17,10 @@ export function executeTurnstileIfPresent(formHTML: HTMLFormElement): Promise<vo
     }
   });
 }
+
+export function updateTurnstileVisibility(isRegister: boolean) {
+  const loginWidget = document.getElementById("turnstile-login");
+  const registerWidget = document.getElementById("turnstile-register");
+  if (loginWidget) loginWidget.style.display = isRegister ? "none" : "";
+  if (registerWidget) registerWidget.style.display = isRegister ? "" : "none";
+}

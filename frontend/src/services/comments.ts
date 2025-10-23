@@ -4,6 +4,7 @@ import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 import { getFirebaseAuth } from "./firebase";
 import { FrontendError, isFrontendError } from "@/types/types";
 import toast from "solid-toast";
+import { showModalAnimation } from "@/utils/modals";
 type User = import("firebase/auth").User;
 
 export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanElement) {
@@ -281,4 +282,12 @@ export async function handleEditReply(
   }
 
   return result;
+}
+
+// Para abrir el modal (por ejemplo, desde un botón)
+export function openCommentModal(idCommentShared: string, isEdit: boolean = false) {
+  const modal = document.getElementById(idCommentShared) as HTMLDialogElement;
+  const form = modal?.querySelector("form") as HTMLFormElement;
+
+  if (modal && form) showModalAnimation(modal, form, true); // true para showModal() en lugar de show()
 }

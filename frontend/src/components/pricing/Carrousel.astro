@@ -1,6 +1,6 @@
 ---
-import type { Teacher } from "@/types/bakend-types";
 import SpainIcon from "@/assets/spain.svg";
+import type { Teacher } from "@/types/bakend-types";
 
 const id = Astro.props.id as string;
 const teachers = Astro.props.teachers as Teacher[];
@@ -104,8 +104,10 @@ const teachers = Astro.props.teachers as Teacher[];
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // Función para inicializar un carrusel específico
-    function initializeCarousel(carouselId: string) {
+    // Inicializar todos los carruseles presentes en la página
+    const allCarousels = document.querySelectorAll('[id^="carousel-track-"]');
+    allCarousels.forEach((carousel) => {
+      const carouselId = carousel.id.replace("carousel-track-", "");
       const carrousel = document.getElementById(`carousel-track-${carouselId}`);
       const carrouselDots = document.getElementById(`carousel-dots-${carouselId}`);
       const prevButton = document.getElementById(`carousel-prev-${carouselId}`);
@@ -200,13 +202,6 @@ const teachers = Astro.props.teachers as Teacher[];
           dots[0].style.boxShadow = "0 0 10px rgba(239, 68, 68, 0.5)";
         }
       }
-    }
-
-    // Inicializar todos los carruseles presentes en la página
-    const allCarousels = document.querySelectorAll('[id^="carousel-track-"]');
-    allCarousels.forEach((carousel) => {
-      const carouselId = carousel.id.replace("carousel-track-", "");
-      initializeCarousel(carouselId);
     });
   });
 </script>

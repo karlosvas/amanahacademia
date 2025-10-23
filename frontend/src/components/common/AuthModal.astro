@@ -3,7 +3,6 @@ import PersoneIcon from "@/assets/person.svg";
 import AtSignIcon from "@/assets/at-sign.svg";
 import EmailIcon from "@/assets/email.svg";
 import PasswordIcon from "@/assets/password.svg";
-import { TERMNS } from "@/utils/constants";
 import type { ModalI18n } from "@/types/types";
 import GoogleIcon from "@/assets/google.svg";
 
@@ -12,6 +11,7 @@ if (!TURNSTILE_SITE_KEY) throw new Error("TURNSTILE_SITE_KEY is required in prod
 
 const data = Astro.props.data as ModalI18n;
 const label = Astro.props.label;
+export const TERMNS = ["terms", "privacy", "newsletter"];
 ---
 
 <!-- Login -->
@@ -256,16 +256,10 @@ const label = Astro.props.label;
 <!-- Logica de registro y login -->
 <script>
   import { toggleLoginToRegister, submitFormToRegisterOrLogin, handleLogGoogleProvider } from "@/services/firebase";
+  import { updateTurnstileVisibility } from "@/services/claudflare";
 
   // Estado actual de registro o Login
   let isRegister = false;
-
-  function updateTurnstileVisibility() {
-    const loginWidget = document.getElementById("turnstile-login");
-    const registerWidget = document.getElementById("turnstile-register");
-    if (loginWidget) loginWidget.style.display = isRegister ? "none" : "";
-    if (registerWidget) registerWidget.style.display = isRegister ? "" : "none";
-  }
 
   // Esperamos a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", () => {
@@ -285,7 +279,7 @@ const label = Astro.props.label;
       link.addEventListener("click", (e) => {
         e.preventDefault();
         isRegister = toggleLoginToRegister(authModalLogin, authModalRegister, formLogin, formRegister, isRegister);
-        updateTurnstileVisibility();
+        updateTurnstileVisibility(isRegister);
       });
     });
 

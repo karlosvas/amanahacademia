@@ -1,6 +1,13 @@
-import type { RelationalCalStripe } from "@/types/bakend-types";
+import type {
+  CheckoutPaymentIntentRequest,
+  CheckoutPaymentIntentResponse,
+  RelationalCalStripe,
+  Result,
+} from "@/types/bakend-types";
 import { ApiService } from "./helper";
 import { getErrorFrontStripe, FrontendStripe } from "@/enums/enums";
+import type { PricingApiResponse } from "@/types/types";
+import { getPrice } from "./calendar";
 
 // Función para procesar el pago
 export async function handlePayment(stripe: any, elements: any, bookingUid: string | null) {
@@ -192,5 +199,144 @@ export function clearMessages() {
   if (successDiv) {
     successDiv.textContent = "";
     successDiv.style.display = "none";
+  }
+}
+
+export async function initializePrice(testCountry: string, slugType: string): Promise<number | undefined> {
+  try {
+    // Obtenemos la lista de precios desde el backend
+    const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
+    const response: Response = await fetch(apiUrl);
+    const pricingData: PricingApiResponse = (await response.json()) as PricingApiResponse;
+
+    if (!slugType) {
+      showError(getErrorFrontStripe(FrontendStripe.MISSING_SLUG));
+      return;
+    } else if (!response.ok) {
+      showError(getErrorFrontStripe(FrontendStripe.PRICING_FETCH_ERROR));
+      return;
+    }
+
+    // Obtenemos el precio para el tipo de clase seleccionado
+    const pricing = getPrice(slugType, pricingData);
+    const pricingElement = document.getElementById("pricing");
+    if (!pricingElement) {
+      showError(getErrorFrontStripe(FrontendStripe.PRICING_ELEMENT_NOT_FOUND));
+      return;
+    }
+
+    pricingElement.textContent = `${pricing} €`;
+
+    return pricing;
+  } catch (error: any) {
+    showError(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
+  }
+}
+
+export async function initializeStripe(
+  pricing: number | undefined,
+  stripe: any,
+  STRIPE_PUBLIC_KEY: string,
+  elements: any,
+  paymentElement: any
+) {
+  try {
+    const helper = new ApiService();
+
+    // Obtenemos el booking UID
+    stripe = window.Stripe(STRIPE_PUBLIC_KEY);
+
+    if (!pricing) {
+      showError(getErrorFrontStripe(FrontendStripe.MISSING_PRICING));
+      return;
+    }
+
+    // Transformamos de euros a centimos
+    const amount = Math.round(pricing * 100);
+
+    const carry: CheckoutPaymentIntentRequest = {
+      amount,
+      currency: "EUR",
+    };
+
+    if (!carry) throw new Error(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
+
+    // Obtenemos el clinet secreat para elements
+    let response: Result<CheckoutPaymentIntentResponse> = await helper.checkout(carry);
+
+    // Comprobamos que la respuesta sea válida
+    if (!response.success) throw new Error(getErrorFrontStripe(FrontendStripe.SERVER_ERROR));
+
+    // Obtenemos el secreto de cliente
+    const data = response.data;
+
+    // Crear Stripe Elements
+    const appearance = {
+      theme: "stripe",
+      variables: {
+        // Colores principales
+        colorPrimary: "#eb5e61", // Color principal botones
+        colorBackground: "transparent", // Fondo general
+        colorText: "#808080", // Texto principal (gris)
+        colorTextSecondary: "#8a4141", // Texto secundario / placeholders
+        colorDanger: "#fa8072", // Mensajes de error
+        colorSuccess: "#28a745", // Mensajes correctos
+
+        // Tipografía
+        fontSizeBase: "16px",
+        fontFamily: "Arial, sans-serif",
+
+        // Bordes
+        borderRadius: "8px",
+      },
+      rules: {
+        ".Input": {
+          padding: "10px",
+          border: "1px solid #ddd",
+        },
+        ".Input:focus": {
+          borderColor: "#6d0006",
+        },
+        ".Button": {
+          backgroundColor: "#6d0006",
+          color: "#fff",
+        },
+        ".Button:hover": {
+          backgroundColor: "#eb5e61", // Un color bonito, el mismo que el primario
+          color: "#fff", // Mantén el texto blanco
+          boxShadow: "0 2px 8px rgba(235, 94, 97, 0.2)", // Sombra suave
+        },
+      },
+    };
+    elements = stripe.elements({
+      clientSecret: data.client_secret,
+      appearance,
+    });
+
+    // Crear y montar el Payment Element
+    paymentElement = elements.create("payment");
+
+    // Ocultar loading y mostrar el elemento de pago
+    const loading = document.querySelector(".loading") as HTMLDivElement | null;
+    if (!loading || !loading.style) {
+      showError(getErrorFrontStripe(FrontendStripe.PAYMENT_FORM_ERROR));
+      return;
+    }
+    loading.style.display = "none";
+    await paymentElement.mount("#payment-element");
+
+    // Habilitar el botón de pago
+    const submitButton = document.getElementById("submit-button") as HTMLButtonElement | null;
+    if (!submitButton) return;
+    submitButton.disabled = false;
+
+    // Manejar cambios en el elemento de pago
+    paymentElement.on("change", (event: any) => {
+      if (event.error) showError(event.error.message);
+      else clearMessages();
+    });
+  } catch (error: any) {
+    console.error("Error inicializando Stripe:", error);
+    showError(getErrorFrontStripe(FrontendStripe.STRIPE_INITIALIZATION_ERROR));
   }
 }

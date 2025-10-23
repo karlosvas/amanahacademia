@@ -1,8 +1,7 @@
 ---
 import Title from "@/components/common/Title.astro";
-import type { ArticleI18n } from "@/types/types";
 import { getCollection } from "astro:content";
-import type { ArticlesAstro } from "@/types/types";
+import type { ArticleI18n, ArticlesAstro } from "@/types/types";
 
 const data = Astro.props.data as ArticleI18n;
 const articles = (await getCollection("articles")) as ArticlesAstro[];
