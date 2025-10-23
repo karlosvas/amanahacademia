@@ -53,14 +53,16 @@ const { lang } = Astro.params;
           </li>
         </ul>
       </nav>
+      <!-- Se da el valor del texto desde el script de setupAuth de firebase -->
       <button
         id="identification-menu"
         class="w-full py-2 mt-10 rounded-xl font-semibold bg-lightRed hover:bg-lightSalmon transition"
-        >Identifícate</button
       >
+      </button>
     </div>
   </div>
 </dialog>
+
 <script>
   import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
   document.addEventListener("DOMContentLoaded", () => {
@@ -95,6 +97,7 @@ const { lang } = Astro.params;
     });
   });
 </script>
+
 <style>
   /* Animación de apertura */
   dialog#menu.modal-opening {

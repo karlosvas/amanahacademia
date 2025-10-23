@@ -115,7 +115,6 @@ export function updateModalUser(user: User | null) {
   const avatarDefault = modal.querySelector("#avatar-default") as HTMLDivElement;
 
   if (!avatarNameElem || !avatarContainer || !avatarImg || !avatarDefault) {
-    console.warn("One or more avatar elements not found.");
     return;
   }
 
@@ -159,7 +158,6 @@ export async function verifyAuthorInCommentReply(helper: ApiService, commentId: 
 // Función para manejar el envío de respuestas
 export async function handleSubmitReply(helper: ApiService, commentEl: HTMLElement, traductions: any) {
   try {
-    console.log("handleSubmitReply ejecutado");
     const commentDiv = commentEl.closest("[data-comment-id]");
     if (!commentDiv) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
@@ -189,9 +187,7 @@ export async function handleSubmitReply(helper: ApiService, commentEl: HTMLEleme
       users_liked: [],
     };
 
-    console.log("Enviando reply:", { commentId, newReply });
     const res: Result<ReplyComment> = await helper.createReply(commentId, newReply);
-    console.log("Respuesta del servidor:", res);
 
     if (!res.success) {
       console.error("Error creando respuesta:", {
@@ -203,59 +199,86 @@ export async function handleSubmitReply(helper: ApiService, commentEl: HTMLEleme
       throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
     }
 
-    // Actualizar el DOM en lugar de recargar la página
-    const repliesSection = commentDiv.querySelector(".replies-section");
-    const repliesContainer = commentDiv.querySelector(".replies-container");
-
-    // Si no existe la sección de respuestas, crearla
-    if (!repliesSection || !repliesContainer) {
-      const newRepliesSection = document.createElement("div");
-      newRepliesSection.className = "replies-section px-4 py-3 bg-[#fff5f2] border-t border-salmon";
-      newRepliesSection.innerHTML = `
-          <div class="text-xs font-medium mb-2 text-gray-600 replies-count">
-            1 ${traductions.response}
-          </div>
-          <div class="space-y-3 replies-container"></div>
-        `;
-      commentDiv.appendChild(newRepliesSection);
-    }
-
-    // Añadir la nueva respuesta al DOM
-    const container = commentDiv.querySelector(".replies-container");
-    if (container) {
-      const newReplyElement = document.createElement("div");
-      newReplyElement.className = "reply-item flex space-x-2 p-2 bg-lightSalmon rounded-md shadow-sm relative";
-      newReplyElement.setAttribute("data-reply-id", res.data.id);
-      newReplyElement.setAttribute("data-reply-author", res.data.author_uid);
-      newReplyElement.innerHTML = `
-          <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-            ${res.data.url_img ? `<img src="${res.data.url_img}" alt="${res.data.name}" class="w-full h-full object-cover" />` : `<div class="w-full h-full bg-salmon flex items-center justify-center text-xs font-bold">${res.data.name.charAt(0).toUpperCase()}</div>`}
-          </div>
-          <div class="flex-1 pr-4">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-medium">${res.data.name}</span>
-              <div class="flex items-center space-x-2">
-                <time class="text-xs text-gray-700">${res.data.timestamp}</time>
-              </div>
-            </div>
-            <p class="text-xs mt-1 text-gray-700 reply-content">${res.data.content}</p>
-          </div>
-        `;
-      container.appendChild(newReplyElement);
-
-      // Actualizar contador
-      const countElement = commentDiv.querySelector(".replies-count");
-      if (countElement) {
-        const newCount = container.children.length;
-        countElement.textContent = `${newCount} ${newCount === 1 ? traductions.response : traductions.responses}`;
-      }
-    }
-
-    // Limpiar y ocultar el formulario
-    textarea.value = "";
-    replyForm.classList.add("hidden");
+    // Mostrar mensaje de éxito y recargar la página para renderizar desde SSR
     toast.success("Respuesta añadida correctamente");
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   } catch (e) {
     isFrontendError(e) ? toast.error(e.message) : toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
   }
+}
+
+// Función para manejar la eliminación de comentarios
+export async function handleDeleteComment(helper: ApiService, commentId: string) {
+  await verifyAuthorInComment(helper, commentId);
+  const res: Result<void> = await helper.deleteComment(commentId);
+
+  if (!res.success) {
+    throw new FrontendError(
+      res.error.message && res.error.statusCode == 403
+        ? getErrorToast(FrontendErrorCode.MUST_BE_OWNER)
+        : getErrorToast(FrontendErrorCode.UNKNOWN_ERROR)
+    );
+  }
+
+  return res;
+}
+
+// Función para manejar la edición de comentarios
+export async function handleEditComment(helper: ApiService, commentId: string) {
+  await verifyAuthorInComment(helper, commentId);
+}
+
+// Función para manejar la eliminación de respuestas
+export async function handleDeleteReply(helper: ApiService, commentId: string, replyId: string) {
+  await verifyAuthorInCommentReply(helper, commentId, replyId);
+  const result = await helper.deleteReply(commentId, replyId);
+
+  if (!result.success) {
+    throw new FrontendError(
+      result.error.message == "NOT FOUND"
+        ? getErrorToast(FrontendErrorCode.NOT_FOUND)
+        : getErrorToast(FrontendErrorCode.UNKNOWN_ERROR)
+    );
+  }
+
+  return result;
+}
+
+// Función para manejar la edición de respuestas
+export async function handleEditReply(
+  helper: ApiService,
+  commentId: string,
+  replyId: string,
+  newContent: string,
+  currentContent: string
+) {
+  if (!newContent || newContent === currentContent) {
+    return null;
+  }
+
+  const auth = await getFirebaseAuth();
+  if (!auth.currentUser) {
+    throw new FrontendError(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
+  }
+
+  const reply: ReplyComment = {
+    id: replyId,
+    content: newContent,
+    timestamp: new Date().toISOString(),
+    author_uid: auth.currentUser.uid,
+    name: auth.currentUser.displayName || "Anónimo",
+    url_img: auth.currentUser.photoURL || null,
+    like: 0,
+    users_liked: [],
+  };
+
+  const result: Result<ReplyComment> = await helper.editReply(commentId, replyId, reply);
+
+  if (!result.success) {
+    throw new FrontendError(result.error.message || getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+  }
+
+  return result;
 }

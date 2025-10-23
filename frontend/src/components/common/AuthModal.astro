@@ -8,7 +8,7 @@ import type { ModalI18n } from "@/types/types";
 import GoogleIcon from "@/assets/google.svg";
 
 const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
-if (!TURNSTILE_SITE_KEY) console.warn("No TURNSTILE_SITE_KEY provided");
+if (!TURNSTILE_SITE_KEY) throw new Error("TURNSTILE_SITE_KEY is required in production");
 
 const data = Astro.props.data as ModalI18n;
 const label = Astro.props.label;

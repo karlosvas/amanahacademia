@@ -12,7 +12,6 @@ export const theme = {
     darkMode: 'class',
     extend: {
         fontFamily: {
-            'jomolhari': ['"Jomolhari"', 'serif'],
             "inter": ['"Inter"', 'sans-serif']
         },
         colors: {

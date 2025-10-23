@@ -3,5 +3,5 @@ Expira: 2025-12-31T23:59:00Z
 Cifrado: https://amanahacademia.com/pgp-key.txt
 Agradecimientos: https://amanahacademia.com/security-hall-of-fame
 Canónico: https://amanahacademia.com/.well-known/security.txt
-Política: https://amanahacademia.com/security-policy
+Política: https://amanahacademia.com/legal
 Idiomas preferidos: es, en, ar

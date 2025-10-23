@@ -1,0 +1,50 @@
+---
+import Avatar from "../common/Avatar.astro";
+import EditCommentButtons from "./EditCommentButtons.astro";
+import type { ReplyComment } from "@/types/bakend-types";
+
+interface Props {
+  reply: ReplyComment;
+  buttonsCommentTraductions: any;
+  lang: string;
+}
+
+const { reply, buttonsCommentTraductions, lang } = Astro.props;
+---
+
+<div
+  class="reply-item flex space-x-2 p-2 bg-lightSalmon rounded-md shadow-sm relative"
+  data-reply-id={reply.id}
+  data-reply-author={reply.author_uid}
+  data-debug-name={reply.name}
+>
+  <Avatar info={{ name: reply.name, url_img: reply.url_img }} />
+  <div class="flex-1 pr-4">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-medium">{reply.name}</span>
+      <div class="flex items-center space-x-2">
+        <time class="text-xs text-gray-700">{reply.timestamp}</time>
+      </div>
+    </div>
+    <p class="text-xs mt-1 text-gray-700 reply-content">{reply.content}</p>
+  </div>
+  <EditCommentButtons buttonsCommentTraductions={buttonsCommentTraductions} lang={lang} isReply={true} />
+</div>
+
+<style>
+  /* Animaciones para respuestas */
+  .reply-item {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

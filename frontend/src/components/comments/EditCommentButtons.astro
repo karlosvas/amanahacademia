@@ -14,7 +14,7 @@ const { isReply } = Astro.props;
 <div
   class={`${isReply ? "reply-config-menu" : "comment-config-menu"} hidden bg-salmon absolute right-1 top-1 text-xs rounded-md w-fit h-fit`}
 >
-  <ul class="space-y-0.5 p-1">
+  <ul class="space-y-0.5 p-1 px-2 font-semibold">
     <li class="p-1 hover:text-lightRed">
       <button>{buttonsCommentTraductions[lang].edit}</button>
     </li>

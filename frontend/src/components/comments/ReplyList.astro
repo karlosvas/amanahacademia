@@ -1,0 +1,44 @@
+---
+import ReplyItem from "./ReplyItem.astro";
+import type { ReplyComment } from "@/types/bakend-types";
+
+interface Props {
+  replies: ReplyComment[];
+  buttonsCommentTraductions: any;
+  lang: string;
+}
+
+const { replies, buttonsCommentTraductions, lang } = Astro.props;
+---
+
+{
+  replies && replies.length > 0 && (
+    <div class="replies-section px-4 py-3 bg-[#fff5f2] border-t border-salmon">
+      <div class="text-xs font-medium mb-2 text-gray-600 replies-count">
+        {replies.length}{" "}
+        {replies.length === 1 ? buttonsCommentTraductions[lang].response : buttonsCommentTraductions[lang].responses}
+      </div>
+      <div class="space-y-3 replies-container">
+        {replies.map((reply) => (
+          <ReplyItem reply={reply} buttonsCommentTraductions={buttonsCommentTraductions} lang={lang} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+<style>
+  /* Transición suave para la sección de respuestas */
+  .replies-section {
+    animation: fadeIn 0.2s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+</style>

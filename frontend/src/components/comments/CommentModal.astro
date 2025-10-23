@@ -1,13 +1,14 @@
 ---
 import Avatar from "@/components/common/Avatar.astro";
-import type { CommentI18n, ModalComent } from "@/types/types";
 import StarsSelectionIcon from "@/assets/star-selecion.svg";
 import ArrowSubmitIcon from "@/assets/arrow-submit.svg";
+import type { ModalComent } from "@/types/types";
 
-const comment = Astro.props.data as CommentI18n;
-const dataModal = comment.modal as ModalComent;
+// Modal de comentario, (edit) verifica si es para editarlo o para editar o enviar
 const edit = (Astro.props.edit as boolean) || false;
 const idCommentShared = Astro.props.id as string;
+// Traduccion de modal
+const dataModal = Astro.props.data as ModalComent;
 
 if (!idCommentShared) {
   console.error("CommentModal component requires an 'id' prop.");
@@ -66,7 +67,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
         >
           <Avatar info={null} server={false} />
         </div>
-        <span id={avatarNameId} class="text-black font-medium">{comment.modal.loading}</span>
+        <span id={avatarNameId} class="text-black font-medium">{dataModal.loading}</span>
       </div>
 
       <!-- Comment Section -->
@@ -81,7 +82,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
         <button
           type="button"
           id={resetBtnId}
-          class="border-2 border-[var(--color-salmon)] text-[var(--color-salmon)] hover:bg-[var(--color-salmon)] hover:text-white transition-all duration-200 font-medium py-2 px-4 rounded-xl"
+          class="border-2 border-salmon text-salmon hover:bg-salmon hover:text-white transition-all duration-200 font-medium py-2 px-4 rounded-xl"
         >
           {dataModal.cleanup}
         </button>
@@ -89,7 +90,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
           type="submit"
           id={submitBtnId}
           disabled
-          class="bg-[var(--color-light-red)] hover:bg-[var(--color-red)] text-white font-medium py-2 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          class="bg-lightRed hover:bg-red text-white font-medium py-2 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           <ArrowSubmitIcon />
           {dataModal.submit}
@@ -101,13 +102,13 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
 
 <script>
   import { ApiService } from "@/services/helper";
-  import toast from "solid-toast";
-  import type { Comment, UpdateComment } from "@/types/bakend-types";
   import { closeModalAnimation } from "@/utils/modals";
   import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
   import { onAuthStateChanged } from "@/services/firebase";
-  import type { User } from "firebase/auth";
   import { getFirebaseAuth } from "@/services/firebase";
+  import toast from "solid-toast";
+  import type { Comment, UpdateComment } from "@/types/bakend-types";
+  import type { User } from "firebase/auth";
 
   class CommentModal {
     private id: string;

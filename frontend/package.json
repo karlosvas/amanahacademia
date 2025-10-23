@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "cloudflare": "npm run build && npx wrangler pages dev ./dist",
     "astro": "astro"
   },
   "dependencies": {

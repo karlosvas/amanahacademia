@@ -52,8 +52,11 @@ rustfmt.toml
 *.swo
 
 # Test
-http
 amanahacademia.code-workspace
 develop
 
+# Claude
 .claude
+
+# Claudflare
+.wrangler

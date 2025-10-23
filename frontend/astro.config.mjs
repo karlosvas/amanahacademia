@@ -10,7 +10,15 @@ export default defineConfig({
   site: 'https://amanahacademia.com',
   output: 'server',
   adapter: cloudflare({
-    imageService: 'passthrough'
+    imageService: 'passthrough',
+    routes: {
+      extend: {
+        exclude: [
+          { pattern: '/sitemap-index.xml' },
+          { pattern: '/sitemap-*.xml' }
+        ]
+      }
+    }
   }),
   i18n: {
     defaultLocale: 'es',

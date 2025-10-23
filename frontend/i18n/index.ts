@@ -78,3 +78,72 @@ export const labels_header: Record<
     legalLink: "Página de informações legais da Amanah Academia: Licença, Política de Privacidade e Termos e Condições",
   },
 };
+
+export const buttonsCommentTraductions: Record<
+  string,
+  { edit: string; delete: string; reply: string; cancel: string; send: string; response: string; responses: string }
+> = {
+  es: {
+    edit: "Editar",
+    delete: "Eliminar",
+    reply: "Responder",
+    cancel: "Cancelar",
+    send: "Enviar",
+    response: "respuesta",
+    responses: "respuestas",
+  },
+  en: {
+    edit: "Edit",
+    delete: "Delete",
+    reply: "Reply",
+    cancel: "Cancel",
+    send: "Send",
+    response: "response",
+    responses: "responses",
+  },
+  de: {
+    edit: "Bearbeiten",
+    delete: "Löschen",
+    reply: "Antworten",
+    cancel: "Abbrechen",
+    send: "Senden",
+    response: "Antwort",
+    responses: "Antworten",
+  },
+  ar: {
+    edit: "تعديل",
+    delete: "حذف",
+    reply: "رد",
+    cancel: "إلغاء",
+    send: "إرسال",
+    response: "رد",
+    responses: "ردود",
+  },
+  fr: {
+    edit: "Modifier",
+    delete: "Supprimer",
+    reply: "Répondre",
+    cancel: "Annuler",
+    send: "Envoyer",
+    response: "réponse",
+    responses: "réponses",
+  },
+  it: {
+    edit: "Modifica",
+    delete: "Elimina",
+    reply: "Rispondi",
+    cancel: "Annulla",
+    send: "Invia",
+    response: "risposta",
+    responses: "risposte",
+  },
+  pt: {
+    edit: "Editar",
+    delete: "Excluir",
+    reply: "Responder",
+    cancel: "Cancelar",
+    send: "Enviar",
+    response: "resposta",
+    responses: "respostas",
+  },
+};

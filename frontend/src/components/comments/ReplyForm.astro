@@ -1,0 +1,37 @@
+---
+interface Props {
+  buttonsCommentTraductions: any;
+  lang: string;
+}
+
+const { buttonsCommentTraductions, lang } = Astro.props;
+---
+
+<!-- Formulario de respuesta (oculto por defecto) -->
+<div class="reply-form hidden px-4 py-3 bg-[#fff5f2] border-t border-salmon">
+  <div class="flex space-x-2">
+    <textarea
+      class="reply-textarea flex-1 p-2 text-sm border border-salmon rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-red)]"
+      placeholder={buttonsCommentTraductions[lang].reply + "..."}
+      rows="2"></textarea>
+  </div>
+  <div class="flex justify-end space-x-2 mt-2">
+    <button class="cancel-reply-btn px-3 py-1 text-xs rounded-md hover:bg-salmon transition-colors">
+      {buttonsCommentTraductions[lang].cancel}
+    </button>
+    <button
+      class="submit-reply-btn px-3 py-1 text-xs bg-lightRed text-white rounded-md hover:bg-[var(--color-red)] transition-colors"
+    >
+      {buttonsCommentTraductions[lang].send}
+    </button>
+  </div>
+</div>
+
+<style>
+  /* Estilo para el textarea de respuesta */
+  .reply-textarea:focus {
+    outline: none;
+    border-color: var(--color-red);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+  }
+</style>
