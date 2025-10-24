@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Frontend - install & coverage
+      - name: Frontend - install & test
         working-directory: ./frontend
         run: |
           npm ci
@@ -29,22 +29,19 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Backend - coverage (tarpaulin)
+      - name: Backend - test & coverage (tarpaulin)
         working-directory: ./backend
         run: |
           sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config
           cargo install cargo-tarpaulin || true
-          cargo tarpaulin --out Xml --output-dir ./coverage
-          mv ./coverage/cargo-tarpaulin-report.xml ./coverage/cobertura.xml || true
+          cargo tarpaulin --out Xml --output-dir ./coverage --exclude-files src/test.rs
+          # Convierte backslashes a forward slashes en el XML para compatibilidad Linux
+          sed -i 's/\\/\//g' ./coverage/coverage.xml
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@v3.1.0
         with:
           projectBaseDir: .
-          args: >-
-            -Dsonar.sources=frontend/src,backend/src
-            -Dsonar.javascript.lcov.reportPaths=frontend/coverage/lcov.info
-            -Dsonar.coverageReportPaths=backend/coverage/cobertura.xml
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

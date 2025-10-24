@@ -3,6 +3,7 @@ mod middleware;
 mod models;
 mod routes;
 mod services;
+mod test;
 use {
     crate::models::state::{AppState, CalOptions, CustomFirebase, MailchimpOptions},
     axum::{
