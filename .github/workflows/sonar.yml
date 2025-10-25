@@ -34,9 +34,9 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config
           cargo install cargo-tarpaulin || true
-          cargo tarpaulin --out Xml --output-dir ./coverage --exclude-files src/test.rs
-          # Convierte backslashes a forward slashes en el XML para compatibilidad Linux
-          sed -i 's/\\/\//g' ./coverage/coverage.xml
+          mkdir -p coverage
+          cargo tarpaulin --out Xml --output-dir coverage --exclude-files "src/test.rs" --skip-clean --timeout 300
+          ls -la coverage/
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v3.1.0
