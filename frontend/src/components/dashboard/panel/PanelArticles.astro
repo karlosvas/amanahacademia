@@ -1,0 +1,161 @@
+---
+import StatsCard from "../StatsCard.astro";
+
+const { stats } = Astro.props;
+---
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <StatsCard
+    title="Total Usuarios"
+    value={stats.totalUsers.toLocaleString()}
+    change={stats.changes.totalUsers}
+    iconType="users"
+  />
+  <StatsCard
+    title="Usuarios Activos"
+    value={stats.activeUsers.toLocaleString()}
+    change={stats.changes.activeUsers}
+    iconType="active"
+  />
+  <StatsCard
+    title="Nuevos Este Mes"
+    value={stats.newUsers.toLocaleString()}
+    change={stats.changes.newUsers}
+    iconType="new"
+  />
+  <StatsCard
+    title="Tasa de Conversión"
+    value={`${stats.conversionRate.toFixed(1)}%`}
+    change={stats.changes.conversionRate}
+    iconType="conversion"
+  />
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-[#fee8d6] p-6">
+  <div class="mb-6">
+    <h2 class="text-xl font-bold text-[#131313] mb-2">Click en articulos</h2>
+    <p class="text-[#8a4141] text-sm">Evolución de clics en artículos en los últimos 12 meses</p>
+  </div>
+
+  <div class="relative" style="height: 400px;">
+    <canvas id="activeUsersChart"></canvas>
+  </div>
+</div>
+
+<script>
+  import { ApiService } from "@/services/helper";
+  import type { Result } from "@/types/bakend-types";
+  import { parseArticleMetricData, type MetricsResponse } from "@/types/types";
+  import Chart from "chart.js/auto";
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const ctx = document.getElementById("activeUsersChart") as HTMLCanvasElement;
+
+    if (!ctx) return;
+
+    // Crear gradiente para el fondo del área
+    const gradient = ctx.getContext("2d")!.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, "rgba(178, 68, 58, 0.25)");
+    gradient.addColorStop(1, "rgba(178, 68, 58, 0)");
+
+    const currentMonth = new Date().getMonth();
+    const monthLabels = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const currentYear = new Date().getFullYear().toString().slice(-2);
+
+    const makeLastNMonths = (currentMonthIndex: number, count: number) => {
+      return Array.from({ length: count }, (_, i) => {
+        // i = 0 => oldest, i = count-1 => current
+        const monthIndex = (currentMonthIndex - (count - 1 - i) + 12) % 12;
+        return `${monthLabels[monthIndex]} ${currentYear}`;
+      });
+    };
+
+    // Esperar a que Firebase esté listo y el usuario autenticado
+
+    try {
+      const helper = new ApiService();
+
+      const metrics: Result<MetricsResponse> = await helper.getArticlesMetrics();
+      if (!metrics.success) throw new Error("No se encontraron las metricas");
+
+      // Parsear todas las filas
+      const parsedData = metrics.data.rows.map(parseArticleMetricData);
+
+      const articleMap = new Map<string, number>();
+      parsedData.forEach((item) => {
+        const articleName = item.pagePath.split("/").pop() || "unknown";
+        const current = articleMap.get(articleName) || 0;
+        articleMap.set(articleName, current + item.activeUsers);
+      });
+
+      // Ordenar por más clics (descendente)
+      const sorted = Array.from(articleMap.entries()).sort((a, b) => b[1] - a[1]);
+      const labels = sorted.map(([name]) => name);
+      const data = sorted.map(([, clicks]) => clicks);
+
+      new Chart(ctx, {
+        type: "bar", // Mejor para comparar artículos
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Clics por Artículo",
+              data: data,
+              backgroundColor: "#b2443a",
+              borderColor: "#6d0006",
+              borderWidth: 2,
+              borderRadius: 8,
+              hoverBackgroundColor: "#fa8072",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: "x", // o 'y' para barras horizontales
+          plugins: {
+            legend: {
+              display: false, // No necesitas leyenda con un solo dataset
+            },
+            tooltip: {
+              backgroundColor: "rgba(95, 73, 73, 0.95)",
+              titleColor: "#fff4e1",
+              bodyColor: "#fee8d6",
+              padding: 12,
+              borderColor: "rgba(178, 68, 58, 0.3)",
+              borderWidth: 1,
+              displayColors: false,
+              callbacks: {
+                label: function (context) {
+                  return `Clics: ${context.parsed.y.toLocaleString()}`;
+                },
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: "#8a4141",
+                font: { size: 12 },
+              },
+              grid: { color: "rgba(138, 65, 65, 0.1)" },
+            },
+            x: {
+              ticks: {
+                color: "#8a4141",
+                font: { size: 11 },
+                maxRotation: 45,
+                minRotation: 45,
+              },
+              grid: { display: false },
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching or rendering chart data:", error);
+    }
+  });
+</script>

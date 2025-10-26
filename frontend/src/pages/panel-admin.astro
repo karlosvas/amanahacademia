@@ -2,9 +2,12 @@
 import Layout from "@/layouts/Layout.astro";
 import { getSEOData } from "i18n/seo";
 import { DashboardAdminTypes, type PropsSEO } from "@/types/types";
-import { parseMetricData } from "@/types/types";
+import { parseUsersMetricData } from "@/types/types";
 import { ApiService } from "@/services/helper";
-import PanelUser from "@/components/dashboard/PanelUser.astro";
+import PanelDashboard from "@/components/dashboard/panel/PanelDashboard.astro";
+import PanelArticles from "@/components/dashboard/panel/PanelArticles.astro";
+import PanelClasses from "@/components/dashboard/panel/PanelClasses.astro";
+import PanelUser from "@/components/dashboard/panel/PanelUser.astro";
 
 // Obtenemos el idioma obtenido mediante la ruta
 const { lang } = Astro.params;
@@ -20,8 +23,8 @@ let section = url.searchParams.get("section");
 const validSections = Object.values(DashboardAdminTypes);
 if (!section || !validSections.includes(section as DashboardAdminTypes)) return Astro.redirect("/");
 
-const helper = new ApiService();
-const metrics = await helper.getUserMetrics();
+// const helper = new ApiService();
+// const metrics = await helper.getUserMetrics();
 
 let stats = {
   totalUsers: 0,
@@ -36,65 +39,52 @@ let stats = {
   },
 };
 
-console.log("=== DEBUG METRICS ===");
-console.log("Metrics success:", metrics.success);
-console.log("Rows length:", metrics.data?.rows?.length);
+// if (metrics.success && metrics.data.rows.length > 0) {
+//   const parsed = metrics.data.rows.map(parseUsersMetricData);
 
-if (metrics.success && metrics.data.rows.length > 0) {
-  const parsed = metrics.data.rows.map(parseMetricData);
-  console.log("Parsed rows:", parsed);
+//   const latest = parsed[parsed.length - 1];
+//   const previous = parsed.length > 1 ? parsed[parsed.length - 2] : null;
 
-  const latest = parsed[parsed.length - 1];
-  const previous = parsed.length > 1 ? parsed[parsed.length - 2] : null;
+//   stats.totalUsers = latest.totalUsers;
+//   stats.activeUsers = latest.activeUsers;
+//   stats.newUsers = latest.newUsers;
 
-  console.log("Latest:", latest);
-  console.log("Previous:", previous);
+//   const convRate = (latest.engagedSessions / latest.sessions) * 100;
+//   stats.conversionRate = convRate;
 
-  stats.totalUsers = latest.totalUsers;
-  stats.activeUsers = latest.activeUsers;
-  stats.newUsers = latest.newUsers;
+//   // Calcular cambios vs mes anterior
+//   if (previous) {
+//     if (previous.totalUsers > 0) {
+//       const totalChange = ((latest.totalUsers - previous.totalUsers) / previous.totalUsers) * 100;
+//       stats.changes.totalUsers = `${totalChange > 0 ? "+" : ""}${totalChange.toFixed(1)}%`;
+//     } else {
+//       stats.changes.totalUsers = `+${latest.totalUsers}`;
+//     }
 
-  const convRate = (latest.engagedSessions / latest.sessions) * 100;
-  stats.conversionRate = convRate;
+//     if (previous.activeUsers > 0) {
+//       const activeChange = ((latest.activeUsers - previous.activeUsers) / previous.activeUsers) * 100;
+//       stats.changes.activeUsers = `${activeChange > 0 ? "+" : ""}${activeChange.toFixed(1)}%`;
+//     } else {
+//       stats.changes.activeUsers = `+${latest.activeUsers}`;
+//     }
 
-  // Calcular cambios vs mes anterior
-  if (previous) {
-    console.log("Calculando cambios con previous:", previous);
+//     if (previous.newUsers > 0) {
+//       const newChange = ((latest.newUsers - previous.newUsers) / previous.newUsers) * 100;
+//       stats.changes.newUsers = `${newChange > 0 ? "+" : ""}${newChange.toFixed(1)}%`;
+//     } else {
+//       stats.changes.newUsers = `+${latest.newUsers}`;
+//     }
 
-    if (previous.totalUsers > 0) {
-      const totalChange = ((latest.totalUsers - previous.totalUsers) / previous.totalUsers) * 100;
-      stats.changes.totalUsers = `${totalChange > 0 ? "+" : ""}${totalChange.toFixed(1)}%`;
-    } else {
-      stats.changes.totalUsers = `+${latest.totalUsers}`;
-    }
-
-    if (previous.activeUsers > 0) {
-      const activeChange = ((latest.activeUsers - previous.activeUsers) / previous.activeUsers) * 100;
-      stats.changes.activeUsers = `${activeChange > 0 ? "+" : ""}${activeChange.toFixed(1)}%`;
-    } else {
-      stats.changes.activeUsers = `+${latest.activeUsers}`;
-    }
-
-    if (previous.newUsers > 0) {
-      const newChange = ((latest.newUsers - previous.newUsers) / previous.newUsers) * 100;
-      stats.changes.newUsers = `${newChange > 0 ? "+" : ""}${newChange.toFixed(1)}%`;
-    } else {
-      stats.changes.newUsers = `+${latest.newUsers}`;
-    }
-
-    const prevRate = (previous.engagedSessions / previous.sessions) * 100;
-    const convChange = convRate - prevRate;
-    stats.changes.conversionRate = `${convChange > 0 ? "+" : ""}${convChange.toFixed(1)}%`;
-  } else {
-    console.log("No hay mes anterior, mostrando valores absolutos");
-    stats.changes.totalUsers = `+${latest.totalUsers}`;
-    stats.changes.activeUsers = `+${latest.activeUsers}`;
-    stats.changes.newUsers = `+${latest.newUsers}`;
-    stats.changes.conversionRate = `${convRate.toFixed(1)}%`;
-  }
-
-  console.log("Final stats.changes:", stats.changes);
-}
+//     const prevRate = (previous.engagedSessions / previous.sessions) * 100;
+//     const convChange = convRate - prevRate;
+//     stats.changes.conversionRate = `${convChange > 0 ? "+" : ""}${convChange.toFixed(1)}%`;
+//   } else {
+//     stats.changes.totalUsers = `+${latest.totalUsers}`;
+//     stats.changes.activeUsers = `+${latest.activeUsers}`;
+//     stats.changes.newUsers = `+${latest.newUsers}`;
+//     stats.changes.conversionRate = `${convRate.toFixed(1)}%`;
+//   }
+// }
 ---
 
 <Layout
@@ -108,7 +98,7 @@ if (metrics.success && metrics.data.rows.length > 0) {
   structuredDataType={seoData.structuredDataType}
   structuredData={seoData.structuredData}
 >
-  <div class="min-h-screen px-72 bg-gradient-to-br from-[#fff4e1] to-[#fee8d6] p-6">
+  <div class="min-h-screen lg:px-72 bg-gradient-to-br from-[#fff4e1] to-[#fee8d6] p-6">
     <div class="max-w-7xl mx-auto">
       <!-- Header -->
       <div class="mb-8">
@@ -117,8 +107,14 @@ if (metrics.success && metrics.data.rows.length > 0) {
       </div>
 
       {
-        section === DashboardAdminTypes.USERS ? (
+        section === DashboardAdminTypes.DASHBOARD ? (
+          <PanelDashboard stats={stats} />
+        ) : section === DashboardAdminTypes.USERS ? (
           <PanelUser stats={stats} />
+        ) : section === DashboardAdminTypes.CONTENT ? (
+          <PanelArticles stats={stats} />
+        ) : section === DashboardAdminTypes.CLASSES ? (
+          <PanelClasses stats={stats} />
         ) : (
           <div class="bg-white rounded-xl shadow-sm border border-[#fee8d6] p-6">
             <p class="text-[#131313]">Sección no implementada aún.</p>

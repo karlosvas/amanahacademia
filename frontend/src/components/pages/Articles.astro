@@ -6,6 +6,8 @@ import type { ArticleI18n, ArticlesAstro } from "@/types/types";
 const data = Astro.props.data as ArticleI18n;
 const articles = (await getCollection("articles")) as ArticlesAstro[];
 const R2_URL = import.meta.env.PUBLIC_R2_PUBLIC_URL;
+
+console.log("Articles page loaded with articles:", articles);
 ---
 
 <main class="w-11/12 md:w-3/4 m-auto text-black">
@@ -23,8 +25,10 @@ const R2_URL = import.meta.env.PUBLIC_R2_PUBLIC_URL;
             href={R2_URL + article.data.pdfUrl}
             target="_blank"
             rel="noopener noreferrer"
-            class="scroll-fade-in mb-4 break-inside-avoid rounded-lg bg-salmon overflow-hidden cursor-pointer block"
+            class="article-link scroll-fade-in mb-4 break-inside-avoid rounded-lg bg-salmon overflow-hidden cursor-pointer block"
             style={`height: ${150 + Math.random() * 180}px; width: 100%`}
+            data-article-id={article.id}
+            data-article-title={article.data.title}
           >
             <img
               src={R2_URL + article.data.imageUrl}
@@ -39,3 +43,27 @@ const R2_URL = import.meta.env.PUBLIC_R2_PUBLIC_URL;
     }
   </div>
 </main>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const articleLinks = document.querySelectorAll(".article-link");
+
+    articleLinks.forEach((link) => {
+      link.addEventListener("click", (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const articleId = target.dataset.articleId;
+        const articleTitle = target.dataset.articleTitle;
+
+        if (window.gtag) {
+          window.gtag("event", "article_click", {
+            article_id: articleId,
+            article_title: articleTitle,
+            category: "articles",
+          });
+        } else {
+          console.warn("gtag is not defined");
+        }
+      });
+    });
+  });
+</script>

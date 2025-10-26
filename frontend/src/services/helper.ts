@@ -17,15 +17,13 @@ import type {
 import { ApiErrorType } from "@/enums/enums";
 import { ApiError } from "@/services/globalHandler";
 import { getCurrentUserToken } from "@/services/firebase";
-import type { MetricData, MetricsResponse } from "@/types/types";
+import type { MetricsResponse } from "@/types/types";
 
 export class ApiService {
   private readonly baseUrl: string;
-  private readonly baseUrlClaudflare: string;
 
   constructor() {
     this.baseUrl = import.meta.env.PUBLIC_BACKEND_URL || "http://localhost:3000";
-    this.baseUrlClaudflare = import.meta.env.PUBLIC_WORKERS_URL || "http://localhost:8787";
   }
 
   //////////////////// COMENTARIOS /////////////////////
@@ -329,11 +327,52 @@ export class ApiService {
     return this.handleResponse<void>(response);
   }
 
+  ///////////// Google Analitics ////////////////
   async getUserMetrics(): Promise<Result<MetricsResponse>> {
     try {
       const token = await getCurrentUserToken();
 
       const response = await fetch(`${this.baseUrl}/metrics/users`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return this.handleResponse<MetricsResponse>(response);
+    } catch (error) {
+      return ResultUtils.error(
+        new ApiError(ApiErrorType.NETWORK_ERROR, "Error de conexión", undefined, error as Error)
+      );
+    }
+  }
+
+  async getArticlesMetrics(): Promise<Result<MetricsResponse>> {
+    try {
+      const token = await getCurrentUserToken();
+
+      const response = await fetch(`${this.baseUrl}/metrics/articles`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return this.handleResponse<MetricsResponse>(response);
+    } catch (error) {
+      return ResultUtils.error(
+        new ApiError(ApiErrorType.NETWORK_ERROR, "Error de conexión", undefined, error as Error)
+      );
+    }
+  }
+
+  async getClassMetrics(): Promise<Result<MetricsResponse>> {
+    try {
+      const token = await getCurrentUserToken();
+
+      const response = await fetch(`${this.baseUrl}/metrics/class`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
