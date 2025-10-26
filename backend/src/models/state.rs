@@ -1,5 +1,8 @@
 use {
-    crate::models::webhook::{BookingChange, CalBookingPayload as Booking},
+    crate::models::{
+        metrics::ServiceAccount,
+        webhook::{BookingChange, CalBookingPayload as Booking},
+    },
     reqwest::Client as HttpClient,
     resend_rs::Resend,
     std::{collections::HashMap, sync::Arc},
@@ -14,6 +17,14 @@ pub struct AppState {
     pub resend_client: Resend,
     pub mailchimp_client: MailchimpOptions,
     pub cal_options: CalOptions,
+    pub ga_options: GAOptions,
+}
+
+/// Configuración para interactuar con la API de Google Analytics
+pub struct GAOptions {
+    pub client: HttpClient,
+    pub service_account: ServiceAccount,
+    pub property_id: String,
 }
 
 /// Configuración para interactuar con la API de Cal.com

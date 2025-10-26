@@ -5,7 +5,10 @@ mod routes;
 mod services;
 mod test;
 use {
-    crate::models::state::{AppState, CalOptions, CustomFirebase, MailchimpOptions},
+    crate::models::{
+        metrics::ServiceAccount,
+        state::{AppState, CalOptions, CustomFirebase, GAOptions, MailchimpOptions},
+    },
     axum::{
         Router,
         http::{
@@ -134,6 +137,15 @@ async fn main() {
         recent_changes: Arc::new(tokio::sync::RwLock::new(Vec::new())),
     };
 
+    let ga_options: GAOptions = GAOptions {
+        client: HttpClient::new(),
+        service_account: ServiceAccount {
+            client_email: env::var("GA_CLIENT_EMAIL").expect("GA_CLIENT_EMAIL must be set"),
+            private_key: env::var("GA_PRIVATE_KEY").expect("GA_PRIVATE_KEY must be set"),
+        },
+        property_id: env::var("GA_PROPERTY_ID").expect("GA_PROPERTY_ID must be set"),
+    };
+
     // Inicializar el estado de la aplicación y el enrutador
     let state: Arc<AppState> = Arc::new(AppState {
         firebase_options,
@@ -141,6 +153,7 @@ async fn main() {
         resend_client,
         mailchimp_client,
         cal_options,
+        ga_options,
     });
 
     // Configuración de CORS (Cross-Origin Resource Sharing)
@@ -170,6 +183,7 @@ async fn main() {
         .nest("/email", routes::email::router(state.clone()))
         .nest("/mailchimp", routes::mailchimp::router(state.clone()))
         .nest("/cal", routes::cal::router(state.clone()))
+        .nest("/metrics", routes::metrics::router(state.clone()))
         .nest("/webhook", routes::webhooks::router(state.clone()))
         .layer(cors)
         .layer(TraceLayer::new_for_http()) // Logging de requests para debugging

@@ -1,27 +1,25 @@
 use {
-    crate::models::{error::AuthError, firebase::UserAuthentication, state::AppState},
+    crate::models::{
+        error::AuthError,
+        firebase::UserAuthentication,
+        metrics::{ClaimsGA, ServiceAccount, TokenResponse},
+        state::AppState,
+    },
     axum::{
         extract::{Request, State},
         http::{HeaderValue, StatusCode},
         middleware::Next,
         response::Response,
     },
-    jsonwebtoken::{Algorithm, DecodingKey, Header, TokenData, Validation, decode},
-    std::sync::Arc,
+    jsonwebtoken::{
+        Algorithm, DecodingKey, EncodingKey, Header, TokenData, Validation, decode, encode,
+    },
+    std::{
+        sync::Arc,
+        time::{SystemTime, UNIX_EPOCH},
+    },
     tracing::{debug, info, instrument},
 };
-
-impl From<AuthError> for StatusCode {
-    fn from(err: AuthError) -> Self {
-        match err {
-            AuthError::MissingHeader | AuthError::InvalidHeaderFormat => StatusCode::UNAUTHORIZED,
-            AuthError::TokenVerification(_)
-            | AuthError::MissingKid
-            | AuthError::NoMatchingKey
-            | AuthError::InvalidKeyFormat => StatusCode::FORBIDDEN,
-        }
-    }
-}
 
 #[instrument(skip(state, request, next))]
 pub async fn firebase_auth_middleware(
@@ -122,4 +120,57 @@ pub fn verify_firebase_token(
 
     info!("Token verification completed successfully");
     Ok(token_data)
+}
+
+/// Midelware para obtener el token de Goolge Analytics sin verificar usuario
+pub async fn public_ga_auth_middleware(
+    State(state): State<Arc<AppState>>,
+    mut request: Request,
+    next: Next,
+) -> Result<Response, StatusCode> {
+    // Solo obtener el token de Google Analytics (sin verificar usuario)
+    let ga_token: String = match get_ga_token(&state).await {
+        Ok(token) => token,
+        Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
+    };
+
+    // Agregar el token de GA a las extensiones del request
+    request
+        .extensions_mut()
+        .insert(crate::models::metrics::GAToken(ga_token));
+
+    Ok(next.run(request).await)
+}
+
+/// Función auxiliar para obtener el token de Google Analytics
+async fn get_ga_token(state: &Arc<AppState>) -> Result<String, Box<dyn std::error::Error>> {
+    let now: u64 = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+    let service_account: &ServiceAccount = &state.ga_options.service_account;
+
+    let claims: ClaimsGA = ClaimsGA {
+        iss: service_account.client_email.clone(),
+        scope: "https://www.googleapis.com/auth/analytics.readonly".to_string(),
+        aud: "https://oauth2.googleapis.com/token".to_string(),
+        exp: now + 3600,
+        iat: now,
+    };
+
+    let encoding_key: EncodingKey =
+        EncodingKey::from_rsa_pem(service_account.private_key.as_bytes())?;
+    let jwt: String = encode(&Header::new(Algorithm::RS256), &claims, &encoding_key)?;
+
+    let response: TokenResponse = state
+        .ga_options
+        .client
+        .post("https://oauth2.googleapis.com/token")
+        .form(&[
+            ("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"),
+            ("assertion", &jwt),
+        ])
+        .send()
+        .await?
+        .json()
+        .await?;
+
+    Ok(response.access_token)
 }

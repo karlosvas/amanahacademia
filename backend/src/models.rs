@@ -4,6 +4,7 @@ pub mod email;
 pub mod error;
 pub mod firebase;
 pub mod mailchimp;
+pub mod metrics;
 pub mod response;
 pub mod state;
 pub mod stripe;

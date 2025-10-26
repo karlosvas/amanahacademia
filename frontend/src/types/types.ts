@@ -402,3 +402,47 @@ export class FrontendError extends Error {
 export function isFrontendError(err: unknown): err is FrontendError {
   return err instanceof FrontendError;
 }
+
+export enum DashboardAdminTypes {
+  DASHBOARD = "dashboard",
+  USERS = "users",
+  COURSES = "courses",
+  CLASSES = "classes",
+  PAYMENTS = "payments",
+  CONTENT = "content",
+}
+
+export interface MetricData {
+  dimensionValues: Array<{ value: string }>;
+  metricValues: Array<{ value: string }>;
+}
+
+export interface MetricsResponse {
+  rows: MetricData[];
+}
+
+export interface ParsedMetrics {
+  yearMonth: string;
+  activeUsers: number;
+  totalUsers: number;
+  newUsers: number;
+  sessions: number;
+  engagedSessions: number;
+  avgSessionDuration: number;
+  bounceRate: number;
+  sessionsPerUser: number;
+}
+
+export function parseMetricData(data: MetricData): ParsedMetrics {
+  return {
+    yearMonth: data.dimensionValues[0].value,
+    activeUsers: parseInt(data.metricValues[0].value),
+    totalUsers: parseInt(data.metricValues[1].value),
+    newUsers: parseInt(data.metricValues[2].value),
+    sessions: parseInt(data.metricValues[3].value),
+    engagedSessions: parseInt(data.metricValues[4].value),
+    avgSessionDuration: parseFloat(data.metricValues[5].value),
+    bounceRate: parseFloat(data.metricValues[6].value),
+    sessionsPerUser: parseFloat(data.metricValues[7].value),
+  };
+}

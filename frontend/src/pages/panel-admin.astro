@@ -1,0 +1,133 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { getSEOData } from "i18n/seo";
+import { DashboardAdminTypes, type PropsSEO } from "@/types/types";
+import { parseMetricData } from "@/types/types";
+import { ApiService } from "@/services/helper";
+import PanelUser from "@/components/dashboard/PanelUser.astro";
+
+// Obtenemos el idioma obtenido mediante la ruta
+const { lang } = Astro.params;
+
+// SEO data usando el helper
+const currentLang = lang || "es";
+const seoData = getSEOData("panel-admin", currentLang) as PropsSEO;
+
+const url = new URL(Astro.request.url);
+let section = url.searchParams.get("section");
+
+// Verificar si section es uno de los valores válidos del enum
+const validSections = Object.values(DashboardAdminTypes);
+if (!section || !validSections.includes(section as DashboardAdminTypes)) return Astro.redirect("/");
+
+const helper = new ApiService();
+const metrics = await helper.getUserMetrics();
+
+let stats = {
+  totalUsers: 0,
+  activeUsers: 0,
+  newUsers: 0,
+  conversionRate: 0,
+  changes: {
+    totalUsers: "+0%",
+    activeUsers: "+0%",
+    newUsers: "+0%",
+    conversionRate: "+0%",
+  },
+};
+
+console.log("=== DEBUG METRICS ===");
+console.log("Metrics success:", metrics.success);
+console.log("Rows length:", metrics.data?.rows?.length);
+
+if (metrics.success && metrics.data.rows.length > 0) {
+  const parsed = metrics.data.rows.map(parseMetricData);
+  console.log("Parsed rows:", parsed);
+
+  const latest = parsed[parsed.length - 1];
+  const previous = parsed.length > 1 ? parsed[parsed.length - 2] : null;
+
+  console.log("Latest:", latest);
+  console.log("Previous:", previous);
+
+  stats.totalUsers = latest.totalUsers;
+  stats.activeUsers = latest.activeUsers;
+  stats.newUsers = latest.newUsers;
+
+  const convRate = (latest.engagedSessions / latest.sessions) * 100;
+  stats.conversionRate = convRate;
+
+  // Calcular cambios vs mes anterior
+  if (previous) {
+    console.log("Calculando cambios con previous:", previous);
+
+    if (previous.totalUsers > 0) {
+      const totalChange = ((latest.totalUsers - previous.totalUsers) / previous.totalUsers) * 100;
+      stats.changes.totalUsers = `${totalChange > 0 ? "+" : ""}${totalChange.toFixed(1)}%`;
+    } else {
+      stats.changes.totalUsers = `+${latest.totalUsers}`;
+    }
+
+    if (previous.activeUsers > 0) {
+      const activeChange = ((latest.activeUsers - previous.activeUsers) / previous.activeUsers) * 100;
+      stats.changes.activeUsers = `${activeChange > 0 ? "+" : ""}${activeChange.toFixed(1)}%`;
+    } else {
+      stats.changes.activeUsers = `+${latest.activeUsers}`;
+    }
+
+    if (previous.newUsers > 0) {
+      const newChange = ((latest.newUsers - previous.newUsers) / previous.newUsers) * 100;
+      stats.changes.newUsers = `${newChange > 0 ? "+" : ""}${newChange.toFixed(1)}%`;
+    } else {
+      stats.changes.newUsers = `+${latest.newUsers}`;
+    }
+
+    const prevRate = (previous.engagedSessions / previous.sessions) * 100;
+    const convChange = convRate - prevRate;
+    stats.changes.conversionRate = `${convChange > 0 ? "+" : ""}${convChange.toFixed(1)}%`;
+  } else {
+    console.log("No hay mes anterior, mostrando valores absolutos");
+    stats.changes.totalUsers = `+${latest.totalUsers}`;
+    stats.changes.activeUsers = `+${latest.activeUsers}`;
+    stats.changes.newUsers = `+${latest.newUsers}`;
+    stats.changes.conversionRate = `${convRate.toFixed(1)}%`;
+  }
+
+  console.log("Final stats.changes:", stats.changes);
+}
+---
+
+<Layout
+  lang={currentLang}
+  title={seoData.title}
+  description={seoData.description}
+  canonical={seoData.canonical}
+  ogImage={seoData.ogImage}
+  noindex={seoData.noindex}
+  keywords={seoData.keywords}
+  structuredDataType={seoData.structuredDataType}
+  structuredData={seoData.structuredData}
+>
+  <div class="min-h-screen px-72 bg-gradient-to-br from-[#fff4e1] to-[#fee8d6] p-6">
+    <div class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-[#131313] mb-2">Panel de Administración</h1>
+        <p class="text-[#8a4141]">Monitoreo y estadísticas de Amanah Academia</p>
+      </div>
+
+      {
+        section === DashboardAdminTypes.USERS ? (
+          <PanelUser stats={stats} />
+        ) : (
+          <div class="bg-white rounded-xl shadow-sm border border-[#fee8d6] p-6">
+            <p class="text-[#131313]">Sección no implementada aún.</p>
+            <h1>
+              <section>{section}</section>
+            </h1>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Layout>

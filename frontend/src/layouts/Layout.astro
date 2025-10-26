@@ -3,6 +3,7 @@ import "@/styles/global.css";
 import SEO from "@/components/layout/SEO/SEO.astro";
 import { Toaster } from "solid-toast";
 import type { PropsSEO } from "@/types/types";
+import AdministratorPanel from "@/components/dashboard/AdministratorPanel.astro";
 
 declare global {
   interface Window {
@@ -246,6 +247,7 @@ const theme = Astro.cookies.get("theme")?.value;
         </div>
       </div>
     </aside>
+    <AdministratorPanel />
   </body>
 </html>
 <script>

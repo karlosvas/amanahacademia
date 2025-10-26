@@ -1,3 +1,5 @@
+use axum::http::StatusCode;
+
 /// Errores relacionados con la autenticación de Firebase
 #[derive(Debug, thiserror::Error)]
 pub enum AuthError {
@@ -13,4 +15,16 @@ pub enum AuthError {
     NoMatchingKey,
     #[error("Invalid key format")]
     InvalidKeyFormat,
+}
+
+impl From<AuthError> for StatusCode {
+    fn from(err: AuthError) -> Self {
+        match err {
+            AuthError::MissingHeader | AuthError::InvalidHeaderFormat => StatusCode::UNAUTHORIZED,
+            AuthError::TokenVerification(_)
+            | AuthError::MissingKid
+            | AuthError::NoMatchingKey
+            | AuthError::InvalidKeyFormat => StatusCode::FORBIDDEN,
+        }
+    }
 }

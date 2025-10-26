@@ -1,0 +1,33 @@
+---
+import type { DashboardAdminTypes } from "@/types/types";
+
+interface Props {
+  title: DashboardAdminTypes;
+  subtitle: String;
+}
+
+const { title, subtitle } = Astro.props;
+---
+
+<a
+  href={`/panel-admin?section=${title}`}
+  target="_blank"
+  class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-200 transition-colors group/item"
+>
+  <div class="w-10 h-10 rounded-lg flex items-center justify-center transition-color">
+    <!-- Obtenemos el svg del padre -->
+    <slot />
+  </div>
+  <div class="flex-1">
+    <h4 class="text-sm font-semibold">{title.charAt(0).toUpperCase() + title.slice(1)}</h4>
+    <p class="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
+  </div>
+  <svg
+    class="w-5 h-5 text-gray-400 group-hover/item:text-lightRed transition-colors"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+  </svg>
+</a>
