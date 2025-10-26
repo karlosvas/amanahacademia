@@ -472,3 +472,17 @@ export function parseArticleMetricData(data: MetricData): ParsedArticleMetrics {
     sessionsPerUser: parseFloat(data.metricValues[7].value),
   };
 }
+
+export interface ParsedClassMetrics {
+  yearMonth: string; // "202510"
+  eventName: string; // "class_booking"
+  bookings: number; // Cantidad de reservas
+}
+
+export function parseClassMetricData(data: MetricData): ParsedClassMetrics {
+  return {
+    yearMonth: data.dimensionValues[0].value,
+    eventName: data.dimensionValues[1].value,
+    bookings: parseInt(data.metricValues[0].value),
+  };
+}

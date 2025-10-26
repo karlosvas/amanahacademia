@@ -220,7 +220,7 @@ const { stats } = Astro.props;
             y: {
               beginAtZero: false,
               min: 0,
-              max: 100,
+              max: Math.max(...activeUsersChartData, ...sessionsChartData) * 1.2,
               ticks: {
                 color: "#8a4141",
                 font: {

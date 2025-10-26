@@ -34,8 +34,8 @@ const { stats } = Astro.props;
 
 <div class="bg-white rounded-xl shadow-sm border border-[#fee8d6] p-6">
   <div class="mb-6">
-    <h2 class="text-xl font-bold text-[#131313] mb-2">Usuarios Activos Mensuales</h2>
-    <p class="text-[#8a4141] text-sm">Evolución de usuarios activos en los últimos 12 meses</p>
+    <h2 class="text-xl font-bold text-[#131313] mb-2">Analiticas</h2>
+    <p class="text-[#8a4141] text-sm">Evolución de la web en los últimos 12 meses</p>
   </div>
 
   <div class="relative" style="height: 400px;">
@@ -45,10 +45,8 @@ const { stats } = Astro.props;
 
 <script>
   import { ApiService } from "@/services/helper";
-  import type { Result } from "@/types/bakend-types";
-  import { parseArticleMetricData, parseUsersMetricData, type MetricsResponse } from "@/types/types";
+  import { parseArticleMetricData, parseUsersMetricData, parseClassMetricData } from "@/types/types";
   import Chart from "chart.js/auto";
-  import { onAuthStateChanged } from "@/services/firebase";
 
   document.addEventListener("DOMContentLoaded", async () => {
     const ctx = document.getElementById("activeUsersChart") as HTMLCanvasElement;
@@ -62,30 +60,47 @@ const { stats } = Astro.props;
 
     const currentMonth = new Date().getMonth();
     const monthLabels = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-    const currentYear = new Date().getFullYear().toString().slice(-2);
+    const currentYear = new Date().getFullYear();
 
     const makeLastNMonths = (currentMonthIndex: number, count: number) => {
       return Array.from({ length: count }, (_, i) => {
-        // i = 0 => oldest, i = count-1 => current
         const monthIndex = (currentMonthIndex - (count - 1 - i) + 12) % 12;
-        return `${monthLabels[monthIndex]} ${currentYear}`;
+        return `${monthLabels[monthIndex]} ${currentYear}`; // Ahora mostrará "Oct 2025"
       });
+    };
+
+    // Y actualiza getMonthKey para usar año completo:
+    const getMonthKey = (label: string) => {
+      const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
+      const year = label.split(" ")[1];
+      return `${year}${String(monthIndex + 1).padStart(2, "0")}`;
     };
 
     try {
       const helper = new ApiService();
 
-      const userMetrics: Result<MetricsResponse> = await helper.getUserMetrics();
-      if (!userMetrics.success) throw new Error("No se encontraron las metricas");
-      const articlesMetrics: Result<MetricsResponse> = await helper.getArticlesMetrics();
-      if (!articlesMetrics.success) throw new Error("No se encontraron las metricas");
+      // Obtener todas las métricas
+      const [userMetrics, articlesMetrics, classMetrics] = await Promise.all([
+        helper.getUserMetrics(),
+        helper.getArticlesMetrics(),
+        helper.getClassMetrics(),
+      ]);
+      if (!userMetrics.success || !articlesMetrics.success || !classMetrics.success)
+        throw new Error("Error al obtener métricas");
 
-      // Parsear todas las filas
+      // Parsear todas las filas, artículos, usuarios y clases
       const parsedUserData = userMetrics.data.rows.map(parseUsersMetricData);
-      // Parsear artículos
       const parsedArticleData = articlesMetrics.data.rows.map(parseArticleMetricData);
+      const parsedClassData = classMetrics.data.rows.map(parseClassMetricData);
 
-      // Agrupar clics totales por mes
+      // Agrupar por total de clases por mes
+      const totalByMonth = new Map<string, number>();
+      parsedClassData.forEach((item) => {
+        const currentTotal = totalByMonth.get(item.yearMonth) || 0;
+        totalByMonth.set(item.yearMonth, currentTotal + item.bookings);
+      });
+
+      // Agrupar clics a articulos totales por mes
       const articleClicksMap = new Map<string, number>();
       parsedArticleData.forEach((item) => {
         // Extraer mes del pagePath si lo necesitas, o agrupar todo el periodo
@@ -101,7 +116,6 @@ const { stats } = Astro.props;
       // Crear mapas para cada métrica que necesites visualizar
       const activeUsersMap = new Map<string, number>();
       const sessionsMap = new Map<string, number>();
-
       parsedUserData.forEach((m) => {
         activeUsersMap.set(m.yearMonth, m.activeUsers);
         sessionsMap.set(m.yearMonth, m.sessions);
@@ -113,8 +127,8 @@ const { stats } = Astro.props;
       // Mapear los datos a los meses correctos
       const activeUsersChartData = labels.map((label) => {
         const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
-        const year = "20" + label.split(" ")[1];
-        const monthKey = `${year}${String(monthIndex + 1).padStart(2, "0")}`; // "202510" sin guión
+        const year = label.split(" ")[1];
+        const monthKey = `${year}${String(monthIndex + 1).padStart(2, "0")}`;
 
         return activeUsersMap.get(monthKey) ?? 0;
       });
@@ -122,11 +136,14 @@ const { stats } = Astro.props;
       // Si necesitas datos de otra métrica:
       const sessionsChartData = labels.map((label) => {
         const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
-        const year = "20" + label.split(" ")[1];
+        const year = label.split(" ")[1];
         const monthKey = `${year}${String(monthIndex + 1).padStart(2, "0")}`;
 
         return sessionsMap.get(monthKey) ?? 0;
       });
+
+      // Datos de reservas de clases
+      const bookingsData = labels.map((l) => totalByMonth.get(getMonthKey(l)) || 0);
 
       new Chart(ctx, {
         type: "line",
@@ -141,36 +158,35 @@ const { stats } = Astro.props;
               borderWidth: 3,
               fill: true,
               tension: 0.4,
-              pointRadius: 6,
-              pointHoverRadius: 8,
+              pointRadius: 4,
               pointBackgroundColor: "#b2443a",
-              pointBorderColor: "#fff4e1",
-              pointBorderWidth: 2,
-              pointHoverBackgroundColor: "#6d0006",
-              pointHoverBorderColor: "#fff4e1",
-              pointHoverBorderWidth: 3,
             },
             {
               label: "Sesiones",
               data: sessionsChartData,
-              borderColor: "#fa8072", // salmon
+              borderColor: "#fa8072",
               backgroundColor: "rgba(250, 128, 114, 0.1)",
               borderWidth: 3,
               fill: true,
               tension: 0.4,
-              pointRadius: 6,
-              pointHoverRadius: 8,
+              pointRadius: 4,
               pointBackgroundColor: "#fa8072",
-              pointBorderColor: "#fff4e1",
-              pointBorderWidth: 2,
-              pointHoverBackgroundColor: "#d89c8d",
-              pointHoverBorderColor: "#fff4e1",
-              pointHoverBorderWidth: 3,
+            },
+            {
+              label: "Reservas de Clases",
+              data: labels.map((l) => totalByMonth.get(getMonthKey(l)) || 0),
+              borderColor: "#6d0006",
+              backgroundColor: "rgba(109, 0, 6, 0.1)",
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 4,
+              pointBackgroundColor: "#6d0006",
             },
             {
               label: "Clics de Artículos",
               data: Array(6).fill(articleClicksPerMonth),
-              borderColor: "#d89c8d",
+              borderColor: "#ffbba8",
               borderWidth: 2,
               borderDash: [5, 5],
               fill: false,
@@ -187,7 +203,7 @@ const { stats } = Astro.props;
               position: "top",
               align: "end",
               labels: {
-                usePointStyle: true, // Usa círculos en vez de rectángulos
+                usePointStyle: true,
                 pointStyle: "circle",
                 padding: 20,
                 font: {
@@ -199,7 +215,6 @@ const { stats } = Astro.props;
                 boxHeight: 8,
               },
               onClick: (e, legendItem, legend) => {
-                // Toggle visibility al hacer clic
                 const index = legendItem.datasetIndex!;
                 const chart = legend.chart;
                 const meta = chart.getDatasetMeta(index);
@@ -208,7 +223,7 @@ const { stats } = Astro.props;
               },
             },
             tooltip: {
-              backgroundColor: "rgba(95, 73, 73, 0.95)", // brown
+              backgroundColor: "rgba(95, 73, 73, 0.95)",
               titleColor: "#fff4e1",
               bodyColor: "#fee8d6",
               padding: 12,
@@ -247,7 +262,8 @@ const { stats } = Astro.props;
             y: {
               beginAtZero: false,
               min: 0,
-              max: Math.max(...activeUsersChartData, ...sessionsChartData, articleClicksPerMonth) * 1.2,
+              max:
+                Math.max(...activeUsersChartData, ...sessionsChartData, ...bookingsData, articleClicksPerMonth) * 1.2,
               ticks: {
                 color: "#8a4141",
                 font: {
@@ -283,7 +299,7 @@ const { stats } = Astro.props;
           },
           interaction: {
             intersect: false,
-            mode: "index",
+            mode: "nearest",
           },
         },
       });

@@ -4,8 +4,7 @@ import StatsCard from "../StatsCard.astro";
 const { stats } = Astro.props;
 ---
 
-<!-- Stats Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<!-- Stats Cards --><!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
   <StatsCard
     title="Total Usuarios"
     value={stats.totalUsers.toLocaleString()}
@@ -30,12 +29,11 @@ const { stats } = Astro.props;
     change={stats.changes.conversionRate}
     iconType="conversion"
   />
-</div>
-
+</div> -->
 <div class="bg-white rounded-xl shadow-sm border border-[#fee8d6] p-6">
   <div class="mb-6">
-    <h2 class="text-xl font-bold text-[#131313] mb-2">Usuarios Activos Mensuales</h2>
-    <p class="text-[#8a4141] text-sm">Evolución de usuarios activos en los últimos 12 meses</p>
+    <h2 class="text-xl font-bold text-[#131313] mb-2">Estadísticas de Clases Reservadas</h2>
+    <p class="text-[#8a4141] text-sm">Evolución de clases reservadas en los últimos 12 meses</p>
   </div>
 
   <div class="relative" style="height: 400px;">
@@ -44,17 +42,16 @@ const { stats } = Astro.props;
 </div>
 
 <script>
+  import { Class } from "@/enums/enums";
   import { ApiService } from "@/services/helper";
   import type { Result } from "@/types/bakend-types";
-  import { parseUsersMetricData, type MetricsResponse } from "@/types/types";
+  import type { MetricsResponse } from "@/types/types";
   import Chart from "chart.js/auto";
 
   document.addEventListener("DOMContentLoaded", async () => {
     const ctx = document.getElementById("activeUsersChart") as HTMLCanvasElement;
-
     if (!ctx) return;
 
-    // Crear gradiente para el fondo del área
     const gradient = ctx.getContext("2d")!.createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, "rgba(178, 68, 58, 0.25)");
     gradient.addColorStop(1, "rgba(178, 68, 58, 0)");
@@ -65,56 +62,56 @@ const { stats } = Astro.props;
 
     const makeLastNMonths = (currentMonthIndex: number, count: number) => {
       return Array.from({ length: count }, (_, i) => {
-        // i = 0 => oldest, i = count-1 => current
         const monthIndex = (currentMonthIndex - (count - 1 - i) + 12) % 12;
         return `${monthLabels[monthIndex]} ${currentYear}`;
       });
     };
 
-    // Esperar a que Firebase esté listo y el usuario autenticado
-    if (!user) {
-      console.error("Usuario no autenticado");
-      return;
-    }
+    const getMonthKey = (label: string) => {
+      const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
+      const year = "20" + label.split(" ")[1];
+      return `${year}${String(monthIndex + 1).padStart(2, "0")}`;
+    };
 
     try {
       const helper = new ApiService();
-
-      const metrics: Result<MetricsResponse> = await helper.getUserMetrics();
+      const metrics: Result<MetricsResponse> = await helper.getClassMetrics();
       if (!metrics.success) throw new Error("No se encontraron las metricas");
 
-      // Parsear todas las filas
-      const parsedData = metrics.data.rows.map(parseUsersMetricData);
+      // Parsear datos: yearMonth, eventName, bookings
+      const parsedData = metrics.data.rows.map((row) => ({
+        yearMonth: row.dimensionValues[0].value,
+        eventName: row.dimensionValues[1].value,
+        bookings: parseInt(row.metricValues[0].value),
+      }));
 
-      // Crear mapas para cada métrica que necesites visualizar
-      const activeUsersMap = new Map<string, number>();
-      const sessionsMap = new Map<string, number>();
+      // Agrupar por mes (total)
+      const totalByMonth = new Map<string, number>();
+      const freeByMonth = new Map<string, number>();
+      const individualByMonth = new Map<string, number>();
+      const standardByMonth = new Map<string, number>();
 
-      parsedData.forEach((m) => {
-        activeUsersMap.set(m.yearMonth, m.activeUsers);
-        sessionsMap.set(m.yearMonth, m.sessions);
+      parsedData.forEach((item) => {
+        // Total
+        const currentTotal = totalByMonth.get(item.yearMonth) || 0;
+        totalByMonth.set(item.yearMonth, currentTotal + item.bookings);
+
+        // Por tipo
+        const eventLower = item.eventName.toLowerCase();
+
+        if (eventLower.includes("free")) {
+          const current = freeByMonth.get(item.yearMonth) || 0;
+          freeByMonth.set(item.yearMonth, current + item.bookings);
+        } else if (eventLower.includes("individual")) {
+          const current = individualByMonth.get(item.yearMonth) || 0;
+          individualByMonth.set(item.yearMonth, current + item.bookings);
+        } else if (eventLower.includes("standard")) {
+          const current = standardByMonth.get(item.yearMonth) || 0;
+          standardByMonth.set(item.yearMonth, current + item.bookings);
+        }
       });
 
-      // Generar labels de los últimos 6 meses
       const labels = makeLastNMonths(currentMonth, 6);
-
-      // Mapear los datos a los meses correctos
-      const activeUsersChartData = labels.map((label) => {
-        const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
-        const year = "20" + label.split(" ")[1];
-        const monthKey = `${year}${String(monthIndex + 1).padStart(2, "0")}`; // "202510" sin guión
-
-        return activeUsersMap.get(monthKey) ?? 0;
-      });
-
-      // Si necesitas datos de otra métrica:
-      const sessionsChartData = labels.map((label) => {
-        const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
-        const year = "20" + label.split(" ")[1];
-        const monthKey = `${year}${String(monthIndex + 1).padStart(2, "0")}`;
-
-        return sessionsMap.get(monthKey) ?? 0;
-      });
 
       new Chart(ctx, {
         type: "line",
@@ -122,38 +119,48 @@ const { stats } = Astro.props;
           labels: labels,
           datasets: [
             {
-              label: "Usuarios Activos",
-              data: activeUsersChartData,
+              label: "Total Reservas",
+              data: labels.map((l) => totalByMonth.get(getMonthKey(l)) || 0),
               borderColor: "#b2443a",
               backgroundColor: gradient,
               borderWidth: 3,
               fill: true,
               tension: 0.4,
               pointRadius: 6,
-              pointHoverRadius: 8,
               pointBackgroundColor: "#b2443a",
-              pointBorderColor: "#fff4e1",
-              pointBorderWidth: 2,
-              pointHoverBackgroundColor: "#6d0006",
-              pointHoverBorderColor: "#fff4e1",
-              pointHoverBorderWidth: 3,
             },
             {
-              label: "Sesiones",
-              data: sessionsChartData,
-              borderColor: "#fa8072", // salmon
+              label: "Clases Grupales",
+              data: labels.map((l) => freeByMonth.get(getMonthKey(l)) || 0),
+              borderColor: "#fa8072",
               backgroundColor: "rgba(250, 128, 114, 0.1)",
               borderWidth: 3,
               fill: true,
               tension: 0.4,
               pointRadius: 6,
-              pointHoverRadius: 8,
               pointBackgroundColor: "#fa8072",
-              pointBorderColor: "#fff4e1",
-              pointBorderWidth: 2,
-              pointHoverBackgroundColor: "#d89c8d",
-              pointHoverBorderColor: "#fff4e1",
-              pointHoverBorderWidth: 3,
+            },
+            {
+              label: "Clases Individuales",
+              data: labels.map((l) => individualByMonth.get(getMonthKey(l)) || 0),
+              borderColor: "#d89c8d",
+              backgroundColor: "rgba(216, 156, 141, 0.1)",
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 6,
+              pointBackgroundColor: "#d89c8d",
+            },
+            {
+              label: "Clases Estándar",
+              data: labels.map((l) => standardByMonth.get(getMonthKey(l)) || 0),
+              borderColor: "#8a4141",
+              backgroundColor: "rgba(138, 65, 65, 0.1)",
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 6,
+              pointBackgroundColor: "#8a4141",
             },
           ],
         },
@@ -161,108 +168,30 @@ const { stats } = Astro.props;
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: {
-              display: true,
-              position: "top",
-              align: "end",
-              labels: {
-                usePointStyle: true, // Usa círculos en vez de rectángulos
-                pointStyle: "circle",
-                padding: 20,
-                font: {
-                  size: 13,
-                  family: "'Inter', sans-serif",
-                },
-                color: "#8a4141",
-                boxWidth: 8,
-                boxHeight: 8,
-              },
-              onClick: (e, legendItem, legend) => {
-                // Toggle visibility al hacer clic
-                const index = legendItem.datasetIndex!;
-                const chart = legend.chart;
-                const meta = chart.getDatasetMeta(index);
-                meta.hidden = !meta.hidden;
-                chart.update();
-              },
-            },
+            legend: { display: true, position: "top", align: "end" },
             tooltip: {
-              backgroundColor: "rgba(95, 73, 73, 0.95)", // brown
+              backgroundColor: "rgba(95, 73, 73, 0.95)",
               titleColor: "#fff4e1",
               bodyColor: "#fee8d6",
               padding: 12,
-              borderColor: "rgba(178, 68, 58, 0.3)",
-              borderWidth: 1,
-              displayColors: false,
               callbacks: {
                 label: function (context) {
-                  const value = context.parsed.y ?? 0;
-                  const label = context.dataset.label || "";
-                  return `${label}: ${value.toLocaleString()}`;
-                },
-                afterLabel: function (context) {
-                  const currentValue = context.parsed.y ?? 0;
-
-                  // Si es el primer punto, no hay comparación
-                  if (context.dataIndex === 0) {
-                    return "";
-                  }
-
-                  const previousValue = context.dataset.data[context.dataIndex - 1] as number;
-                  const change = currentValue - previousValue;
-
-                  // Si el valor anterior era 0, solo mostrar el cambio absoluto
-                  if (previousValue === 0) {
-                    return change > 0 ? `↗ +${change}` : "";
-                  }
-
-                  const percentChange = ((change / previousValue) * 100).toFixed(1);
-                  return change >= 0 ? `↗ +${change} (+${percentChange}%)` : `↘ ${change} (${percentChange}%)`;
+                  const y = Number(context.parsed?.y ?? 0);
+                  return `${context.dataset.label}: ${y.toLocaleString()} reservas`;
                 },
               },
             },
           },
           scales: {
             y: {
-              beginAtZero: false,
-              min: 0,
-              max: 100,
-              ticks: {
-                color: "#8a4141",
-                font: {
-                  size: 12,
-                },
-                callback: function (value) {
-                  return value.toLocaleString();
-                },
-              },
-              grid: {
-                color: "rgba(138, 65, 65, 0.1)",
-              },
-              border: {
-                display: false,
-              },
+              beginAtZero: true,
+              ticks: { color: "#8a4141" },
+              grid: { color: "rgba(138, 65, 65, 0.1)" },
             },
             x: {
-              ticks: {
-                color: "#8a4141",
-                font: {
-                  size: 12,
-                },
-                maxRotation: 45,
-                minRotation: 45,
-              },
-              grid: {
-                display: false,
-              },
-              border: {
-                display: false,
-              },
+              ticks: { color: "#8a4141", maxRotation: 45 },
+              grid: { display: false },
             },
-          },
-          interaction: {
-            intersect: false,
-            mode: "index",
           },
         },
       });

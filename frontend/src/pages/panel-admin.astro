@@ -23,8 +23,8 @@ let section = url.searchParams.get("section");
 const validSections = Object.values(DashboardAdminTypes);
 if (!section || !validSections.includes(section as DashboardAdminTypes)) return Astro.redirect("/");
 
-// const helper = new ApiService();
-// const metrics = await helper.getUserMetrics();
+const helper = new ApiService();
+const metrics = await helper.getUserMetrics();
 
 let stats = {
   totalUsers: 0,
@@ -39,52 +39,52 @@ let stats = {
   },
 };
 
-// if (metrics.success && metrics.data.rows.length > 0) {
-//   const parsed = metrics.data.rows.map(parseUsersMetricData);
+if (metrics.success && metrics.data.rows.length > 0) {
+  const parsed = metrics.data.rows.map(parseUsersMetricData);
 
-//   const latest = parsed[parsed.length - 1];
-//   const previous = parsed.length > 1 ? parsed[parsed.length - 2] : null;
+  const latest = parsed[parsed.length - 1];
+  const previous = parsed.length > 1 ? parsed[parsed.length - 2] : null;
 
-//   stats.totalUsers = latest.totalUsers;
-//   stats.activeUsers = latest.activeUsers;
-//   stats.newUsers = latest.newUsers;
+  stats.totalUsers = latest.totalUsers;
+  stats.activeUsers = latest.activeUsers;
+  stats.newUsers = latest.newUsers;
 
-//   const convRate = (latest.engagedSessions / latest.sessions) * 100;
-//   stats.conversionRate = convRate;
+  const convRate = (latest.engagedSessions / latest.sessions) * 100;
+  stats.conversionRate = convRate;
 
-//   // Calcular cambios vs mes anterior
-//   if (previous) {
-//     if (previous.totalUsers > 0) {
-//       const totalChange = ((latest.totalUsers - previous.totalUsers) / previous.totalUsers) * 100;
-//       stats.changes.totalUsers = `${totalChange > 0 ? "+" : ""}${totalChange.toFixed(1)}%`;
-//     } else {
-//       stats.changes.totalUsers = `+${latest.totalUsers}`;
-//     }
+  // Calcular cambios vs mes anterior
+  if (previous) {
+    if (previous.totalUsers > 0) {
+      const totalChange = ((latest.totalUsers - previous.totalUsers) / previous.totalUsers) * 100;
+      stats.changes.totalUsers = `${totalChange > 0 ? "+" : ""}${totalChange.toFixed(1)}%`;
+    } else {
+      stats.changes.totalUsers = `+${latest.totalUsers}`;
+    }
 
-//     if (previous.activeUsers > 0) {
-//       const activeChange = ((latest.activeUsers - previous.activeUsers) / previous.activeUsers) * 100;
-//       stats.changes.activeUsers = `${activeChange > 0 ? "+" : ""}${activeChange.toFixed(1)}%`;
-//     } else {
-//       stats.changes.activeUsers = `+${latest.activeUsers}`;
-//     }
+    if (previous.activeUsers > 0) {
+      const activeChange = ((latest.activeUsers - previous.activeUsers) / previous.activeUsers) * 100;
+      stats.changes.activeUsers = `${activeChange > 0 ? "+" : ""}${activeChange.toFixed(1)}%`;
+    } else {
+      stats.changes.activeUsers = `+${latest.activeUsers}`;
+    }
 
-//     if (previous.newUsers > 0) {
-//       const newChange = ((latest.newUsers - previous.newUsers) / previous.newUsers) * 100;
-//       stats.changes.newUsers = `${newChange > 0 ? "+" : ""}${newChange.toFixed(1)}%`;
-//     } else {
-//       stats.changes.newUsers = `+${latest.newUsers}`;
-//     }
+    if (previous.newUsers > 0) {
+      const newChange = ((latest.newUsers - previous.newUsers) / previous.newUsers) * 100;
+      stats.changes.newUsers = `${newChange > 0 ? "+" : ""}${newChange.toFixed(1)}%`;
+    } else {
+      stats.changes.newUsers = `+${latest.newUsers}`;
+    }
 
-//     const prevRate = (previous.engagedSessions / previous.sessions) * 100;
-//     const convChange = convRate - prevRate;
-//     stats.changes.conversionRate = `${convChange > 0 ? "+" : ""}${convChange.toFixed(1)}%`;
-//   } else {
-//     stats.changes.totalUsers = `+${latest.totalUsers}`;
-//     stats.changes.activeUsers = `+${latest.activeUsers}`;
-//     stats.changes.newUsers = `+${latest.newUsers}`;
-//     stats.changes.conversionRate = `${convRate.toFixed(1)}%`;
-//   }
-// }
+    const prevRate = (previous.engagedSessions / previous.sessions) * 100;
+    const convChange = convRate - prevRate;
+    stats.changes.conversionRate = `${convChange > 0 ? "+" : ""}${convChange.toFixed(1)}%`;
+  } else {
+    stats.changes.totalUsers = `+${latest.totalUsers}`;
+    stats.changes.activeUsers = `+${latest.activeUsers}`;
+    stats.changes.newUsers = `+${latest.newUsers}`;
+    stats.changes.conversionRate = `${convRate.toFixed(1)}%`;
+  }
+}
 ---
 
 <Layout
