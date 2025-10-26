@@ -1,5 +1,5 @@
 import toast from "solid-toast";
-import { showModalAnimation } from "../utils/modals";
+import { closeModalAnimation, showModalAnimation } from "../utils/modals";
 import type { Result, UserMerged, UserRequest } from "@/types/bakend-types";
 import { ApiService, ResultUtils } from "./helper";
 import {
@@ -263,7 +263,10 @@ export async function handleLogGoogleProvider(
     if (isRegister) await suscribeToNewsletter(formData, userRequest);
 
     // Comprobamos si es un usuario nuevo
-    modal.close();
+    closeModalAnimation(modal, formHTML);
+
+    // Devolbemos el scroll
+
     setTimeout(() => {
       toast.success(
         isRegister

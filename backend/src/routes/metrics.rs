@@ -1,6 +1,6 @@
 use {
     crate::{
-        controllers::metrics::{get_article_metrics, get_user_metrics},
+        controllers::metrics::{get_article_metrics, get_class_metrics, get_user_metrics},
         middleware::auth::public_ga_auth_middleware,
         models::state::AppState,
     },
@@ -12,6 +12,7 @@ pub fn router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     let public_routes: Router<Arc<AppState>> = Router::new()
         .route("/users", get(get_user_metrics))
         .route("/articles", get(get_article_metrics))
+        .route("/class", get(get_class_metrics))
         .layer(middleware::from_fn_with_state(
             state.clone(),
             public_ga_auth_middleware,

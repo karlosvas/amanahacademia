@@ -65,6 +65,7 @@ Astro.cookies.set("lang", lang, { path: "/", maxAge: 31536000 });
   const formLogin = authModalLogin.querySelector("form") as HTMLFormElement;
   const btnIdentification = document.getElementById("identification") as HTMLButtonElement;
   const headerData = JSON.parse(btnIdentification.dataset.header || "");
+  const panelAnalitics = document.getElementById("admin-panel");
 
   // Actualizamos segun el tamaño de la ventana
   document.addEventListener("DOMContentLoaded", async () => {
@@ -78,6 +79,20 @@ Astro.cookies.set("lang", lang, { path: "/", maxAge: 31536000 });
     // Firebase auth state
     onAuthStateChanged((user) => {
       setupAuth(user, authModalLogin, formLogin, headerData);
+
+      const isAdmin =
+        !!user?.email &&
+        (user.email.endsWith("@amanahacademia.com") ||
+          user.email === "carlosvassan@gmail.com" ||
+          user.email === "anaortgut2025@gmail.com");
+
+      if (panelAnalitics) {
+        // Mostrar/ocultar de forma consistente
+        panelAnalitics.hidden = !isAdmin;
+        panelAnalitics.classList.toggle("hidden", !isAdmin);
+        panelAnalitics.classList.toggle("block", isAdmin);
+        panelAnalitics.setAttribute("aria-hidden", String(!isAdmin));
+      }
     });
   });
 </script>

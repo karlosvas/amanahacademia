@@ -6,8 +6,6 @@ import type { ArticleI18n, ArticlesAstro } from "@/types/types";
 const data = Astro.props.data as ArticleI18n;
 const articles = (await getCollection("articles")) as ArticlesAstro[];
 const R2_URL = import.meta.env.PUBLIC_R2_PUBLIC_URL;
-
-console.log("Articles page loaded with articles:", articles);
 ---
 
 <main class="w-11/12 md:w-3/4 m-auto text-black">
@@ -22,9 +20,9 @@ console.log("Articles page loaded with articles:", articles);
       articles.map((article: ArticlesAstro) => {
         return (
           <a
-            href={R2_URL + article.data.pdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#"
+            data-pdf-url={R2_URL + article.data.pdfUrl}
+            data-pdf-name={article.data.title + ".pdf"}
             class="article-link scroll-fade-in mb-4 break-inside-avoid rounded-lg bg-salmon overflow-hidden cursor-pointer block"
             style={`height: ${150 + Math.random() * 180}px; width: 100%`}
             data-article-id={article.id}
@@ -49,20 +47,37 @@ console.log("Articles page loaded with articles:", articles);
     const articleLinks = document.querySelectorAll(".article-link");
 
     articleLinks.forEach((link) => {
-      link.addEventListener("click", (e) => {
+      link.addEventListener("click", async (e) => {
+        e.preventDefault();
         const target = e.currentTarget as HTMLElement;
-        const articleId = target.dataset.articleId;
-        const articleTitle = target.dataset.articleTitle;
+        const pdfUrl = target.dataset.pdfUrl!;
+        const pdfName = target.dataset.pdfName!;
 
+        // Track analytics
         if (window.gtag) {
           window.gtag("event", "article_click", {
-            article_id: articleId,
-            article_title: articleTitle,
+            article_id: target.dataset.articleId,
+            article_title: target.dataset.articleTitle,
             category: "articles",
           });
-        } else {
-          console.warn("gtag is not defined");
         }
+
+        // Forzar descarga
+        const response = await fetch(pdfUrl);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+
+        // Descargar
+        const downloadLink = document.createElement("a");
+        downloadLink.href = url;
+        downloadLink.download = pdfName;
+        downloadLink.click();
+
+        // Abrir en nueva pestaña después de descargar
+        setTimeout(() => {
+          window.open(pdfUrl, "_blank");
+          URL.revokeObjectURL(url);
+        }, 100);
       });
     });
   });
