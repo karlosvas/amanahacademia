@@ -1,13 +1,13 @@
 ---
-import Layout from "@/layouts/Layout.astro";
 import { getSEOData } from "i18n/seo";
 import { DashboardAdminTypes, type PropsSEO } from "@/types/types";
-import { parseUsersMetricData } from "@/types/types";
+import { parseUsersMetricData } from "@/utils/metrics";
 import { ApiService } from "@/services/helper";
 import PanelDashboard from "@/components/dashboard/panel/PanelDashboard.astro";
 import PanelArticles from "@/components/dashboard/panel/PanelArticles.astro";
 import PanelClasses from "@/components/dashboard/panel/PanelClasses.astro";
 import PanelUser from "@/components/dashboard/panel/PanelUser.astro";
+import Layout from "@/layouts/Layout.astro";
 
 // Obtenemos el idioma obtenido mediante la ruta
 const { lang } = Astro.params;
@@ -100,7 +100,6 @@ if (metrics.success && metrics.data.rows.length > 0) {
 >
   <div class="min-h-screen lg:px-72 bg-gradient-to-br from-[#fff4e1] to-[#fee8d6] p-6">
     <div class="max-w-7xl mx-auto">
-      <!-- Header -->
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-[#131313] mb-2">Panel de Administración</h1>
         <p class="text-[#8a4141]">Monitoreo y estadísticas de Amanah Academia</p>

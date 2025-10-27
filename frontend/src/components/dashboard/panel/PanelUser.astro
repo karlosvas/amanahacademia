@@ -46,7 +46,8 @@ const { stats } = Astro.props;
 <script>
   import { ApiService } from "@/services/helper";
   import type { Result } from "@/types/bakend-types";
-  import { parseUsersMetricData, type MetricsResponse } from "@/types/types";
+  import type { MetricsResponse } from "@/types/types";
+  import { parseUsersMetricData } from "@/utils/metrics";
   import Chart from "chart.js/auto";
 
   document.addEventListener("DOMContentLoaded", async () => {

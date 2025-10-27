@@ -78,3 +78,6 @@ develop
 
 # Cloudflare
 .wrangler
+
+# SonarQube
+.sonarlint

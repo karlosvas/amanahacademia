@@ -31,6 +31,77 @@ const {
 } = Astro.props as PropsSEO;
 
 const theme = Astro.cookies.get("theme")?.value;
+
+const cookiesTranslation = {
+  ar: {
+    accept: "قبول",
+    reject: "رفض",
+    // [title, paragraph, link text]
+    message: [
+      "نستخدم ملفات تعريف الارتباط لتحسين تجربتك",
+      "نستخدم ملفات تعريف الارتباط لتحليل حركة مرور الموقع وتحسين خدماتنا.",
+      "مزيد من المعلومات حول سياسة الخصوصية وملفات تعريف الارتباط الخاصة بنا.",
+    ],
+  },
+  de: {
+    accept: "Akzeptieren",
+    reject: "Ablehnen",
+    message: [
+      "Wir verwenden Cookies, um deine Erfahrung zu verbessern",
+      "Wir verwenden Cookies, um den Website-Verkehr zu analysieren und unsere Dienste zu verbessern.",
+      "Weitere Informationen zu unserer Datenschutz- und Cookie-Richtlinie.",
+    ],
+  },
+  en: {
+    accept: "Accept",
+    reject: "Reject",
+    message: [
+      "We use cookies to improve your experience",
+      "We use cookies to analyze site traffic and improve our services.",
+      "More information about our privacy and cookie policy.",
+    ],
+  },
+  es: {
+    accept: "Aceptar",
+    reject: "Rechazar",
+    message: [
+      "Usamos cookies para mejorar tu experiencia",
+      "Utilizamos cookies para analizar el tráfico del sitio y mejorar nuestros servicios.",
+      "Más información sobre nuestra política de privacidad y cookies.",
+    ],
+  },
+  fr: {
+    accept: "Accepter",
+    reject: "Refuser",
+    message: [
+      "Nous utilisons des cookies pour améliorer votre expérience",
+      "Nous utilisons des cookies pour analyser le trafic du site et améliorer nos services.",
+      "Plus d'informations sur notre politique de confidentialité et de cookies.",
+    ],
+  },
+  it: {
+    accept: "Accetta",
+    reject: "Rifiuta",
+    message: [
+      "Utilizziamo i cookie per migliorare la tua esperienza",
+      "Utilizziamo i cookie per analizzare il traffico del sito e migliorare i nostri servizi.",
+      "Maggiori informazioni sulla nostra politica sulla privacy e sui cookie.",
+    ],
+  },
+  pt: {
+    accept: "Aceitar",
+    reject: "Rejeitar",
+    message: [
+      "Usamos cookies para melhorar sua experiência",
+      "Usamos cookies para analisar o tráfego do site e melhorar nossos serviços.",
+      "Mais informações sobre nossa política de privacidade e cookies.",
+    ],
+  },
+};
+
+// Helper para el banner (title, paragraph, link)
+const cookieMessage =
+  cookiesTranslation[lang as keyof typeof cookiesTranslation]?.message || cookiesTranslation["es"].message;
 ---
 
 <!doctype html>
@@ -213,17 +284,17 @@ const theme = Astro.cookies.get("theme")?.value;
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <div>
-              <p class="text-sm text-black font-semibold">Usamos cookies para mejorar tu experiencia</p>
+              <p class="text-sm text-black font-semibold">{cookieMessage[0]}</p>
               <p class="text-xs text-black opacity-80 mt-1 flex sm:flex-col">
-                <span> Utilizamos cookies para analizar el tráfico del sitio y mejorar nuestros servicios. </span>
+                <span>{cookieMessage[1]}</span>
                 <a
                   href="/legal"
-                  title="Política de privacidad y cookies"
+                  title={cookieMessage[2]}
                   rel="license"
-                  aria-label="Leer la política de privacidad y cookies"
+                  aria-label={cookieMessage[2]}
                   class="text-lightRed hover:text-salmon font-semibold underline decoration-lightRed/30 hover:decoration-salmon/50 transition-colors"
                 >
-                  Más información sobre nuestra política de privacidad y cookies.
+                  {cookieMessage[2]}
                 </a>
               </p>
             </div>
@@ -235,13 +306,13 @@ const theme = Astro.cookies.get("theme")?.value;
               id="rejectCookies"
               class="px-5 py-2.5 text-sm font-semibold text-black border-2 border-lightBrown rounded-lg hover:bg-brown hover:text-white hover:border-brown transition-all duration-200 shadow-sm"
             >
-              Rechazar
+              {cookiesTranslation[lang as keyof typeof cookiesTranslation]?.reject || cookiesTranslation["es"].reject}
             </button>
             <button
               id="acceptCookies"
               class="px-5 py-2.5 text-sm font-semibold text-white bg-lightRed hover:bg-salmon rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              Aceptar
+              {cookiesTranslation[lang as keyof typeof cookiesTranslation]?.accept || cookiesTranslation["es"].accept}
             </button>
           </div>
         </div>

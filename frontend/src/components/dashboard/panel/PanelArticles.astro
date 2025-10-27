@@ -46,7 +46,8 @@ const { stats } = Astro.props;
 <script>
   import { ApiService } from "@/services/helper";
   import type { Result } from "@/types/bakend-types";
-  import { parseArticleMetricData, type MetricsResponse } from "@/types/types";
+  import type { MetricsResponse } from "@/types/types";
+  import { parseArticleMetricData } from "@/utils/metrics";
   import Chart from "chart.js/auto";
 
   document.addEventListener("DOMContentLoaded", async () => {
@@ -128,7 +129,8 @@ const { stats } = Astro.props;
               displayColors: false,
               callbacks: {
                 label: function (context) {
-                  return `Clics: ${context.parsed.y.toLocaleString()}`;
+                  const y = Number(context.parsed?.y ?? 0);
+                  return `Clics: ${y.toLocaleString()}`;
                 },
               },
             },

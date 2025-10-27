@@ -173,7 +173,7 @@ function toStringFormValue(v: FormDataEntryValue | undefined): string {
 export async function handleLogout(): Promise<void> {
   try {
     await firebaseAuth.signOut();
-    window.location.reload();
+    location.reload();
   } catch (error) {
     console.error("Error during logout:", error);
   }
@@ -186,7 +186,7 @@ export function setupAuth(
   formLogin: HTMLFormElement,
   headerData: { button: { login: string; logout: string } }
 ) {
-  const identificationButton = window.matchMedia("(min-width: 1024px)").matches
+  const identificationButton = matchMedia("(min-width: 1024px)").matches
     ? document.getElementById("identification")
     : document.getElementById("identification-menu");
 

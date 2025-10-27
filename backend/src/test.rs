@@ -1,8 +1,10 @@
 /// Tests básicos y útiles para la aplicación
 #[cfg(test)]
 mod tests {
-    use crate::models::user::{Provider, UserRequest};
-    use serde_json;
+    use {
+        crate::models::user::{Provider, UserRequest},
+        serde_json,
+    };
 
     #[test]
     fn provider_serde_and_as_str() {
@@ -21,7 +23,7 @@ mod tests {
 
     #[test]
     fn userrequest_deserialize_and_roundtrip() {
-        let json = r#"
+        let json: &str = r#"
         {
             "email": "test@example.com",
             "password": "secret",

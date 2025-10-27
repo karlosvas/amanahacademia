@@ -45,7 +45,7 @@ const { stats } = Astro.props;
 
 <script>
   import { ApiService } from "@/services/helper";
-  import { parseArticleMetricData, parseUsersMetricData, parseClassMetricData } from "@/types/types";
+  import { parseArticleMetricData, parseUsersMetricData, parseClassMetricData } from "@/utils/metrics";
   import Chart from "chart.js/auto";
 
   document.addEventListener("DOMContentLoaded", async () => {

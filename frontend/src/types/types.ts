@@ -433,20 +433,6 @@ export interface ParsedMetrics {
   sessionsPerUser: number;
 }
 
-export function parseUsersMetricData(data: MetricData): ParsedMetrics {
-  return {
-    yearMonth: data.dimensionValues[0].value,
-    activeUsers: parseInt(data.metricValues[0].value),
-    totalUsers: parseInt(data.metricValues[1].value),
-    newUsers: parseInt(data.metricValues[2].value),
-    sessions: parseInt(data.metricValues[3].value),
-    engagedSessions: parseInt(data.metricValues[4].value),
-    avgSessionDuration: parseFloat(data.metricValues[5].value),
-    bounceRate: parseFloat(data.metricValues[6].value),
-    sessionsPerUser: parseFloat(data.metricValues[7].value),
-  };
-}
-
 export interface ParsedArticleMetrics {
   pagePath: string; // "/articles/intro-arabe"
   activeUsers: number;
@@ -459,30 +445,8 @@ export interface ParsedArticleMetrics {
   sessionsPerUser: number;
 }
 
-export function parseArticleMetricData(data: MetricData): ParsedArticleMetrics {
-  return {
-    pagePath: data.dimensionValues[0].value,
-    activeUsers: parseInt(data.metricValues[0].value),
-    totalUsers: parseInt(data.metricValues[1].value),
-    newUsers: parseInt(data.metricValues[2].value),
-    sessions: parseInt(data.metricValues[3].value),
-    engagedSessions: parseInt(data.metricValues[4].value),
-    avgSessionDuration: parseFloat(data.metricValues[5].value),
-    bounceRate: parseFloat(data.metricValues[6].value),
-    sessionsPerUser: parseFloat(data.metricValues[7].value),
-  };
-}
-
 export interface ParsedClassMetrics {
   yearMonth: string; // "202510"
   eventName: string; // "class_booking"
   bookings: number; // Cantidad de reservas
-}
-
-export function parseClassMetricData(data: MetricData): ParsedClassMetrics {
-  return {
-    yearMonth: data.dimensionValues[0].value,
-    eventName: data.dimensionValues[1].value,
-    bookings: parseInt(data.metricValues[0].value),
-  };
 }

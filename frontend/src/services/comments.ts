@@ -11,7 +11,8 @@ export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanEleme
   const helper = new ApiService();
 
   // Obtenemos el commentId del atributo data-id del likeIcon
-  let commentId = likeIcon.getAttribute("data-id");
+  const el = likeIcon as HTMLElement;
+  const commentId = el.dataset.id;
   if (!commentId) {
     console.error("Error: commentId not found");
     return;
@@ -132,7 +133,7 @@ export function updateModalUser(user: User | null) {
       avatarImg.style.display = "none";
       avatarDefault.style.display = "flex";
       // Oculta la imagen y muestra el SVG
-      (avatarImg as HTMLImageElement).src = "";
+      avatarImg.src = "";
       // Si el SVG ya está en el DOM, solo muéstralo
     }
   }
@@ -142,7 +143,7 @@ export async function verifyAuthorInComment(helper: ApiService, commentId: strin
   const comment: Result<Comment> = await helper.getCommentById(commentId);
   if (!comment.success) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
-  const auth = await getFirebaseAuth();
+  const auth = getFirebaseAuth();
   if (auth.currentUser?.uid !== comment.data.author_uid)
     throw new FrontendError(getErrorToast(FrontendErrorCode.MUST_BE_OWNER));
 }
@@ -151,7 +152,7 @@ export async function verifyAuthorInCommentReply(helper: ApiService, commentId: 
   const comment: Result<Comment> = await helper.getCommentReplyById(commentId, replyId);
   if (!comment.success) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
-  const auth = await getFirebaseAuth();
+  const auth = getFirebaseAuth();
   if (auth.currentUser?.uid !== comment.data.author_uid)
     throw new FrontendError(getErrorToast(FrontendErrorCode.MUST_BE_OWNER));
 }
@@ -159,10 +160,10 @@ export async function verifyAuthorInCommentReply(helper: ApiService, commentId: 
 // Función para manejar el envío de respuestas
 export async function handleSubmitReply(helper: ApiService, commentEl: HTMLElement, traductions: any) {
   try {
-    const commentDiv = commentEl.closest("[data-comment-id]");
+    const commentDiv = commentEl.closest("[data-comment-id]") as HTMLElement;
     if (!commentDiv) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
-    const commentId: string = commentDiv.getAttribute("data-comment-id") as string;
+    const commentId = commentDiv.dataset.commentId;
     if (!commentId) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
     const replyForm = commentDiv.querySelector<HTMLElement>(".reply-form");
@@ -174,7 +175,7 @@ export async function handleSubmitReply(helper: ApiService, commentEl: HTMLEleme
     const content = textarea.value.trim();
     if (!content) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
-    const auth = await getFirebaseAuth();
+    const auth = getFirebaseAuth();
     if (!auth.currentUser) throw new FrontendError(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
 
     const newReply: ReplyComment = {
@@ -203,7 +204,7 @@ export async function handleSubmitReply(helper: ApiService, commentEl: HTMLEleme
     // Mostrar mensaje de éxito y recargar la página para renderizar desde SSR
     toast.success("Respuesta añadida correctamente");
     setTimeout(() => {
-      window.location.reload();
+      location.reload();
     }, 1000);
   } catch (e) {
     isFrontendError(e) ? toast.error(e.message) : toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
@@ -259,10 +260,8 @@ export async function handleEditReply(
     return null;
   }
 
-  const auth = await getFirebaseAuth();
-  if (!auth.currentUser) {
-    throw new FrontendError(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
-  }
+  const auth = getFirebaseAuth();
+  if (!auth.currentUser) throw new FrontendError(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
 
   const reply: ReplyComment = {
     id: replyId,
