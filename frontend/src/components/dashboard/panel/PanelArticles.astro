@@ -32,7 +32,7 @@ const { stats } = Astro.props;
   />
 </div>
 
-<div class="bg-white rounded-xl shadow-sm border border-[#fee8d6] p-6">
+<div class="bg-[#fff4e1] rounded-xl shadow-sm border border-[#fee8d6] p-6">
   <div class="mb-6">
     <h2 class="text-xl font-bold text-[#131313] mb-2">Click en articulos</h2>
     <p class="text-[#8a4141] text-sm">Evolución de clics en artículos en los últimos 12 meses</p>
@@ -47,32 +47,28 @@ const { stats } = Astro.props;
   import { ApiService } from "@/services/helper";
   import type { Result } from "@/types/bakend-types";
   import type { MetricsResponse } from "@/types/types";
-  import { parseArticleMetricData } from "@/utils/metrics";
+  import { mapToMonths, parseArticleMetricData } from "@/utils/metrics";
   import Chart from "chart.js/auto";
 
   document.addEventListener("DOMContentLoaded", async () => {
     const ctx = document.getElementById("activeUsersChart") as HTMLCanvasElement;
-
     if (!ctx) return;
 
-    // Crear gradiente para el fondo del área
-    const gradient = ctx.getContext("2d")!.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, "rgba(178, 68, 58, 0.25)");
-    gradient.addColorStop(1, "rgba(178, 68, 58, 0)");
-
+    // Configuración de meses y etiquetas
     const currentMonth = new Date().getMonth();
     const monthLabels = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-    const currentYear = new Date().getFullYear().toString().slice(-2);
+    const currentYear = new Date().getFullYear();
 
+    // Función para generar los últimos N meses
     const makeLastNMonths = (currentMonthIndex: number, count: number) => {
       return Array.from({ length: count }, (_, i) => {
-        // i = 0 => oldest, i = count-1 => current
         const monthIndex = (currentMonthIndex - (count - 1 - i) + 12) % 12;
         return `${monthLabels[monthIndex]} ${currentYear}`;
       });
     };
 
-    // Esperar a que Firebase esté listo y el usuario autenticado
+    // Generar labels de los últimos 6 meses
+    const labels = makeLastNMonths(currentMonth, 6);
 
     try {
       const helper = new ApiService();
@@ -80,29 +76,27 @@ const { stats } = Astro.props;
       const metrics: Result<MetricsResponse> = await helper.getArticlesMetrics();
       if (!metrics.success) throw new Error("No se encontraron las metricas");
 
-      // Parsear todas las filas
-      const parsedData = metrics.data.rows.map(parseArticleMetricData);
+      // Agrupar cada artículo por mes y sumar los clics
+      const parsedArticleData = metrics.data.rows.map(parseArticleMetricData);
 
-      const articleMap = new Map<string, number>();
-      parsedData.forEach((item) => {
-        const articleName = item.pagePath.split("/").pop() || "unknown";
-        const current = articleMap.get(articleName) || 0;
-        articleMap.set(articleName, current + item.activeUsers);
+      // Agrupar clics a articulos totales por mes
+      const articleClicksMap = new Map<string, number>();
+      parsedArticleData.forEach((item) => {
+        const current = articleClicksMap.get(item.yearMonth) || 0;
+        articleClicksMap.set(item.yearMonth, current + item.eventCount);
       });
 
-      // Ordenar por más clics (descendente)
-      const sorted = Array.from(articleMap.entries()).sort((a, b) => b[1] - a[1]);
-      const labels = sorted.map(([name]) => name);
-      const data = sorted.map(([, clicks]) => clicks);
+      // Mapear a los labels del chart
+      const articleClicksData = mapToMonths(articleClicksMap, labels, monthLabels);
 
       new Chart(ctx, {
-        type: "bar", // Mejor para comparar artículos
+        type: "bar",
         data: {
           labels: labels,
           datasets: [
             {
               label: "Clics por Artículo",
-              data: data,
+              data: articleClicksData,
               backgroundColor: "#b2443a",
               borderColor: "#6d0006",
               borderWidth: 2,

@@ -115,11 +115,8 @@ if (metrics.success && metrics.data.rows.length > 0) {
         ) : section === DashboardAdminTypes.CLASSES ? (
           <PanelClasses stats={stats} />
         ) : (
-          <div class="bg-white rounded-xl shadow-sm border border-[#fee8d6] p-6">
+          <div class="bg-[#fff4e1] rounded-xl shadow-sm border border-[#fee8d6] p-6">
             <p class="text-[#131313]">Sección no implementada aún.</p>
-            <h1>
-              <section>{section}</section>
-            </h1>
           </div>
         )
       }

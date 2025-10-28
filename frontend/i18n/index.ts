@@ -137,3 +137,70 @@ export const buttonsCommentTraductions: Record<
     responses: "respostas",
   },
 };
+
+export const cookiesTranslation = {
+  ar: {
+    accept: "قبول",
+    reject: "رفض",
+    // [title, paragraph, link text]
+    message: [
+      "نستخدم ملفات تعريف الارتباط لتحسين تجربتك",
+      "نستخدم ملفات تعريف الارتباط لتحليل حركة مرور الموقع وتحسين خدماتنا.",
+      "مزيد من المعلومات حول سياسة الخصوصية وملفات تعريف الارتباط الخاصة بنا.",
+    ],
+  },
+  de: {
+    accept: "Akzeptieren",
+    reject: "Ablehnen",
+    message: [
+      "Wir verwenden Cookies, um deine Erfahrung zu verbessern",
+      "Wir verwenden Cookies, um den Website-Verkehr zu analysieren und unsere Dienste zu verbessern.",
+      "Weitere Informationen zu unserer Datenschutz- und Cookie-Richtlinie.",
+    ],
+  },
+  en: {
+    accept: "Accept",
+    reject: "Reject",
+    message: [
+      "We use cookies to improve your experience",
+      "We use cookies to analyze site traffic and improve our services.",
+      "More information about our privacy and cookie policy.",
+    ],
+  },
+  es: {
+    accept: "Aceptar",
+    reject: "Rechazar",
+    message: [
+      "Usamos cookies para mejorar tu experiencia",
+      "Utilizamos cookies para analizar el tráfico del sitio y mejorar nuestros servicios.",
+      "Más información sobre nuestra política de privacidad y cookies.",
+    ],
+  },
+  fr: {
+    accept: "Accepter",
+    reject: "Refuser",
+    message: [
+      "Nous utilisons des cookies pour améliorer votre expérience",
+      "Nous utilisons des cookies pour analyser le trafic du site et améliorer nos services.",
+      "Plus d'informations sur notre politique de confidentialité et de cookies.",
+    ],
+  },
+  it: {
+    accept: "Accetta",
+    reject: "Rifiuta",
+    message: [
+      "Utilizziamo i cookie per migliorare la tua esperienza",
+      "Utilizziamo i cookie per analizzare il traffico del sito e migliorare i nostri servizi.",
+      "Maggiori informazioni sulla nostra politica sulla privacy e sui cookie.",
+    ],
+  },
+  pt: {
+    accept: "Aceitar",
+    reject: "Rejeitar",
+    message: [
+      "Usamos cookies para melhorar sua experiência",
+      "Usamos cookies para analisar o tráfego do site e melhorar nossos serviços.",
+      "Mais informações sobre nossa política de privacidade e cookies.",
+    ],
+  },
+};

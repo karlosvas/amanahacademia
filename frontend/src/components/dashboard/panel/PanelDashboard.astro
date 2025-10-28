@@ -45,7 +45,7 @@ const { stats } = Astro.props;
 
 <script>
   import { ApiService } from "@/services/helper";
-  import { parseArticleMetricData, parseUsersMetricData, parseClassMetricData } from "@/utils/metrics";
+  import { parseArticleMetricData, parseUsersMetricData, parseClassMetricData, mapToMonths } from "@/utils/metrics";
   import Chart from "chart.js/auto";
 
   document.addEventListener("DOMContentLoaded", async () => {
@@ -65,7 +65,7 @@ const { stats } = Astro.props;
     const makeLastNMonths = (currentMonthIndex: number, count: number) => {
       return Array.from({ length: count }, (_, i) => {
         const monthIndex = (currentMonthIndex - (count - 1 - i) + 12) % 12;
-        return `${monthLabels[monthIndex]} ${currentYear}`; // Ahora mostrará "Oct 2025"
+        return `${monthLabels[monthIndex]} ${currentYear}`;
       });
     };
 
@@ -103,15 +103,9 @@ const { stats } = Astro.props;
       // Agrupar clics a articulos totales por mes
       const articleClicksMap = new Map<string, number>();
       parsedArticleData.forEach((item) => {
-        // Extraer mes del pagePath si lo necesitas, o agrupar todo el periodo
-        const current = articleClicksMap.get("total") || 0;
-        articleClicksMap.set("total", current + item.activeUsers);
+        const current = articleClicksMap.get(item.yearMonth) || 0;
+        articleClicksMap.set(item.yearMonth, current + item.eventCount);
       });
-
-      // O si quieres clics por mes, necesitas que el backend devuelva yearMonth como dimensión adicional
-      // Por ahora, añade al chart como línea constante:
-      const totalArticleClicks = parsedArticleData.reduce((sum, item) => sum + item.activeUsers, 0);
-      const articleClicksPerMonth = totalArticleClicks / 6; // Promedio mensual
 
       // Crear mapas para cada métrica que necesites visualizar
       const activeUsersMap = new Map<string, number>();
@@ -124,26 +118,13 @@ const { stats } = Astro.props;
       // Generar labels de los últimos 6 meses
       const labels = makeLastNMonths(currentMonth, 6);
 
-      // Mapear los datos a los meses correctos
-      const activeUsersChartData = labels.map((label) => {
-        const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
-        const year = label.split(" ")[1];
-        const monthKey = `${year}${String(monthIndex + 1).padStart(2, "0")}`;
-
-        return activeUsersMap.get(monthKey) ?? 0;
-      });
-
-      // Si necesitas datos de otra métrica:
-      const sessionsChartData = labels.map((label) => {
-        const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
-        const year = label.split(" ")[1];
-        const monthKey = `${year}${String(monthIndex + 1).padStart(2, "0")}`;
-
-        return sessionsMap.get(monthKey) ?? 0;
-      });
-
       // Datos de reservas de clases
       const bookingsData = labels.map((l) => totalByMonth.get(getMonthKey(l)) || 0);
+
+      // Mapear a los labels del chart
+      const articleClicksData = mapToMonths(articleClicksMap, labels, monthLabels);
+      const sessionsChartData = mapToMonths(sessionsMap, labels, monthLabels);
+      const activeUsersChartData = mapToMonths(activeUsersMap, labels, monthLabels);
 
       new Chart(ctx, {
         type: "line",
@@ -185,7 +166,7 @@ const { stats } = Astro.props;
             },
             {
               label: "Clics de Artículos",
-              data: Array(6).fill(articleClicksPerMonth),
+              data: articleClicksData,
               borderColor: "#ffbba8",
               borderWidth: 2,
               borderDash: [5, 5],
@@ -262,8 +243,7 @@ const { stats } = Astro.props;
             y: {
               beginAtZero: false,
               min: 0,
-              max:
-                Math.max(...activeUsersChartData, ...sessionsChartData, ...bookingsData, articleClicksPerMonth) * 1.2,
+              max: Math.max(...activeUsersChartData, ...sessionsChartData, ...bookingsData, ...articleClicksData) * 1.2,
               ticks: {
                 color: "#8a4141",
                 font: {

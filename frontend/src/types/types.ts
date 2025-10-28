@@ -421,7 +421,7 @@ export interface MetricsResponse {
   rows: MetricData[];
 }
 
-export interface ParsedMetrics {
+export type ParsedMetrics = {
   yearMonth: string;
   activeUsers: number;
   totalUsers: number;
@@ -431,22 +431,17 @@ export interface ParsedMetrics {
   avgSessionDuration: number;
   bounceRate: number;
   sessionsPerUser: number;
-}
+};
 
-export interface ParsedArticleMetrics {
-  pagePath: string; // "/articles/intro-arabe"
-  activeUsers: number;
+export type ParsedArticleMetrics = {
+  yearMonth: string;
+  eventName: string;
+  eventCount: number;
   totalUsers: number;
-  newUsers: number;
-  sessions: number;
-  engagedSessions: number;
-  avgSessionDuration: number;
-  bounceRate: number;
-  sessionsPerUser: number;
-}
+};
 
-export interface ParsedClassMetrics {
-  yearMonth: string; // "202510"
-  eventName: string; // "class_booking"
-  bookings: number; // Cantidad de reservas
-}
+export type ParsedClassMetrics = {
+  yearMonth: string;
+  eventName: string;
+  bookings: number;
+};

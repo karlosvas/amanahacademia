@@ -4,6 +4,7 @@ import SEO from "@/components/layout/SEO/SEO.astro";
 import { Toaster } from "solid-toast";
 import type { PropsSEO } from "@/types/types";
 import AdministratorPanel from "@/components/dashboard/AdministratorPanel.astro";
+import { cookiesTranslation } from "@/../i18n/index";
 
 declare global {
   interface Window {
@@ -32,74 +33,6 @@ const {
 
 const theme = Astro.cookies.get("theme")?.value;
 
-const cookiesTranslation = {
-  ar: {
-    accept: "قبول",
-    reject: "رفض",
-    // [title, paragraph, link text]
-    message: [
-      "نستخدم ملفات تعريف الارتباط لتحسين تجربتك",
-      "نستخدم ملفات تعريف الارتباط لتحليل حركة مرور الموقع وتحسين خدماتنا.",
-      "مزيد من المعلومات حول سياسة الخصوصية وملفات تعريف الارتباط الخاصة بنا.",
-    ],
-  },
-  de: {
-    accept: "Akzeptieren",
-    reject: "Ablehnen",
-    message: [
-      "Wir verwenden Cookies, um deine Erfahrung zu verbessern",
-      "Wir verwenden Cookies, um den Website-Verkehr zu analysieren und unsere Dienste zu verbessern.",
-      "Weitere Informationen zu unserer Datenschutz- und Cookie-Richtlinie.",
-    ],
-  },
-  en: {
-    accept: "Accept",
-    reject: "Reject",
-    message: [
-      "We use cookies to improve your experience",
-      "We use cookies to analyze site traffic and improve our services.",
-      "More information about our privacy and cookie policy.",
-    ],
-  },
-  es: {
-    accept: "Aceptar",
-    reject: "Rechazar",
-    message: [
-      "Usamos cookies para mejorar tu experiencia",
-      "Utilizamos cookies para analizar el tráfico del sitio y mejorar nuestros servicios.",
-      "Más información sobre nuestra política de privacidad y cookies.",
-    ],
-  },
-  fr: {
-    accept: "Accepter",
-    reject: "Refuser",
-    message: [
-      "Nous utilisons des cookies pour améliorer votre expérience",
-      "Nous utilisons des cookies pour analyser le trafic du site et améliorer nos services.",
-      "Plus d'informations sur notre politique de confidentialité et de cookies.",
-    ],
-  },
-  it: {
-    accept: "Accetta",
-    reject: "Rifiuta",
-    message: [
-      "Utilizziamo i cookie per migliorare la tua esperienza",
-      "Utilizziamo i cookie per analizzare il traffico del sito e migliorare i nostri servizi.",
-      "Maggiori informazioni sulla nostra politica sulla privacy e sui cookie.",
-    ],
-  },
-  pt: {
-    accept: "Aceitar",
-    reject: "Rejeitar",
-    message: [
-      "Usamos cookies para melhorar sua experiência",
-      "Usamos cookies para analisar o tráfego do site e melhorar nossos serviços.",
-      "Mais informações sobre nossa política de privacidade e cookies.",
-    ],
-  },
-};
-
-// Helper para el banner (title, paragraph, link)
 const cookieMessage =
   cookiesTranslation[lang as keyof typeof cookiesTranslation]?.message || cookiesTranslation["es"].message;
 ---
@@ -179,7 +112,7 @@ const cookieMessage =
     <link rel="dns-prefetch" href="https://apis.google.com" />
 
     <!-- Favicon clásico para compatibilidad total -->
-    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <!-- Favicon SVG (para navegadores que lo soporten) -->
     <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
     <!-- PNG de fallback -->
@@ -201,7 +134,7 @@ const cookieMessage =
       structuredDataType={structuredDataType}
       structuredData={structuredData}
     />
-    <!-- Google tag (gtag.js) - SIMPLIFICADO -->
+    <!-- Google tag (gtag.js) -->
     <script is:inline>
       const GA_ID = "G-CW35G9DQ63";
 
@@ -239,6 +172,7 @@ const cookieMessage =
       script.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
       document.head.appendChild(script);
     </script>
+    <!-- Tema oscuro/claro segun preferencia del sistema -->
     <script>
       // Solo aplica si no hay cookie de tema
       if (
@@ -283,8 +217,8 @@ const cookieMessage =
                 stroke-width="2"
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <div>
-              <p class="text-sm text-black font-semibold">{cookieMessage[0]}</p>
+            <div class="py-5 md:py-0">
+              <p class="text-sm text-black font-semibold text-center pb-5 md:pb-0">{cookieMessage[0]}</p>
               <p class="text-xs text-black opacity-80 mt-1 flex sm:flex-col">
                 <span>{cookieMessage[1]}</span>
                 <a
