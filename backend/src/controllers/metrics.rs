@@ -1,13 +1,19 @@
 use {
-    crate::models::{
-        metrics::{GAErrorResponse, GAResponse, GAToken},
-        response::ResponseAPI,
-        state::AppState,
+    crate::{
+        models::{
+            metrics::{GAResponse, GAToken},
+            response::ResponseAPI,
+            state::AppState,
+        },
+        services::metrics::parse_ga_response,
     },
     axum::{Extension, Json, extract::State, http::StatusCode, response::IntoResponse},
-    reqwest::Response,
+    reqwest::{Error, Response},
     serde_json::Value,
-    std::sync::Arc,
+    std::{
+        result::Result::{Err, Ok},
+        sync::Arc,
+    },
 };
 
 /// Controlador para obtener métricas de usuarios desde Google Analytics
@@ -15,7 +21,6 @@ pub async fn get_user_metrics(
     State(state): State<Arc<AppState>>,
     Extension(GAToken(token_ga)): Extension<GAToken>,
 ) -> impl IntoResponse {
-    // El usuario es admin, continuar con la lógica de métricas
     let body: Value = serde_json::json!({
         "dateRanges": [{"startDate": "365daysAgo", "endDate": "today"}],
         "dimensions": [{"name": "yearMonth"}],
@@ -31,7 +36,7 @@ pub async fn get_user_metrics(
         ]
     });
 
-    let response: Response = match state
+    let response: Result<Response, Error> = state
         .ga_options
         .client
         .post(format!(
@@ -42,60 +47,18 @@ pub async fn get_user_metrics(
         .header("Content-Type", "application/json")
         .json(&body)
         .send()
-        .await
-    {
-        Ok(response) => response,
+        .await;
+
+    let ga_response: GAResponse = match parse_ga_response(response).await {
+        // Si la función interna tiene éxito, asigna el valor.
+        Ok(parsed_data) => parsed_data,
+        // Si la función interna devuelve Err(e), crea y retorna la respuesta de error HTTP
         Err(e) => {
             return (
+                // Puedes elegir un StatusCode adecuado, BAD_GATEWAY o INTERNAL_SERVER_ERROR son comunes.
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ResponseAPI::<()>::error(format!(
-                    "Failed to fetch metrics: {}",
-                    e
-                ))),
-            )
-                .into_response();
-        }
-    };
-
-    // Check if the response was successful
-    if !response.status().is_success() {
-        // Try to parse as an error response from Google Analytics
-        let error_text = response
-            .text()
-            .await
-            .unwrap_or_else(|_| "Unknown error".to_string());
-
-        if let Ok(ga_error) = serde_json::from_str::<GAErrorResponse>(&error_text) {
-            return (
-                StatusCode::BAD_REQUEST,
-                Json(ResponseAPI::<()>::error(format!(
-                    "Google Analytics API error: {} ({})",
-                    ga_error.error.message, ga_error.error.status
-                ))),
-            )
-                .into_response();
-        }
-
-        return (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ResponseAPI::<()>::error(format!(
-                "Google Analytics API returned error: {}",
-                error_text
-            ))),
-        )
-            .into_response();
-    }
-
-    // Parse the successful response
-    let ga_response: GAResponse = match response.json().await {
-        Ok(data) => data,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ResponseAPI::<()>::error(format!(
-                    "Failed to parse metrics response: {}",
-                    e
-                ))),
+                // Usa tu estructura de respuesta de API para el error
+                Json(ResponseAPI::<()>::error(e.to_string())),
             )
                 .into_response();
         }
@@ -119,29 +82,26 @@ pub async fn get_article_metrics(
     // El usuario es admin, continuar con la lógica de métricas
     let body: Value = serde_json::json!({
         "dateRanges": [{"startDate": "365daysAgo", "endDate": "today"}],
-        "dimensions": [{"name": "pagePath"}],
+        "dimensions": [
+            {"name": "eventName"},
+            {"name": "yearMonth"}
+        ],
         "metrics": [
-            {"name": "activeUsers"},
-            {"name": "totalUsers"},
-            {"name": "newUsers"},
-            {"name": "sessions"},
-            {"name": "engagedSessions"},
-            {"name": "averageSessionDuration"},
-            {"name": "bounceRate"},
-            {"name": "sessionsPerUser"}
+            {"name": "eventCount"},
+            {"name": "totalUsers"}
         ],
         "dimensionFilter": {
             "filter": {
-                "fieldName": "pagePath",
+                "fieldName": "eventName",
                 "stringFilter": {
-                    "matchType": "CONTAINS",
-                    "value": "/articles/"
+                    "matchType": "EXACT",
+                    "value": "article_click"
                 }
             }
         }
     });
 
-    let response: Response = match state
+    let response: Result<Response, Error> = state
         .ga_options
         .client
         .post(format!(
@@ -152,58 +112,18 @@ pub async fn get_article_metrics(
         .header("Content-Type", "application/json")
         .json(&body)
         .send()
-        .await
-    {
-        Ok(response) => response,
+        .await;
+
+    let ga_response: GAResponse = match parse_ga_response(response).await {
+        // Si la función interna tiene éxito, asigna el valor.
+        Ok(parsed_data) => parsed_data,
+        // Si la función interna devuelve Err(e), crea y retorna la respuesta de error HTTP
         Err(e) => {
             return (
+                // Puedes elegir un StatusCode adecuado, BAD_GATEWAY o INTERNAL_SERVER_ERROR son comunes.
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ResponseAPI::<()>::error(format!(
-                    "Failed to fetch metrics: {}",
-                    e
-                ))),
-            )
-                .into_response();
-        }
-    };
-
-    if !response.status().is_success() {
-        // Try to parse as an error response from Google Analytics
-        let error_text = response
-            .text()
-            .await
-            .unwrap_or_else(|_| "Unknown error".to_string());
-
-        if let Ok(ga_error) = serde_json::from_str::<GAErrorResponse>(&error_text) {
-            return (
-                StatusCode::BAD_REQUEST,
-                Json(ResponseAPI::<()>::error(format!(
-                    "Google Analytics API error: {} ({})",
-                    ga_error.error.message, ga_error.error.status
-                ))),
-            )
-                .into_response();
-        }
-
-        return (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ResponseAPI::<()>::error(format!(
-                "Google Analytics API returned error: {}",
-                error_text
-            ))),
-        )
-            .into_response();
-    }
-
-    let ga_response: GAResponse = match response.json().await {
-        Ok(data) => data,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ResponseAPI::<()>::error(format!(
-                    "Failed to parse metrics response: {}",
-                    e
-                ))),
+                // Usa tu estructura de respuesta de API para el error
+                Json(ResponseAPI::<()>::error(e.to_string())),
             )
                 .into_response();
         }
@@ -212,7 +132,7 @@ pub async fn get_article_metrics(
     (
         StatusCode::OK,
         Json(ResponseAPI::<GAResponse>::success(
-            "Article metrics retrieved successfully".to_string(),
+            "Metrics of articles retrieved successfully".to_string(),
             ga_response,
         )),
     )
@@ -243,7 +163,7 @@ pub async fn get_class_metrics(
         }
     });
 
-    let response: Response = match state
+    let response: Result<Response, Error> = state
         .ga_options
         .client
         .post(format!(
@@ -254,57 +174,18 @@ pub async fn get_class_metrics(
         .header("Content-Type", "application/json")
         .json(&body)
         .send()
-        .await
-    {
-        Ok(response) => response,
+        .await;
+
+    let ga_response: GAResponse = match parse_ga_response(response).await {
+        // Si la función interna tiene éxito, asigna el valor.
+        Ok(parsed_data) => parsed_data,
+        // Si la función interna devuelve Err(e), crea y retorna la respuesta de error HTTP
         Err(e) => {
             return (
+                // Puedes elegir un StatusCode adecuado, BAD_GATEWAY o INTERNAL_SERVER_ERROR son comunes.
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ResponseAPI::<()>::error(format!(
-                    "Failed to fetch metrics: {}",
-                    e
-                ))),
-            )
-                .into_response();
-        }
-    };
-
-    if !response.status().is_success() {
-        let error_text = response
-            .text()
-            .await
-            .unwrap_or_else(|_| "Unknown error".to_string());
-
-        if let Ok(ga_error) = serde_json::from_str::<GAErrorResponse>(&error_text) {
-            return (
-                StatusCode::BAD_REQUEST,
-                Json(ResponseAPI::<()>::error(format!(
-                    "Google Analytics API error: {} ({})",
-                    ga_error.error.message, ga_error.error.status
-                ))),
-            )
-                .into_response();
-        }
-
-        return (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(ResponseAPI::<()>::error(format!(
-                "Google Analytics API returned error: {}",
-                error_text
-            ))),
-        )
-            .into_response();
-    }
-
-    let ga_response: GAResponse = match response.json().await {
-        Ok(data) => data,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ResponseAPI::<()>::error(format!(
-                    "Failed to parse metrics response: {}",
-                    e
-                ))),
+                // Usa tu estructura de respuesta de API para el error
+                Json(ResponseAPI::<()>::error(e.to_string())),
             )
                 .into_response();
         }

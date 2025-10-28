@@ -21,13 +21,14 @@ pub struct GAResponse {
     pub rows: Vec<MetricData>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct GAErrorResponse {
     pub error: GAError,
 }
 
 #[derive(Deserialize)]
 #[allow(dead_code)]
+#[derive(Debug)]
 pub struct GAError {
     pub code: i32,
     pub message: String,

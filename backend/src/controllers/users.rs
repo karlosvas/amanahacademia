@@ -51,7 +51,6 @@ pub async fn register_user(
         }
     };
 
-    // Record email in tracing span
     tracing::Span::current().record("email", &user.email.as_str());
     // Comprobamos si quiere hacer cosas que solo podria hacer un admin como tener un rol, o asiganr permisos o tier de subscripción
     if matches!(user.role.as_ref(), Some(Role::Admin)) {
