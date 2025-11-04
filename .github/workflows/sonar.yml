@@ -23,7 +23,7 @@ jobs:
       - name: Frontend - install & test
         working-directory: ./frontend
         run: |
-          npm ci
+          npm ci --legacy-peer-deps --ignore-scripts
           npm run test:coverage
 
       - name: Setup Rust

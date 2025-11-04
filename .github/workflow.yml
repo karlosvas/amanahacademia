@@ -20,7 +20,7 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: cd frontend && npm ci
+        run: cd frontend && npm ci --legacy-peer-deps --ignore-scripts
 
       - name: Check Prettier formatting
         run: cd frontend && npx prettier --check .
