@@ -110,6 +110,7 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
   }, 350);
 }
 
+// Eliminar eventos de cerrar modales
 export function closeModalsEvents() {
   // Eventos para cerrar los modales
   document.addEventListener("mousedown", (e) => {

@@ -29,7 +29,7 @@ const teachers = Astro.props.teachers as Teacher[];
     <div class="font-semibold text-red mb-4 sm:mb-5 text-base sm:text-lg flex justify-center items-center gap-x-1">
       <div class="price-container">
         <span class="price-amount">{data.price?.amount || 30}</span>
-        <span class="currency-symbol">€</span>
+        <span class="currency-symbol"></span>
       </div>
       <span class="text-xs">{data.price?.time || ""}</span>
     </div>

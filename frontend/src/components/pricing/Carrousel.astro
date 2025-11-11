@@ -1,5 +1,4 @@
 ---
-import SpainIcon from "@/assets/spain.svg";
 import type { Teacher } from "@/types/bakend-types";
 
 const id = Astro.props.id as string;
@@ -39,7 +38,7 @@ const teachers = Astro.props.teachers as Teacher[];
                     aria-hidden="true"
                   />
                   <img
-                    src={teacher.url_image + ".webp"}
+                    src={teacher.url_image}
                     alt={`Fotografía de ${teacher.name}, profesor nativo de ${teacher.native_lang}`}
                     class="carousel-img relative w-40 h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 rounded-3xl object-cover shadow-xl hover:shadow-2xl hover:shadow-red-500/30 hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
                     data-index={i}
@@ -53,15 +52,19 @@ const teachers = Astro.props.teachers as Teacher[];
                 <figcaption class="text-black text-center space-y-1.5 px-2 md:px-3 pt-5">
                   <h3 class="text-lg lg:text-xl font-semibold">{teacher.name}</h3>
                   <div class="bg-opacity-70 bg-lightBrown rounded-xl py-1.5 w-fit px-4 m-auto">
-                    <p class="text-xs sm:text-sm flex items-center justify-center">
-                      <span class="font-medium pr-2" lang="es">
+                    <p class="text-xs sm:text-sm flex items-center justify-center align-middle">
+                      <span class="font-medium" lang="es">
                         {teacher.native_lang}
                       </span>
-                      <SpainIcon height={18} width={18} aria-hidden="true" />
                     </p>
                   </div>
                   <p class="text-xs sm:text-sm leading-snug bg-opacity-70 px-1 md:px-2 rounded-lg max-w-xs sm:max-w-sm mx-auto">
-                    {teacher.description}
+                    {teacher.description.map((line) => (
+                      <>
+                        {line}
+                        <br />
+                      </>
+                    ))}
                   </p>
                 </figcaption>
               </figure>

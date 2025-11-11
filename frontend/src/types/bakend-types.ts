@@ -6,9 +6,9 @@ export type Teacher = {
   calLink: string;
   name: string;
   native_lang: string;
+  other_lang: string[];
   url_image: string;
-  description: string;
-  data_cal_teacher?: string; // ✅ Opcional, si lo usas
+  description: string[];
 };
 
 export interface ResponseAPI<T> {
@@ -24,11 +24,11 @@ export interface Comment {
   name: string;
   timestamp: string;
   content: string;
-  url_img?: string; // ✅ Opcional
-  stars: number; // ✅ Opcional, si lo usas
-  like?: number; // Opcional
-  reply?: ReplyComment[]; // Opcional
-  users_liked?: string[]; // Opcional
+  url_img?: string;
+  stars: number;
+  like?: number;
+  reply?: ReplyComment[];
+  users_liked?: string[];
 }
 
 export interface UpdateComment {

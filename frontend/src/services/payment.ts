@@ -128,7 +128,7 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
           return;
         }
 
-        window.location.href = "/payments/payment-success";
+        globalThis.location.href = "/payments/payment-success";
         return;
       } catch (e) {
         console.error("═══════════════════════════════════════");
@@ -140,20 +140,14 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
         showError(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
       }
     } else {
-      if (paymentIntent.status === "requires_action") {
-      } else if (paymentIntent.status === "processing") {
-      } else if (paymentIntent.status === "requires_payment_method") {
-      }
+      // if (paymentIntent.status === "requires_action") {
+      // } else if (paymentIntent.status === "processing") {
+      // } else if (paymentIntent.status === "requires_payment_method") {
+      // }
 
       showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
     }
   } catch (error) {
-    console.error("═══════════════════════════════════════");
-    console.error("💥 ERROR INESPERADO EN TRY-CATCH");
-    console.error("═══════════════════════════════════════");
-    console.error("Error completo:", error);
-    console.error("Error message:", (error as Error).message);
-    console.error("Error stack:", (error as Error).stack);
     console.error("Error name:", (error as Error).name);
     showError(getErrorFrontStripe(FrontendStripe.CONNECTION_ERROR));
   } finally {

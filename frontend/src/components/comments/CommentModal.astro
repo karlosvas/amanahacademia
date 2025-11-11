@@ -2,6 +2,7 @@
 import Avatar from "@/components/common/Avatar.astro";
 import StarsSelectionIcon from "@/assets/star-selecion.svg";
 import ArrowSubmitIcon from "@/assets/arrow-submit.svg";
+import { log } from "@/services/logger";
 import type { ModalComent } from "@/types/types";
 
 // Modal de comentario, (edit) verifica si es para editarlo o para editar o enviar
@@ -11,8 +12,8 @@ const idCommentShared = Astro.props.id as string;
 const dataModal = Astro.props.data as ModalComent;
 
 if (!idCommentShared) {
-  console.error("CommentModal component requires an 'id' prop.");
-  return;
+  // log.error("CommentModal component requires an 'id' prop.");
+  return Astro.redirect("/");
 }
 
 const formId = `comment-form-${idCommentShared}`;

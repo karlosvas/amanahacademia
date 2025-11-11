@@ -47,17 +47,19 @@ import Title from "../common/Title.astro";
   const bookingUid: string | null = params.get("uid");
   const testCountry: string | null = params.get("test_country");
 
-  if (!slugType || !bookingUid || !testCountry) {
-    showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
-    throw new Error("Missing URL parameters");
-  }
-
   // Inicializar cuando el DOM esté listo
   document.addEventListener("DOMContentLoaded", async () => {
     try {
+      if (!slugType || !bookingUid || !testCountry) {
+        showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 3000);
+      }
+
       // Esperamos a que cargue firebase antes de inicializar Stripe
       setTimeout(async () => {
-        const price = await initializePrice(testCountry, slugType);
+        const price = await initializePrice(testCountry as string, slugType as string);
         await initializeStripe(paymentElement, stripe, STRIPE_PUBLIC_KEY, elements, price);
 
         const submitButton = document.getElementById("submit-button");

@@ -3,35 +3,34 @@ import { Class } from "@/enums/enums";
 import CardPricing from "@/components/pricing/CardPricing.astro";
 import Title from "@/components/common/Title.astro";
 import { ApiService } from "@/services/helper";
+import { log } from "@/services/logger";
 import type { PricingI18n } from "@/types/types";
+import toast from "solid-toast";
 
 const data = Astro.props.data as PricingI18n;
 
+// Obtenemos los profesores desde la API
 let teachers;
 try {
-  // Fetch teachers from the API
+  // Obtenemos los profesores desde la API
   const helper = new ApiService();
   const response = await helper.getTeachers();
 
-  // Check if the response is successful and has data
+  // Si la respuesta es exitosa, asignamos los datos a la variable teachers
   if (response.success && response.data) teachers = Object.values(response.data);
-  else if ("error" in response) console.error("Error fetching teachers:", response.error);
-  else console.error("Unknown error fetching teachers");
+  else if ("error" in response) log.error("Error fetching teachers:", response.error);
+  else log.error("Unknown error fetching teachers");
+
+  // Si no hay profesores porque ubo un probelma en el servidor lo redirijimos a /, si no hay profesores mostramos un toast
+  if (teachers === undefined || teachers === null) return Astro.redirect("/");
+  else if (teachers.length === 0) toast.error("No teachers available at the moment.");
 } catch (e) {
-  console.error("Error fetching teachers:", e);
+  log.error("Error fetching teachers:", e);
+  return Astro.redirect("/");
 }
 ---
 
 <main class="relative text-black">
-  <style>
-    @media (min-width: 768px) and (max-width: 1023px) {
-      .grid > :nth-child(3) {
-        grid-column: 1 / -1;
-        justify-self: center;
-        max-width: 50%;
-      }
-    }
-  </style>
   <div class="w-full max-w-7xl xl:w-3/4 m-auto px-2 sm:px-4">
     <Title customStyleText="text-2xl " customStyleLine="w-20 mb-10">{data.title}</Title>
     <div
@@ -99,7 +98,7 @@ try {
       });
     });
 
-    // Añadimos el tema corres pondiente a cada uno de los calendarios
+    // Añadimos el tema correspondiente a cada uno de los calendarios
     const calElements = document.querySelectorAll("[data-cal-link]");
     calElements.forEach((element) => {
       element.addEventListener("click", async () => {
@@ -172,3 +171,13 @@ try {
     updatePricing();
   });
 </script>
+
+<style>
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .grid > :nth-child(3) {
+      grid-column: 1 / -1;
+      justify-self: center;
+      max-width: 50%;
+    }
+  }
+</style>
