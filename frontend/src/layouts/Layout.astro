@@ -15,6 +15,7 @@ declare global {
     api?: any;
     Stripe: any;
     dataLayer: any[];
+    setTheme?: (value: string) => void;
     gtag?: (...args: any[]) => void;
   }
 }
@@ -114,7 +115,7 @@ const cookieMessage =
     <!-- Favicon clásico para compatibilidad total -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <!-- Favicon SVG (para navegadores que lo soporten) -->
-    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <!-- PNG de fallback -->
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png" />
     <!-- Apple Touch Icon -->
@@ -174,15 +175,27 @@ const cookieMessage =
     </script>
     <!-- Tema oscuro/claro segun preferencia del sistema -->
     <script>
-      // Solo aplica si no hay cookie de tema
-      if (
-        !document.documentElement.classList.contains("dark") &&
-        !document.documentElement.classList.contains("light")
-      ) {
+      import { readThemeCookie, writeThemeCookie, applyThemeClass } from "@/utils/cookie";
+
+      const initTheme = () => {
+        const cookieTheme = readThemeCookie();
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        document.documentElement.classList.add(prefersDark ? "dark" : "light");
-        document.cookie = `theme=${prefersDark ? "dark" : "light"}; path=/; max-age=${60 * 60 * 24 * 30}`;
-      }
+        const theme = cookieTheme ?? (prefersDark ? "dark" : "light");
+
+        applyThemeClass(theme);
+        if (!cookieTheme) writeThemeCookie(theme);
+
+        window.setTheme = (value) => {
+          if (value === "dark" || value === "light") {
+            applyThemeClass(value);
+            writeThemeCookie(value);
+          } else {
+            console.warn(`Valor de tema no válido: ${value}`);
+          }
+        };
+      };
+
+      window.addEventListener("DOMContentLoaded", initTheme);
     </script>
   </head>
   <body class="m-0 w-full h-full bg-background">

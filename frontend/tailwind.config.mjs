@@ -8,8 +8,8 @@ export const safelist = [
     'text-salmon',
     'border-salmon'
 ];
+export const darkMode = 'class';
 export const theme = {
-    darkMode: 'class',
     extend: {
         fontFamily: {
             "inter": ['"Inter"', 'sans-serif']

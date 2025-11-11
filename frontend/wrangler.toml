@@ -1,5 +1,6 @@
 name = "amanahacademia"
 compatibility_date = "2024-09-20"
+pages_build_output_dir = "./dist"
 
 [pages.build]
 command = "npm run build"
@@ -7,8 +8,3 @@ destination = "dist"
 
 [[pages.rules]]
 rule = "/*"
-
-[[d1_databases]]
-binding = "metrics_db"
-database_name = "metrics-db"
-database_id = "9cf17d3d-5935-46cc-a799-d50a094ec40f"

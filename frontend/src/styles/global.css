@@ -2,6 +2,8 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: "Jomolhari";
   src: url("/fonts/jomolhari-regular.woff2") format("woff2");

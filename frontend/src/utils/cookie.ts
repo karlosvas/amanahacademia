@@ -178,3 +178,41 @@ function hideBanner() {
     }, 300);
   }
 }
+
+// THEME
+export function readThemeCookie() {
+  return (
+    document.cookie
+      .split(";")
+      .map((c) => c.trim())
+      .find((c) => c.startsWith("theme="))
+      ?.split("=")[1] ?? null
+  );
+}
+
+export function writeThemeCookie(value: string) {
+  const maxAge = 60 * 60 * 24 * 365; // 1 año
+  document.cookie = `theme=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+}
+
+export function applyThemeClass(value: string) {
+  // aseguramos que la clase está en html (documentElement) y no exista la opuesta
+  document.documentElement.classList.remove("dark", "light");
+  document.documentElement.classList.add(value);
+}
+
+export function applyTheme(newTheme: string) {
+  const html = document.documentElement;
+  if (newTheme !== "dark" && newTheme !== "light") return;
+  html.classList.remove("dark", "light");
+  html.classList.add(newTheme);
+
+  // Actualizamos la cookie (centralizado)
+  writeThemeCookie(newTheme);
+
+  // Actualizar logo si procede
+  const logo = document.getElementById("logo_amanah");
+  if (logo && logo instanceof HTMLImageElement) {
+    logo.src = newTheme === "dark" ? "/img/logo_amanah_dark.webp" : "/img/logo_amanah.webp";
+  }
+}
