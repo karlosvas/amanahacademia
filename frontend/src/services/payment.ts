@@ -8,6 +8,7 @@ import { ApiService } from "./helper";
 import { getErrorFrontStripe, FrontendStripe } from "@/enums/enums";
 import type { PricingApiResponse } from "@/types/types";
 import { getPrice } from "./calendar";
+import { log } from "./logger";
 
 // Función para procesar el pago
 export async function handlePayment(stripe: any, elements: any, bookingUid: string | null) {
@@ -196,7 +197,7 @@ export function clearMessages() {
   }
 }
 
-export async function initializePrice(testCountry: string, slugType: string): Promise<number | undefined> {
+export async function initializePrice(testCountry: string | null, slugType: string): Promise<number | undefined> {
   try {
     // Obtenemos la lista de precios desde el backend
     const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
@@ -222,28 +223,24 @@ export async function initializePrice(testCountry: string, slugType: string): Pr
     pricingElement.textContent = `${pricing} €`;
 
     return pricing;
-  } catch (error: any) {
+  } catch (error) {
+    log.error(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
     showError(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
   }
 }
 
 export async function initializeStripe(
-  pricing: number | undefined,
+  paymentElement: any,
   stripe: any,
   STRIPE_PUBLIC_KEY: string,
   elements: any,
-  paymentElement: any
+  pricing: number
 ) {
   try {
     const helper = new ApiService();
 
     // Obtenemos el booking UID
     stripe = window.Stripe(STRIPE_PUBLIC_KEY);
-
-    if (!pricing) {
-      showError(getErrorFrontStripe(FrontendStripe.MISSING_PRICING));
-      return;
-    }
 
     // Transformamos de euros a centimos
     const amount = Math.round(pricing * 100);

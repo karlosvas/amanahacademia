@@ -13,13 +13,12 @@ const logger = adze.withEmoji.timestamp;
 // Función para enviar logs al endpoint (solo errores)
 function sendErrorToEndpoint(entry: any) {
   // Validar que entry existe y tiene render
-  if (!entry?.render) {
-    console.error("Entry inválida para logging:", entry);
-    return;
-  }
-
-  const logData = entry.render?.json();
-  console.log(logData);
+  // if (!entry?.render) {
+  //   console.error("Entry inválida para logging:", entry);
+  //   return;
+  // }
+  // const logData = entry.render?.json();
+  //console.log(logData);
   // Cambia "level" por "levelName"
   // if (logData?.levelName === "error") {
   //   fetch("/api/log", {

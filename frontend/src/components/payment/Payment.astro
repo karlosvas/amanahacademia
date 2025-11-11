@@ -29,6 +29,9 @@ import Title from "../common/Title.astro";
   import { showError, handlePayment } from "@/services/payment";
   import { initializePrice, initializeStripe } from "@/services/payment";
   import { getErrorFrontStripe, FrontendStripe } from "@/enums/enums";
+  import { getCurrentUserToken, onAuthStateChanged } from "@/services/firebase";
+  import { log } from "@/services/logger";
+  import { showModalAnimation } from "@/utils/modals";
 
   // Obtenemos la configuracion inicial
   const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_API_KEY;
@@ -49,26 +52,52 @@ import Title from "../common/Title.astro";
 
   // Inicializar cuando el DOM esté listo
   document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      if (!slugType || !bookingUid || !testCountry) {
-        showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
+    onAuthStateChanged((user) => {
+      if (user) {
+        try {
+          if (!slugType || !bookingUid) {
+            showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 3000);
+          }
+
+          // Esperamos a que cargue firebase antes de inicializar Stripe
+          setTimeout(async () => {
+            const price = await initializePrice(testCountry, slugType as string);
+            if (!price) {
+              showError(getErrorFrontStripe(FrontendStripe.MISSING_PRICING));
+              throw new Error("Missing pricing information");
+            }
+
+            await initializeStripe(paymentElement, stripe, STRIPE_PUBLIC_KEY, elements, price);
+
+            const submitButton = document.getElementById("submit-button");
+            if (!submitButton) return;
+            submitButton.addEventListener("click", () => handlePayment(stripe, elements, bookingUid));
+          }, 1000);
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        log.error("Debes iniciar sesión para proceder al pago.");
+        showError("Debes iniciar sesión para proceder al pago.");
+
+        // Mostrar modal de autenticación
+        const modalAuth = document.getElementById("authModalLogin") as HTMLDialogElement;
+        const form = document.getElementById("loginForm") as HTMLFormElement;
+
         setTimeout(() => {
-          window.location.href = "/";
-        }, 3000);
+          showModalAnimation(modalAuth, form, true);
+          // Si cierra el modal volber a abrirlo hasta que inicie sesión
+          modalAuth.addEventListener("close", () => {
+            if ((!modalAuth.returnValue || modalAuth.returnValue === "closed") && getCurrentUserToken() == null) {
+              showModalAnimation(modalAuth, form, true);
+            }
+          });
+        }, 2000);
       }
-
-      // Esperamos a que cargue firebase antes de inicializar Stripe
-      setTimeout(async () => {
-        const price = await initializePrice(testCountry as string, slugType as string);
-        await initializeStripe(paymentElement, stripe, STRIPE_PUBLIC_KEY, elements, price);
-
-        const submitButton = document.getElementById("submit-button");
-        if (!submitButton) return;
-        submitButton.addEventListener("click", () => handlePayment(stripe, elements, bookingUid));
-      }, 1000);
-    } catch (e) {
-      console.error(e);
-    }
+    });
   });
 </script>
 
