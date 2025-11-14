@@ -11,13 +11,6 @@ export type Teacher = {
   description: string[];
 };
 
-export interface ResponseAPI<T> {
-  success: boolean;
-  message?: string;
-  data?: T;
-  error?: string;
-}
-
 export interface Comment {
   id?: string;
   author_uid?: string;
@@ -36,8 +29,7 @@ export interface UpdateComment {
   stars: number;
 }
 
-// Resultado de operaciones que pueden fallar en la api
-export type Result<T, E = ApiError> = { success: true; data: T } | { success: false; error: E };
+export type ResponseAPI<T> = { success: true; data: T } | { success: false; error: string };
 
 export interface ProviderUserInfo {
   provider_id: string;

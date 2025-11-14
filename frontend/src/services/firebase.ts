@@ -1,7 +1,7 @@
 import toast from "solid-toast";
 import { closeModalAnimation, showModalAnimation } from "../utils/modals";
-import type { Result, UserMerged, UserRequest } from "@/types/bakend-types";
-import { ApiService, ResultUtils } from "./helper";
+import type { ResponseAPI, UserMerged, UserRequest } from "@/types/bakend-types";
+import { ApiService } from "./helper";
 import {
   FrontendErrorCode,
   getErrorToast,
@@ -24,6 +24,7 @@ import {
 } from "firebase/auth";
 import { executeTurnstileIfPresent } from "./claudflare";
 import { suscribeToNewsletter } from "./mailchimp";
+import { log } from "./logger";
 
 const firebaseConfig = {
   apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY,
@@ -129,7 +130,7 @@ export function submitFormToRegisterOrLogin(
       await executeTurnstileIfPresent(formHTML);
 
       const helper = new ApiService();
-      let response: Result<UserMerged | string> = isRegister
+      let response: ResponseAPI<UserMerged | string> = isRegister
         ? await helper.registerUser(userRequest)
         : await helper.loginUser(userRequest);
 
@@ -148,9 +149,8 @@ export function submitFormToRegisterOrLogin(
           errorMessage.classList.add("hidden");
         }, 300);
       } else {
-        throw new Error(
-          typeof response.error === "string" ? response.error : response.error?.message || "Error desconocido"
-        );
+        const respError: any = response.error;
+        throw new Error(typeof respError === "string" ? respError : respError?.message || "Error desconocido");
       }
     } catch (error: unknown) {
       console.error(error);
@@ -233,7 +233,7 @@ export async function handleLogGoogleProvider(
     };
 
     // Intentamos registrar o logear al usuario
-    let response: Result<string> = isRegister
+    let response: ResponseAPI<string> = isRegister
       ? await helper.registerUser(userRequest)
       : await helper.loginUser(userRequest);
 
@@ -241,17 +241,10 @@ export async function handleLogGoogleProvider(
       // Deslogeamos al usuario de Firebase auth
       await firebaseAuth.signOut();
 
-      // Obtenemos el tipo de error
-      const errorType = ResultUtils.getErrorType(response);
-
       // Manejo específico si el usuario no existe
-      if (errorType === ApiErrorType.SESSION_NOT_FOUND) {
-        loginError.textContent = getErrorToast(FrontendErrorCode.USER_NOT_EXISTS);
-        loginError.classList.remove("hidden");
-        return;
-      }
-
-      throw new Error(errorType || "Error desconocido");
+      loginError.textContent = getErrorToast(FrontendErrorCode.USER_NOT_EXISTS);
+      loginError.classList.remove("hidden");
+      log.error(FrontendErrorCode.USER_NOT_EXISTS);
     }
 
     // Al ser el registro con google el formulario actual no tiene que ver con el registro asique creamos un form data custom
@@ -277,16 +270,22 @@ export async function handleLogGoogleProvider(
       loginError.classList.add("hidden");
     }, 300);
   } catch (error) {
-    console.error("Error during Google sign-in:", error);
+    log.error("Error during Google sign-in:", error);
     loginError.textContent = getErrorToast(FrontendErrorCode.GOOGLE_LOGIN_ERROR);
     loginError.classList.remove("hidden");
   }
 }
 
 // Token actual
+// En firebase.ts
 export async function getCurrentUserToken(): Promise<string | null> {
-  const currentUser = firebaseAuth.currentUser;
-  return currentUser ? await currentUser.getIdToken() : null;
+  try {
+    const currentUser = firebaseAuth.currentUser;
+    return currentUser ? await currentUser.getIdToken() : null;
+  } catch (error) {
+    log.error("Error getting token:", error);
+    return null;
+  }
 }
 
 // Auth state listener

@@ -85,7 +85,7 @@ const teachers = Astro.props.teachers as Teacher[];
 
   <!-- Dots de navegación - Solo mostrar si hay más de 1 profesor -->
   {
-    teachers.length > 1 && (
+    teachers && teachers.length > 1 && (
       <nav
         class="flex justify-center gap-1 sm:gap-2 mt-3 sm:mt-4"
         id={`carousel-dots-${id}`}

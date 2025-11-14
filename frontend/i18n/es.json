@@ -164,6 +164,10 @@
         {
           "title": "¿Quieres resolver tus dudas antes de empezar?",
           "description": "Reserva una llamada gratuita y sin compromiso con nosotros. Te contaremos cómo funcionan nuestras clases, quiénes son nuestros profesores y responderemos todas tus preguntas sobre pagos, horarios y garantías."
+        },
+        {
+          "title": "Aviso, ponte en contacto",
+          "description": "Te recomendamos ponerte en contacto con nosotros antes de reservar una clase para que te podamos aconsejar al mejor profesional dependiendo de tu nivel y de tus objetivos. Puedes escribirnos a contact@amanahacademia.com"
         }
       ]
     },
