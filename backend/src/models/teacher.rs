@@ -8,5 +8,5 @@ pub struct Teacher {
     pub name: String,
     pub native_lang: String,
     pub url_image: String,
-    pub description: String,
+    pub description: Vec<String>,
 }

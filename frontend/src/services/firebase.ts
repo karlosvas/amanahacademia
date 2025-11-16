@@ -7,7 +7,6 @@ import {
   getErrorToast,
   AuthSuccessCode,
   getAuthSuccessMessage,
-  ApiErrorType,
   ValidationCode,
   getValidationMessage,
 } from "@/enums/enums";

@@ -43,6 +43,13 @@
             "terms_required": "Devi accettare i termini e le condizioni"
           }
         },
+        "reset_password": {
+          "title": "Reimposta password",
+          "subtitle": "Inserisci la tua email per ricevere un link di reimpostazione",
+          "button": "Invia link",
+          "success": "È stata inviata un'email di reimpostazione della password",
+          "back_to_login": "Torna al login"
+        },
         "utils": {
           "loading": "Caricamento...",
           "labels": {
@@ -166,7 +173,7 @@
         },
         {
           "title": "Avviso, mettiti in contatto",
-          "description": "Ti consigliamo di metterti in contatto con noi prima di prenotare una lezione affinché possiamo consigliarti il miglior professionista in base al tuo livello e ai tuoi obiettivi. Puoi scriverci a contact@amanahacademia.com"
+          "description": "Ti consigliamo di metterti in contatto con noi prima di prenotare una lezione affinché possiamo consigliarti il miglior professionista in base al tuo livello e ai tuoi obiettivi. Puoi scriverci a"
         }
       ]
     },

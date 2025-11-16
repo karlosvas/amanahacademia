@@ -4,6 +4,7 @@ import Hamburger from "@/components/common/Hamburger.astro";
 import Traductor from "@/components/common/Traductor.astro";
 import Theme from "@/components/common/Theme.astro";
 import AuthModal from "@/components/common/AuthModal.astro";
+import PasswordResetModal from "@/components/common/PasswordResetModal.astro";
 import type { Lang } from "@/types/types";
 import { labels_header } from "../../../i18n/index";
 
@@ -25,6 +26,7 @@ Astro.cookies.set("lang", lang, { path: "/", maxAge: 31536000 });
     data={data.identification.modal}
     label={labels_header[lang]?.identificationButton || "Iniciar sesión en Amanah Academia"}
   />
+  <PasswordResetModal data={data.identification.modal} />
   <Hamburger data={data} />
   <a href={`/${lang === "es" ? "" : lang}`}>
     <img

@@ -54,6 +54,13 @@ export type ModalI18n = {
       terms_required: string;
     };
   };
+  reset_password: {
+    title: string;
+    subtitle: string;
+    button: string;
+    success: string;
+    back_to_login: string;
+  };
   utils: {
     loading: string;
     labels: {

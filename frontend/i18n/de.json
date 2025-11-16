@@ -43,6 +43,13 @@
             "terms_required": "Sie müssen die allgemeinen Geschäftsbedingungen akzeptieren"
           }
         },
+        "reset_password": {
+          "title": "Passwort zurücksetzen",
+          "subtitle": "Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen zu erhalten",
+          "button": "Link senden",
+          "success": "Eine E-Mail zum Zurücksetzen des Passworts wurde gesendet",
+          "back_to_login": "Zurück zur Anmeldung"
+        },
         "utils": {
           "loading": "Lädt...",
           "labels": {
@@ -169,7 +176,7 @@
         },
         {
           "title": "Hinweis, kontaktieren Sie uns",
-          "description": "Wir empfehlen Ihnen, uns vor der Buchung einer Unterrichtsstunde zu kontaktieren, damit wir Ihnen je nach Ihrem Niveau und Ihren Zielen den besten Fachmann empfehlen können. Sie können uns schreiben an contact@amanahacademia.com"
+          "description": "Wir empfehlen Ihnen, uns vor der Buchung einer Unterrichtsstunde zu kontaktieren, damit wir Ihnen je nach Ihrem Niveau und Ihren Zielen den besten Fachmann empfehlen können. Sie können uns schreiben an"
         }
       ]
     },

@@ -43,6 +43,13 @@
             "terms_required": "Debes aceptar los términos y condiciones"
           }
         },
+        "reset_password": {
+          "title": "Restablecer contraseña",
+          "subtitle": "Introduce tu email para recibir un enlace de restablecimiento, esta funcionalidad solo esta disponible para usuarios que no fueron logeados con Google.",
+          "button": "Enviar enlace",
+          "success": "Se ha enviado un correo de restablecimiento de contraseña",
+          "back_to_login": "Volver al inicio de sesión"
+        },
         "utils": {
           "loading": "Cargando...",
           "labels": {
@@ -167,7 +174,7 @@
         },
         {
           "title": "Aviso, ponte en contacto",
-          "description": "Te recomendamos ponerte en contacto con nosotros antes de reservar una clase para que te podamos aconsejar al mejor profesional dependiendo de tu nivel y de tus objetivos. Puedes escribirnos a contact@amanahacademia.com"
+          "description": "Te recomendamos ponerte en contacto con nosotros antes de reservar una clase para que te podamos aconsejar al mejor profesional dependiendo de tu nivel y de tus objetivos. Puedes escribirnos a"
         }
       ]
     },

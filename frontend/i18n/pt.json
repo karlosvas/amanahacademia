@@ -43,6 +43,13 @@
             "terms_required": "Você deve aceitar os termos e condições"
           }
         },
+        "reset_password": {
+          "title": "Redefinir senha",
+          "subtitle": "Digite seu e-mail para receber um link de redefinição",
+          "button": "Enviar link",
+          "success": "Um e-mail de redefinição de senha foi enviado",
+          "back_to_login": "Voltar ao login"
+        },
         "utils": {
           "loading": "Carregando...",
           "labels": {
@@ -156,7 +163,7 @@
         },
         {
           "title": "Aviso, entre em contato",
-          "description": "Recomendamos que você entre em contato conosco antes de reservar uma aula para que possamos aconselhá-lo sobre o melhor profissional dependendo do seu nível e dos seus objetivos. Você pode nos escrever em contact@amanahacademia.com"
+          "description": "Recomendamos que você entre em contato conosco antes de reservar uma aula para que possamos aconselhá-lo sobre o melhor profissional dependendo do seu nível e dos seus objetivos. Você pode nos escrever em"
         }
       ]
     },

@@ -43,6 +43,13 @@
             "terms_required": "You must accept the terms and conditions"
           }
         },
+        "reset_password": {
+          "title": "Reset password",
+          "subtitle": "Enter your email to receive a reset link",
+          "button": "Send link",
+          "success": "A password reset email has been sent",
+          "back_to_login": "Back to login"
+        },
         "utils": {
           "loading": "Loading...",
           "labels": {
@@ -156,7 +163,7 @@
         },
         {
           "title": "Notice, get in touch",
-          "description": "We recommend you contact us before booking a class so we can advise you on the best professional depending on your level and your goals. You can write to us at contact@amanahacademia.com"
+          "description": "We recommend you contact us before booking a class so we can advise you on the best professional depending on your level and your goals. You can write to us at"
         }
       ]
     },

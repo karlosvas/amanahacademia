@@ -28,6 +28,8 @@ export enum FrontendErrorCode {
   GOOGLE_LOGIN_ERROR = "GOOGLE_LOGIN_ERROR",
   NETWORK_ERROR = "NETWORK_ERROR",
   FREE_CLASS_ALREADY_USED = "FREE_CLASS_ALREADY_USED",
+  EMAIL_REQUIRED_RESET = "EMAIL_REQUIRED_RESET",
+  OAUTH_USER_RESET = "OAUTH_USER_RESET",
 }
 
 export enum FrontendStripe {
@@ -65,6 +67,8 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "خطأ في تسجيل الدخول باستخدام Google. يرجى المحاولة مرة أخرى",
     [FrontendErrorCode.NETWORK_ERROR]: "خطأ في الشبكة. يرجى المحاولة مرة أخرى لاحقًا",
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "لقد استخدمت بالفعل فصلك المجاني",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "يرجى إدخال عنوان بريدك الإلكتروني لإعادة تعيين كلمة المرور",
+    [FrontendErrorCode.OAUTH_USER_RESET]: "لقد سجلت الدخول باستخدام Google. لا يمكنك إعادة تعيين كلمة المرور",
   },
   de: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Sie müssen sich anmelden, um fortzufahren",
@@ -77,6 +81,8 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Fehler bei der Google-Anmeldung. Bitte versuchen Sie es erneut",
     [FrontendErrorCode.NETWORK_ERROR]: "Netzwerkfehler. Bitte versuchen Sie es später erneut",
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Sie haben Ihre kostenlose Klasse bereits genutzt",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Bitte geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen",
+    [FrontendErrorCode.OAUTH_USER_RESET]: "Sie haben sich mit Google angemeldet. Sie können Ihr Passwort nicht zurücksetzen",
   },
   en: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "You must log in to continue",
@@ -89,6 +95,8 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Error logging in with Google. Please try again",
     [FrontendErrorCode.NETWORK_ERROR]: "Network error. Please try again later",
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "You have already used your free class",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Please enter your email address to reset your password",
+    [FrontendErrorCode.OAUTH_USER_RESET]: "You signed in with Google. You cannot reset your password",
   },
   es: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Debes iniciar sesión para continuar",
@@ -101,6 +109,8 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo",
     [FrontendErrorCode.NETWORK_ERROR]: "Error de red. Por favor, inténtalo de nuevo más tarde",
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Ya has utilizado tu clase gratuita",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Por favor, introduce tu correo electrónico para restablecer tu contraseña",
+    [FrontendErrorCode.OAUTH_USER_RESET]: "Has iniciado sesión con Google. No puedes restablecer tu contraseña",
   },
   fr: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Vous devez vous connecter pour continuer",
@@ -113,6 +123,8 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Erreur lors de la connexion avec Google. Veuillez réessayer",
     [FrontendErrorCode.NETWORK_ERROR]: "Erreur réseau. Veuillez réessayer plus tard",
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Vous avez déjà utilisé votre cours gratuit",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Veuillez saisir votre adresse e-mail pour réinitialiser votre mot de passe",
+    [FrontendErrorCode.OAUTH_USER_RESET]: "Vous vous êtes connecté avec Google. Vous ne pouvez pas réinitialiser votre mot de passe",
   },
   it: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Devi accedere per continuare",
@@ -125,6 +137,8 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Errore durante l'accesso con Google. Per favore, riprova",
     [FrontendErrorCode.NETWORK_ERROR]: "Errore di rete. Per favore, riprova più tardi",
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Hai già utilizzato la tua lezione gratuita",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Per favore, inserisci il tuo indirizzo email per reimpostare la password",
+    [FrontendErrorCode.OAUTH_USER_RESET]: "Hai effettuato l'accesso con Google. Non puoi reimpostare la password",
   },
   pt: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Você deve fazer login para continuar",
@@ -137,6 +151,8 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Erro ao fazer login com Google. Por favor, tente novamente",
     [FrontendErrorCode.NETWORK_ERROR]: "Erro de rede. Por favor, tente novamente mais tarde",
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Você já utilizou sua aula gratuita",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Por favor, insira seu endereço de e-mail para redefinir sua senha",
+    [FrontendErrorCode.OAUTH_USER_RESET]: "Você fez login com Google. Você não pode redefinir sua senha",
   },
 };
 export function getErrorToast(code: FrontendErrorCode) {
@@ -304,35 +320,43 @@ export function getErrorFrontStripe(code: FrontendStripe): string {
 export enum AuthSuccessCode {
   REGISTER_SUCCESS = "REGISTER_SUCCESS",
   LOGIN_SUCCESS = "LOGIN_SUCCESS",
+  PASSWORD_RESET_SUCCESS = "PASSWORD_RESET_SUCCESS",
 }
 export const AuthSuccessMessages: Record<string, Record<AuthSuccessCode, string>> = {
   es: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "¡Registro exitoso! Vamos a empezar con tu primer curso.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "¡Bienvenido de vuelta!",
+    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "Se ha enviado un correo de restablecimiento de contraseña",
   },
   en: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "Registration successful! Let's start with your first course.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Welcome back!",
+    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "A password reset email has been sent",
   },
   pt: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "Registro bem-sucedido! Vamos começar com seu primeiro curso.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Bem-vindo de volta!",
+    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "Um e-mail de redefinição de senha foi enviado",
   },
   it: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "Registrazione riuscita! Iniziamo con il tuo primo corso.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Bentornato!",
+    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "È stata inviata un'email di reimpostazione della password",
   },
   fr: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "Inscription réussie ! Commençons par votre premier cours.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Bon retour !",
+    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "Un email de réinitialisation du mot de passe a été envoyé",
   },
   de: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "Registrierung erfolgreich! Beginnen wir mit Ihrem ersten Kurs.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Willkommen zurück!",
+    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "Eine E-Mail zum Zurücksetzen des Passworts wurde gesendet",
   },
   ar: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "تم التسجيل بنجاح! لنبدأ مع دورتك الأولى.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "مرحباً بعودتك!",
+    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "تم إرسال بريد إلكتروني لإعادة تعيين كلمة المرور",
   },
 };
 export function getAuthSuccessMessage(code: AuthSuccessCode): string {

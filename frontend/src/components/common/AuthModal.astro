@@ -108,13 +108,12 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
         </a>
       </div>
       <!-- Forgot Password -->
-      <div class="text-center">
-        <a
-          href="/profile"
-          class="text-lightBrown hover:text-brown text-xs hover:underline transition-colors duration-200"
-        >
-          {data.login.forgot_password}
-        </a>
+      <div
+        id="forgotPass"
+        data-success-msg={data.reset_password.success}
+        class="cursor-pointer text-center text-lightBrown hover:text-brown text-xs hover:underline transition-colors duration-200"
+      >
+        {data.login.forgot_password}
       </div>
     </form>
   </div>
@@ -257,6 +256,8 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
 <script>
   import { toggleLoginToRegister, submitFormToRegisterOrLogin, handleLogGoogleProvider } from "@/services/firebase";
   import { updateTurnstileVisibility } from "@/services/claudflare";
+  import { log } from "@/services/logger";
+  import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 
   // Estado actual de registro o Login
   let isRegister = false;
@@ -273,6 +274,7 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
     const loginLoading = document.getElementById("loginLoading") as HTMLDivElement;
     const loginError = document.getElementById("loginError") as HTMLDivElement;
     const registerError = document.getElementById("registerError") as HTMLDivElement;
+    const forgotPass = document.getElementById("forgotPass") as HTMLDivElement;
 
     // Cambiamos de login a register viceversa
     changeModalButtons.forEach((link) => {
@@ -292,14 +294,41 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
       googleBtn.addEventListener("click", async () => {
         if (isRegister) {
           handleLogGoogleProvider(authModalRegister, formRegister, isRegister, loginError).catch((error) =>
-            console.error("Error al iniciar sesión con Google:", error)
+            log.error("Error al iniciar sesión con Google:", error)
           );
         } else {
           handleLogGoogleProvider(authModalLogin, formLogin, isRegister, loginError).catch((error) =>
-            console.error("Error al iniciar sesión con Google:", error)
+            log.error("Error al iniciar sesión con Google:", error)
           );
         }
       });
+    });
+
+    forgotPass.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      // Close login modal
+      authModalLogin.close();
+
+      // Open password reset modal
+      const passwordResetModal = document.getElementById("passwordResetModal") as HTMLDialogElement;
+      if (passwordResetModal) {
+        // Pre-fill email if available
+        const emailInput = formLogin.querySelector('input[name="email"]') as HTMLInputElement;
+        const resetEmailInput = passwordResetModal.querySelector('input[name="email"]') as HTMLInputElement;
+        if (emailInput && resetEmailInput && emailInput.value) {
+          resetEmailInput.value = emailInput.value;
+        }
+
+        // Get success message from forgot password element
+        const successMsg = forgotPass.getAttribute("data-success-msg");
+        const resetSuccess = passwordResetModal.querySelector("#resetSuccess") as HTMLDivElement;
+        if (resetSuccess && successMsg) {
+          resetSuccess.setAttribute("data-success-msg", successMsg);
+        }
+
+        passwordResetModal.showModal();
+      }
     });
   });
 </script>
