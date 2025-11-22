@@ -13,7 +13,7 @@ primary_region = "cdg"
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
-  min_machines_running = 0
+  min_machines_running = 1
   processes = ['app']
 
 [[vm]]
@@ -22,7 +22,7 @@ primary_region = "cdg"
   cpus = 1
 
 [[http_service.checks]]
-  grace_period = "10s"
+  grace_period = "20s"
   interval = "60s"
   method = "GET"
   timeout = "5s"

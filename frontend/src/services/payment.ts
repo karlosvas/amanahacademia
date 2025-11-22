@@ -2,7 +2,7 @@ import type {
   CheckoutPaymentIntentRequest,
   CheckoutPaymentIntentResponse,
   RelationalCalStripe,
-  Result,
+  ResponseAPI,
 } from "@/types/bakend-types";
 import { ApiService } from "./helper";
 import { getErrorFrontStripe, FrontendStripe } from "@/enums/enums";
@@ -11,7 +11,7 @@ import { getPrice } from "./calendar";
 import { log } from "./logger";
 
 // Función para procesar el pago
-export async function handlePayment(stripe: any, elements: any, bookingUid: string | null) {
+export async function handlePayment(stripe: any, elements: any, bookingUid: string) {
   const helper = new ApiService();
 
   // Verificar que Stripe esté inicializado
@@ -40,7 +40,7 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
     const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: window.location.origin + "/payments/payment-success",
+        return_url: location.origin + "/payments/payment-success",
       },
       redirect: "if_required",
     });
@@ -230,17 +230,14 @@ export async function initializePrice(testCountry: string | null, slugType: stri
 }
 
 export async function initializeStripe(
-  paymentElement: any,
-  stripe: any,
   STRIPE_PUBLIC_KEY: string,
-  elements: any,
   pricing: number
-) {
+): Promise<{ stripe: any; elements: any } | null> {
   try {
     const helper = new ApiService();
 
-    // Obtenemos el booking UID
-    stripe = window.Stripe(STRIPE_PUBLIC_KEY);
+    // Inicializar Stripe
+    const stripe = window.Stripe(STRIPE_PUBLIC_KEY);
 
     // Transformamos de euros a centimos
     const amount = Math.round(pricing * 100);
@@ -253,7 +250,7 @@ export async function initializeStripe(
     if (!carry) throw new Error(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
 
     // Obtenemos el clinet secreat para elements
-    let response: Result<CheckoutPaymentIntentResponse> = await helper.checkout(carry);
+    let response: ResponseAPI<CheckoutPaymentIntentResponse> = await helper.checkout(carry);
 
     // Comprobamos que la respuesta sea válida
     if (!response.success) throw new Error(getErrorFrontStripe(FrontendStripe.SERVER_ERROR));
@@ -299,26 +296,26 @@ export async function initializeStripe(
         },
       },
     };
-    elements = stripe.elements({
+    const elements = stripe.elements({
       clientSecret: data.client_secret,
       appearance,
     });
 
     // Crear y montar el Payment Element
-    paymentElement = elements.create("payment");
+    const paymentElement = elements.create("payment");
 
     // Ocultar loading y mostrar el elemento de pago
     const loading = document.querySelector(".loading") as HTMLDivElement | null;
     if (!loading || !loading.style) {
       showError(getErrorFrontStripe(FrontendStripe.PAYMENT_FORM_ERROR));
-      return;
+      return null;
     }
     loading.style.display = "none";
     await paymentElement.mount("#payment-element");
 
     // Habilitar el botón de pago
     const submitButton = document.getElementById("submit-button") as HTMLButtonElement | null;
-    if (!submitButton) return;
+    if (!submitButton) return null;
     submitButton.disabled = false;
 
     // Manejar cambios en el elemento de pago
@@ -326,8 +323,12 @@ export async function initializeStripe(
       if (event.error) showError(event.error.message);
       else clearMessages();
     });
+
+    // Retornar stripe y elements inicializados
+    return { stripe, elements };
   } catch (error: any) {
     console.error("Error inicializando Stripe:", error);
     showError(getErrorFrontStripe(FrontendStripe.STRIPE_INITIALIZATION_ERROR));
+    return null;
   }
 }
