@@ -8,6 +8,14 @@ import PanelArticles from "@/components/dashboard/panel/PanelArticles.astro";
 import PanelClasses from "@/components/dashboard/panel/PanelClasses.astro";
 import PanelUser from "@/components/dashboard/panel/PanelUser.astro";
 import Layout from "@/layouts/Layout.astro";
+import { getFirebaseAuth } from "@/services/firebase";
+
+const currentUser = getFirebaseAuth().currentUser;
+const adminEmails = import.meta.env.ADMIN_EMAILS
+  ? import.meta.env.ADMIN_EMAILS.split(",").map((email: string) => email.trim())
+  : [];
+
+if (!currentUser || !adminEmails.includes(currentUser.email)) return Astro.redirect("/");
 
 // Obtenemos el idioma obtenido mediante la ruta
 const { lang } = Astro.params;

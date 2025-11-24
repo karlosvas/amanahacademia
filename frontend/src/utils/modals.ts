@@ -161,10 +161,7 @@ export function startCalScrollManagement(): void {
   let savedScroll = 0;
   let wasOpen = false;
 
-  if (calScrollInterval !== null) {
-    log.info("⚠️ Polling ya activo, no se crea nuevo");
-    return;
-  }
+  if (calScrollInterval !== null) return;
 
   calScrollInterval = window.setInterval(() => {
     const modalBoxes = document.querySelectorAll("cal-modal-box");

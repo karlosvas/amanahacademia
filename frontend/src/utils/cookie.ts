@@ -17,7 +17,7 @@ export function getThemeFromCookie() {
 }
 
 export function getLangFromCookie(): string {
-  const match = document.cookie.match(/(?:^|; )lang=([^;]*)/);
+  const match = document.cookie.match(/(?:^|; )langCookie=([^;]*)/);
   return match ? match[1] : "es";
 }
 
@@ -193,6 +193,17 @@ export function readThemeCookie() {
 export function writeThemeCookie(value: string) {
   const maxAge = 60 * 60 * 24 * 365; // 1 año
   document.cookie = `theme=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+}
+
+export function writeLangCookie(value: string) {
+  // Validar que el valor sea un idioma válido
+  if (!value || value.includes("/") || value.includes(".")) {
+    console.warn(`[Lang Cookie] Intento de escribir valor inválido: ${value}`);
+    return;
+  }
+
+  const maxAge = 60 * 60 * 24 * 365;
+  document.cookie = `langCookie=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
 }
 
 export function applyThemeClass(value: string) {

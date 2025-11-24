@@ -5,6 +5,7 @@ import { Toaster } from "solid-toast";
 import type { PropsSEO } from "@/types/types";
 import AdministratorPanel from "@/components/dashboard/AdministratorPanel.astro";
 import { cookiesTranslation } from "@/../i18n/index";
+import { Languages } from "@/enums/enums";
 
 declare global {
   interface Window {
@@ -21,6 +22,19 @@ declare global {
   }
 }
 
+// Obtener el idioma de la cookie o usar español por defecto
+const langCookies = Astro.cookies.get("langCookie")?.value || Languages.SPANISH;
+
+// Solo establecer la cookie si no existe (evitar establecerla en cada request)
+if (!Astro.cookies.get("langCookie")) {
+  Astro.cookies.set("langCookie", Languages.SPANISH, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+    httpOnly: false,
+  });
+}
+
 const {
   lang = "es",
   title = "Amanah Academia - Aprende idiomas online",
@@ -34,13 +48,12 @@ const {
 } = Astro.props as PropsSEO;
 
 const theme = Astro.cookies.get("theme")?.value;
-
 const cookieMessage =
   cookiesTranslation[lang as keyof typeof cookiesTranslation]?.message || cookiesTranslation["es"].message;
 ---
 
 <!doctype html>
-<html lang={lang} class={`m-0 w-full h-full ${theme ? ` ${theme}` : ""}`}>
+<html lang={langCookies} class={`m-0 w-full h-full ${theme ? ` ${theme}` : ""}`}>
   <head>
     <!-- Codificacion -->
     <meta charset="UTF-8" />
@@ -174,9 +187,15 @@ const cookieMessage =
       script.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
       document.head.appendChild(script);
     </script>
-    <!-- Tema oscuro/claro segun preferencia del sistema -->
+    <!-- Inicialización de cookies (tema e idioma) -->
     <script>
-      import { readThemeCookie, writeThemeCookie, applyThemeClass } from "@/utils/cookie";
+      import {
+        readThemeCookie,
+        writeThemeCookie,
+        applyThemeClass,
+        getLangFromCookie,
+        writeLangCookie,
+      } from "@/utils/cookie";
 
       const initTheme = () => {
         const cookieTheme = readThemeCookie();
@@ -196,7 +215,21 @@ const cookieMessage =
         };
       };
 
-      window.addEventListener("DOMContentLoaded", initTheme);
+      const initLang = () => {
+        const currentLang = getLangFromCookie();
+        const validLangs = ["ar", "de", "en", "es", "fr", "it", "pt"];
+
+        // Si la cookie tiene un valor inválido (como favicon.ico), limpiarla
+        if (!validLangs.includes(currentLang)) {
+          console.warn(`[Lang Init] Cookie con valor inválido detectada: ${currentLang}. Limpiando...`);
+          writeLangCookie("es"); // Establecer español por defecto
+        }
+      };
+
+      window.addEventListener("DOMContentLoaded", () => {
+        initTheme();
+        initLang();
+      });
     </script>
   </head>
   <body class="m-0 w-full h-full bg-background">

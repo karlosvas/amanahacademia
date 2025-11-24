@@ -30,6 +30,7 @@ export enum FrontendErrorCode {
   FREE_CLASS_ALREADY_USED = "FREE_CLASS_ALREADY_USED",
   EMAIL_REQUIRED_RESET = "EMAIL_REQUIRED_RESET",
   OAUTH_USER_RESET = "OAUTH_USER_RESET",
+  MANTENIANCE = "MANTENANCE",
 }
 
 export enum FrontendStripe {
@@ -69,6 +70,7 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "لقد استخدمت بالفعل فصلك المجاني",
     [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "يرجى إدخال عنوان بريدك الإلكتروني لإعادة تعيين كلمة المرور",
     [FrontendErrorCode.OAUTH_USER_RESET]: "لقد سجلت الدخول باستخدام Google. لا يمكنك إعادة تعيين كلمة المرور",
+    [FrontendErrorCode.MANTENIANCE]: "الفصول غير متوفرة في الوقت الحالي بسبب مشاكل فنية.",
   },
   de: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Sie müssen sich anmelden, um fortzufahren",
@@ -82,7 +84,9 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.NETWORK_ERROR]: "Netzwerkfehler. Bitte versuchen Sie es später erneut",
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Sie haben Ihre kostenlose Klasse bereits genutzt",
     [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Bitte geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen",
-    [FrontendErrorCode.OAUTH_USER_RESET]: "Sie haben sich mit Google angemeldet. Sie können Ihr Passwort nicht zurücksetzen",
+    [FrontendErrorCode.OAUTH_USER_RESET]:
+      "Sie haben sich mit Google angemeldet. Sie können Ihr Passwort nicht zurücksetzen",
+    [FrontendErrorCode.MANTENIANCE]: "Kurse derzeit aufgrund technischer Probleme nicht verfügbar.",
   },
   en: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "You must log in to continue",
@@ -97,6 +101,7 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "You have already used your free class",
     [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Please enter your email address to reset your password",
     [FrontendErrorCode.OAUTH_USER_RESET]: "You signed in with Google. You cannot reset your password",
+    [FrontendErrorCode.MANTENIANCE]: "Classes not available at the moment, due to technical issues.",
   },
   es: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Debes iniciar sesión para continuar",
@@ -109,8 +114,10 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo",
     [FrontendErrorCode.NETWORK_ERROR]: "Error de red. Por favor, inténtalo de nuevo más tarde",
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Ya has utilizado tu clase gratuita",
-    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Por favor, introduce tu correo electrónico para restablecer tu contraseña",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]:
+      "Por favor, introduce tu correo electrónico para restablecer tu contraseña",
     [FrontendErrorCode.OAUTH_USER_RESET]: "Has iniciado sesión con Google. No puedes restablecer tu contraseña",
+    [FrontendErrorCode.MANTENIANCE]: "Clases no disponibles por el momento, debido a problemas técnicos.",
   },
   fr: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Vous devez vous connecter pour continuer",
@@ -123,8 +130,11 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Erreur lors de la connexion avec Google. Veuillez réessayer",
     [FrontendErrorCode.NETWORK_ERROR]: "Erreur réseau. Veuillez réessayer plus tard",
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Vous avez déjà utilisé votre cours gratuit",
-    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Veuillez saisir votre adresse e-mail pour réinitialiser votre mot de passe",
-    [FrontendErrorCode.OAUTH_USER_RESET]: "Vous vous êtes connecté avec Google. Vous ne pouvez pas réinitialiser votre mot de passe",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]:
+      "Veuillez saisir votre adresse e-mail pour réinitialiser votre mot de passe",
+    [FrontendErrorCode.OAUTH_USER_RESET]:
+      "Vous vous êtes connecté avec Google. Vous ne pouvez pas réinitialiser votre mot de passe",
+    [FrontendErrorCode.MANTENIANCE]: "Cours non disponibles pour le moment en raison de problèmes techniques.",
   },
   it: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Devi accedere per continuare",
@@ -137,8 +147,10 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Errore durante l'accesso con Google. Per favore, riprova",
     [FrontendErrorCode.NETWORK_ERROR]: "Errore di rete. Per favore, riprova più tardi",
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Hai già utilizzato la tua lezione gratuita",
-    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Per favore, inserisci il tuo indirizzo email per reimpostare la password",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]:
+      "Per favore, inserisci il tuo indirizzo email per reimpostare la password",
     [FrontendErrorCode.OAUTH_USER_RESET]: "Hai effettuato l'accesso con Google. Non puoi reimpostare la password",
+    [FrontendErrorCode.MANTENIANCE]: "Le lezioni non sono disponibili al momento a causa di problemi tecnici.",
   },
   pt: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Você deve fazer login para continuar",
@@ -153,6 +165,7 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Você já utilizou sua aula gratuita",
     [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Por favor, insira seu endereço de e-mail para redefinir sua senha",
     [FrontendErrorCode.OAUTH_USER_RESET]: "Você fez login com Google. Você não pode redefinir sua senha",
+    [FrontendErrorCode.MANTENIANCE]: "Aulas não disponíveis no momento, devido a problemas técnicos.",
   },
 };
 export function getErrorToast(code: FrontendErrorCode) {

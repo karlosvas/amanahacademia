@@ -68,6 +68,8 @@ const label = Astro.props.label;
 </div>
 
 <script>
+  import { writeLangCookie } from "@/utils/cookie";
+
   // Espera a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", function () {
     const btnTraductor = document.getElementById("btnTraductor");
@@ -91,6 +93,9 @@ const label = Astro.props.label;
         if (link) {
           e.preventDefault();
           const lang = link.getAttribute("data-lang");
+
+          if (!lang) return;
+
           const currentPath = window.location.pathname;
 
           // Remover el prefijo de idioma actual si existe
@@ -101,6 +106,8 @@ const label = Astro.props.label;
           // Limpiar dobles barras
           newPath = newPath.replace(/\/+/g, "/");
 
+          // Escribir la cookie de idioma usando la función centralizada
+          writeLangCookie(lang);
           window.location.href = newPath;
         }
       });

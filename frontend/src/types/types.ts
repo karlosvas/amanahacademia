@@ -110,6 +110,7 @@ export type CardPricingType = {
   };
   content: string[];
   button: string;
+  disabled?: boolean;
 };
 
 export type PricingI18n = {

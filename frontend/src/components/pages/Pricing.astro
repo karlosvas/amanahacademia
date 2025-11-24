@@ -38,7 +38,7 @@ try {
     >
       <CardPricing data={data.type.standard} id={Class.Standard} teachers={teachers} />
       <CardPricing data={data.type.conversation} id={Class.Conversacion} teachers={teachers} />
-      <CardPricing data={data.type.group} id={Class.Grupales} teachers={teachers} />
+      <CardPricing data={data.type.group} id={Class.Grupales} teachers={teachers} disabled={true} />
     </div>
     <div
       class="w-full md:w-11/12 lg:w-4/5 xl:w-3/4 flex flex-col lg:flex-row text-xs sm:text-sm mt-12 sm:mt-16 md:mt-20 m-auto pb-8 md:pb-12 lg:pb-16 xl:pb-20 px-4 sm:px-6 md:px-8 lg:px-6 xl:px-0 gap-6 sm:gap-8 lg:gap-6 scroll-fade-in"
@@ -102,6 +102,13 @@ try {
   document.addEventListener("DOMContentLoaded", () => {
     [Class.Conversacion, Class.Grupales, Class.Standard, Class.Free].forEach(initCalendar);
 
+    const modalGroup = document.querySelector(`[card-button="${Class.Grupales}"]`) as HTMLButtonElement;
+    modalGroup.addEventListener("click", (e) => {
+      e.preventDefault();
+      log.warn("Clases no disponibles por problemas técnicos.");
+      toast.error(getErrorToast(FrontendErrorCode.MANTENIANCE));
+    });
+
     // Obtenemos todos los botones de reservar clase
     const reserveButtons = document.querySelectorAll(".reserve-class") as NodeListOf<HTMLButtonElement>;
     // Por cada botón obtenemos que modal pertenece, para abrir el que le corresponde al hacer click
@@ -112,8 +119,16 @@ try {
         if (!modalID) return;
         const modal = document.getElementById(modalID) as HTMLDialogElement | null;
 
+        if (modal == null) {
+          log.error("Modal not found for ID:", modalID);
+          return;
+        }
+
+        // Clas grupales no disponible por mantenimeinto
+        if (modal.id === Class.Grupales) return;
+
         // Manejador para la clase gratuita
-        if (modal && modal.id === Class.Free) {
+        if (modal.id === Class.Free) {
           const currentUser = getAuth().currentUser;
           if (!currentUser) {
             toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
@@ -126,11 +141,6 @@ try {
               return;
             }
           }
-        }
-
-        if (modal == null) {
-          log.error("Modal not found for ID:", modalID);
-          return;
         }
 
         // Manejamos el scroll que nos quita cal.com al abrir el modal
