@@ -6,6 +6,7 @@ import { ApiService } from "@/services/helper";
 import { log } from "@/services/logger";
 import type { PricingI18n } from "@/types/types";
 import toast from "solid-toast";
+import Carrousel from "../pricing/Carrousel.astro";
 
 const data = Astro.props.data as PricingI18n;
 
@@ -50,8 +51,9 @@ try {
           {data.info[0].description}
         </p>
         <button
-          id="free-class-button"
-          class="transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 bg-red text-salmon dark:text-black py-2 sm:py-2.5 px-4 sm:px-6 md:px-8 lg:px-10 rounded-full mt-3 sm:mt-4 md:mt-5 text-xs sm:text-sm cal-btn font-semibold w-full sm:w-auto"
+          card-button={Class.Free}
+          data-modal-id={Class.Free}
+          class="reserve-class transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 bg-red text-salmon dark:text-black py-2 sm:py-2.5 px-4 sm:px-6 md:px-8 lg:px-10 rounded-full mt-3 sm:mt-4 md:mt-5 text-xs sm:text-sm cal-btn font-semibold w-full sm:w-auto"
         >
           {data.info[0].button}
         </button>
@@ -78,6 +80,12 @@ try {
     </div>
   </div>
 </main>
+<dialog
+  id={Class.Free}
+  class="modal border-0 rounded-2xl shadow-2xl max-w-2xl w-[95%] mx-auto overflow-hidden p-8 bg-background"
+>
+  <Carrousel id={Class.Free} teachers={teachers} />
+</dialog>
 <div id="cal-inline-root" class="relative mx-auto"></div>
 
 <script>
@@ -91,19 +99,34 @@ try {
 
   // Evento al cargar el DOM
   document.addEventListener("DOMContentLoaded", () => {
-    [Class.Conversacion, Class.Grupales, Class.Standard].forEach(initCalendar);
+    [Class.Conversacion, Class.Grupales, Class.Standard, Class.Free].forEach(initCalendar);
 
     // Obtenemos todos los botones de reservar clase
     const reserveButtons = document.querySelectorAll(".reserve-class") as NodeListOf<HTMLButtonElement>;
     // Por cada botón obtenemos que modal pertenece, para abrir el que le corresponde al hacer click
-    reserveButtons?.forEach((button) => {
-      button.addEventListener("click", () => {
+    reserveButtons?.forEach(async (button) => {
+      button.addEventListener("click", async () => {
         // Obtenemos el modal correspondiente al botón
         const modalID: string | null = button.getAttribute("card-button");
         if (!modalID) return;
         const modal = document.getElementById(modalID) as HTMLDialogElement | null;
 
-        if (modal && modal.id && Object.values(Class).includes(modal.id as Class))
+        // Manejador para la clase gratuita
+        if (modal && modal.id === Class.Free) {
+          const currentUser = getAuth().currentUser;
+          if (!currentUser) {
+            toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
+            return;
+          } else {
+            const helper = new ApiService();
+            const userDB = await helper.getUser();
+            if (userDB.success && userDB.data.first_free_class) {
+              toast.error(getErrorToast(FrontendErrorCode.FREE_CLASS_ALREADY_USED));
+              return;
+            }
+            showModalAnimation(modal, null, true);
+          }
+        } else if (modal && modal.id && Object.values(Class).includes(modal.id as Class))
           showModalAnimation(modal, null, true);
       });
     });
@@ -137,45 +160,6 @@ try {
           el.setAttribute("data-cal-config", JSON.stringify(calConfig));
         });
       });
-    });
-
-    // Manejador para la clase gratuita
-    const freeButton = document.getElementById("free-class-button");
-    freeButton?.addEventListener("click", async (event) => {
-      event?.preventDefault();
-      const currentUser = getAuth().currentUser;
-
-      if (!currentUser) {
-        toast.error(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
-        return;
-      } else {
-        const helper = new ApiService();
-        const userDB = await helper.getUser();
-
-        if (userDB.success && userDB.data.first_free_class) {
-          toast.error(getErrorToast(FrontendErrorCode.FREE_CLASS_ALREADY_USED));
-          return;
-        }
-
-        // Inicializa el calendario si no está ya inicializado
-        if (!window.Cal.ns[Class.Free]) {
-          initCalendar(Class.Free);
-        }
-
-        // Obtener el tema actual para aplicarlo
-        const theme = getThemeFromCookie();
-
-        // Abrir el modal de Cal.com programáticamente
-        setTimeout(() => {
-          window.Cal.ns[Class.Free]("inline", {
-            elementOrSelector: "#cal-inline-root",
-            calLink: "team/amanah-academia/free-class",
-            config: {
-              theme: theme,
-            },
-          });
-        }, 200);
-      }
     });
 
     updatePricing();

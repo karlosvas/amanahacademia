@@ -45,7 +45,7 @@ const teachers = Astro.props.teachers as Teacher[];
                     data-cal-teacher={teacher.name}
                     data-cal-namespace={id}
                     data-cal-host={teacher.cal_id}
-                    data-cal-link={`team/amanah-academia/${id}`}
+                    data-cal-link={`${teacher.cal_link}/${id}`}
                     loading="lazy"
                   />
                 </div>

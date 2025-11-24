@@ -1,9 +1,7 @@
-import type { ApiError } from "@/services/globalHandler";
-
 export type Teacher = {
   uid?: string;
   cal_id: string;
-  calLink: string;
+  cal_link: string;
   name: string;
   native_lang: string;
   other_lang: string[];
