@@ -1,7 +1,5 @@
 import type { Class } from "@/enums/enums";
 import type { PricingApiResponse } from "@/types/types";
-import { getFirebaseAuth } from "./firebase";
-import toast from "solid-toast";
 
 /**
  * Inicializa y configura el calendario embebido de Cal.com para el namespace dado.

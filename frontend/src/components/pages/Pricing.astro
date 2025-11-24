@@ -89,13 +89,14 @@ try {
 <div id="cal-inline-root" class="relative mx-auto"></div>
 
 <script>
-  import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
+  import { closeModalAnimation, showModalAnimation, startCalScrollManagement } from "@/utils/modals";
   import { Class, FrontendErrorCode, getErrorToast } from "@/enums/enums";
   import { getThemeFromCookie } from "@/utils/cookie";
   import { updatePricing, initCalendar } from "@/services/calendar";
   import { getAuth } from "firebase/auth";
   import toast from "solid-toast";
   import { ApiService } from "@/services/helper";
+  import { log } from "@/services/logger";
 
   // Evento al cargar el DOM
   document.addEventListener("DOMContentLoaded", () => {
@@ -124,10 +125,19 @@ try {
               toast.error(getErrorToast(FrontendErrorCode.FREE_CLASS_ALREADY_USED));
               return;
             }
-            showModalAnimation(modal, null, true);
           }
-        } else if (modal && modal.id && Object.values(Class).includes(modal.id as Class))
-          showModalAnimation(modal, null, true);
+        }
+
+        if (modal == null) {
+          log.error("Modal not found for ID:", modalID);
+          return;
+        }
+
+        // Manejamos el scroll que nos quita cal.com al abrir el modal
+        showModalAnimation(modal, null, true);
+
+        // Siempre observamos el modal que se acaba de abrir para manejar el scroll
+        startCalScrollManagement();
       });
     });
 

@@ -1,3 +1,5 @@
+import { log } from "@/services/logger";
+
 // Cerrar el modal con animación
 export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElement | null = null) {
   modal.setAttribute("closing", "");
@@ -6,6 +8,10 @@ export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElem
     () => {
       modal.removeAttribute("closing");
       modal.close();
+
+      // Guardar la posición del scroll antes de restaurar los estilos
+      const scrollY = modal.dataset.scrollPosition;
+
       // Restaurar el scroll del body y html
       document.body.style.overflow = "";
       document.documentElement.style.overflow = "";
@@ -38,6 +44,14 @@ export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElem
           }
         }
       });
+
+      // Restaurar el scroll después de que el navegador haya procesado los cambios de estilo
+      if (scrollY !== undefined) {
+        requestAnimationFrame(() => {
+          window.scrollTo(0, Number.parseInt(scrollY));
+          delete modal.dataset.scrollPosition;
+        });
+      }
     },
     { once: true }
   );
@@ -46,6 +60,10 @@ export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElem
 
 // Abrir el modal
 export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormElement | null, background: boolean) {
+  // Guardar la posición actual del scroll antes de bloquear el scroll
+  const scrollY = window.scrollY || window.pageYOffset;
+  modal.dataset.scrollPosition = scrollY.toString();
+
   // Calcular el ancho de la scrollbar para evitar el salto de contenido
   const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
 
@@ -135,4 +153,65 @@ export function closeModalsEvents() {
       closeModalAnimation(modal, formModal);
     });
   });
+}
+
+// Variable global para almacenar la referencia del intervalo
+let calScrollInterval: number | null = null;
+export function startCalScrollManagement(): void {
+  let savedScroll = 0;
+  let wasOpen = false;
+
+  if (calScrollInterval !== null) {
+    log.info("⚠️ Polling ya activo, no se crea nuevo");
+    return;
+  }
+
+  calScrollInterval = window.setInterval(() => {
+    const modalBoxes = document.querySelectorAll("cal-modal-box");
+
+    // Si no hay modales, no hacer nada
+    if (modalBoxes.length === 0) return;
+
+    // Determinar si HAY al menos un modal visible
+    let isOpen = false;
+    for (const box of modalBoxes) {
+      const el = box as HTMLElement;
+      const vis = el.style.visibility;
+      // Visible si visibility NO es "hidden"
+      if (vis !== "hidden") {
+        isOpen = true;
+        break;
+      }
+    }
+
+    // ==========================================
+    // TRANSICIÓN: CERRADO → ABIERTO
+    // ==========================================
+    if (isOpen && !wasOpen) {
+      wasOpen = true;
+      savedScroll = window.scrollY || window.pageYOffset;
+      // Bloquear scroll
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${savedScroll}px`;
+      document.body.style.width = "100%";
+    }
+    // ==========================================
+    // TRANSICIÓN: ABIERTO → CERRADO
+    // ==========================================
+    else if (!isOpen && wasOpen) {
+      wasOpen = false;
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      // Cerramnos el intervalo de scroll
+      window.scrollTo(0, savedScroll);
+
+      if (calScrollInterval !== null) {
+        clearInterval(calScrollInterval);
+        calScrollInterval = null;
+      }
+    }
+  }, 200);
 }
