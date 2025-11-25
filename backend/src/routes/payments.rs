@@ -2,8 +2,8 @@ use {
     crate::{
         controllers::payments::{
             archive_cal_connection, archive_product, cancel_payment, create_product, delete_price,
-            get_all_prices, get_all_products, get_payment_history, get_payment_status,
-            payment_intent, refund_payment,
+            get_all_paid_reservations, get_all_prices, get_all_products, get_payment_history,
+            get_payment_status, payment_intent, refund_payment,
         },
         middleware::auth::firebase_auth_middleware,
         models::state::AppState,
@@ -20,6 +20,7 @@ pub fn router(state: Arc<AppState>) -> Router<Arc<AppState>> {
         Router::new()
             .route("/intent", post(payment_intent))
             .route("/cal/connection", post(archive_cal_connection))
+            .route("/cal/connection/all", get(get_all_paid_reservations))
             .route("/product/all", get(get_all_products))
             .route("/price/all", get(get_all_prices))
             .route("/del/product/:id", delete(archive_product))

@@ -145,3 +145,17 @@ export interface ReplyComment {
   like?: number;
   users_liked?: string[];
 }
+
+export enum BookingStatus {
+  Accepted = "accepted",
+  Pending = "pending",
+  Cancelled = "cancelled",
+  Rejected = "rejected",
+}
+
+export interface Booking {
+  uid: string;
+  status: BookingStatus;
+  title: string;
+  updatedAt?: string;
+}

@@ -21,6 +21,11 @@ export function getLangFromCookie(): string {
   return match ? match[1] : "es";
 }
 
+export function getAuthCookie(): string | null {
+  const match = document.cookie.match(/(?:^|; )auth=([^;]*)/);
+  return match ? match[1] : null;
+}
+
 export function acceptCookies() {
   const consentUpdate = {
     ad_storage: "granted",
@@ -204,6 +209,11 @@ export function writeLangCookie(value: string) {
 
   const maxAge = 60 * 60 * 24 * 365;
   document.cookie = `langCookie=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+}
+
+export function writeAuthCookie(value: string) {
+  const maxAge = 60 * 60 * 24 * 365;
+  document.cookie = `auth=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
 }
 
 export function applyThemeClass(value: string) {

@@ -59,7 +59,7 @@ pub struct PayloadCreacteProduct {
 pub type CurrencyMap<T> = HashMap<Currency, T>;
 
 /// Relación entre un evento de Cal.com y un producto/precio de Stripe
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct RelationalCalStripe {
     /// ID del evento en Cal.com
     pub cal_id: String,

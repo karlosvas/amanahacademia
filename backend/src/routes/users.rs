@@ -1,8 +1,8 @@
 use {
     crate::{
         controllers::users::{
-            delete_me, get_all_users, get_user_me, login_user, refresh_token, register_user,
-            update_user,
+            delete_me, get_all_users, get_user_admin_check, get_user_me, login_user, refresh_token,
+            register_user, update_user,
         },
         middleware::auth::firebase_auth_middleware,
         models::state::AppState,
@@ -25,6 +25,7 @@ pub fn router(state: Arc<AppState>) -> Router<Arc<AppState>> {
         .route("/all", get(get_all_users)) // GET /user/all
         .route("/refresh_token", put(refresh_token)) // PUT /user/refresh_token
         .route("/me", get(get_user_me)) // GET /user/me
+        .route("/admin_check", get(get_user_admin_check)) // GET /user/admin_check
         .layer(middleware::from_fn_with_state(
             state.clone(),
             firebase_auth_middleware,

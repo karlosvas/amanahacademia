@@ -422,7 +422,7 @@ pub async fn delete_price(
     }
 }
 
-// Estructura para recibir la relacion entre cal y stripe
+/// Estructura para recibir la relacion entre cal y stripe
 pub async fn archive_cal_connection(
     State(state): State<Arc<AppState>>,
     Extension(id_token): Extension<String>,
@@ -460,6 +460,63 @@ pub async fn archive_cal_connection(
                     Json(ResponseAPI::<HashMap<String, String>>::success(
                         "Relation saved successfully".to_string(),
                         data,
+                    )),
+                )
+                    .into_response()
+            } else {
+                let error_text: String = response.text().await.unwrap_or_default();
+                tracing::error!("Firebase error: {}", error_text);
+
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ResponseAPI::<()>::error(
+                        "Failed to save relation".to_string(),
+                    )),
+                )
+                    .into_response()
+            }
+        }
+        Err(e) => {
+            tracing::error!("Request failed: {}", e);
+
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(
+                    "Failed to send request".to_string(),
+                )),
+            )
+                .into_response()
+        }
+    }
+}
+
+/// Obtener todas las reservas pagadas vinculadas a Cal.com
+pub async fn get_all_paid_reservations(
+    State(state): State<Arc<AppState>>,
+    Extension(id_token): Extension<String>,
+) -> impl IntoResponse {
+    let url_firebase_db: String = format!(
+        "{}/relation_cal_stripe.json?auth={}",
+        state.firebase_options.firebase_database_url, id_token
+    );
+
+    match state
+        .firebase_options
+        .firebase_client
+        .get(&url_firebase_db)
+        .send()
+        .await
+    {
+        Ok(response) => {
+            if response.status().is_success() {
+                let records: HashMap<String, serde_json::Value> =
+                    response.json().await.unwrap_or_default();
+                let keys: Vec<String> = records.keys().cloned().collect();
+                (
+                    StatusCode::OK,
+                    Json(ResponseAPI::<Vec<String>>::success(
+                        "Relation retrieved successfully".to_string(),
+                        keys,
                     )),
                 )
                     .into_response()

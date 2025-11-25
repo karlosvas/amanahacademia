@@ -12,6 +12,7 @@ import type {
   CheckoutPaymentIntentRequest,
   RelationalCalStripe,
   ReplyComment,
+  Booking,
 } from "@/types/bakend-types";
 import { getCurrentUserToken } from "@/services/firebase";
 import type { MetricsResponse } from "@/types/types";
@@ -197,10 +198,21 @@ export class ApiService {
   // Obtener el usuario actual (GET)
   async getUser(): Promise<ResponseAPI<UserMerged>> {
     const token = await getCurrentUserToken();
+
     return this.fetchApi<UserMerged>("/users/me", {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  // Comprobar si el usuario es admin (GET)
+  async isAdminUser(token_cookie: string): Promise<ResponseAPI<boolean>> {
+    const token = (await getCurrentUserToken()) || token_cookie;
+    return this.fetchApi<boolean>("/users/admin_check", {
+      method: "GET",
+      headers: {
         Authorization: `Bearer ${token}`,
       },
     });
@@ -245,6 +257,17 @@ export class ApiService {
     });
   }
 
+  // Obtener clases pagadas
+  async getAllPaidReservations(token_cookie: string): Promise<ResponseAPI<string[]>> {
+    const token = token_cookie || (await getCurrentUserToken());
+    return this.fetchApi<string[]>("/payment/cal/connection/all", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
   //////////////////// CAL.COM ////////////////////
   // Confirmación del booking al pagar
   async confirmBooking(bookingUid: string): Promise<ResponseAPI<void>> {
@@ -258,9 +281,20 @@ export class ApiService {
     });
   }
 
-  ///////////// Google Analytics ////////////////
-  async getUserMetrics(): Promise<ResponseAPI<MetricsResponse>> {
+  // Obtener booking por id
+  async getBookingById(bookingUid: string): Promise<ResponseAPI<Booking>> {
     const token = await getCurrentUserToken();
+    return this.fetchApi<Booking>(`/cal/bookings/${bookingUid}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  ///////////// Google Analytics ////////////////
+  async getUserMetrics(cookie_token?: string): Promise<ResponseAPI<MetricsResponse>> {
+    const token = cookie_token || (await getCurrentUserToken());
     return this.fetchApi<MetricsResponse>("/metrics/users", {
       method: "GET",
       headers: {

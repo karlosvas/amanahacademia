@@ -1,268 +1,49 @@
 ---
-import StatsCard from "../StatsCard.astro";
+import { log } from "@/services/logger";
+import UserInfoPanel from "../UserInfoPanel.astro";
+import { ApiService } from "@/services/helper";
+import type { ResponseAPI, Booking } from "@/types/bakend-types";
 
-const { stats } = Astro.props;
+const helper = new ApiService();
+
+const token_cookie = Astro.cookies.get("auth")?.value ?? "";
+
+if (!token_cookie) {
+  log.error("Deves iniciar sesion primero");
+  // return Astro.redirect("/");
+}
+
+const classID: ResponseAPI<string[]> = await helper.getAllPaidReservations(token_cookie);
+
+if (!classID.success) {
+  log.error("Error al obtener id de bookings");
+  // return Astro.redirect("/");
+} else {
+  log.info(classID.data);
+  // Crear todas las promesas
+  const bookingPromises = classID.data.map((id) => helper.getBookingById(id));
+
+  // Ejecutar todas en paralelo
+  const bookingResponses = await Promise.all(bookingPromises);
+
+  // Filtrar solo las exitosas
+  const listOfClass: Booking[] = bookingResponses
+    .filter((response) => {
+      if (!response.success) {
+        log.error(response);
+        log.error(`Error al obtener booking: ${response.error}`);
+        return false;
+      }
+      return true;
+    })
+    .map((response) => response.data);
+
+  log.info(`Obtenidos ${listOfClass.length} bookings de ${classID.data.length} totales`);
+}
 ---
 
+<h1 class="text-red text-4xl font-bold">Usuarios</h1>
 <!-- Stats Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-  <StatsCard
-    title="Total Usuarios"
-    value={stats.totalUsers.toLocaleString()}
-    change={stats.changes.totalUsers}
-    iconType="users"
-  />
-  <StatsCard
-    title="Usuarios Activos"
-    value={stats.activeUsers.toLocaleString()}
-    change={stats.changes.activeUsers}
-    iconType="active"
-  />
-  <StatsCard
-    title="Nuevos Este Mes"
-    value={stats.newUsers.toLocaleString()}
-    change={stats.changes.newUsers}
-    iconType="new"
-  />
-  <StatsCard
-    title="Tasa de Conversión"
-    value={`${stats.conversionRate.toFixed(1)}%`}
-    change={stats.changes.conversionRate}
-    iconType="conversion"
-  />
+  <!-- {listOfClass.map((e) => <UserInfoPanel title="" value="" change="" iconType="users" />)} -->
 </div>
-
-<div class="bg-[#fff4e1] rounded-xl shadow-sm border border-[#fee8d6] p-6">
-  <div class="mb-6">
-    <h2 class="text-xl font-bold text-[#131313] mb-2">Usuarios Activos Mensuales</h2>
-    <p class="text-[#8a4141] text-sm">Evolución de usuarios activos en los últimos 12 meses</p>
-  </div>
-
-  <div class="relative" style="height: 400px;">
-    <canvas id="activeUsersChart"></canvas>
-  </div>
-</div>
-
-<script>
-  import { ApiService } from "@/services/helper";
-  import type { Result } from "@/types/bakend-types";
-  import type { MetricsResponse } from "@/types/types";
-  import { parseUsersMetricData } from "@/utils/metrics";
-  import Chart from "chart.js/auto";
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    const ctx = document.getElementById("activeUsersChart") as HTMLCanvasElement;
-
-    if (!ctx) return;
-
-    // Crear gradiente para el fondo del área
-    const gradient = ctx.getContext("2d")!.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, "rgba(178, 68, 58, 0.25)");
-    gradient.addColorStop(1, "rgba(178, 68, 58, 0)");
-
-    const currentMonth = new Date().getMonth();
-    const monthLabels = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-    const currentYear = new Date().getFullYear().toString().slice(-2);
-
-    const makeLastNMonths = (currentMonthIndex: number, count: number) => {
-      return Array.from({ length: count }, (_, i) => {
-        // i = 0 => oldest, i = count-1 => current
-        const monthIndex = (currentMonthIndex - (count - 1 - i) + 12) % 12;
-        return `${monthLabels[monthIndex]} ${currentYear}`;
-      });
-    };
-
-    try {
-      const helper = new ApiService();
-
-      const metrics: Result<MetricsResponse> = await helper.getUserMetrics();
-      if (!metrics.success) throw new Error("No se encontraron las metricas");
-
-      // Parsear todas las filas
-      const parsedData = metrics.data.rows.map(parseUsersMetricData);
-
-      // Crear mapas para cada métrica que necesites visualizar
-      const activeUsersMap = new Map<string, number>();
-      const sessionsMap = new Map<string, number>();
-
-      parsedData.forEach((m) => {
-        activeUsersMap.set(m.yearMonth, m.activeUsers);
-        sessionsMap.set(m.yearMonth, m.sessions);
-      });
-
-      // Generar labels de los últimos 6 meses
-      const labels = makeLastNMonths(currentMonth, 6);
-
-      // Mapear los datos a los meses correctos
-      const activeUsersChartData = labels.map((label) => {
-        const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
-        const year = "20" + label.split(" ")[1];
-        const monthKey = `${year}${String(monthIndex + 1).padStart(2, "0")}`; // "202510" sin guión
-
-        return activeUsersMap.get(monthKey) ?? 0;
-      });
-
-      // Si necesitas datos de otra métrica:
-      const sessionsChartData = labels.map((label) => {
-        const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
-        const year = "20" + label.split(" ")[1];
-        const monthKey = `${year}${String(monthIndex + 1).padStart(2, "0")}`;
-
-        return sessionsMap.get(monthKey) ?? 0;
-      });
-
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: "Usuarios Activos",
-              data: activeUsersChartData,
-              borderColor: "#b2443a",
-              backgroundColor: gradient,
-              borderWidth: 3,
-              fill: true,
-              tension: 0.4,
-              pointRadius: 6,
-              pointHoverRadius: 8,
-              pointBackgroundColor: "#b2443a",
-              pointBorderColor: "#fff4e1",
-              pointBorderWidth: 2,
-              pointHoverBackgroundColor: "#6d0006",
-              pointHoverBorderColor: "#fff4e1",
-              pointHoverBorderWidth: 3,
-            },
-            {
-              label: "Sesiones",
-              data: sessionsChartData,
-              borderColor: "#fa8072", // salmon
-              backgroundColor: "rgba(250, 128, 114, 0.1)",
-              borderWidth: 3,
-              fill: true,
-              tension: 0.4,
-              pointRadius: 6,
-              pointHoverRadius: 8,
-              pointBackgroundColor: "#fa8072",
-              pointBorderColor: "#fff4e1",
-              pointBorderWidth: 2,
-              pointHoverBackgroundColor: "#d89c8d",
-              pointHoverBorderColor: "#fff4e1",
-              pointHoverBorderWidth: 3,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-              position: "top",
-              align: "end",
-              labels: {
-                usePointStyle: true, // Usa círculos en vez de rectángulos
-                pointStyle: "circle",
-                padding: 20,
-                font: {
-                  size: 13,
-                  family: "'Inter', sans-serif",
-                },
-                color: "#8a4141",
-                boxWidth: 8,
-                boxHeight: 8,
-              },
-              onClick: (e, legendItem, legend) => {
-                // Toggle visibility al hacer clic
-                const index = legendItem.datasetIndex!;
-                const chart = legend.chart;
-                const meta = chart.getDatasetMeta(index);
-                meta.hidden = !meta.hidden;
-                chart.update();
-              },
-            },
-            tooltip: {
-              backgroundColor: "rgba(95, 73, 73, 0.95)", // brown
-              titleColor: "#fff4e1",
-              bodyColor: "#fee8d6",
-              padding: 12,
-              borderColor: "rgba(178, 68, 58, 0.3)",
-              borderWidth: 1,
-              displayColors: false,
-              callbacks: {
-                label: function (context) {
-                  const value = context.parsed.y ?? 0;
-                  const label = context.dataset.label || "";
-                  return `${label}: ${value.toLocaleString()}`;
-                },
-                afterLabel: function (context) {
-                  const currentValue = context.parsed.y ?? 0;
-
-                  // Si es el primer punto, no hay comparación
-                  if (context.dataIndex === 0) {
-                    return "";
-                  }
-
-                  const previousValue = context.dataset.data[context.dataIndex - 1] as number;
-                  const change = currentValue - previousValue;
-
-                  // Si el valor anterior era 0, solo mostrar el cambio absoluto
-                  if (previousValue === 0) {
-                    return change > 0 ? `↗ +${change}` : "";
-                  }
-
-                  const percentChange = ((change / previousValue) * 100).toFixed(1);
-                  return change >= 0 ? `↗ +${change} (+${percentChange}%)` : `↘ ${change} (${percentChange}%)`;
-                },
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: false,
-              min: 0,
-              max: Math.max(...activeUsersChartData, ...sessionsChartData) * 1.2,
-              ticks: {
-                color: "#8a4141",
-                font: {
-                  size: 12,
-                },
-                callback: function (value) {
-                  return value.toLocaleString();
-                },
-              },
-              grid: {
-                color: "rgba(138, 65, 65, 0.1)",
-              },
-              border: {
-                display: false,
-              },
-            },
-            x: {
-              ticks: {
-                color: "#8a4141",
-                font: {
-                  size: 12,
-                },
-                maxRotation: 45,
-                minRotation: 45,
-              },
-              grid: {
-                display: false,
-              },
-              border: {
-                display: false,
-              },
-            },
-          },
-          interaction: {
-            intersect: false,
-            mode: "index",
-          },
-        },
-      });
-    } catch (error) {
-      console.error("Error fetching or rendering chart data:", error);
-    }
-  });
-</script>

@@ -806,6 +806,47 @@ pub async fn get_user_me(
         .into_response()
 }
 
+// Verificar si el usuario actual es admin
+#[debug_handler]
+#[instrument(
+    skip(state, user_claims, id_token),
+    fields(
+        user_id = %user_claims.sub,
+        operation = "admin_check"
+    )
+)]
+pub async fn get_user_admin_check(
+    Extension(id_token): Extension<String>,
+    Extension(user_claims): Extension<UserAuthentication>,
+    State(state): State<Arc<AppState>>,
+) -> impl IntoResponse {
+    // Obtenemos de la base de datos el usuario actual
+    let actual_user_db: UserDB = match get_user_data_db(&user_claims, &id_token, &state).await {
+        Some(user_db) => user_db,
+        None => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(
+                    "Error getting user data".to_string(),
+                )),
+            )
+                .into_response();
+        }
+    };
+
+    // Comprobamos si es admin
+    let is_admin: bool = actual_user_db.role == Some("admin".to_string());
+
+    (
+        StatusCode::OK,
+        Json(ResponseAPI::<bool>::success(
+            "Admin check successful".to_string(),
+            is_admin,
+        )),
+    )
+        .into_response()
+}
+
 // Eliminar el usuario actualmente autentificado
 #[debug_handler]
 #[instrument(

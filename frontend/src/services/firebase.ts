@@ -24,6 +24,7 @@ import {
 import { executeTurnstileIfPresent } from "./claudflare";
 import { suscribeToNewsletter } from "./mailchimp";
 import { log } from "./logger";
+import { writeAuthCookie } from "@/utils/cookie";
 
 const firebaseConfig = {
   apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY,
@@ -138,7 +139,12 @@ export function submitFormToRegisterOrLogin(
         if (isRegister) await suscribeToNewsletter(formData, userRequest);
 
         // Una vez creado el usuario desde el backend lo logeamos desde el frontend
-        await signInWithEmailAndPassword(firebaseAuth, userRequest.email, userRequest.password);
+        const cred = await signInWithEmailAndPassword(firebaseAuth, userRequest.email, userRequest.password);
+
+        // Lo guardamos en las cookies
+        const token = await cred.user.getIdToken();
+        writeAuthCookie(token);
+
         modal.close();
         setTimeout(() => {
           toast.success(
@@ -172,6 +178,8 @@ function toStringFormValue(v: FormDataEntryValue | undefined): string {
 export async function handleLogout(): Promise<void> {
   try {
     await firebaseAuth.signOut();
+    // Limpiamos la cookie de auth
+    writeAuthCookie("");
     location.reload();
   } catch (error) {
     console.error("Error during logout:", error);
@@ -254,11 +262,13 @@ export async function handleLogGoogleProvider(
     //  Si el usuario se está registrando lo añadimos al newsletter
     if (isRegister) await suscribeToNewsletter(formData, userRequest);
 
+    // Lo guardamos en las cookies y cerramos el modal
+    writeAuthCookie(idToken);
+
     // Comprobamos si es un usuario nuevo
     closeModalAnimation(modal, formHTML);
 
     // Devolbemos el scroll
-
     setTimeout(() => {
       toast.success(
         isRegister

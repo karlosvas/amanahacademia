@@ -370,7 +370,7 @@ export interface BookingPaymentRequest {
   currency: string;
   payment_method: string;
   event_type_id: number;
-  start_time: string; // ISO 8601
+  start_time: string;
   attendee_name: string;
   attendee_email: string;
   attendee_timezone: string;

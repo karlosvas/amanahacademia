@@ -9,13 +9,9 @@ use {
 /// Usamos alias para compatibilidad con ambos formatos
 #[serde(rename_all = "lowercase")]
 pub enum BookingStatus {
-    #[serde(alias = "ACCEPTED")]
     Accepted,
-    #[serde(alias = "PENDING")]
     Pending,
-    #[serde(alias = "CANCELLED")]
     Cancelled,
-    #[serde(alias = "REJECTED")]
     Rejected,
 }
 
