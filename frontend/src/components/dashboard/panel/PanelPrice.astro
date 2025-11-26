@@ -1,0 +1,112 @@
+---
+import type { PaymentIntentSimplified } from "@/types/bakend-types";
+import { icons, iconColors } from "@/utils/pannel";
+
+interface Props {
+  paymentIntent: PaymentIntentSimplified;
+  iconType: "users" | "active" | "new" | "conversion";
+}
+
+const { paymentIntent, iconType } = Astro.props;
+
+// Formatear fecha
+const formatDate = (timestamp: number) => {
+  const date = new Date(timestamp * 1000);
+  return date.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
+const formatTime = (timestamp: number) => {
+  const date = new Date(timestamp * 1000);
+  return date.toLocaleTimeString("es-ES", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+// Formatear moneda
+const formatAmount = (amount: number, currency: string) => {
+  return new Intl.NumberFormat("es-ES", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(amount / 100);
+};
+
+// Colores según estado
+const statusColors: Record<string, string> = {
+  succeeded: "bg-green-500",
+  pending: "bg-yellow-500",
+  processing: "bg-blue-500",
+  canceled: "bg-gray-500",
+  requires_payment_method: "bg-orange-500",
+  requires_confirmation: "bg-purple-500",
+  requires_action: "bg-amber-500",
+  requires_capture: "bg-teal-500",
+};
+
+// Traducciones de estado
+const statusLabels: Record<string, string> = {
+  succeeded: "Exitoso",
+  pending: "Pendiente",
+  processing: "Procesando",
+  canceled: "Cancelado",
+  requires_payment_method: "Requiere método de pago",
+  requires_confirmation: "Requiere confirmación",
+  requires_action: "Requiere acción",
+  requires_capture: "Requiere captura",
+};
+---
+
+<div
+  class="flex flex-row items-center bg-[#fff4e1] rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-[#fee8d6] w-full"
+>
+  <!-- Icono y Badge de Monto -->
+  <div class="items-center justify-between mb-4 align-middle p-2 flex flex-col">
+    <div class={`w-12 h-12 rounded-lg flex items-center justify-center ${iconColors[iconType]}`}>
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={icons[iconType]} />
+    </div>
+    <div class="my-2 bg-[#8a4141] text-white px-3 py-1 rounded-md text-sm font-bold">
+      {formatAmount(paymentIntent.amount, paymentIntent.currency)}
+    </div>
+  </div>
+
+  <!-- Información Principal -->
+  <div class="m-4 flex-grow">
+    <span class="flex items-center gap-2 my-2">
+      <span class="font-bold text-[#131313]">Estado:</span>
+      <span
+        class={`${statusColors[paymentIntent.status] || "bg-gray-500"} text-white px-2 py-1 rounded-md text-xs font-semibold`}
+      >
+        {statusLabels[paymentIntent.status] || paymentIntent.status}
+      </span>
+    </span>
+
+    <p class="text-md font-semibold text-[#131313] mt-2">
+      ID: <span class="font-mono text-sm">{paymentIntent.id}</span>
+    </p>
+
+    {paymentIntent.description && <p class="text-sm text-[#131313] mt-1">{paymentIntent.description}</p>}
+
+    {
+      paymentIntent.metadata?.booking_id && (
+        <p class="text-xs text-[#8a4141] mt-1">Reserva: {paymentIntent.metadata.booking_id}</p>
+      )
+    }
+  </div>
+
+  <!-- Fecha y Hora -->
+  <div class="text-right">
+    <p class="text-sm font-bold text-[#131313]">
+      Fecha: {formatDate(paymentIntent.created)}
+    </p>
+    <p class="text-sm font-bold text-[#131313]">
+      Hora: {formatTime(paymentIntent.created)}
+    </p>
+    <p class="text-xs text-[#8a4141] mt-2">
+      Método: {paymentIntent.payment_method_types.join(", ")}
+    </p>
+  </div>
+</div>

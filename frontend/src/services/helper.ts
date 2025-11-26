@@ -13,10 +13,12 @@ import type {
   RelationalCalStripe,
   ReplyComment,
   Booking,
+  StripeRelation,
+  PaymentIntentSimplified,
 } from "@/types/bakend-types";
 import { getCurrentUserToken } from "@/services/firebase";
 import type { MetricsResponse } from "@/types/types";
-import { log } from "./logger";
+import type Stripe from "stripe";
 
 export class ApiService {
   private readonly baseUrl: string;
@@ -258,10 +260,21 @@ export class ApiService {
     });
   }
 
-  // Obtener clases pagadas
-  async getAllPaidReservations(token_cookie: string): Promise<ResponseAPI<string[]>> {
+  // Obtener el historial de reservas pagadas
+  async getPaidReservations(token_cookie: string): Promise<ResponseAPI<PaymentIntentSimplified[]>> {
     const token = token_cookie || (await getCurrentUserToken());
-    return this.fetchApi<string[]>("/payment/cal/connection/all", {
+    return this.fetchApi<PaymentIntentSimplified[]>("/payment/history", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  // Obtener conexiones cal.com - stripe
+  async getAllConnections(token_cookie: string): Promise<ResponseAPI<StripeRelation[]>> {
+    const token = token_cookie || (await getCurrentUserToken());
+    return this.fetchApi<StripeRelation[]>("/payment/cal/connection/all", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,

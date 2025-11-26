@@ -2,21 +2,21 @@
 import { log } from "@/services/logger";
 import UserInfoPanel from "../UserInfoPanel.astro";
 import { ApiService } from "@/services/helper";
-import type { ResponseAPI, Booking } from "@/types/bakend-types";
+import type { ResponseAPI, Booking, StripeRelation } from "@/types/bakend-types";
 
 const helper = new ApiService();
 
 const token_cookie = Astro.cookies.get("session")?.value ?? "";
 if (!token_cookie) log.error("Deves iniciar sessión primero");
 
-const classUID: ResponseAPI<string[]> = await helper.getAllPaidReservations(token_cookie);
-if (!classUID.success) {
-  log.error(`Error al obtener las reservas pagadas: ${classUID.error}`);
+let response: ResponseAPI<StripeRelation[]> = await helper.getAllConnections(token_cookie);
+
+if (!response.success) {
+  log.error(`Error al obtener las reservas pagadas: ${response.error}`);
   return;
 }
-
 // Crear todas las promesas
-const bookingPromises = classUID.data.map((id) => helper.getBookingById(token_cookie, id));
+const bookingPromises = Object.keys(response.data).map((id) => helper.getBookingById(token_cookie, id));
 
 // Ejecutar todas en paralelo
 const bookingResponses: ResponseAPI<Booking>[] = await Promise.all(bookingPromises);
@@ -32,11 +32,9 @@ const listOfClass: Booking[] = bookingResponses
     return true;
   })
   .map((response) => response.data);
-
-if (listOfClass.length != classUID.data.length) log.error("No se pudieron obtener todos los bookings solicitados");
 ---
 
 <section>
-  <h1 class="text-red text-4xl font-bold my-10">Usuarios</h1>
+  <h1 class="text-red text-4xl font-bold my-10">Profesores y Estudiantes</h1>
   {listOfClass.map((e: Booking) => <UserInfoPanel booking={e} iconType="users" />)}
 </section>

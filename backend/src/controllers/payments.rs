@@ -1,11 +1,12 @@
 use {
     crate::{
         models::{
+            firebase::UserAuthentication,
             response::ResponseAPI,
             state::AppState,
             stripe::{
-                CurrencyMap, PayloadCreacteProduct, PaymentPayload, PaymentResponse, PricePayload,
-                ProductPayload, RelationalCalStripe,
+                CurrencyMap, PayloadCreacteProduct, PaymentIntentSimplified, PaymentPayload,
+                PaymentResponse, PricePayload, ProductPayload, RelationalCalStripe, StripeRelation,
             },
         },
         services::payments::insert_options_by_country,
@@ -21,8 +22,8 @@ use {
     stripe::{
         CreatePaymentIntent, CreatePaymentIntentAutomaticPaymentMethods, CreateProduct,
         CreateProductDefaultPriceData, CreateProductDefaultPriceDataCurrencyOptions, Currency,
-        Expandable, List, ListPrices, ListProducts, PaymentIntent, Price, PriceId, Product,
-        ProductId, StripeError, UpdatePrice, UpdateProduct,
+        Expandable, List, ListPaymentIntents, ListPrices, ListProducts, PaymentIntent, Price,
+        PriceId, Product, ProductId, StripeError, UpdatePrice, UpdateProduct,
     },
     tracing::instrument,
 };
@@ -178,8 +179,44 @@ pub async fn refund_payment(// Path(id): Path<String>,
 }
 
 // Consultar el historial de pagos del usuario
-pub async fn get_payment_history() -> impl IntoResponse {
-    StatusCode::NO_CONTENT.into_response()
+
+/// Obtener historial de pagos de un usuario
+#[debug_handler]
+#[instrument(skip(state), fields(operation = "get_payment_history"))]
+pub async fn get_payment_history(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let mut params: ListPaymentIntents = ListPaymentIntents::new();
+    params.limit = Some(100);
+
+    match PaymentIntent::list(&state.stripe_client, &params).await {
+        Ok(payment_intents) => {
+            // Convertir a tipo simplificado
+            let user_payments: Vec<PaymentIntentSimplified> = payment_intents
+                .data
+                .into_iter()
+                .map(PaymentIntentSimplified::from)
+                .collect();
+
+            (
+                StatusCode::OK,
+                Json(ResponseAPI::success(
+                    "Payment history retrieved successfully".to_string(),
+                    user_payments,
+                )),
+            )
+                .into_response()
+        }
+        Err(e) => {
+            tracing::error!("Stripe error: {}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(format!(
+                    "Failed to retrieve payment history: {}",
+                    e
+                ))),
+            )
+                .into_response()
+        }
+    }
 }
 
 // Crear un producto
@@ -509,14 +546,13 @@ pub async fn get_all_paid_reservations(
     {
         Ok(response) => {
             if response.status().is_success() {
-                let records: HashMap<String, serde_json::Value> =
+                let data: HashMap<String, StripeRelation> =
                     response.json().await.unwrap_or_default();
-                let keys: Vec<String> = records.keys().cloned().collect();
                 (
                     StatusCode::OK,
-                    Json(ResponseAPI::<Vec<String>>::success(
+                    Json(ResponseAPI::success(
                         "Relation retrieved successfully".to_string(),
-                        keys,
+                        data,
                     )),
                 )
                     .into_response()

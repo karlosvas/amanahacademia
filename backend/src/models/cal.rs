@@ -59,3 +59,11 @@ pub struct BookingOrganizer {
     pub email: Option<String>,
     pub name: Option<String>,
 }
+
+/// Obtener el booking por id
+/// Wrapper para respuestas de Cal.com API v2
+#[derive(Deserialize, Debug)]
+pub struct CalApiResponse<T> {
+    pub status: String,
+    pub data: T,
+}

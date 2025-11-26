@@ -1,0 +1,27 @@
+---
+import { ApiService } from "@/services/helper";
+import { log } from "@/services/logger";
+import PanelPrice from "@/components/dashboard/panel/PanelPrice.astro";
+import type { ResponseAPI } from "@/types/bakend-types";
+import type { PaymentIntentSimplified } from "@/types/bakend-types";
+
+const helper = new ApiService();
+
+const token_cookie = Astro.cookies.get("session")?.value ?? "";
+if (!token_cookie) log.error("Deves iniciar sessión primero");
+
+let response: ResponseAPI<PaymentIntentSimplified[]> = await helper.getPaidReservations(token_cookie);
+log.info(response);
+
+if (!response.success) {
+  log.error(`Error al obtener las reservas pagadas: ${response.error}`);
+  return;
+}
+
+response.data = response.data.filter((pi) => pi.status != "requires_payment_method");
+---
+
+<section>
+  <h1 class="text-red text-4xl font-bold my-10">Pagos</h1>
+  {response.data.map((pi: PaymentIntentSimplified) => <PanelPrice paymentIntent={pi} iconType="conversion" />)}
+</section>

@@ -182,3 +182,18 @@ export interface BookingOrganizer {
 }
 
 export type BookingStatus = "accepted" | "pending" | "cancelled" | "rejected";
+
+export interface StripeRelation {
+  stripe_id: string;
+}
+
+export interface PaymentIntentSimplified {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  created: number;
+  description?: string;
+  metadata: Record<string, string>;
+  payment_method_types: string[];
+}

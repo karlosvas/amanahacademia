@@ -1,7 +1,7 @@
 use {
     serde::{Deserialize, Serialize},
     std::collections::HashMap,
-    stripe::{CreateProductDefaultPriceDataRecurring, Currency},
+    stripe::{CreateProductDefaultPriceDataRecurring, Currency, PaymentIntent},
 };
 
 /// Payload para crear un PaymentIntent (pago único)
@@ -65,4 +65,41 @@ pub struct RelationalCalStripe {
     pub cal_id: String,
     /// ID del producto o precio en Stripe (price_xxx o prod_xxx)
     pub stripe_id: String,
+}
+
+/// Relación entre un evento de Cal.com y un producto/precio de Stripe
+#[derive(Debug, Deserialize, Serialize)]
+pub struct StripeRelation {
+    pub stripe_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PaymentIntentSimplified {
+    pub id: String,
+    pub amount: i64,
+    pub currency: String,
+    pub status: String,
+    pub created: i64,
+    pub description: Option<String>,
+    pub metadata: HashMap<String, String>,
+    pub payment_method_types: Vec<String>,
+}
+
+impl From<PaymentIntent> for PaymentIntentSimplified {
+    fn from(pi: PaymentIntent) -> Self {
+        Self {
+            id: pi.id.to_string(),
+            amount: pi.amount,
+            currency: pi.currency.to_string(),
+            status: pi.status.to_string(),
+            created: pi.created,
+            description: pi.description,
+            metadata: pi.metadata,
+            payment_method_types: pi
+                .payment_method_types
+                .into_iter()
+                .map(|t| t.to_string())
+                .collect(),
+        }
+    }
 }

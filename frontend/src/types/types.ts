@@ -413,7 +413,7 @@ export function isFrontendError(err: unknown): err is FrontendError {
 
 export enum DashboardAdminTypes {
   DASHBOARD = "panel de control",
-  USERS = "usuarios",
+  USERS = "profesores y estudiantes",
   COURSES = "cursos",
   CLASSES = "crear clases",
   PAYMENTS = "pagos",

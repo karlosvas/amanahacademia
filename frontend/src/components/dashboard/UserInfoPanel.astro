@@ -8,29 +8,89 @@ interface Props {
 }
 
 const { booking, iconType } = Astro.props;
+
+const statusConfig = {
+  accepted: {
+    bg: "bg-green-50",
+    text: "text-green-700",
+  },
+  cancelled: {
+    bg: "bg-orange-50",
+    text: "text-orange-700",
+  },
+  pending: {
+    bg: "bg-yellow-50",
+    text: "text-yellow-700",
+  },
+  rejected: {
+    bg: "bg-gray-50",
+    text: "text-gray-700",
+  },
+};
+
+const status = booking.status.toLowerCase();
+const statusStyle = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
 ---
 
-<div
-  class="flex flex-row items-center bg-[#fff4e1] rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-[#fee8d6] w-full"
->
-  <div class="items-center justify-between mb-4 align-middle p-2 flex flex-col">
-    <div class={` w-12 h-12 rounded-lg flex items-center justify-center ${iconColors[iconType]}`}>
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={icons[iconType]} />
+<div class={`bg-[#fff4e1] group flex flex-row items-center  rounded-xl   p-6 w-full `}>
+  <div class="items-center justify-between align-middle p-2 flex flex-col gap-3">
+    <div class={`w-14 h-14 rounded-xl flex items-center justify-center ${iconColors[iconType]}  `}>
+      <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={icons[iconType]} />
     </div>
-    <div class="my-2 bg-red text-white p-1 rounded-md text-[10px] font-semibold">{booking.uid}</div>
+    <div class=`bg-red text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide `>
+      {booking.uid}
+    </div>
   </div>
-  <div class="m-4 flex-grow">
-    <span class="flex items-center gap-2 my-2 font-bold">
-      Estado: <h3 class="text-[#8a4141] text-md capitalize">{booking.status}</h3>
-    </span>
-    <p class="text-md font-normal text-[#131313]">{booking.title}</p>
-    <p class="text-xs font-normal text-[#131313]">{booking.description}</p>
+
+  <div class="mx-6 flex-grow">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-sm font-semibold text-gray-600">Estado:</span>
+      <span
+        class={`${statusStyle.text} ${statusStyle.bg} px-3 py-1 rounded-full text-sm font-bold capitalize border  shadow-sm`}
+      >
+        {booking.status}
+      </span>
+    </div>
+    <h3 class="text-lg font-bold text-gray-800 mb-1">{booking.title}</h3>
+    <p class="text-sm text-gray-600 leading-relaxed">{booking.description}</p>
   </div>
-  <div>
-    <p class="text-sm font-bold text-[#131313]">
-      Dia: {booking.startTime?.split("T")[0].split("-").reverse().join("/")}
-    </p>
-    <p class="text-sm font-bold text-[#131313]">Inicio: {booking.startTime?.split("T")[1].split(".")[0]}</p>
-    <p class="text-sm font-bold text-[#131313]">Fin: {booking.endTime?.split("T")[1].split(".")[0]}</p>
+
+  <div class="flex flex-col gap-2 min-w-[140px] bg-white/50 p-4 rounded-lg border border-gray-200/50 shadow-sm">
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+      </svg>
+      <p class="text-sm font-bold text-gray-700">
+        {booking.startTime?.split("T")[0].split("-").reverse().join("/")}
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <p class="text-sm font-semibold text-gray-700">
+        {booking.startTime?.split("T")[1].split(".")[0]}
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <p class="text-sm font-semibold text-gray-700">
+        {booking.endTime?.split("T")[1].split(".")[0]}
+      </p>
+    </div>
   </div>
 </div>
