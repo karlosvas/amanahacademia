@@ -97,20 +97,6 @@ export function initCalendar(namespaceId: Class): boolean {
     },
   });
 
-  // Callback cuando la reserva es exitosa
-  window.Cal("on", {
-    action: "bookingSuccessful",
-    callback: (e: any) => {
-      if (window.gtag) {
-        window.gtag("event", "class_booking", {
-          event_name: e.detail.data.eventType.title,
-          booking_uid: e.detail.data.uid,
-          category: "bookings",
-        });
-      }
-    },
-  });
-
   return true;
 }
 

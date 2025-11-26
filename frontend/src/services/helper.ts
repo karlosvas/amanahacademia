@@ -16,6 +16,7 @@ import type {
 } from "@/types/bakend-types";
 import { getCurrentUserToken } from "@/services/firebase";
 import type { MetricsResponse } from "@/types/types";
+import { log } from "./logger";
 
 export class ApiService {
   private readonly baseUrl: string;
@@ -282,8 +283,8 @@ export class ApiService {
   }
 
   // Obtener booking por id
-  async getBookingById(bookingUid: string): Promise<ResponseAPI<Booking>> {
-    const token = await getCurrentUserToken();
+  async getBookingById(tooken_cookie: string, bookingUid: string): Promise<ResponseAPI<Booking>> {
+    const token = tooken_cookie || (await getCurrentUserToken());
     return this.fetchApi<Booking>(`/cal/bookings/${bookingUid}`, {
       method: "GET",
       headers: {

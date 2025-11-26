@@ -257,7 +257,6 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
   import { toggleLoginToRegister, submitFormToRegisterOrLogin, handleLogGoogleProvider } from "@/services/firebase";
   import { updateTurnstileVisibility } from "@/services/claudflare";
   import { log } from "@/services/logger";
-  import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 
   // Estado actual de registro o Login
   let isRegister = false;
@@ -304,6 +303,7 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
       });
     });
 
+    // Manejar clics en la sección de contraseña olvidada
     forgotPass.addEventListener("click", (e) => {
       e.preventDefault();
 

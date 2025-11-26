@@ -8,7 +8,8 @@ import ThemeIcon from "@/assets/theme.svg";
 </div>
 
 <script>
-  import { readThemeCookie, applyTheme } from "@/utils/cookie";
+  import { readThemeCookie } from "@/utils/cookie";
+  import { applyTheme } from "@/utils/theme";
 
   document.addEventListener("DOMContentLoaded", () => {
     const themeButton = document.getElementById("theme");

@@ -412,12 +412,12 @@ export function isFrontendError(err: unknown): err is FrontendError {
 }
 
 export enum DashboardAdminTypes {
-  DASHBOARD = "dashboard",
-  USERS = "users",
-  COURSES = "courses",
-  CLASSES = "classes",
-  PAYMENTS = "payments",
-  CONTENT = "content",
+  DASHBOARD = "panel de control",
+  USERS = "usuarios",
+  COURSES = "cursos",
+  CLASSES = "crear clases",
+  PAYMENTS = "pagos",
+  CONTENT = "contenido",
 }
 
 export interface MetricData {

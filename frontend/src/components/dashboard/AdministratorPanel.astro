@@ -31,7 +31,7 @@ import LinkDashboardAdmin from "./LinkDashboardAdmin.astro";
   <!-- Panel desplegable -->
   <div
     id="admin-menu"
-    class="absolute bottom-20 right-0 w-80 bg-gray-100 rounded-2xl shadow-2xl opacity-0 invisible transition-all duration-300 transform translate-y-4"
+    class="absolute bottom-20 right-0 w-80 bg-[#ffdcdc] rounded-2xl shadow-2xl opacity-0 invisible transition-all duration-300 transform translate-y-4"
   >
     <!-- Header del panel -->
     <div class="bg-gradient-to-r from-[var(--color-light-red)] to-[var(--color-salmon)] p-5 rounded-t-2xl">
@@ -54,7 +54,7 @@ import LinkDashboardAdmin from "./LinkDashboardAdmin.astro";
       <!-- Enlaces de navegación -->
       <!-- Dashboard -->
       <LinkDashboardAdmin title={DashboardAdminTypes.DASHBOARD} subtitle="Estadísticas generales">
-        <svg class="w-5 h-5 text-lightRed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5 text-lightRed" fill="none" stroke="#6feead" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -63,26 +63,7 @@ import LinkDashboardAdmin from "./LinkDashboardAdmin.astro";
           ></path>
         </svg>
       </LinkDashboardAdmin>
-      <LinkDashboardAdmin title={DashboardAdminTypes.USERS} subtitle="Gestionar estudiantes">
-        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-          ></path>
-        </svg>
-      </LinkDashboardAdmin>
-      <LinkDashboardAdmin title={DashboardAdminTypes.COURSES} subtitle="Contenido educativo">
-        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-          ></path>
-        </svg>
-      </LinkDashboardAdmin>
+      <!-- Classes -->
       <LinkDashboardAdmin title={DashboardAdminTypes.CLASSES} subtitle="Reservas y calendario">
         <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -92,6 +73,26 @@ import LinkDashboardAdmin from "./LinkDashboardAdmin.astro";
             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
         </svg>
       </LinkDashboardAdmin>
+      <LinkDashboardAdmin title={DashboardAdminTypes.USERS} subtitle="Historial de clases">
+        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+          ></path>
+        </svg>
+      </LinkDashboardAdmin>
+      <!-- <LinkDashboardAdmin title={DashboardAdminTypes.COURSES} subtitle="Contenido educativo">
+        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+          ></path>
+        </svg>
+      </LinkDashboardAdmin> -->
       <LinkDashboardAdmin title={DashboardAdminTypes.PAYMENTS} subtitle="Transacciones Stripe">
         <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path

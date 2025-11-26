@@ -1,5 +1,3 @@
-import { log } from "@/services/logger";
-
 // Cerrar el modal con animación
 export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElement | null = null) {
   modal.setAttribute("closing", "");
@@ -66,12 +64,6 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
 
   // Calcular el ancho de la scrollbar para evitar el salto de contenido
   const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-
-  // Bloquear el scroll del body y html
-  if (background) {
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-  }
 
   // Compensar el ancho de la scrollbar para evitar el salto de contenido
   if (scrollbarWidth > 0 && background) {

@@ -8,6 +8,7 @@ import type { I18nTranslations, PropsSEO } from "@/types/types";
 
 // Obtenemos el idioma obtenido mediante la ruta
 const { lang } = Astro.params;
+
 const data = getI18N({ lang }) as I18nTranslations;
 
 // SEO data usando el helper

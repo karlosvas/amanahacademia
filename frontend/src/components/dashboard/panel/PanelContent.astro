@@ -4,48 +4,23 @@ import StatsCard from "../StatsCard.astro";
 const { stats } = Astro.props;
 ---
 
-<!-- Stats Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-  <StatsCard
-    title="Total Usuarios"
-    value={stats.totalUsers.toLocaleString()}
-    change={stats.changes.totalUsers}
-    iconType="users"
-  />
-  <StatsCard
-    title="Usuarios Activos"
-    value={stats.activeUsers.toLocaleString()}
-    change={stats.changes.activeUsers}
-    iconType="active"
-  />
-  <StatsCard
-    title="Nuevos Este Mes"
-    value={stats.newUsers.toLocaleString()}
-    change={stats.changes.newUsers}
-    iconType="new"
-  />
-  <StatsCard
-    title="Tasa de Conversión"
-    value={`${stats.conversionRate.toFixed(1)}%`}
-    change={stats.changes.conversionRate}
-    iconType="conversion"
-  />
-</div>
+<section>
+  <h1 class="font-bold text-3xl text-red">Artículos</h1>
+  <div class="bg-[#fff4e1] rounded-xl shadow-sm border border-[#fee8d6] p-6">
+    <div class="mb-6">
+      <h2 class="text-xl font-bold text-[#131313] mb-2">Click en articulos</h2>
+      <p class="text-[#8a4141] text-sm">Evolución de clics en artículos en los últimos 12 meses</p>
+    </div>
 
-<div class="bg-[#fff4e1] rounded-xl shadow-sm border border-[#fee8d6] p-6">
-  <div class="mb-6">
-    <h2 class="text-xl font-bold text-[#131313] mb-2">Click en articulos</h2>
-    <p class="text-[#8a4141] text-sm">Evolución de clics en artículos en los últimos 12 meses</p>
+    <div class="relative" style="height: 400px;">
+      <canvas id="activeUsersChart"></canvas>
+    </div>
   </div>
-
-  <div class="relative" style="height: 400px;">
-    <canvas id="activeUsersChart"></canvas>
-  </div>
-</div>
+</section>
 
 <script>
   import { ApiService } from "@/services/helper";
-  import type { Result } from "@/types/bakend-types";
+  import type { ResponseAPI } from "@/types/bakend-types";
   import type { MetricsResponse } from "@/types/types";
   import { mapToMonths, parseArticleMetricData } from "@/utils/metrics";
   import Chart from "chart.js/auto";
@@ -73,7 +48,7 @@ const { stats } = Astro.props;
     try {
       const helper = new ApiService();
 
-      const metrics: Result<MetricsResponse> = await helper.getArticlesMetrics();
+      const metrics: ResponseAPI<MetricsResponse> = await helper.getArticlesMetrics();
       if (!metrics.success) throw new Error("No se encontraron las metricas");
 
       // Agrupar cada artículo por mes y sumar los clics
@@ -108,10 +83,10 @@ const { stats } = Astro.props;
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          indexAxis: "x", // o 'y' para barras horizontales
+          indexAxis: "x",
           plugins: {
             legend: {
-              display: false, // No necesitas leyenda con un solo dataset
+              display: false,
             },
             tooltip: {
               backgroundColor: "rgba(95, 73, 73, 0.95)",

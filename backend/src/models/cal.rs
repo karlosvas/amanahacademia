@@ -1,6 +1,7 @@
 use {
     chrono::{DateTime, Utc},
     serde::{Deserialize, Serialize},
+    std::collections::HashMap,
 };
 
 /// Estado de los bookings de cal
@@ -16,11 +17,45 @@ pub enum BookingStatus {
 }
 
 /// Booking de reserva de calse en cal
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Booking {
-    uid: String,
-    status: BookingStatus,
-    title: String,
-    #[serde(rename = "updatedAt")]
-    updated_at: Option<DateTime<Utc>>,
+    pub uid: String,
+    pub bookingId: Option<String>,
+    pub eventTypeId: Option<String>,
+    #[serde(rename = "type")]
+    pub booking_type: Option<String>,
+
+    pub title: String,
+    pub description: Option<String>,
+
+    pub startTime: Option<DateTime<Utc>>,
+    pub endTime: Option<DateTime<Utc>>,
+
+    pub attendees: Vec<BookingAttendee>,
+    pub organizer: Option<BookingOrganizer>,
+
+    pub location: Option<String>,
+    pub metadata: Option<HashMap<String, serde_json::Value>>,
+    pub status: BookingStatus,
+    pub cancellationReason: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BookingAttendee {
+    pub email: String,
+    pub name: String,
+    pub timeZone: String,
+    pub language: BookingLanguage,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BookingLanguage {
+    pub locale: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BookingOrganizer {
+    pub email: Option<String>,
+    pub name: Option<String>,
 }

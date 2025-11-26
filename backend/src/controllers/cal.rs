@@ -12,6 +12,7 @@ use {
     },
     chrono::Utc,
     reqwest::Response,
+    serde::Deserialize,
     std::{collections::HashMap, sync::Arc},
     tokio::sync::RwLockWriteGuard,
 };
@@ -134,17 +135,22 @@ pub async fn fetch_and_detect_changes(state: &AppState) -> Result<Vec<BookingCha
 }
 
 /// Obtener el booking por id
+/// Wrapper para respuestas de Cal.com API v2
+#[derive(Deserialize, Debug)]
+struct CalApiResponse<T> {
+    status: String, // ← "success" de Cal.com, NO tu BookingStatus
+    data: T,
+}
+
 #[axum::debug_handler]
 pub async fn get_booking(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
-    let url: String = format!("https://api.cal.com/v2/bookings/{}", id);
-
     let resp_result: Result<Response, String> = state
         .cal_options
         .client
-        .get(&url)
+        .get(format!("https://api.cal.com/v2/bookings/{}", id))
         .header("Authorization", &state.cal_options.api_key)
         .header("cal-api-version", &state.cal_options.api_version)
         .send()
@@ -152,24 +158,42 @@ pub async fn get_booking(
         .map_err(|e| format!("Error fetching booking: {}", e));
 
     match resp_result {
-        Ok(resp) => match resp.json::<CalBookingPayload>().await {
-            Ok(booking) => (
-                StatusCode::OK,
-                Json(ResponseAPI::success(
-                    "Booking fetched successfully".to_string(),
-                    Some(booking),
-                )),
-            )
-                .into_response(),
-            Err(e) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ResponseAPI::<CalBookingPayload>::error(format!(
-                    "Error parsing booking JSON: {}",
-                    e
-                ))),
-            )
-                .into_response(),
-        },
+        Ok(resp) => {
+            match resp.text().await {
+                Ok(body) => {
+                    // ← Deserializar al wrapper primero
+                    match serde_json::from_str::<CalApiResponse<CalBookingPayload>>(&body) {
+                        Ok(cal_response) => (
+                            StatusCode::OK,
+                            Json(ResponseAPI::<CalBookingPayload>::success(
+                                "Booking fetched successfully".to_string(),
+                                cal_response.data, // ← Extraer solo el "data"
+                            )),
+                        )
+                            .into_response(),
+                        Err(e) => {
+                            eprintln!("Error deserializando: {}", e);
+                            (
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                Json(ResponseAPI::<CalBookingPayload>::error(format!(
+                                    "Error parsing booking JSON: {}",
+                                    e
+                                ))),
+                            )
+                                .into_response()
+                        }
+                    }
+                }
+                Err(e) => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ResponseAPI::<CalBookingPayload>::error(format!(
+                        "Error reading response body: {}",
+                        e
+                    ))),
+                )
+                    .into_response(),
+            }
+        }
         Err(err_msg) => (
             StatusCode::BAD_GATEWAY,
             Json(ResponseAPI::<CalBookingPayload>::error(format!(

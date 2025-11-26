@@ -129,6 +129,9 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
           return;
         }
 
+        // Todo a salido bien
+        // Enviar evento a Google Analytics
+        if (window.gtag) window.gtag("event", "class_booking", { bookingUid });
         globalThis.location.href = "/payments/payment-success";
         return;
       } catch (e) {

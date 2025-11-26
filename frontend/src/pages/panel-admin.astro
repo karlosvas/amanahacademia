@@ -4,16 +4,16 @@ import { DashboardAdminTypes, type PropsSEO } from "@/types/types";
 import { parseUsersMetricData } from "@/utils/metrics";
 import { ApiService } from "@/services/helper";
 import PanelDashboard from "@/components/dashboard/panel/PanelDashboard.astro";
-import PanelArticles from "@/components/dashboard/panel/PanelArticles.astro";
 import PanelClasses from "@/components/dashboard/panel/PanelClasses.astro";
-import PanelUser from "@/components/dashboard/panel/PanelUser.astro";
 import Layout from "@/layouts/Layout.astro";
-import type { ResponseAPI, UserMerged } from "@/types/bakend-types";
 import { log } from "@/services/logger";
-const { lang } = Astro.params;
+import PanelUser from "@/components/dashboard/panel/PanelUser.astro";
+import PanelPayments from "@/components/dashboard/panel/PanelPayments.astro";
+import PanelContent from "@/components/dashboard/panel/PanelContent.astro";
+import type { ResponseAPI } from "@/types/bakend-types";
 
 const helper = new ApiService();
-const token = Astro.cookies.get("auth")?.value ?? "";
+const token = Astro.cookies.get("session")?.value ?? "";
 
 if (!token) {
   log.error("Deves logearte previamente");
@@ -23,8 +23,7 @@ const isAdmin: ResponseAPI<boolean> = await helper.isAdminUser(token);
 
 if (!isAdmin.success || !isAdmin.data) return Astro.redirect("/");
 
-// SEO data usando el helper
-const currentLang = lang || "es";
+const currentLang = "es";
 const seoData = getSEOData("panel-admin", currentLang) as PropsSEO;
 
 const url = new URL(Astro.request.url);
@@ -110,26 +109,35 @@ if (metrics.success && metrics.data.rows.length > 0) {
 >
   <div class="min-h-screen lg:px-72 bg-gradient-to-br from-[#fff4e1] to-[#fee8d6] p-6">
     <div class="max-w-7xl mx-auto">
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-[#131313] mb-2">Panel de Administración</h1>
-        <p class="text-[#8a4141]">Monitoreo y estadísticas de Amanah Academia</p>
-      </div>
-
       {
         section === DashboardAdminTypes.DASHBOARD ? (
           <PanelDashboard stats={stats} />
-        ) : section === DashboardAdminTypes.USERS ? (
-          <PanelUser stats={stats} />
-        ) : section === DashboardAdminTypes.CONTENT ? (
-          <PanelArticles stats={stats} />
         ) : section === DashboardAdminTypes.CLASSES ? (
           <PanelClasses stats={stats} />
-        ) : (
-          <div class="bg-[#fff4e1] rounded-xl shadow-sm border border-[#fee8d6] p-6">
-            <p class="text-[#131313]">Sección no implementada aún.</p>
-          </div>
-        )
+        ) : section === DashboardAdminTypes.USERS ? (
+          <PanelUser />
+        ) : section === DashboardAdminTypes.PAYMENTS ? (
+          <PanelPayments stats={stats} />
+        ) : section === DashboardAdminTypes.CONTENT ? (
+          <PanelContent stats={stats} />
+        ) : null
       }
+    </div>
+
+    <!-- Botón de volver mejorado -->
+    <div class="max-w-7xl mx-auto mt-8 flex justify-end">
+      <a
+        href={`/${Astro.cookies.get("langCookie")?.value}`}
+        class="inline-flex items-center gap-2 px-6 py-3 bg-[#8a4141] text-white font-semibold rounded-lg hover:bg-[#6d3333] transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path
+            fill-rule="evenodd"
+            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+            clip-rule="evenodd"></path>
+        </svg>
+        Volver al inicio
+      </a>
     </div>
   </div>
 </Layout>

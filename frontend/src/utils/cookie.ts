@@ -1,31 +1,4 @@
-declare global {
-  interface Window {
-    gtag?: (...args: any[]) => void;
-    dataLayer: any[];
-  }
-}
-
-export function getThemeFromCookie() {
-  if (typeof document === "undefined" || !document.cookie) return "light";
-  const cookies = document.cookie.split(";").map((c) => c.trim());
-  for (const c of cookies) {
-    if (c.startsWith("theme=")) {
-      return c.substring("theme=".length);
-    }
-  }
-  return "light";
-}
-
-export function getLangFromCookie(): string {
-  const match = document.cookie.match(/(?:^|; )langCookie=([^;]*)/);
-  return match ? match[1] : "es";
-}
-
-export function getAuthCookie(): string | null {
-  const match = document.cookie.match(/(?:^|; )auth=([^;]*)/);
-  return match ? match[1] : null;
-}
-
+/// Cookies consent banner
 export function acceptCookies() {
   const consentUpdate = {
     ad_storage: "granted",
@@ -99,7 +72,16 @@ export function rejectCookies() {
   hideBanner();
 }
 
-// Inicializar consentimiento al cargar página
+function hideBanner() {
+  const banner = document.getElementById("cookie-banner");
+  if (banner) {
+    banner.style.animation = "slide-down 0.3s ease-out";
+    setTimeout(() => {
+      banner.classList.add("hidden");
+    }, 300);
+  }
+}
+
 export function initializeCookieConsent() {
   const consent = localStorage.getItem("cookieConsent");
   // Debug habilitado en desarrollo O si hay parámetro ?ga_debug=1
@@ -174,32 +156,7 @@ export function initializeCookieConsent() {
   }
 }
 
-function hideBanner() {
-  const banner = document.getElementById("cookie-banner");
-  if (banner) {
-    banner.style.animation = "slide-down 0.3s ease-out";
-    setTimeout(() => {
-      banner.classList.add("hidden");
-    }, 300);
-  }
-}
-
-// THEME
-export function readThemeCookie() {
-  return (
-    document.cookie
-      .split(";")
-      .map((c) => c.trim())
-      .find((c) => c.startsWith("theme="))
-      ?.split("=")[1] ?? null
-  );
-}
-
-export function writeThemeCookie(value: string) {
-  const maxAge = 60 * 60 * 24 * 365; // 1 año
-  document.cookie = `theme=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
-}
-
+/// Language
 export function writeLangCookie(value: string) {
   // Validar que el valor sea un idioma válido
   if (!value || value.includes("/") || value.includes(".")) {
@@ -211,29 +168,34 @@ export function writeLangCookie(value: string) {
   document.cookie = `langCookie=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
 }
 
-export function writeAuthCookie(value: string) {
-  const maxAge = 60 * 60 * 24 * 365;
-  document.cookie = `auth=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+export function getLangFromCookie(): string {
+  const match = document.cookie.match(/(?:^|; )langCookie=([^;]*)/);
+  return match ? match[1] : "es";
 }
 
-export function applyThemeClass(value: string) {
-  // aseguramos que la clase está en html (documentElement) y no exista la opuesta
-  document.documentElement.classList.remove("dark", "light");
-  document.documentElement.classList.add(value);
+/// Theme
+export function writeThemeCookie(value: string) {
+  const maxAge = 60 * 60 * 24 * 365; // 1 año
+  document.cookie = `theme=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
 }
 
-export function applyTheme(newTheme: string) {
-  const html = document.documentElement;
-  if (newTheme !== "dark" && newTheme !== "light") return;
-  html.classList.remove("dark", "light");
-  html.classList.add(newTheme);
-
-  // Actualizamos la cookie (centralizado)
-  writeThemeCookie(newTheme);
-
-  // Actualizar logo si procede
-  const logo = document.getElementById("logo_amanah");
-  if (logo && logo instanceof HTMLImageElement) {
-    logo.src = newTheme === "dark" ? "/img/logo_amanah_dark.webp" : "/img/logo_amanah.webp";
+export function getThemeFromCookie() {
+  if (typeof document === "undefined" || !document.cookie) return "light";
+  const cookies = document.cookie.split(";").map((c) => c.trim());
+  for (const c of cookies) {
+    if (c.startsWith("theme=")) {
+      return c.substring("theme=".length);
+    }
   }
+  return "light";
+}
+
+export function readThemeCookie() {
+  return (
+    document.cookie
+      .split(";")
+      .map((c) => c.trim())
+      .find((c) => c.startsWith("theme="))
+      ?.split("=")[1] ?? null
+  );
 }

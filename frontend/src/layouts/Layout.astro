@@ -189,13 +189,8 @@ const cookieMessage =
     </script>
     <!-- Inicialización de cookies (tema e idioma) -->
     <script>
-      import {
-        readThemeCookie,
-        writeThemeCookie,
-        applyThemeClass,
-        getLangFromCookie,
-        writeLangCookie,
-      } from "@/utils/cookie";
+      import { readThemeCookie, writeThemeCookie, getLangFromCookie, writeLangCookie } from "@/utils/cookie";
+      import { applyThemeClass } from "@/utils/theme";
 
       const initTheme = () => {
         const cookieTheme = readThemeCookie();
@@ -306,6 +301,30 @@ const cookieMessage =
 <script>
   import { closeModalsEvents } from "@/utils/modals";
   import { acceptCookies, rejectCookies, initializeCookieConsent } from "@/utils/cookie";
+  import { onAuthStateChanged } from "@/services/firebase";
+  import { syncTokenWithServer, syncLogoutWithServer } from "@/utils/auth";
+  import type { User } from "firebase/auth";
+
+  let tokenRefreshInterval: ReturnType<typeof setInterval> | null = null;
+
+  // Inicializar Firebase Auth y listener de cambios de usuario
+  onAuthStateChanged(async (user: User | null) => {
+    // Limpiar interval previo si existe
+    if (tokenRefreshInterval) {
+      clearInterval(tokenRefreshInterval);
+      tokenRefreshInterval = null;
+    }
+
+    if (user) {
+      await syncTokenWithServer(); // Sync inicial
+      tokenRefreshInterval = setInterval(
+        async () => {
+          await syncTokenWithServer();
+        },
+        50 * 60 * 1000
+      );
+    } else await syncLogoutWithServer();
+  });
 
   // Eventos para poder cerrar con animacion caulquier modal
   closeModalsEvents();

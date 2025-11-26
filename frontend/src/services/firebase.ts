@@ -24,7 +24,6 @@ import {
 import { executeTurnstileIfPresent } from "./claudflare";
 import { suscribeToNewsletter } from "./mailchimp";
 import { log } from "./logger";
-import { writeAuthCookie } from "@/utils/cookie";
 
 const firebaseConfig = {
   apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY,
@@ -143,7 +142,6 @@ export function submitFormToRegisterOrLogin(
 
         // Lo guardamos en las cookies
         const token = await cred.user.getIdToken();
-        writeAuthCookie(token);
 
         modal.close();
         setTimeout(() => {
@@ -179,7 +177,6 @@ export async function handleLogout(): Promise<void> {
   try {
     await firebaseAuth.signOut();
     // Limpiamos la cookie de auth
-    writeAuthCookie("");
     location.reload();
   } catch (error) {
     console.error("Error during logout:", error);
@@ -262,9 +259,6 @@ export async function handleLogGoogleProvider(
     //  Si el usuario se está registrando lo añadimos al newsletter
     if (isRegister) await suscribeToNewsletter(formData, userRequest);
 
-    // Lo guardamos en las cookies y cerramos el modal
-    writeAuthCookie(idToken);
-
     // Comprobamos si es un usuario nuevo
     closeModalAnimation(modal, formHTML);
 
@@ -286,7 +280,6 @@ export async function handleLogGoogleProvider(
 }
 
 // Token actual
-// En firebase.ts
 export async function getCurrentUserToken(): Promise<string | null> {
   try {
     const currentUser = firebaseAuth.currentUser;

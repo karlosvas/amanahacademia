@@ -11,8 +11,7 @@ const { title, subtitle } = Astro.props;
 
 <a
   href={`/panel-admin?section=${title}`}
-  target="_blank"
-  class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-200 transition-colors group/item"
+  class="flex items-center gap-3 p-3 rounded-xl hover:bg-[#ff9090] transition-colors group/item"
 >
   <div class="w-10 h-10 rounded-lg flex items-center justify-center transition-color">
     <!-- Obtenemos el svg del padre -->
@@ -20,10 +19,10 @@ const { title, subtitle } = Astro.props;
   </div>
   <div class="flex-1">
     <h4 class="text-sm font-semibold">{title.charAt(0).toUpperCase() + title.slice(1)}</h4>
-    <p class="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
+    <p class="text-xs text-gray-900">{subtitle}</p>
   </div>
   <svg
-    class="w-5 h-5 text-gray-400 group-hover/item:text-lightRed transition-colors"
+    class="w-5 h-5 text-gray-900 group-hover/item:text-lightRed transition-colors"
     fill="none"
     stroke="currentColor"
     viewBox="0 0 24 24"

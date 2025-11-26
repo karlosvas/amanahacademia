@@ -81,7 +81,7 @@ import Title from "../common/Title.astro";
             elements = result.elements;
 
             const submitButton = document.getElementById("submit-button");
-            if (!submitButton) return;
+            if (!submitButton || !bookingUid) return;
             submitButton.addEventListener("click", () => handlePayment(stripe, elements, bookingUid));
           }, 1000);
         } catch (e) {

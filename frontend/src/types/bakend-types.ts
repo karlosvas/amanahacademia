@@ -146,16 +146,39 @@ export interface ReplyComment {
   users_liked?: string[];
 }
 
-export enum BookingStatus {
-  Accepted = "accepted",
-  Pending = "pending",
-  Cancelled = "cancelled",
-  Rejected = "rejected",
-}
-
 export interface Booking {
   uid: string;
-  status: BookingStatus;
+  bookingId: string | null;
+  eventTypeId: string | null;
+  type: string | null;
+
   title: string;
-  updatedAt?: string;
+  description: string | null;
+
+  startTime: string | null; // ISO date
+  endTime: string | null; // ISO date
+
+  attendees: BookingAttendee[];
+  organizer: BookingOrganizer | null;
+
+  location: string | null;
+  metadata: Record<string, unknown> | null;
+  status: BookingStatus;
+  cancellationReason: string | null;
 }
+
+export interface BookingAttendee {
+  email: string;
+  name: string;
+  timeZone: string;
+  language: {
+    locale: string;
+  };
+}
+
+export interface BookingOrganizer {
+  email?: string | null;
+  name?: string | null;
+}
+
+export type BookingStatus = "accepted" | "pending" | "cancelled" | "rejected";
