@@ -1,21 +1,36 @@
 ---
 import { log } from "@/services/logger";
 import { ApiService } from "@/services/helper";
-import type { ResponseAPI, Teacher } from "@/types/bakend-types";
+import BookingCard from "@/components/common/BookingCard.astro";
+import type { ResponseAPI, Teacher, Availability, Schedule, CalBookingPayload } from "@/types/bakend-types";
 
 const helper = new ApiService();
 
-const token_cookie = Astro.cookies.get("session")?.value ?? "";
-if (!token_cookie) log.error("Debes iniciar sesión primero");
-
 // Obtener lista de profesores para el selector
 let teachers: Teacher[] = [];
+let timeSlots: Availability | null = null;
+let bookingsList: CalBookingPayload[] | null = null;
 try {
   const teachersResponse: ResponseAPI<Teacher[]> = await helper.getTeachers();
-  if (teachersResponse.success) {
-    teachers = teachersResponse.data;
-  } else {
+  if (teachersResponse.success) teachers = Object.values(teachersResponse.data);
+  else {
     log.error(`Error al obtener profesores: ${teachersResponse.error}`);
+    throw new Error();
+  }
+
+  const timeSlotsResponse: ResponseAPI<Schedule> = await helper.getAvailableTimeSchedule("1081935");
+  if (timeSlotsResponse.success) timeSlots = timeSlotsResponse.data.availability[0];
+  else {
+    log.error(`Error al obtener franjas horarias: ${timeSlotsResponse.error}`);
+    throw new Error();
+  }
+
+  let token_cookie = Astro.cookies.get("session")?.value ?? "";
+  const bookingsListResponse: ResponseAPI<CalBookingPayload[]> = await helper.getGroupBookings(token_cookie);
+  if (bookingsListResponse.success) bookingsList = bookingsListResponse.data;
+  else {
+    log.error(`Error al obtener lista de reservas: ${bookingsListResponse.error}`);
+    throw new Error();
   }
 } catch (error) {
   log.error("Error al cargar profesores:", error);
@@ -30,9 +45,7 @@ try {
       <!-- Fecha y hora -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label for="class-date" class="block text-sm font-bold text-[#131313] mb-2">
-            Fecha de la clase *
-          </label>
+          <label for="class-date" class="block text-sm font-bold text-[#131313] mb-2"> Fecha de la clase * </label>
           <input
             type="date"
             id="class-date"
@@ -40,27 +53,31 @@ try {
             required
             class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white"
           />
+          <p class="text-xs text-gray-600 mt-1">La clase debe ser programada para una fecha futura</p>
         </div>
 
         <div>
-          <label for="class-time" class="block text-sm font-bold text-[#131313] mb-2">
-            Hora de inicio *
-          </label>
+          <label for="class-time" class="block text-sm font-bold text-[#131313] mb-2"> Hora de inicio * </label>
           <input
             type="time"
             id="class-time"
             name="class-time"
+            min={timeSlots?.start_time?.toString() ?? "15:00"}
+            max={timeSlots?.end_time?.toString() ?? "20:00"}
             required
             class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white"
           />
+          <p class="text-xs text-gray-600 mt-1">
+            Horario disponible: {timeSlots?.start_time?.toString() ?? "15:00"} - {
+              timeSlots?.end_time?.toString() ?? "20:00"
+            }
+          </p>
         </div>
       </div>
 
       <!-- Profesor asignado -->
       <div>
-        <label for="teacher" class="block text-sm font-bold text-[#131313] mb-2">
-          Profesor asignado *
-        </label>
+        <label for="teacher" class="block text-sm font-bold text-[#131313] mb-2"> Profesor asignado * </label>
         <select
           id="teacher"
           name="teacher"
@@ -70,7 +87,7 @@ try {
           <option value="">Selecciona un profesor</option>
           {
             teachers.map((teacher) => (
-              <option value={teacher.cal_id}>
+              <option value={teacher.cal_id} data-calLink={teacher.cal_link}>
                 {teacher.name} - {teacher.native_lang}
               </option>
             ))
@@ -80,9 +97,7 @@ try {
 
       <!-- Nivel de idioma -->
       <div>
-        <label for="language-level" class="block text-sm font-bold text-[#131313] mb-2">
-          Nivel de idioma *
-        </label>
+        <label for="language-level" class="block text-sm font-bold text-[#131313] mb-2"> Nivel de idioma * </label>
         <select
           id="language-level"
           name="language-level"
@@ -95,7 +110,7 @@ try {
           <option value="B1">B1 - Intermedio</option>
           <option value="B2">B2 - Intermedio Alto</option>
           <option value="C1">C1 - Avanzado</option>
-          <option value="C2">C2 - Maestría</option>
+          <option value="C2">C2 - MaestrÃ­a</option>
         </select>
       </div>
 
@@ -103,7 +118,7 @@ try {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label for="min-students" class="block text-sm font-bold text-[#131313] mb-2">
-            Cantidad mínima de estudiantes *
+            Cantidad mÃ­nima de estudiantes *
           </label>
           <input
             type="number"
@@ -115,12 +130,12 @@ try {
             placeholder="Ej: 2"
             class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white"
           />
-          <p class="text-xs text-gray-600 mt-1">Mínimo requerido para abrir la clase</p>
+          <p class="text-xs text-gray-600 mt-1">MÃ­nimo requerido para abrir la clase</p>
         </div>
 
         <div>
           <label for="max-students" class="block text-sm font-bold text-[#131313] mb-2">
-            Cantidad máxima de estudiantes *
+            Cantidad mÃ¡xima de estudiantes *
           </label>
           <input
             type="number"
@@ -132,47 +147,28 @@ try {
             placeholder="Ej: 8"
             class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white"
           />
-          <p class="text-xs text-gray-600 mt-1">Capacidad máxima de la clase</p>
+          <p class="text-xs text-gray-600 mt-1">Capacidad mÃ¡xima de la clase</p>
         </div>
       </div>
 
-      <!-- Duración de la clase -->
-      <div>
-        <label for="duration" class="block text-sm font-bold text-[#131313] mb-2">
-          Duración de la clase (minutos) *
-        </label>
-        <select
-          id="duration"
-          name="duration"
-          required
-          class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white"
-        >
-          <option value="30">30 minutos</option>
-          <option value="45">45 minutos</option>
-          <option value="60" selected>60 minutos</option>
-          <option value="90">90 minutos</option>
-          <option value="120">120 minutos</option>
-        </select>
-      </div>
-
-      <!-- Descripción adicional -->
+      <!-- DescripciÃ³n adicional -->
       <div>
         <label for="description" class="block text-sm font-bold text-[#131313] mb-2">
-          Descripción adicional (opcional)
+          DescripciÃ³n adicional (opcional)
         </label>
         <textarea
           id="description"
           name="description"
           rows="4"
-          placeholder="Añade información adicional sobre la clase..."
+          placeholder="AÃ±ade informaciÃ³n adicional sobre la clase..."
           class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white resize-none"
         ></textarea>
       </div>
 
-      <!-- Mensaje de error/éxito -->
+      <!-- Mensaje de error/exito -->
       <div id="form-message" class="hidden p-4 rounded-lg"></div>
 
-      <!-- Botones de acción -->
+      <!-- Botones de acciÃ³n -->
       <div class="flex gap-4 pt-4">
         <button
           type="submit"
@@ -191,44 +187,97 @@ try {
     </form>
   </div>
 
-  <!-- Sección de clases creadas (para futura implementación) -->
-  <div class="mt-12">
+  <div class="my-20">
     <h2 class="text-red text-3xl font-bold mb-6">Clases Programadas</h2>
-    <div id="classes-list" class="space-y-4">
-      <!-- Aquí se listarán las clases existentes -->
-      <p class="text-gray-600 text-center py-8">No hay clases programadas aún</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 w-full">
+      {
+        bookingsList && bookingsList.length > 0 ? (
+          bookingsList.map((booking: CalBookingPayload, i: number) => (
+            <BookingCard booking={booking} i={i} showDetails={true} />
+          ))
+        ) : (
+          <p class="text-gray-600 text-center py-8 col-span-full">No hay clases programadas aÃºn</p>
+        )
+      }
     </div>
   </div>
 </section>
 
 <script>
+  import { ApiService } from "@/services/helper";
+  import { log } from "@/services/logger";
+  import type { BookingRequest, CalBookingPayload, ResponseAPI } from "@/types/bakend-types";
+
   document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("create-class-form") as HTMLFormElement;
     const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
     const formMessage = document.getElementById("form-message") as HTMLDivElement;
     const minStudentsInput = document.getElementById("min-students") as HTMLInputElement;
     const maxStudentsInput = document.getElementById("max-students") as HTMLInputElement;
+    const dateInput = document.getElementById("class-date") as HTMLInputElement;
+    const timeInput = document.getElementById("class-time") as HTMLInputElement;
 
-    // Validación en tiempo real
+    // Configurar fecha mÃ­nima (hoy)
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("min", today);
+
+    // ValidaciÃ³n en tiempo real
     const validateStudentCounts = () => {
       const min = parseInt(minStudentsInput.value);
       const max = parseInt(maxStudentsInput.value);
 
       if (min && max && min > max) {
-        maxStudentsInput.setCustomValidity("El máximo debe ser mayor o igual al mínimo");
+        maxStudentsInput.setCustomValidity("El mÃ¡ximo debe ser mayor o igual al mÃ­nimo");
       } else {
         maxStudentsInput.setCustomValidity("");
       }
     };
 
+    // Validar que la hora estÃ© en el rango permitido (15:00 - 20:00)
+    const validateTime = () => {
+      const time = timeInput.value;
+      if (time) {
+        const [hours, minutes] = time.split(":").map(Number);
+        const timeInMinutes = hours * 60 + minutes;
+        const minTime = 15 * 60; // 15:00
+        const maxTime = 20 * 60; // 20:00
+
+        if (timeInMinutes < minTime || timeInMinutes > maxTime) {
+          timeInput.setCustomValidity("La hora debe estar entre 15:00 y 20:00");
+        } else {
+          timeInput.setCustomValidity("");
+        }
+      }
+    };
+
+    // Validar que la fecha sea futura
+    const validateDate = () => {
+      const selectedDate = dateInput.value;
+      if (selectedDate) {
+        const selected = new Date(selectedDate + "T00:00:00");
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        if (selected < now) {
+          dateInput.setCustomValidity("La fecha debe ser hoy o posterior");
+        } else {
+          dateInput.setCustomValidity("");
+        }
+      }
+    };
+
     minStudentsInput.addEventListener("input", validateStudentCounts);
     maxStudentsInput.addEventListener("input", validateStudentCounts);
+    timeInput.addEventListener("input", validateTime);
+    dateInput.addEventListener("input", validateDate);
 
     // Mostrar mensaje
     const showMessage = (message: string, isError: boolean = false) => {
       formMessage.textContent = message;
       formMessage.className = `p-4 rounded-lg ${
-        isError ? "bg-red-100 text-red-700 border border-red-300" : "bg-green-100 text-green-700 border border-green-300"
+        isError
+          ? "bg-red-100 text-red-700 border border-red-300"
+          : "bg-green-100 text-green-700 border border-green-300"
       }`;
       formMessage.classList.remove("hidden");
 
@@ -237,52 +286,98 @@ try {
       }, 5000);
     };
 
-    // Manejo del envío del formulario
+    // Convertir fecha y hora a ISO 8601
+    const toISO8601 = (date: string, time: string): string => {
+      // date: "2025-11-26", time: "14:30"
+      const dateTime = new Date(`${date}T${time}:00`);
+      return dateTime.toISOString(); // "2025-11-26T14:30:00.000Z"
+    };
+
+    // Manejo del envÃ­o del formulario
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      // Validar formulario
+      // Validar todos los campos antes de enviar
+      validateStudentCounts();
+      validateTime();
+      validateDate();
+
       if (!form.checkValidity()) {
-        showMessage("Por favor, completa todos los campos requeridos", true);
+        showMessage("Por favor, completa todos los campos requeridos correctamente", true);
         return;
       }
 
-      // Deshabilitar botón durante el envío
       submitBtn.disabled = true;
       submitBtn.textContent = "Creando clase...";
 
       try {
         const formData = new FormData(form);
 
-        // Construir objeto de clase
-        const classData = {
-          date: formData.get("class-date"),
-          time: formData.get("class-time"),
-          teacher_id: formData.get("teacher"),
-          language_level: formData.get("language-level"),
-          min_students: parseInt(formData.get("min-students") as string),
-          max_students: parseInt(formData.get("max-students") as string),
-          duration: parseInt(formData.get("duration") as string),
-          description: formData.get("description") || "",
+        const date = formData.get("class-date") as string;
+        const time = formData.get("class-time") as string;
+
+        // ValidaciÃ³n adicional del horario permitido
+        const [hours] = time.split(":").map(Number);
+        if (hours < 15 || hours > 20) {
+          showMessage("La hora debe estar entre 15:00 y 20:00", true);
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Crear Clase";
+          return;
+        }
+
+        // Calcular start y end en ISO 8601
+        const startISO = toISO8601(date, time);
+        const startDate = new Date(startISO);
+        const endDate = new Date(startDate.getTime() + 60 * 60000);
+        const endISO = endDate.toISOString();
+
+        // Obtener el profesor seleccionado
+        const teacherSelect = document.getElementById("teacher") as HTMLSelectElement;
+        const selectedOption = teacherSelect.selectedOptions[0];
+        const teacherName = selectedOption.text.split(" - ")[0];
+
+        // Obtenemos el calLink del profesor seleccionado (por si se necesita en el futuro)
+        const teacherCalLink = selectedOption.getAttribute("data-calLink") || "";
+
+        const bookingData: BookingRequest = {
+          startTime: startISO,
+          endTime: endISO,
+          username: teacherCalLink,
+          type: "group-class",
+          title: `Clase de espaÃ±ol - Nivel ${formData.get("language-level")}`,
+          description: (formData.get("description") as string) || undefined,
+          attendees: [
+            {
+              name: "placeholder",
+              email: "contact@amanahacademia.com",
+              timeZone: "Europe/Madrid",
+              language: "es",
+            },
+          ],
+
+          metadata: {
+            teacher_id: formData.get("teacher") as string,
+            language_level: formData.get("language-level") as string,
+            min_students: formData.get("min-students") as string,
+            max_students: formData.get("max-students") as string,
+            current_students: "0",
+            is_placeholder: "true",
+          },
+          status: "pending",
         };
 
-        console.log("Datos de la clase:", classData);
-
-        // TODO: Implementar llamada al backend
-        // const response = await fetch('/api/classes/create', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(classData)
-        // });
-
-        // Simulación de respuesta exitosa
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        showMessage("¡Clase creada exitosamente!", false);
-        form.reset();
+        const helper = new ApiService();
+        const response: ResponseAPI<CalBookingPayload> = await helper.createBooking(bookingData);
+        if (response.success) {
+          showMessage("Clase creada exitosamente!", false);
+          form.reset();
+        } else {
+          log.error(response.error);
+          showMessage(response.error || "Error al crear la clase", true);
+        }
       } catch (error) {
-        console.error("Error al crear clase:", error);
-        showMessage("Error al crear la clase. Por favor, inténtalo de nuevo.", true);
+        log.error("Error al crear clase:", error);
+        showMessage("Error al crear la clase. Por favor, intÃ©ntalo de nuevo.", true);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Crear Clase";

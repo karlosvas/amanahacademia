@@ -12,6 +12,7 @@ const data = Astro.props.data as PricingI18n;
 
 // Obtenemos los profesores desde la API
 let teachers;
+let bookings;
 try {
   // Obtenemos los profesores desde la API
   const helper = new ApiService();
@@ -25,6 +26,15 @@ try {
   // Si no hay profesores porque ubo un probelma en el servidor lo redirijimos a /, si no hay profesores mostramos un toast
   if (teachers === undefined || teachers === null) return Astro.redirect("/");
   else if (teachers.length === 0) toast.error("No teachers available at the moment.");
+
+  // Obtenemos las bookings de clases grupales
+  let token_cookie = Astro.cookies.get("session")?.value ?? "";
+  const bookingsResponse = await helper.getGroupBookings(token_cookie);
+  if (bookingsResponse.success && bookingsResponse.data) bookings = bookingsResponse.data;
+  else if (!bookingsResponse.success) log.error(bookingsResponse);
+  else log.error("Unknown error fetching group bookings");
+
+  log.info("Group bookings:", bookings);
 } catch (e) {
   log.error("Error fetching teachers:", e);
 }
@@ -36,9 +46,15 @@ try {
     <div
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center items-stretch h-auto gap-6 sm:gap-8 md:gap-6 lg:gap-4 w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-4"
     >
-      <CardPricing data={data.type.standard} id={Class.Standard} teachers={teachers} />
-      <CardPricing data={data.type.conversation} id={Class.Conversacion} teachers={teachers} />
-      <CardPricing data={data.type.group} id={Class.Grupales} teachers={teachers} disabled={true} />
+      <CardPricing data={data.type.standard} id={Class.Standard}>
+        <Carrousel id={Class.Standard} teachers={teachers} />
+      </CardPricing>
+      <CardPricing data={data.type.conversation} id={Class.Conversacion}>
+        <Carrousel id={Class.Conversacion} teachers={teachers} />
+      </CardPricing>
+      <CardPricing data={data.type.group} id={Class.Grupales}>
+        <Carrousel id={Class.Grupales} bookings={bookings} />
+      </CardPricing>
     </div>
     <div
       class="w-full md:w-11/12 lg:w-4/5 xl:w-3/4 flex flex-col lg:flex-row text-xs sm:text-sm mt-12 sm:mt-16 md:mt-20 m-auto pb-8 md:pb-12 lg:pb-16 xl:pb-20 px-4 sm:px-6 md:px-8 lg:px-6 xl:px-0 gap-6 sm:gap-8 lg:gap-6 scroll-fade-in"
@@ -91,23 +107,16 @@ try {
 <script>
   import { closeModalAnimation, showModalAnimation, startCalScrollManagement } from "@/utils/modals";
   import { Class, FrontendErrorCode, getErrorToast } from "@/enums/enums";
-  import { getThemeFromCookie } from "@/utils/cookie";
   import { updatePricing, initCalendar } from "@/services/calendar";
   import { getAuth } from "firebase/auth";
   import toast from "solid-toast";
   import { ApiService } from "@/services/helper";
   import { log } from "@/services/logger";
+  import { getThemeFromCookie } from "@/utils/cookie";
 
   // Evento al cargar el DOM
   document.addEventListener("DOMContentLoaded", () => {
     [Class.Conversacion, Class.Grupales, Class.Standard, Class.Free].forEach(initCalendar);
-
-    const modalGroup = document.querySelector(`[card-button="${Class.Grupales}"]`) as HTMLButtonElement;
-    modalGroup.addEventListener("click", (e) => {
-      e.preventDefault();
-      log.warn("Clases no disponibles por problemas técnicos.");
-      toast.error(getErrorToast(FrontendErrorCode.MANTENIANCE));
-    });
 
     // Obtenemos todos los botones de reservar clase
     const reserveButtons = document.querySelectorAll(".reserve-class") as NodeListOf<HTMLButtonElement>;
@@ -123,9 +132,6 @@ try {
           log.error("Modal not found for ID:", modalID);
           return;
         }
-
-        // Clas grupales no disponible por mantenimeinto
-        if (modal.id === Class.Grupales) return;
 
         // Manejador para la clase gratuita
         if (modal.id === Class.Free) {

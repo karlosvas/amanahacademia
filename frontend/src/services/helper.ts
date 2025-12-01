@@ -12,13 +12,15 @@ import type {
   CheckoutPaymentIntentRequest,
   RelationalCalStripe,
   ReplyComment,
-  Booking,
   StripeRelation,
   PaymentIntentSimplified,
+  BookingRequest,
+  Schedule,
+  CalBookingPayload,
 } from "@/types/bakend-types";
 import { getCurrentUserToken } from "@/services/firebase";
 import type { MetricsResponse } from "@/types/types";
-import type Stripe from "stripe";
+import { log } from "./logger";
 
 export class ApiService {
   private readonly baseUrl: string;
@@ -162,6 +164,14 @@ export class ApiService {
     });
   }
 
+  // Obtener un calendario especifico
+  async getAvailableTimeSchedule(id: string): Promise<ResponseAPI<Schedule>> {
+    return this.fetchApi<Schedule>(`/cal/schedule/${id}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   //////////////////// RESEND /////////////////////
   // Enviar email de contacto (Resend) (POST)
   async sendContact(resendEmail: EmailResend): Promise<ResponseAPI<Record<string, string>>> {
@@ -296,9 +306,37 @@ export class ApiService {
   }
 
   // Obtener booking por id
-  async getBookingById(tooken_cookie: string, bookingUid: string): Promise<ResponseAPI<Booking>> {
+  async getBookingById(bookingUid: string, tooken_cookie?: string): Promise<ResponseAPI<CalBookingPayload>> {
     const token = tooken_cookie || (await getCurrentUserToken());
-    return this.fetchApi<Booking>(`/cal/bookings/${bookingUid}`, {
+    return this.fetchApi<CalBookingPayload>(`/cal/bookings/${bookingUid}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  // Crear un booking
+  async createBooking(booking: BookingRequest, token_cookie?: string): Promise<ResponseAPI<CalBookingPayload>> {
+    const token = token_cookie || (await getCurrentUserToken());
+    const data = await fetch(`${this.baseUrl}/cal/bookings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(booking),
+    });
+
+    log.debug("Respuesta raw de createBooking:", data);
+
+    return data.json();
+  }
+
+  // Obtener todos los bookings de grupo
+  async getGroupBookings(token_cookie?: string): Promise<ResponseAPI<CalBookingPayload[]>> {
+    const token = token_cookie || (await getCurrentUserToken());
+    return this.fetchApi<CalBookingPayload[]>("/cal/bookings", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -354,14 +392,24 @@ export class ApiService {
         return { success: true, data: undefined as T };
       }
 
-      // Parsear el JSON directamente
-      const data: ResponseAPI<T> = await response.json();
+      // Obtener el contenido como texto primero
+      const text = await response.text();
 
-      // Retornar la respuesta tal cual viene del backend
-      return data;
+      // Intentar parsear como JSON
+      try {
+        const data: ResponseAPI<T> = JSON.parse(text);
+        return data;
+      } catch (parseError) {
+        // Si no es JSON válido, retornar el texto como error
+        console.error("Failed to parse JSON response:", text);
+        return {
+          success: false,
+          error: `Invalid JSON response: ${text.substring(0, 200)}`,
+        };
+      }
     } catch (error) {
-      // Solo capturar errores de red o JSON parsing
-      console.error("Network or parsing error:", error);
+      // Solo capturar errores de red
+      console.error("Network error:", error);
       return {
         success: false,
         error: error instanceof Error ? `Network error: ${error.message}` : "Unknown network error",

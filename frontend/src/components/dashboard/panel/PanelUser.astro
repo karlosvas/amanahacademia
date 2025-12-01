@@ -15,8 +15,9 @@ if (!response.success) {
   log.error(`Error al obtener las reservas pagadas: ${response.error}`);
   return;
 }
+
 // Crear todas las promesas
-const bookingPromises = Object.keys(response.data).map((id) => helper.getBookingById(token_cookie, id));
+const bookingPromises = Object.keys(response.data).map((id) => helper.getBookingById(id, token_cookie));
 
 // Ejecutar todas en paralelo
 const bookingResponses: ResponseAPI<Booking>[] = await Promise.all(bookingPromises);

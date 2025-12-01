@@ -1,0 +1,157 @@
+---
+import type { Teacher } from "@/types/bakend-types";
+
+interface Props {
+  teacher: Teacher;
+  i: number;
+  id: string;
+}
+
+const { teacher, i, id } = Astro.props;
+---
+
+<article
+  class={`carousel-slide absolute top-1/2 left-1/2 flex flex-col items-center justify-center ${i === 0 ? "active" : ""} w-full h-full max-w-lg`}
+  style="transform: translate(-50%, -50%);"
+  data-index={i}
+  aria-hidden={i !== 0}
+>
+  <figure class="flex flex-col items-center text-center">
+    <div class="relative group">
+      <div
+        class="absolute -inset-0 bg-salmon rounded-3xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-300"
+        aria-hidden="true"
+      >
+      </div>
+      <img
+        src={teacher.url_image}
+        alt={`Fotografía de ${teacher.name}, profesor nativo de ${teacher.native_lang}`}
+        class="carousel-img relative w-40 h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 rounded-3xl object-cover shadow-xl hover:shadow-2xl hover:shadow-red-500/30 hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
+        data-index={i}
+        data-cal-teacher={teacher.name}
+        data-cal-namespace={id}
+        data-cal-host={teacher.cal_id}
+        data-cal-link={`${teacher.cal_link}/${id}`}
+        loading="lazy"
+      />
+    </div>
+    <figcaption class="text-black text-center space-y-1.5 px-2 md:px-3 pt-5">
+      <h3 class="text-lg lg:text-xl font-semibold">{teacher.name}</h3>
+      <div class="bg-opacity-70 bg-lightBrown rounded-xl py-1.5 w-fit px-4 m-auto">
+        <p class="text-xs sm:text-sm flex items-center justify-center align-middle">
+          <span class="font-medium" lang="es">
+            {teacher.native_lang}
+          </span>
+        </p>
+      </div>
+      <p class="text-xs sm:text-sm leading-snug bg-opacity-70 px-1 md:px-2 rounded-lg max-w-xs sm:max-w-sm mx-auto">
+        {
+          teacher.description.map((line) => (
+            <>
+              {line}
+              <br />
+            </>
+          ))
+        }
+      </p>
+    </figcaption>
+  </figure>
+</article>
+<style>
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translate(50%, -50%) scale(0.85) rotateY(-15deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+  }
+
+  @keyframes slideInFromLeft {
+    from {
+      opacity: 0;
+      transform: translate(-150%, -50%) scale(0.85) rotateY(15deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+  }
+
+  @keyframes slideOutToLeft {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-150%, -50%) scale(0.85) rotateY(15deg);
+    }
+  }
+
+  @keyframes slideOutToRight {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translate(50%, -50%) scale(0.85) rotateY(-15deg);
+    }
+  }
+
+  .carousel-slide {
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    transform: scale(0.85);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .carousel-slide.active {
+    opacity: 1;
+    z-index: 30;
+    pointer-events: auto;
+    transform: scale(1);
+  }
+
+  .carousel-slide.exit-right {
+    animation: slideOutToRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 20;
+  }
+
+  .carousel-slide.exit-left {
+    animation: slideOutToLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 20;
+  }
+
+  .carousel-slide.enter-right {
+    animation: slideInFromRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 30;
+  }
+
+  .carousel-slide.enter-left {
+    animation: slideInFromLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 30;
+  }
+
+  .carousel-img {
+    filter: brightness(0.85) saturate(1.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .carousel-slide.active .carousel-img {
+    filter: brightness(1) saturate(1);
+  }
+
+  .carousel-dot {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .carousel-dot:hover {
+    transform: scale(1.15) !important;
+    background-color: #f87171 !important;
+  }
+</style>

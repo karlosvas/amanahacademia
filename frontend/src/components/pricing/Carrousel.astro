@@ -1,8 +1,17 @@
 ---
-import type { Teacher } from "@/types/bakend-types";
+interface Props {
+  id: string;
+  teachers?: Teacher[];
+  bookings?: CalBookingPayload[];
+}
+
+import type { CalBookingPayload, Teacher } from "@/types/bakend-types";
+import TeacherCard from "../common/TeacherCard.astro";
+import BookingCard from "../common/BookingCard.astro";
 
 const id = Astro.props.id as string;
 const teachers = Astro.props.teachers as Teacher[];
+const bookings = Astro.props.bookings as CalBookingPayload[];
 ---
 
 <section class="max-w-2xl mx-auto py-4 sm:py-6 md:py-8 px-0 md:px-4" aria-label="Carrusel de profesores">
@@ -22,55 +31,8 @@ const teachers = Astro.props.teachers as Teacher[];
       role="region"
       aria-live="polite"
     >
-      {
-        teachers &&
-          teachers.map((teacher, i) => (
-            <article
-              class={` carousel-slide absolute top-1/2 left-1/2 flex flex-col items-center justify-center ${i === 0 ? "active" : ""} w-full h-full max-w-lg`}
-              style="transform: translate(-50%, -50%);"
-              data-index={i}
-              aria-hidden={i !== 0}
-            >
-              <figure class="flex flex-col items-center text-center">
-                <div class="relative group">
-                  <div
-                    class="absolute -inset-0 bg-salmon rounded-3xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-300"
-                    aria-hidden="true"
-                  />
-                  <img
-                    src={teacher.url_image}
-                    alt={`Fotografía de ${teacher.name}, profesor nativo de ${teacher.native_lang}`}
-                    class="carousel-img relative w-40 h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 rounded-3xl object-cover shadow-xl hover:shadow-2xl hover:shadow-red-500/30 hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
-                    data-index={i}
-                    data-cal-teacher={teacher.name}
-                    data-cal-namespace={id}
-                    data-cal-host={teacher.cal_id}
-                    data-cal-link={`${teacher.cal_link}/${id}`}
-                    loading="lazy"
-                  />
-                </div>
-                <figcaption class="text-black text-center space-y-1.5 px-2 md:px-3 pt-5">
-                  <h3 class="text-lg lg:text-xl font-semibold">{teacher.name}</h3>
-                  <div class="bg-opacity-70 bg-lightBrown rounded-xl py-1.5 w-fit px-4 m-auto">
-                    <p class="text-xs sm:text-sm flex items-center justify-center align-middle">
-                      <span class="font-medium" lang="es">
-                        {teacher.native_lang}
-                      </span>
-                    </p>
-                  </div>
-                  <p class="text-xs sm:text-sm leading-snug bg-opacity-70 px-1 md:px-2 rounded-lg max-w-xs sm:max-w-sm mx-auto">
-                    {teacher.description.map((line) => (
-                      <>
-                        {line}
-                        <br />
-                      </>
-                    ))}
-                  </p>
-                </figcaption>
-              </figure>
-            </article>
-          ))
-      }
+      {teachers && teachers.map((teacher: Teacher, i: number) => <TeacherCard teacher={teacher} i={i} id={id} />)}
+      {bookings && bookings.map((booking: CalBookingPayload, i: number) => <BookingCard booking={booking} i={i} />)}
     </div>
 
     <button
@@ -83,9 +45,9 @@ const teachers = Astro.props.teachers as Teacher[];
     </button>
   </div>
 
-  <!-- Dots de navegación - Solo mostrar si hay más de 1 profesor -->
+  <!-- Dots de navegación - Solo mostrar si hay más de 1 item -->
   {
-    teachers && teachers.length > 1 && (
+    teachers && teachers.length > 1 ? (
       <nav
         class="flex justify-center gap-1 sm:gap-2 mt-3 sm:mt-4"
         id={`carousel-dots-${id}`}
@@ -101,7 +63,23 @@ const teachers = Astro.props.teachers as Teacher[];
           />
         ))}
       </nav>
-    )
+    ) : bookings && bookings.length > 1 ? (
+      <nav
+        class="flex justify-center gap-1 sm:gap-2 mt-3 sm:mt-4"
+        id={`carousel-dots-${id}`}
+        aria-label="Navegación de reservas"
+      >
+        {bookings.map((booking, i) => (
+          <button
+            type="button"
+            class="carousel-dot w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-gray-300 transition-all duration-300 ease-out transform scale-100 hover:scale-110"
+            data-index={i}
+            aria-label={`Ver reserva ${i + 1}`}
+            aria-current={i === 0 ? "true" : "false"}
+          />
+        ))}
+      </nav>
+    ) : null
   }
 </section>
 
@@ -139,18 +117,10 @@ const teachers = Astro.props.teachers as Teacher[];
         });
 
         // Aplicar animación de salida al slide actual según la dirección
-        if (direction === "right") {
-          slides[current].classList.add("exit-left");
-        } else {
-          slides[current].classList.add("exit-right");
-        }
+        slides[current].classList.add(direction === "right" ? "exit-left" : "exit-right");
 
         // Aplicar animación de entrada al nuevo slide según la dirección
-        if (direction === "right") {
-          slides[idx].classList.add("enter-right");
-        } else {
-          slides[idx].classList.add("enter-left");
-        }
+        slides[idx].classList.add(direction === "right" ? "enter-right" : "enter-left");
 
         // Después de la animación, establecer el nuevo slide como activo
         setTimeout(() => {
@@ -208,102 +178,3 @@ const teachers = Astro.props.teachers as Teacher[];
     });
   });
 </script>
-
-<style>
-  @keyframes slideInFromRight {
-    from {
-      opacity: 0;
-      transform: translate(50%, -50%) scale(0.85) rotateY(-15deg);
-    }
-    to {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1) rotateY(0);
-    }
-  }
-
-  @keyframes slideInFromLeft {
-    from {
-      opacity: 0;
-      transform: translate(-150%, -50%) scale(0.85) rotateY(15deg);
-    }
-    to {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1) rotateY(0);
-    }
-  }
-
-  @keyframes slideOutToLeft {
-    from {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1) rotateY(0);
-    }
-    to {
-      opacity: 0;
-      transform: translate(-150%, -50%) scale(0.85) rotateY(15deg);
-    }
-  }
-
-  @keyframes slideOutToRight {
-    from {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1) rotateY(0);
-    }
-    to {
-      opacity: 0;
-      transform: translate(50%, -50%) scale(0.85) rotateY(-15deg);
-    }
-  }
-
-  .carousel-slide {
-    opacity: 0;
-    z-index: 0;
-    pointer-events: none;
-    transform: scale(0.85);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .carousel-slide.active {
-    opacity: 1;
-    z-index: 30;
-    pointer-events: auto;
-    transform: scale(1);
-  }
-
-  .carousel-slide.exit-right {
-    animation: slideOutToRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    z-index: 20;
-  }
-
-  .carousel-slide.exit-left {
-    animation: slideOutToLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    z-index: 20;
-  }
-
-  .carousel-slide.enter-right {
-    animation: slideInFromRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    z-index: 30;
-  }
-
-  .carousel-slide.enter-left {
-    animation: slideInFromLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    z-index: 30;
-  }
-
-  .carousel-img {
-    filter: brightness(0.85) saturate(1.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .carousel-slide.active .carousel-img {
-    filter: brightness(1) saturate(1);
-  }
-
-  .carousel-dot {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .carousel-dot:hover {
-    transform: scale(1.15) !important;
-    background-color: #f87171 !important;
-  }
-</style>

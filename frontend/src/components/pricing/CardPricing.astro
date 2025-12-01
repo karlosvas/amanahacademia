@@ -2,12 +2,9 @@
 import IconCheck from "@/assets/check.svg";
 import type { CardPricingType } from "@/types/types";
 import type { Class } from "@/enums/enums";
-import Carrousel from "./Carrousel.astro";
-import type { Teacher } from "@/types/bakend-types";
 
 const data = Astro.props.data as CardPricingType;
 const id = Astro.props.id as Class;
-const teachers = Astro.props.teachers as Teacher[];
 ---
 
 <div
@@ -46,5 +43,5 @@ const teachers = Astro.props.teachers as Teacher[];
   id={id}
   class="modal border-0 rounded-2xl shadow-2xl max-w-2xl w-[95%] mx-auto overflow-hidden p-8 bg-background"
 >
-  <Carrousel id={id} teachers={teachers} />
+  <slot />
 </dialog>

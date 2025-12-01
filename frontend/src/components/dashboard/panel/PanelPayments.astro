@@ -11,7 +11,6 @@ const token_cookie = Astro.cookies.get("session")?.value ?? "";
 if (!token_cookie) log.error("Deves iniciar sessión primero");
 
 let response: ResponseAPI<PaymentIntentSimplified[]> = await helper.getPaidReservations(token_cookie);
-log.info(response);
 
 if (!response.success) {
   log.error(`Error al obtener las reservas pagadas: ${response.error}`);

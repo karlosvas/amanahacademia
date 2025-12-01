@@ -1,0 +1,261 @@
+---
+import { log } from "@/services/logger";
+import type { CalBookingPayload } from "@/types/bakend-types";
+
+interface Props {
+  booking: CalBookingPayload;
+  i: number;
+  showDetails?: boolean;
+}
+
+const { booking, i, showDetails } = Astro.props;
+
+const startDate = booking.startTime ? new Date(booking.startTime) : null;
+const endDate = booking.endTime ? new Date(booking.endTime) : null;
+const statusColors = {
+  accepted: "bg-green-100 text-green-800 border-green-300",
+  pending: "bg-yellow-100 text-yellow-800 border-yellow-300",
+  cancelled: "bg-red-100 text-red-800 border-red-300",
+  rejected: "bg-gray-100 text-gray-800 border-gray-300",
+};
+const statusText = {
+  accepted: "Confirmada",
+  pending: "Pendiente",
+  cancelled: "Cancelada",
+  rejected: "Rechazada",
+};
+
+const key = (booking.status ?? "").toLowerCase() as keyof typeof statusColors;
+const color = statusColors[key] ?? statusColors.pending;
+const label = statusText[key] ?? booking.status;
+
+const titleArr = booking.title?.split(" ");
+let title = "";
+if (titleArr) title += titleArr[3] + " " + titleArr[4] + " " + titleArr[5];
+---
+
+<article
+  class={`${showDetails ? "" : "carousel-slide absolute top-1/2 left-1/2 h-full"} active flex flex-col items-center justify-center w-full max-w-lg`}
+  style={showDetails ? "" : "transform: translate(-50%, -50%);"}
+  data-index={showDetails ? null : i}
+  aria-hidden={showDetails ? false : i !== 0}
+>
+  <figure class="flex flex-col items-center text-center w-full px-4">
+    <div class="relative group w-full">
+      <div
+        class="absolute -inset-1 rounded-3xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"
+        aria-hidden="true"
+      >
+      </div>
+      <div
+        class={`${showDetails ? "" : "carousel-img"}  relative bg-white rounded-xl hover:shadow-red-500/20 transition-all duration-300 ease-out p-6 md:p-8`}
+      >
+        {/* Header con título y estado */}
+        <div class="flex flex-col items-center gap-3 mb-6">
+          <div class="bg-red/10 rounded-full p-4">
+            <svg class="w-10 h-10 md:w-12 md:h-12 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl lg:text-2xl font-bold text-gray-800">
+            Reserva Grupal <br />
+            {title}
+          </h3>
+          <span class={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold border ${color}`}>
+            {label}
+          </span>
+        </div>
+
+        {/* Información de fecha y hora */}
+        {
+          startDate && (
+            <div class="space-y-3 mb-6">
+              <div class="flex items-center justify-center gap-2 text-gray-700">
+                <svg class="w-5 h-5 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span class="text-sm md:text-base font-medium">
+                  {startDate.toLocaleDateString("es-ES", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+              <div class="flex items-center justify-center gap-2 text-gray-700">
+                <svg class="w-5 h-5 text-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span class="text-sm md:text-base font-medium">
+                  {startDate.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}
+                  {endDate && ` - ${endDate.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}`}
+                </span>
+              </div>
+            </div>
+          )
+        }
+
+        {/* Organizador */}
+        {
+          booking.organizer && (
+            <div class="bg-lightBrown/20 rounded-xl p-4 mb-4">
+              <p class="text-xs text-gray-600 mb-1">Profesor</p>
+              <p class="text-sm md:text-base font-semibold text-gray-800">{booking.organizer.name}</p>
+              <p class="text-xs text-gray-600">{booking.organizer.email}</p>
+            </div>
+          )
+        }
+
+        {/* Asistentes */}
+        {
+          booking.attendees && booking.attendees.length > 0 && (
+            <div class="bg-gray-50 rounded-xl p-4 mb-4">
+              <p class="text-xs text-gray-600 mb-2">Asistentes: </p>
+              <div class="space-y-1.5">
+                {booking.attendees.map((attendee: any) => (
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red" />
+                    <span class="text-xs md:text-sm text-gray-800">{attendee.name || attendee.email}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        }
+
+        {/* Descripción */}
+        {
+          booking.description && (
+            <p class="text-xs sm:text-sm text-gray-600 leading-relaxed mb-4 bg-white/50 rounded-lg p-3">
+              {booking.description}
+            </p>
+          )
+        }
+
+        {/* Razón de cancelación si existe */}
+        {
+          booking.cancellationReason && (
+            <div class="mt-4 bg-red-50 border border-red-200 rounded-lg p-3">
+              <p class="text-xs text-red-700">
+                <strong>Motivo:</strong> {booking.cancellationReason}
+              </p>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </figure>
+</article>
+
+<style>
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translate(50%, -50%) scale(0.85) rotateY(-15deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+  }
+
+  @keyframes slideInFromLeft {
+    from {
+      opacity: 0;
+      transform: translate(-150%, -50%) scale(0.85) rotateY(15deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+  }
+
+  @keyframes slideOutToLeft {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-150%, -50%) scale(0.85) rotateY(15deg);
+    }
+  }
+
+  @keyframes slideOutToRight {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translate(50%, -50%) scale(0.85) rotateY(-15deg);
+    }
+  }
+
+  .carousel-slide {
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    transform: scale(0.85);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .carousel-slide.active {
+    opacity: 1;
+    z-index: 30;
+    pointer-events: auto;
+    transform: scale(1);
+  }
+
+  .carousel-slide.exit-right {
+    animation: slideOutToRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 20;
+  }
+
+  .carousel-slide.exit-left {
+    animation: slideOutToLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 20;
+  }
+
+  .carousel-slide.enter-right {
+    animation: slideInFromRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 30;
+  }
+  .carousel-slide.enter-left {
+    animation: slideInFromLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    z-index: 30;
+  }
+
+  .carousel-img {
+    filter: brightness(0.85) saturate(1.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .carousel-slide.active .carousel-img {
+    filter: brightness(1) saturate(1);
+  }
+
+  .carousel-dot {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .carousel-dot:hover {
+    transform: scale(1.15) !important;
+    background-color: #f87171 !important;
+  }
+</style>

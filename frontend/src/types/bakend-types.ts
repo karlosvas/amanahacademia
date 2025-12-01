@@ -1,3 +1,4 @@
+/// Teachers
 export type Teacher = {
   uid?: string;
   cal_id: string;
@@ -9,6 +10,7 @@ export type Teacher = {
   description: string[];
 };
 
+/// Comments
 export interface Comment {
   id?: string;
   author_uid?: string;
@@ -22,13 +24,23 @@ export interface Comment {
   users_liked?: string[];
 }
 
+export interface ReplyComment {
+  id: string;
+  author_uid: string; // author_uid
+  name: string;
+  timestamp: string;
+  content: string;
+  url_img?: string | null;
+  like?: number;
+  users_liked?: string[];
+}
+
 export interface UpdateComment {
   content: string;
   stars: number;
 }
 
-export type ResponseAPI<T> = { success: true; data: T } | { success: false; error: string };
-
+/// Users
 export interface ProviderUserInfo {
   provider_id: string;
   federated_id?: string;
@@ -58,22 +70,6 @@ export interface UserMerged {
   created_at?: string;
   custom_auth?: boolean;
 }
-
-export interface EmailResend {
-  from: string;
-  name: string;
-  to?: string[]; // Opcional, array de strings
-  subject: string;
-  text: string;
-}
-
-export interface AddContactResponse {
-  id: string;
-  email_address: string;
-  status: string;
-}
-
-export type ProviderType = "email" | "google";
 
 export type UserRequest = {
   // Datos obligatorios requeridos por firebase auth
@@ -108,6 +104,24 @@ export type UserRequestGoogle = {
   subscription_tier?: string;
 };
 
+/// Resend
+export interface EmailResend {
+  from: string;
+  name: string;
+  to?: string[]; // Opcional, array de strings
+  subject: string;
+  text: string;
+}
+
+export interface AddContactResponse {
+  id: string;
+  email_address: string;
+  status: string;
+}
+
+export type ProviderType = "email" | "google";
+
+// Mailchimp
 export interface ContactMailchimp {
   email_address: string;
   status: string;
@@ -119,6 +133,7 @@ export interface MergeFields {
   LNAME?: string;
 }
 
+/// Stripe
 export interface CheckoutPaymentIntentResponse {
   client_secret: string;
   status: string;
@@ -135,54 +150,6 @@ export interface RelationalCalStripe {
   stripe_id: string;
 }
 
-export interface ReplyComment {
-  id: string;
-  author_uid: string; // author_uid
-  name: string;
-  timestamp: string;
-  content: string;
-  url_img?: string | null;
-  like?: number;
-  users_liked?: string[];
-}
-
-export interface Booking {
-  uid: string;
-  bookingId: string | null;
-  eventTypeId: string | null;
-  type: string | null;
-
-  title: string;
-  description: string | null;
-
-  startTime: string | null; // ISO date
-  endTime: string | null; // ISO date
-
-  attendees: BookingAttendee[];
-  organizer: BookingOrganizer | null;
-
-  location: string | null;
-  metadata: Record<string, unknown> | null;
-  status: BookingStatus;
-  cancellationReason: string | null;
-}
-
-export interface BookingAttendee {
-  email: string;
-  name: string;
-  timeZone: string;
-  language: {
-    locale: string;
-  };
-}
-
-export interface BookingOrganizer {
-  email?: string | null;
-  name?: string | null;
-}
-
-export type BookingStatus = "accepted" | "pending" | "cancelled" | "rejected";
-
 export interface StripeRelation {
   stripe_id: string;
 }
@@ -197,3 +164,163 @@ export interface PaymentIntentSimplified {
   metadata: Record<string, string>;
   payment_method_types: string[];
 }
+
+// Cal.com
+export interface BookingRequest {
+  startTime?: string;
+  endTime?: string;
+  eventTypeId?: number;
+  username?: string;
+  type?: string; // Event type slug (ej: "group-class", "standard-class")
+  teamSlug?: string;
+  organizationSlug?: string;
+  title?: string;
+  description?: string;
+  attendees: Attendee[];
+  location?: string;
+  metadata?: Record<string, string>;
+  status?: string;
+}
+
+export interface Attendee {
+  name: string;
+  email: string;
+  timeZone?: string;
+  language?: string;
+  phoneNumber?: string;
+  absent?: boolean;
+  locale?: string;
+}
+
+export interface Schedule {
+  id: number;
+  owner_id: number;
+  name: string;
+  time_zone: string;
+  availability: Availability[];
+  is_default: boolean;
+  overrides: any[];
+}
+
+export type Availability = {
+  days: string[];
+  start_time: string;
+  end_time: string;
+};
+
+/// Bookings
+/**
+ * Representa el estado de una reserva en Cal.com.
+ * El API utiliza mayúsculas separadas por guiones bajos (SNAKE_CASE).
+ */
+export type BookingStatus = "ACCEPTED" | "CANCELLED" | "PENDING" | "REJECTED" | "UNKNOWN";
+
+/**
+ * Representa a un asistente de la reserva (estudiante o huésped).
+ */
+export interface Attendee {
+  /** Nombre completo del asistente. */
+  name: string;
+  /** Dirección de correo electrónico. */
+  email: string;
+  /** Zona horaria del asistente (ej: "Europe/Madrid"). */
+  timeZone: string;
+  /** Idioma preferido (ej: "es"). */
+  locale: string;
+  /** Rol del asistente (ej: "booker"). */
+  role?: string;
+}
+
+/**
+ * Representa al organizador (anfitrión/profesor) de la reserva.
+ */
+export interface Organizer {
+  /** Nombre completo del organizador. */
+  name: string;
+  /** Dirección de correo electrónico. */
+  email: string;
+  /** Identificador numérico del organizador en Cal.com. */
+  id: number;
+  /** Username del organizador. */
+  username: string;
+  /** Zona horaria del organizador. */
+  timeZone: string;
+}
+
+/**
+ * Payload que representa una reserva completa de Cal.com, usado tanto en
+ * respuestas de API como en webhooks.
+ */
+export interface CalBookingPayload {
+  /** Identificador único de la reserva en Cal.com. Opcional en la creación. */
+  uid?: string;
+
+  /** ID numérico de la reserva en Cal.com (bookingId). */
+  bookingId?: number;
+
+  /** ID del tipo de evento (eventTypeId). */
+  eventTypeId?: number;
+
+  /** Slug del tipo de evento (mapeado desde el campo 'type' en el payload JSON). */
+  type?: string;
+
+  /** Username del usuario/organizador. */
+  username?: string;
+
+  /** Slug del equipo (teamSlug). */
+  teamSlug?: string;
+
+  /** Slug de la organización (organizationSlug). */
+  organizationSlug?: string;
+
+  /** Título descriptivo de la reserva. */
+  title?: string;
+
+  /** Descripción del evento. */
+  description?: string;
+
+  /**
+   * Fecha y hora de inicio de la reserva en formato ISO 8601.
+   * Acepta 'startTime' y 'start' en JSON.
+   */
+  startTime?: string;
+
+  /**
+   * Fecha y hora de finalización de la reserva en formato ISO 8601.
+   * Acepta 'endTime' y 'end' en JSON.
+   */
+  endTime?: string;
+
+  /** Duración de la reserva en minutos. */
+  duration?: number;
+
+  /** Lista de asistentes a la reserva. */
+  attendees: Attendee[];
+
+  /** Información del organizador (anfitrión). */
+  organizer?: Organizer;
+
+  /** Ubicación/URL de la videollamada. */
+  location?: string;
+
+  /** Metadatos adicionales de la reserva (estructura flexible). */
+  metadata?: Record<string, any>; // Usamos Record<string, any> para el objeto JSON flexible
+
+  /** Estado actual de la reserva (ACCEPTED, CANCELLED, PENDING, REJECTED). */
+  status: BookingStatus;
+
+  /** Razón de cancelación si la reserva fue cancelada (cancellationReason). */
+  cancellationReason?: string;
+
+  /** URL de la reunión (meetingUrl). */
+  meetingUrl?: string;
+
+  /** Token de cancelación (cancelToken). */
+  cancelToken?: string;
+
+  /** Token de reagendamiento (rescheduleToken). */
+  rescheduleToken?: string;
+}
+
+// API implementacion
+export type ResponseAPI<T> = { success: true; data: T } | { success: false; error: string };
