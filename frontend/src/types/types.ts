@@ -125,6 +125,11 @@ export type PricingI18n = {
     description: string;
     button?: string;
   }[];
+  no_classes: {
+    title: string;
+    description: string;
+    badge: string;
+  };
 };
 
 export type ContactI18n = {

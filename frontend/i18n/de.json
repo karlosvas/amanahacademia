@@ -178,7 +178,12 @@
           "title": "Hinweis, kontaktieren Sie uns",
           "description": "Wir empfehlen Ihnen, uns vor der Buchung einer Unterrichtsstunde zu kontaktieren, damit wir Ihnen je nach Ihrem Niveau und Ihren Zielen den besten Fachmann empfehlen können. Sie können uns schreiben an"
         }
-      ]
+      ],
+      "no_classes": {
+        "title": "Keine Kurse verfügbar",
+        "description": "Im Moment gibt es keine geplanten Kurse. Wir werden bald neue Optionen hinzufügen.",
+        "badge": "Demnächst"
+      }
     },
     "courses": {
       "title": "Kurse",

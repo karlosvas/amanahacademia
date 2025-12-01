@@ -175,7 +175,12 @@
           "title": "Avviso, mettiti in contatto",
           "description": "Ti consigliamo di metterti in contatto con noi prima di prenotare una lezione affinché possiamo consigliarti il miglior professionista in base al tuo livello e ai tuoi obiettivi. Puoi scriverci a"
         }
-      ]
+      ],
+      "no_classes": {
+        "title": "Nessuna lezione disponibile",
+        "description": "Al momento non ci sono lezioni programmate. Aggiungeremo presto nuove opzioni.",
+        "badge": "Prossimamente"
+      }
     },
     "courses": {
       "title": "Corsi",

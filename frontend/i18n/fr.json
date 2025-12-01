@@ -175,7 +175,12 @@
           "title": "Avis, contactez-nous",
           "description": "Nous vous recommandons de nous contacter avant de réserver un cours afin que nous puissions vous conseiller le meilleur professionnel en fonction de votre niveau et de vos objectifs. Vous pouvez nous écrire à"
         }
-      ]
+      ],
+      "no_classes": {
+        "title": "Aucun cours disponible",
+        "description": "Il n'y a pas de cours programmés pour le moment. Nous ajouterons bientôt de nouvelles options.",
+        "badge": "Prochainement"
+      }
     },
     "courses": {
       "title": "Cours",

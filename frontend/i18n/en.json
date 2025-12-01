@@ -165,7 +165,12 @@
           "title": "Notice, get in touch",
           "description": "We recommend you contact us before booking a class so we can advise you on the best professional depending on your level and your goals. You can write to us at"
         }
-      ]
+      ],
+      "no_classes": {
+        "title": "No classes available",
+        "description": "There are no scheduled classes at the moment. We will be adding new options soon.",
+        "badge": "Coming Soon"
+      }
     },
     "courses": {
       "title": "Courses",

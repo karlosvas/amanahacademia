@@ -176,7 +176,12 @@
           "title": "Aviso, ponte en contacto",
           "description": "Te recomendamos ponerte en contacto con nosotros antes de reservar una clase para que te podamos aconsejar al mejor profesional dependiendo de tu nivel y de tus objetivos. Puedes escribirnos a"
         }
-      ]
+      ],
+      "no_classes": {
+        "title": "No hay clases disponibles",
+        "description": "Por el momento no hay clases programadas. Pronto añadiremos nuevas opciones.",
+        "badge": "Próximamente"
+      }
     },
     "courses": {
       "title": "Cursos",
