@@ -1,8 +1,5 @@
 use {
-    crate::models::{
-        metrics::ServiceAccount,
-        webhook::{BookingChange, CalBookingPayload as Booking},
-    },
+    crate::models::{cal::CalBookingPayload, metrics::ServiceAccount, webhook::BookingChange},
     reqwest::Client as HttpClient,
     resend_rs::Resend,
     std::{collections::HashMap, sync::Arc},
@@ -33,7 +30,7 @@ pub struct CalOptions {
     pub api_version: String,
     pub base_url: String,
     pub api_key: String,
-    pub booking_cache: Arc<RwLock<HashMap<String, Booking>>>,
+    pub booking_cache: Arc<RwLock<HashMap<String, CalBookingPayload>>>,
     pub recent_changes: Arc<RwLock<Vec<BookingChange>>>,
 }
 

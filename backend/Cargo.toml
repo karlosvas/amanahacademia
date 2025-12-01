@@ -18,7 +18,6 @@ axum-extra = "0.9"
 headers = "0.4"
 thiserror = "1.0"
 anyhow = "1.0"
-chrono = "0.4"
 async-stripe = { version = "0.41.0", features = ["runtime-tokio-hyper"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
@@ -27,3 +26,4 @@ time = "0.3"
 resend-rs = "0.18.0"
 ecow = "0.2"
 uuid = { version = "1.4", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }

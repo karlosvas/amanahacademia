@@ -128,8 +128,18 @@ async fn main() {
         env::var("MAILCHIMP_LIST_ID").expect("MAILCHIMP_LIST_ID must be set"),
     );
 
+    // Configurar cliente HTTP con timeouts mayores para Cal.com
+    let cal_client: HttpClient = HttpClient::builder()
+        .timeout(std::time::Duration::from_secs(60)) // Timeout total de 60 segundos
+        .connect_timeout(std::time::Duration::from_secs(10)) // Timeout de conexión de 10 segundos
+        .pool_idle_timeout(std::time::Duration::from_secs(90)) // Mantener conexiones idle por 90 segundos
+        .pool_max_idle_per_host(10) // Máximo de conexiones idle por host
+        .tcp_keepalive(std::time::Duration::from_secs(30)) // Enviar keepalive cada 30 segundos
+        .build()
+        .expect("Failed to build Cal.com HTTP client");
+
     let cal_options: CalOptions = CalOptions {
-        client: HttpClient::new(),
+        client: cal_client,
         api_version: env::var("CAL_API_VERSION").expect("CAL_API_VERSION must be set"),
         base_url: env::var("CAL_BASE_URL").expect("CAL_BASE_URL must be set"),
         api_key: env::var("CAL_API_KEY").expect("CAL_API_KEY must be set"),

@@ -1,5 +1,5 @@
 use {
-    crate::models::cal::BookingStatus,
+    crate::models::cal::{BookingStatus, CalBookingPayload},
     chrono::{DateTime, Utc},
     core::fmt,
     serde::{Deserialize, Serialize},
@@ -35,64 +35,6 @@ pub struct CalWebhookEvent {
     #[serde(rename = "createdAt")]
     pub created_at: String,
     pub payload: CalBookingPayload,
-}
-
-/// Estructura de los datos de la reserva incluidos en el payload del webhook de Cal.com
-#[derive(Deserialize, Debug, Serialize, Clone)]
-pub struct CalBookingPayload {
-    /// Identificador único de la reserva en Cal.com
-    pub uid: String,
-
-    /// ID numérico de la reserva en Cal.com (opcional, puede no estar presente en algunos eventos)
-    #[serde(rename = "bookingId")]
-    pub booking_id: Option<i64>,
-
-    /// ID del tipo de evento (ej: clase individual, clase grupal, consultoría)
-    #[serde(rename = "eventTypeId")]
-    pub event_type_id: Option<i64>,
-
-    /// Slug del tipo de evento (ej: "free-class", "standard-class", "conversation-class")
-    /// API v2 puede no incluir este campo en respuestas GET, pero sí en webhooks
-    #[serde(rename = "type", default)]
-    pub event_type_slug: Option<String>,
-
-    /// Título descriptivo de la reserva (ej: "30min Meeting between John and Teacher")
-    pub title: String,
-
-    /// Descripción del evento (opcional)
-    pub description: Option<String>,
-
-    /// Fecha y hora de inicio de la reserva en formato ISO 8601
-    /// Puede venir como "startTime" o "start" dependiendo de la fuente (webhook vs API)
-    #[serde(rename = "startTime", alias = "start", default)]
-    pub start_time: Option<String>,
-
-    /// Fecha y hora de finalización de la reserva en formato ISO 8601
-    /// Puede venir como "endTime" o "end" dependiendo de la fuente (webhook vs API)
-    #[serde(rename = "endTime", alias = "end", default)]
-    pub end_time: Option<String>,
-
-    /// Lista de asistentes a la reserva (estudiantes, profesores)
-    #[serde(default)]
-    pub attendees: Vec<Attendee>,
-
-    /// Información del organizador (profesor)
-    /// Puede no estar presente en todas las respuestas de la API
-    #[serde(default)]
-    pub organizer: Option<Organizer>,
-
-    /// Ubicación/URL de la videollamada
-    pub location: Option<String>,
-
-    /// Metadatos adicionales de la reserva (puede incluir información personalizada del formulario)
-    pub metadata: Option<Value>,
-
-    /// Estado actual de la reserva (ACCEPTED, CANCELLED, PENDING, REJECTED)
-    pub status: BookingStatus,
-
-    /// Razón de cancelación si la reserva fue cancelada (opcional)
-    #[serde(rename = "cancellationReason")]
-    pub cancellation_reason: Option<String>,
 }
 
 /// Estructura que representa a un asistente en una reserva de Cal.com
@@ -144,7 +86,6 @@ pub struct Organizer {
     pub name: String,
     pub email: String,
     pub username: String,
-
     #[serde(rename = "timeZone")]
     pub time_zone: String,
 }
@@ -169,7 +110,21 @@ pub struct BookingChange {
 }
 
 /// Estructura de respuesta paginada de Cal.com API v2
+/// La respuesta tiene la estructura: {"status": "success", "data": {"bookings": [...]}}
 #[derive(Deserialize, Debug)]
 pub struct CalBookingsResponse {
-    pub data: Vec<CalBookingPayload>,
+    pub status: String,
+    pub data: CalBookingsData,
+}
+
+/// Estructura interna del campo "data" en la respuesta de Cal.com API v2
+#[derive(Deserialize, Debug)]
+pub struct CalBookingsData {
+    pub bookings: Vec<CalBookingPayload>,
+    #[serde(rename = "recurringInfo", default)]
+    pub recurring_info: Vec<Value>,
+    #[serde(rename = "totalCount", default)]
+    pub total_count: Option<i32>,
+    #[serde(rename = "nextCursor", default)]
+    pub next_cursor: Option<String>,
 }

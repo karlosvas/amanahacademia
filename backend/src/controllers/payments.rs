@@ -1,7 +1,6 @@
 use {
     crate::{
         models::{
-            firebase::UserAuthentication,
             response::ResponseAPI,
             state::AppState,
             stripe::{

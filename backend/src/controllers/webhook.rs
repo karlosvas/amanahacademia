@@ -26,7 +26,7 @@ pub async fn health_check() -> &'static str {
 
 /// Procesa el reembolso de un booking cancelado
 /// Retorna Ok(RefundResponse) si el reembolso fue exitoso
-async fn process_refund(state: &AppState, booking_id: &str) -> Result<RefundResponse, String> {
+async fn process_refund(state: &AppState, booking_id: &String) -> Result<RefundResponse, String> {
     tracing::info!("Procesando reembolso para booking: {}", booking_id);
 
     let url_firebase_db_relationship: String = format!(
@@ -109,7 +109,7 @@ async fn process_refund(state: &AppState, booking_id: &str) -> Result<RefundResp
 /// Para permitir solo 1 por persona
 async fn process_created_free(
     state: &AppState,
-    booking_id: &str,
+    booking_id: &String,
     attendees: &[Attendee],
 ) -> Result<String, String> {
     let user_email: String = match attendees.first() {
@@ -158,13 +158,25 @@ pub async fn handle_cal_webhook(
     // Si el evento es cancelación, procesamos refund
     match event.trigger_event {
         WebhookTrigger::BookingCancelled => {
+            let uid: &String = match event.payload.uid.as_ref() {
+                Some(id) => id,
+                None => {
+                    tracing::error!("Missing uid in cancelled booking payload");
+                    return (
+                        StatusCode::BAD_REQUEST,
+                        Json(ResponseAPI::<()>::error("Missing booking uid".to_string())),
+                    )
+                        .into_response();
+                }
+            };
+
             tracing::info!(
                 "Booking cancelled: {} - Reason: {:?}",
-                event.payload.uid,
+                uid,
                 event.payload.cancellation_reason
             );
 
-            match process_refund(&state, &event.payload.uid).await {
+            match process_refund(&state, uid).await {
                 Ok(refund_response) => {
                     return (
                         StatusCode::OK,
@@ -185,17 +197,27 @@ pub async fn handle_cal_webhook(
             }
         }
         WebhookTrigger::BookingCreated => {
-            tracing::info!("Booking created: {}", event.payload.uid);
+            let uid: &String = match event.payload.uid.as_ref() {
+                Some(id) => id,
+                None => {
+                    tracing::error!("Missing uid in created booking payload");
+                    return (
+                        StatusCode::BAD_REQUEST,
+                        Json(ResponseAPI::<()>::error("Missing booking uid".to_string())),
+                    )
+                        .into_response();
+                }
+            };
+
+            tracing::info!("Booking created: {}", uid);
             if event.payload.event_type_slug.as_deref() == Some("free-class") {
-                tracing::info!("New booking created: {}", event.payload.uid);
+                tracing::info!("New booking created: {}", uid);
                 // Procesamos el booking creado
-                match process_created_free(&state, &event.payload.uid, &event.payload.attendees)
-                    .await
-                {
+                match process_created_free(&state, uid, &event.payload.attendees).await {
                     Ok(success_msg) => {
                         tracing::info!(
                             "Booking gratuito creado procesado exitosamente - booking: {}",
-                            event.payload.uid
+                            uid
                         );
                         return (
                             StatusCode::OK,
@@ -209,7 +231,7 @@ pub async fn handle_cal_webhook(
                     Err(err_msg) => {
                         tracing::error!(
                             "Error procesando booking gratuito creado - booking: {}, Error: {}",
-                            event.payload.uid,
+                            uid,
                             err_msg
                         );
                         return (
