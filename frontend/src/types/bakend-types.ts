@@ -247,6 +247,19 @@ export interface Organizer {
   timeZone: string;
 }
 
+export interface UserCal {
+  id: number;
+  username: string;
+  email: string;
+  timeZone?: string;
+}
+
+export interface EventTypeCal {
+  id: number;
+  slug: string;
+  title: string;
+}
+
 /**
  * Payload que representa una reserva completa de Cal.com, usado tanto en
  * respuestas de API como en webhooks.
@@ -258,6 +271,9 @@ export interface CalBookingPayload {
   /** ID numérico de la reserva en Cal.com (bookingId). */
   bookingId?: number;
 
+  /** Información del tipo de evento asociado a la reserva. */
+  eventType?: EventTypeCal;
+
   /** ID del tipo de evento (eventTypeId). */
   eventTypeId?: number;
 
@@ -265,7 +281,7 @@ export interface CalBookingPayload {
   type?: string;
 
   /** Username del usuario/organizador. */
-  username?: string;
+  user?: UserCal;
 
   /** Slug del equipo (teamSlug). */
   teamSlug?: string;

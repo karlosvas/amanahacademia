@@ -2,7 +2,7 @@
 import { log } from "@/services/logger";
 import UserInfoPanel from "../UserInfoPanel.astro";
 import { ApiService } from "@/services/helper";
-import type { ResponseAPI, Booking, StripeRelation } from "@/types/bakend-types";
+import type { ResponseAPI, CalBookingPayload, StripeRelation } from "@/types/bakend-types";
 
 const helper = new ApiService();
 
@@ -20,11 +20,11 @@ if (!response.success) {
 const bookingPromises = Object.keys(response.data).map((id) => helper.getBookingById(id, token_cookie));
 
 // Ejecutar todas en paralelo
-const bookingResponses: ResponseAPI<Booking>[] = await Promise.all(bookingPromises);
+const bookingResponses: ResponseAPI<CalBookingPayload>[] = await Promise.all(bookingPromises);
 
 // Filtrar solo las exitosas
-const listOfClass: Booking[] = bookingResponses
-  .filter((response): response is { success: true; data: Booking } => {
+const listOfClass: CalBookingPayload[] = bookingResponses
+  .filter((response): response is { success: true; data: CalBookingPayload } => {
     if (!response.success) {
       log.error(response);
       log.error(`Error al obtener booking: ${response.error}`);
@@ -33,9 +33,52 @@ const listOfClass: Booking[] = bookingResponses
     return true;
   })
   .map((response) => response.data);
+
+// Agrupar clases por profesor (organizer)
+const classesByOrganizer = listOfClass.reduce(
+  (acc, booking) => {
+    let organizerName = "Sin profesor";
+
+    if (booking.user) {
+      let auxUser: string[] = booking.user?.username.split("-");
+      auxUser.forEach((part, index) => {
+        auxUser[index] = part.charAt(0).toUpperCase() + part.slice(1);
+      });
+      // Eliminamos el ultimo elemento que es su ID de calendario
+      auxUser.pop();
+      organizerName = auxUser.join(" ");
+    }
+
+    if (!acc[organizerName]) {
+      acc[organizerName] = [];
+    }
+    acc[organizerName].push(booking);
+    return acc;
+  },
+  {} as Record<string, CalBookingPayload[]>
+);
 ---
 
 <section>
   <h1 class="text-red text-4xl font-bold my-10">Profesores y Estudiantes</h1>
-  {listOfClass.map((e: Booking) => <UserInfoPanel booking={e} iconType="users" />)}
+  {
+    Object.entries(classesByOrganizer).map(([organizerName, bookings]) => (
+      <div class="mb-6 border border-gray-200 rounded-lg overflow-hidden">
+        <h2
+          class="text-white text-2xl font-semibold p-4 bg-brown hover:bg-salmon duration-300 cursor-pointer flex items-center justify-between transition-colors"
+          onclick={`this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')`}
+        >
+          <span>{organizerName}</span>
+          <svg class="w-6 h-6 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </h2>
+        <div class="hidden p-4 space-y-4">
+          {bookings.map((booking) => (
+            <UserInfoPanel booking={booking} iconType="users" />
+          ))}
+        </div>
+      </div>
+    ))
+  }
 </section>

@@ -3,17 +3,10 @@ import type { FooterI18n } from "@/types/types";
 import PhoneIcon from "@/assets/phone.svg";
 import GmailIcon from "@/assets/gmail.svg";
 import InstagramIcon from "@/assets/instagram.svg";
-import ArrowIcon from "@/assets/arrow.svg";
 
 const data = Astro.props.data as FooterI18n;
 ---
 
-<div
-  id="backToTop"
-  class="fixed bottom-24 right-8 w-14 h-14 bg-salmon hover:bg-lightSalmon text-white flex items-center justify-center cursor-pointer opacity-0 invisible z-50 bg-gradient-to-br from-lightRed to-salmon rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 group-hover:rotate-90"
->
-  <ArrowIcon height={25} />
-</div>
 <footer class="text-xs md:text-sm bg-brown w-full h-28 flex items-center px-3 md:px-8 text-gray-100 relative">
   <ul class="flex-1 space-y-1">
     <li>
@@ -69,97 +62,3 @@ const data = Astro.props.data as FooterI18n;
     </li>
   </ul>
 </footer>
-
-<script>
-  // Mostrar el botón backToTop al hacer scroll y animación de entrada/salida
-  (function () {
-    const btn = document.getElementById("backToTop");
-    if (!btn) return;
-
-    const showClass = "back--visible";
-    const hideClass = "back--hidden";
-    let lastScroll = 0;
-
-    function onScroll() {
-      const y = window.scrollY || window.pageYOffset;
-      // Mostrar si hemos scrolleado > 200px y scrolleamos hacia abajo o simplemente pasamos el umbral
-      if (y > 200 && y > lastScroll) {
-        btn?.classList.add(showClass);
-        btn?.classList.remove(hideClass);
-      } else if (y <= 200) {
-        btn?.classList.add(hideClass);
-        btn?.classList.remove(showClass);
-      }
-      lastScroll = y;
-    }
-
-    // Scroll to top on click (sin svg, solo comportamiento)
-    btn?.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
-    // Inicializar estado y listeners
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-  })();
-</script>
-
-<style>
-  @keyframes pulse {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
-    }
-    50% {
-      box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
-    }
-  }
-
-  /* Transiciones base */
-  #backToTop {
-    transition:
-      transform 0.3s ease,
-      box-shadow 0.3s ease,
-      opacity 0.3s ease,
-      visibility 0.3s ease;
-    transform-origin: center;
-    opacity: 0;
-    visibility: hidden;
-    will-change: transform, opacity;
-  }
-
-  /* Estado visible / oculto */
-  #backToTop.back--visible {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0) scale(1);
-  }
-
-  #backToTop.back--hidden {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(8px) scale(0.98);
-  }
-
-  /* Hover: efecto pulse + ligera escala (igual que admin-toggle) */
-  #backToTop:hover {
-    transform: scale(1.08);
-    animation: pulse 2s infinite;
-  }
-
-  /* Pequeña rotación del contenido interno al hacer hover (si hay un svg dentro) */
-  #backToTop:hover > svg,
-  #backToTop:hover > * {
-    transform: rotate(180deg);
-    transition: transform 0.3s ease;
-  }
-
-  /* Ajustes responsivos / accesibles */
-  @media (prefers-reduced-motion: reduce) {
-    #backToTop,
-    #backToTop:hover {
-      animation: none !important;
-      transition: none !important;
-    }
-  }
-</style>

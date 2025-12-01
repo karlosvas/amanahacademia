@@ -6,6 +6,7 @@ import type { PropsSEO } from "@/types/types";
 import AdministratorPanel from "@/components/dashboard/AdministratorPanel.astro";
 import { cookiesTranslation } from "@/../i18n/index";
 import { Languages } from "@/enums/enums";
+import ArrowIcon from "@/assets/arrow.svg";
 
 declare global {
   interface Window {
@@ -294,6 +295,13 @@ const cookieMessage =
         </div>
       </div>
     </aside>
+    <div
+      id="backToTop"
+      class="fixed bottom-24 right-8 w-14 h-14 bg-salmon hover:bg-lightSalmon text-white flex items-center justify-center cursor-pointer z-[9999] bg-gradient-to-br from-lightRed to-salmon rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 opacity-0 invisible"
+      onclick="window.scrollTo({top:0, behavior:'smooth'})"
+    >
+      <ArrowIcon height={25} />
+    </div>
     <AdministratorPanel />
   </body>
 </html>
@@ -343,24 +351,47 @@ const cookieMessage =
     rejectCookiesElement.addEventListener("click", () => rejectCookies());
   }
 
-  // Botón para volver al inicio
+  // Botón para volver al inicio - usando MutationObserver para detectar cambios de scroll
   const backToTopButton = document.getElementById("backToTop");
-  if (backToTopButton) {
-    window.addEventListener("scroll", () => {
-      if (window.pageYOffset > 300) {
-        backToTopButton.classList.remove("opacity-0", "invisible");
-        backToTopButton.classList.add("opacity-100", "visible");
-      } else {
-        backToTopButton.classList.remove("opacity-100", "visible");
-        backToTopButton.classList.add("opacity-0", "invisible");
-      }
-    });
 
+  if (backToTopButton) {
+    let lastKnownScrollPosition = 0;
+
+    const updateButtonVisibility = () => {
+      // Intentar obtener scroll de múltiples fuentes
+      const scrolled =
+        window.pageYOffset ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop ||
+        window.scrollY ||
+        0;
+
+      // Solo actualizar si cambió
+      if (scrolled !== lastKnownScrollPosition) {
+        lastKnownScrollPosition = scrolled;
+
+        if (scrolled > 200) {
+          backToTopButton.style.opacity = "1";
+          backToTopButton.style.visibility = "visible";
+        } else {
+          backToTopButton.style.opacity = "0";
+          backToTopButton.style.visibility = "hidden";
+        }
+      }
+    };
+
+    // Polling cada 100ms para capturar el scroll
+    setInterval(updateButtonVisibility, 100);
+
+    // Estado inicial
+    updateButtonVisibility();
+
+    // Click handler
     backToTopButton.addEventListener("click", () => {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      // También intentar scroll en body y html
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     });
   }
 
@@ -405,6 +436,43 @@ const cookieMessage =
     to {
       transform: translateY(100%);
       opacity: 0;
+    }
+  }
+  @keyframes pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+  }
+
+  /* Hover: efecto pulse + ligera escala */
+  #backToTop:hover {
+    transform: scale(1.08);
+    animation: pulse 2s infinite;
+  }
+
+  /* Transición suave en el contenido interno (estado normal) */
+  #backToTop > svg,
+  #backToTop > * {
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+  }
+
+  /* Rotación del contenido interno al hacer hover */
+  #backToTop:hover > svg,
+  #backToTop:hover > * {
+    transform: rotate(180deg);
+  }
+
+  /* Ajustes responsivos / accesibles */
+  @media (prefers-reduced-motion: reduce) {
+    #backToTop,
+    #backToTop:hover {
+      animation: none !important;
+      transition: none !important;
     }
   }
 </style>
