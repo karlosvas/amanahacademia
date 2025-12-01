@@ -46,7 +46,7 @@ const classesByOrganizer = listOfClass.reduce(
       });
       // Eliminamos el ultimo elemento que es su ID de calendario
       auxUser.pop();
-      organizerName = auxUser.join(" ");
+      organizerName = auxUser.join(" ").trim();
     }
 
     if (!acc[organizerName]) {

@@ -174,6 +174,7 @@ pub async fn get_booking(
         .await
         .map_err(|e| format!("Error fetching booking: {}", e));
 
+    println!("Response result: {:?}", resp_result);
     match resp_result {
         Ok(resp) => match resp.text().await {
             Ok(body) => match serde_json::from_str::<CalApiResponse<CalBookingPayload>>(&body) {
@@ -269,8 +270,8 @@ pub async fn add_booking(
     if let Some(event_type_slug) = &payload.event_type_slug {
         body["eventTypeSlug"] = json!(event_type_slug);
     }
-    if let Some(username) = &payload.username {
-        body["username"] = json!(username);
+    if let Some(user) = &payload.user {
+        body["user"] = json!(user);
     }
     if let Some(team_slug) = &payload.team_slug {
         body["teamSlug"] = json!(team_slug);

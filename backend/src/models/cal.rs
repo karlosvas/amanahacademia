@@ -77,6 +77,22 @@ pub struct BookingsQueryParams {
     pub sort_start: Option<String>, // "asc" | "desc"
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct UserCal {
+    pub id: i64,
+    pub username: String,
+    pub email: String,
+    #[serde(default)]
+    pub timeZone: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct EventTypeCal {
+    pub id: i64,
+    pub slug: String,
+    pub title: String,
+}
+
 /// Estructura de los datos de la reserva incluidos en el payload del webhook de Cal.com
 /// Compatible con Cal.com API v2 (webhooks y endpoints REST)
 #[derive(Deserialize, Debug, Serialize, Clone)]
@@ -103,9 +119,12 @@ pub struct CalBookingPayload {
     #[serde(rename = "type", default, skip_serializing_if = "Option::is_none")]
     pub event_type_slug: Option<String>,
 
+    #[serde(rename = "eventType", default, skip_serializing_if = "Option::is_none")]
+    pub event_type: Option<EventTypeCal>,
+
     /// Username del usuario/organizador (requerido para crear bookings sin eventTypeId)
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub username: Option<String>,
+    pub user: Option<UserCal>,
 
     /// Slug del equipo (opcional, para bookings de equipo)
     #[serde(rename = "teamSlug", default, skip_serializing_if = "Option::is_none")]
