@@ -140,7 +140,6 @@ async fn main() {
 
     let cal_options: CalOptions = CalOptions {
         client: cal_client,
-        api_version: env::var("CAL_API_VERSION").expect("CAL_API_VERSION must be set"),
         base_url: env::var("CAL_BASE_URL").expect("CAL_BASE_URL must be set"),
         api_key: env::var("CAL_API_KEY").expect("CAL_API_KEY must be set"),
         booking_cache: Arc::new(tokio::sync::RwLock::new(HashMap::new())),

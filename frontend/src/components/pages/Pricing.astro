@@ -7,6 +7,7 @@ import { log } from "@/services/logger";
 import type { PricingI18n } from "@/types/types";
 import toast from "solid-toast";
 import Carrousel from "../pricing/Carrousel.astro";
+import type { BookingStatus, CalBookingPayload, Teacher } from "@/types/bakend-types";
 
 const data = Astro.props.data as PricingI18n;
 
@@ -33,8 +34,6 @@ try {
   if (bookingsResponse.success && bookingsResponse.data) bookings = bookingsResponse.data;
   else if (!bookingsResponse.success) log.error(bookingsResponse);
   else log.error("Unknown error fetching group bookings");
-
-  log.info("Group bookings:", bookings);
 } catch (e) {
   log.error("Error fetching teachers:", e);
 }
@@ -47,10 +46,10 @@ try {
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center items-stretch h-auto gap-6 sm:gap-8 md:gap-6 lg:gap-4 w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-4"
     >
       <CardPricing data={data.type.standard} id={Class.Standard}>
-        <Carrousel id={Class.Standard} teachers={teachers} />
+        <Carrousel id={Class.Standard} teachers={teachers} data={data} />
       </CardPricing>
       <CardPricing data={data.type.conversation} id={Class.Conversacion}>
-        <Carrousel id={Class.Conversacion} teachers={teachers} />
+        <Carrousel id={Class.Conversacion} teachers={teachers} data={data} />
       </CardPricing>
       <CardPricing data={data.type.group} id={Class.Grupales}>
         <Carrousel id={Class.Grupales} bookings={bookings} data={data} />

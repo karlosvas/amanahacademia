@@ -1,6 +1,9 @@
 use {
     crate::models::{
-        cal::{BookingsQueryParams, CalApiResponse, CalBookingPayload, Schedule},
+        cal::{
+            AddGuestsPayload, BookingsQueryParams, CalApiResponse, CalBookingPayload,
+            FetchCalErrors, Schedule, UserCal,
+        },
         response::ResponseAPI,
         state::AppState,
         webhook::{BookingChange, CalBookingsResponse},
@@ -16,72 +19,71 @@ use {
     serde_json::{Value, json},
     std::{collections::HashMap, sync::Arc},
     tokio::sync::RwLockWriteGuard,
-    tracing::debug,
+    tracing::{debug, error, info, instrument, warn},
 };
 
 /// Confirmar un booking
+#[axum::debug_handler]
+#[instrument(skip(state), fields(booking_id = %id))]
 pub async fn confirm_booking(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
-    let url_cal: String = format!("{}/bookings/{}/confirm", state.cal_options.base_url, id);
+    let url: String = format!("{}/bookings/{}/confirm", state.cal_options.base_url, id);
 
-    match state
+    let response: Response = match state
         .cal_options
         .client
-        .post(&url_cal)
+        .post(&url)
         .header("Content-Type", "application/json")
-        .header("cal-api-version", &state.cal_options.api_version)
+        .header("cal-api-version", "2024-06-11")
         .header("Authorization", &state.cal_options.api_key)
         .send()
         .await
     {
-        Ok(response) => {
-            if response.status().is_success() {
-                tracing::info!("Booking {} confirmado exitosamente en Cal.com", id);
-                (StatusCode::NO_CONTENT).into_response()
-            } else {
-                let status: StatusCode = StatusCode::from_u16(response.status().as_u16())
-                    .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
-                let text: String = response.text().await.unwrap_or_default();
-                tracing::error!(
-                    "Error confirmando booking {} en Cal.com: {} - {}",
-                    id,
-                    status,
-                    text
-                );
-                (
-                    status,
-                    Json(ResponseAPI::<()>::error(
-                        "Error confirmando booking".to_string(),
-                    )),
-                )
-                    .into_response()
-            }
-        }
+        Ok(r) => r,
         Err(e) => {
-            tracing::error!(
-                "Error haciendo la petición a Cal.com para confirmar booking {}: {}",
-                id,
-                e
-            );
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
+            error!(error = %e, "Failed to send confirmation request");
+            return (
+                StatusCode::BAD_GATEWAY,
                 Json(ResponseAPI::<()>::error(
-                    "Error haciendo la petición a Cal.com".to_string(),
+                    "Failed to communicate with Cal.com".to_string(),
                 )),
             )
-                .into_response()
+                .into_response();
         }
+    };
+
+    if !response.status().is_success() {
+        let status: hyper::StatusCode = response.status();
+        let body: String = response.text().await.unwrap_or_default();
+
+        warn!(
+            status = %status,
+            body = %body,
+            "Cal.com rejected booking confirmation"
+        );
+
+        return (
+            StatusCode::from_u16(status.as_u16()).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
+            Json(ResponseAPI::<()>::error(
+                "Cal.com rejected the confirmation".to_string(),
+            )),
+        )
+            .into_response();
     }
+
+    info!("Booking confirmed successfully");
+    StatusCode::NO_CONTENT.into_response()
 }
 
 /// Obtener últimos bookings para HTTP Polling
+#[instrument(skip(client, api_key))]
 async fn fetch_cal_bookings_internal(
     client: &reqwest::Client,
     api_key: &str,
     api_version: &str,
-) -> Result<Vec<CalBookingPayload>, String> {
+) -> Result<Vec<CalBookingPayload>, FetchCalErrors> {
     let response: Response = client
         .get("https://api.cal.com/v2/bookings")
         .header("Authorization", api_key)
@@ -89,42 +91,30 @@ async fn fetch_cal_bookings_internal(
         .query(&[("take", "10"), ("sortUpdatedAt", "desc")])
         .send()
         .await
-        .map_err(|e| format!("Error fetching bookings: {}", e))?;
+        .map_err(FetchCalErrors::Network)?;
 
-    // Obtener el texto de la respuesta primero para debugging
-    let response_text: String = response
-        .text()
+    let bookings_response = response
+        .json::<CalBookingsResponse>()
         .await
-        .map_err(|e| format!("Error reading response body: {}", e))?;
+        .map_err(FetchCalErrors::ParseError)?;
 
-    // Intentar parsear como CalBookingsResponse
-    match serde_json::from_str::<CalBookingsResponse>(&response_text) {
-        Ok(bookings_response) => Ok(bookings_response.data.bookings),
-        Err(e) => {
-            // Si falla, intentar parsear como un array directo (por si la API cambió)
-            match serde_json::from_str::<Vec<CalBookingPayload>>(&response_text) {
-                Ok(bookings) => {
-                    debug!("Cal.com API returned array directly instead of wrapped response");
-                    Ok(bookings)
-                }
-                Err(_) => Err(format!(
-                    "Error parsing bookings JSON: {}. Response: {}",
-                    e, response_text
-                )),
-            }
-        }
-    }
+    Ok(bookings_response.data.bookings)
 }
 
-// Comoparear cambios para HTTP Polling
+/// Comoparear cambios para HTTP Polling
+#[instrument(skip(state))]
 pub async fn fetch_and_detect_changes(state: &AppState) -> Result<Vec<BookingChange>, String> {
     // 1. Fetch bookings desde Cal.com API
     let current_bookings: Vec<CalBookingPayload> = fetch_cal_bookings_internal(
         &state.cal_options.client,
         &state.cal_options.api_key,
-        &state.cal_options.api_version,
+        "2024-06-11",
     )
-    .await?;
+    .await
+    .map_err(|e| {
+        error!(error = %e, "Failed to fetch bookings");
+        format!("Failed to fetch bookings: {}", e)
+    })?;
 
     // 2. Leer caché actual
     let mut cache: RwLockWriteGuard<HashMap<String, CalBookingPayload>> =
@@ -141,6 +131,13 @@ pub async fn fetch_and_detect_changes(state: &AppState) -> Result<Vec<BookingCha
             if let Some(cached) = cache.get(&uid_str) {
                 // Booking existe - verificar si cambió el status
                 if cached.status != booking.status {
+                    info!(
+                        booking_uid = %uid,
+                        old_status = ?cached.status,
+                        new_status = ?booking.status,
+                        "Booking status changed"
+                    );
+
                     changes.push(BookingChange {
                         uid: uid.clone(),
                         old_status: cached.status.clone(),
@@ -155,63 +152,214 @@ pub async fn fetch_and_detect_changes(state: &AppState) -> Result<Vec<BookingCha
         }
     }
 
+    if !changes.is_empty() {
+        info!(changes_count = changes.len(), "Detected booking changes");
+    }
+
     Ok(changes)
 }
 
 /// Obtener un booking por ID
 #[axum::debug_handler]
+#[instrument(skip(state), fields(booking_id = %id))]
 pub async fn get_booking(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
-    let resp_result: Result<Response, String> = state
+    let url: String = format!("https://api.cal.com/v2/bookings/{}", id);
+
+    let resp = match state
         .cal_options
         .client
-        .get(format!("https://api.cal.com/v2/bookings/{}", id))
+        .get(&url)
         .header("Authorization", &state.cal_options.api_key)
-        .header("cal-api-version", &state.cal_options.api_version)
+        .header("cal-api-version", "2024-06-11")
         .send()
         .await
-        .map_err(|e| format!("Error fetching booking: {}", e));
+    {
+        Ok(r) => r,
+        Err(e) => {
+            error!("Cal.com request failed for booking {}: {}", id, e);
+            return (
+                StatusCode::BAD_GATEWAY,
+                Json(ResponseAPI::<CalBookingPayload>::error(
+                    "Failed to fetch booking from Cal.com".to_string(),
+                )),
+            )
+                .into_response();
+        }
+    };
 
-    println!("Response result: {:?}", resp_result);
-    match resp_result {
-        Ok(resp) => match resp.text().await {
-            Ok(body) => match serde_json::from_str::<CalApiResponse<CalBookingPayload>>(&body) {
-                Ok(cal_response) => (
-                    StatusCode::OK,
-                    Json(ResponseAPI::<CalBookingPayload>::success(
-                        "Booking fetched successfully".to_string(),
-                        cal_response.data,
+    // Solo loguear si hay error de status
+    if !resp.status().is_success() {
+        error!(
+            "Cal.com returned status {} for booking {}",
+            resp.status(),
+            id
+        );
+        return (
+            StatusCode::from_u16(resp.status().as_u16())
+                .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
+            Json(ResponseAPI::<CalBookingPayload>::error(
+                "Error fetching booking from Cal.com".to_string(),
+            )),
+        )
+            .into_response();
+    }
+
+    // Obtener el texto primero para logging
+    let response_text = match resp.text().await {
+        Ok(text) => text,
+        Err(e) => {
+            error!("Failed to read response body for booking {}: {}", id, e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<CalBookingPayload>::error(
+                    "Failed to read Cal.com response".to_string(),
+                )),
+            )
+                .into_response();
+        }
+    };
+
+    debug!(
+        "Raw Cal.com GET response for booking {}: {}",
+        id, response_text
+    );
+
+    let booking_response =
+        match serde_json::from_str::<CalApiResponse<CalBookingPayload>>(&response_text) {
+            Ok(b) => b.data,
+            Err(e) => {
+                error!(
+                    "Failed to parse Cal.com response for booking {}: {} - Body: {}",
+                    id, e, response_text
+                );
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ResponseAPI::<CalBookingPayload>::error(
+                        "Invalid booking data format".to_string(),
                     )),
                 )
-                    .into_response(),
-                Err(e) => (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(ResponseAPI::<CalBookingPayload>::error(format!(
-                        "Error parsing booking JSON: {}",
-                        e
-                    ))),
-                )
-                    .into_response(),
-            },
-            Err(e) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ResponseAPI::<CalBookingPayload>::error(format!(
-                    "Error reading response body: {}",
-                    e
-                ))),
+                    .into_response();
+            }
+        };
+
+    (
+        StatusCode::OK,
+        Json(ResponseAPI::<CalBookingPayload>::success(
+            "Booking retrieved successfully".to_string(),
+            booking_response,
+        )),
+    )
+        .into_response()
+}
+
+/// Agregar invitados/asistentes a un booking existente
+#[axum::debug_handler]
+#[instrument(skip(state, payload), fields(booking_id = %id))]
+pub async fn add_guests_to_booking(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<String>,
+    Json(payload): Json<AddGuestsPayload>,
+) -> impl IntoResponse {
+    if payload.guests.is_empty() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(ResponseAPI::<()>::error(
+                "At least one guest is required".to_string(),
+            )),
+        )
+            .into_response();
+    }
+
+    let url: String = format!("{}/bookings/{}/guests", state.cal_options.base_url, id);
+
+    info!(
+        booking_id = %id,
+        url = %url,
+        guests_count = payload.guests.len(),
+        body = %serde_json::to_string_pretty(&payload).unwrap_or_default(),
+        "Adding guests to booking"
+    );
+
+    // Realizar la petición POST a Cal.com enviando el objeto con propiedad "guests"
+    let response: Response = match state
+        .cal_options
+        .client
+        .post(&url)
+        .header("Content-Type", "application/json")
+        .header("cal-api-version", "2024-08-13")
+        .header("Authorization", &state.cal_options.api_key)
+        .json(&payload)
+        .send()
+        .await
+    {
+        Ok(r) => r,
+        Err(e) => {
+            let error_msg = format!("Failed to communicate with Cal.com: {}", e);
+            error!(error = %e, "Failed to send add guests request to Cal.com");
+            return (
+                StatusCode::BAD_GATEWAY,
+                Json(ResponseAPI::<()>::error(error_msg)),
             )
-                .into_response(),
-        },
-        Err(err_msg) => (
-            StatusCode::BAD_GATEWAY,
-            Json(ResponseAPI::<CalBookingPayload>::error(format!(
-                "Error fetching booking: {}",
-                err_msg
+                .into_response();
+        }
+    };
+
+    // Verificar el status de la respuesta
+    let status: hyper::StatusCode = response.status();
+    if !status.is_success() {
+        let error_body: String = response.text().await.unwrap_or_default();
+        error!(
+            status = %status,
+            error_body = %error_body,
+            booking_id = %id,
+            "Cal.com rejected add guests request"
+        );
+        return (
+            StatusCode::from_u16(status.as_u16()).unwrap_or(StatusCode::BAD_REQUEST),
+            Json(ResponseAPI::<()>::error(format!(
+                "Cal.com error ({}): {}",
+                status, error_body
             ))),
         )
-            .into_response(),
+            .into_response();
+    } else {
+        debug!(
+            booking_id = %id,
+            status = %status,
+            "Cal.com accepted add guests request"
+        );
+    }
+
+    // Parsear la respuesta exitosa
+    match response.json::<CalApiResponse<CalBookingPayload>>().await {
+        Ok(cal_response) => {
+            info!(
+                booking_id = %id,
+                guests_added = payload.guests.len(),
+                "Guests added successfully to booking"
+            );
+            (
+                StatusCode::OK,
+                Json(ResponseAPI::<CalBookingPayload>::success(
+                    format!("{} guest(s) added successfully", payload.guests.len()),
+                    cal_response.data,
+                )),
+            )
+                .into_response()
+        }
+        Err(e) => {
+            error!(error = %e, "Failed to parse Cal.com add guests response");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ResponseAPI::<()>::error(
+                    "Invalid response format from Cal.com".to_string(),
+                )),
+            )
+                .into_response()
+        }
     }
 }
 
@@ -219,8 +367,37 @@ pub async fn get_booking(
 #[axum::debug_handler]
 pub async fn add_booking(
     State(state): State<Arc<AppState>>,
-    Json(payload): Json<CalBookingPayload>,
+    Json(flexible_payload): Json<Value>,
 ) -> impl IntoResponse {
+    // Intentar parsear el payload flexible
+    let mut payload: CalBookingPayload =
+        match serde_json::from_value::<CalBookingPayload>(flexible_payload.clone()) {
+            Ok(p) => p,
+            Err(e) => {
+                error!("Failed to parse booking payload: {}", e);
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(ResponseAPI::<()>::error(format!(
+                        "Invalid booking payload: {}",
+                        e
+                    ))),
+                )
+                    .into_response();
+            }
+        };
+
+    // Si viene username como string plano, extraerlo y crear el objeto user
+    if let Some(username_str) = flexible_payload.get("username").and_then(|v| v.as_str()) {
+        if payload.user.is_none() {
+            payload.user = Some(UserCal {
+                id: 0,
+                username: username_str.to_string(),
+                email: String::new(),
+                timeZone: None,
+            });
+        }
+    }
+
     // Validaciones
     if payload.attendees.is_empty() {
         return (
@@ -245,6 +422,37 @@ pub async fn add_booking(
     let attendee = &payload.attendees[0];
     let start_time = payload.start_time.as_ref().unwrap();
 
+    // Validar que se cumple al menos uno de los requisitos de Cal.com:
+    // 1. eventTypeId solo
+    // 2. eventTypeSlug + username
+    // 3. eventTypeSlug + teamSlug
+    let has_event_type_id = payload.event_type_id.is_some();
+    let has_event_type_slug = payload.event_type_slug.is_some();
+    let has_username = payload
+        .user
+        .as_ref()
+        .map(|u| !u.username.is_empty())
+        .unwrap_or(false);
+    let has_team_slug = payload
+        .team_slug
+        .as_ref()
+        .map(|t| !t.is_empty())
+        .unwrap_or(false);
+
+    let valid_combination = has_event_type_id
+        || (has_event_type_slug && has_username)
+        || (has_event_type_slug && has_team_slug);
+
+    if !valid_combination {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(ResponseAPI::<()>::error(
+                "Either eventTypeId or (eventTypeSlug + username) or (eventTypeSlug + teamSlug) must be provided".to_string(),
+            )),
+        )
+            .into_response();
+    }
+
     // Construir el body dinámicamente según los campos disponibles
     let mut body = json!({
         "start": start_time,
@@ -263,6 +471,14 @@ pub async fn add_booking(
             .unwrap_or_else(|_| Value::String(location.clone()));
     }
 
+    // Añadir title si está presente
+    if let Some(title) = &payload.title {
+        body["title"] = json!(title);
+    }
+
+    // Nota: Cal.com API v2 no acepta el campo 'notes' directamente
+    // Si necesitas agregar notas, deben ir en metadata o bookingFieldsResponses
+
     // Añadir campos opcionales según estén disponibles
     if let Some(event_type_id) = payload.event_type_id {
         body["eventTypeId"] = json!(event_type_id);
@@ -271,7 +487,7 @@ pub async fn add_booking(
         body["eventTypeSlug"] = json!(event_type_slug);
     }
     if let Some(user) = &payload.user {
-        body["user"] = json!(user);
+        body["username"] = json!(user.username);
     }
     if let Some(team_slug) = &payload.team_slug {
         body["teamSlug"] = json!(team_slug);
@@ -279,13 +495,25 @@ pub async fn add_booking(
     if let Some(organization_slug) = &payload.organization_slug {
         body["organizationSlug"] = json!(organization_slug);
     }
+    // Añadir invitados si están presentes
+    if let Some(guests) = &payload.guests {
+        if !guests.is_empty() {
+            body["guests"] = json!(guests);
+            info!("Adding {} guest(s) to booking: {:?}", guests.len(), guests);
+        }
+    }
+
+    info!(
+        "Creating Cal.com booking with body: {}",
+        serde_json::to_string_pretty(&body).unwrap_or_default()
+    );
 
     let response = state
         .cal_options
         .client
         .post("https://api.cal.com/v2/bookings")
         .header("Content-Type", "application/json")
-        .header("cal-api-version", &state.cal_options.api_version)
+        .header("cal-api-version", "2024-08-13")
         .header("Authorization", &state.cal_options.api_key)
         .json(&body)
         .send()
@@ -299,6 +527,7 @@ pub async fn add_booking(
             let text: String = resp.text().await.unwrap_or_default();
 
             if status.is_success() {
+                debug!("Raw Cal.com success response body: {}", text);
                 match serde_json::from_str::<CalApiResponse<CalBookingPayload>>(&text) {
                     Ok(cal_response) => (
                         StatusCode::CREATED,
@@ -341,54 +570,56 @@ pub async fn add_booking(
 }
 
 /// Obtener todos los calendarios del usuario autenticado
+#[axum::debug_handler]
+#[instrument(skip(state))]
 pub async fn get_schedules(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let response = state
         .cal_options
         .client
         .get(format!("{}/schedules", state.cal_options.base_url))
-        .header("cal-api-version", &state.cal_options.api_version)
+        .header("cal-api-version", "2024-06-11")
         .header("Authorization", &state.cal_options.api_key)
         .send()
         .await;
 
     match response {
         Ok(resp) => {
-            let status = resp.status();
-            let text: String = resp.text().await.unwrap_or_default();
+            let status: hyper::StatusCode = resp.status();
 
-            if status.is_success() {
-                match serde_json::from_str::<CalApiResponse<Vec<Schedule>>>(&text) {
-                    Ok(cal_response) => (
-                        StatusCode::OK,
-                        Json(ResponseAPI::<Vec<Schedule>>::success(
-                            "Schedules retrieved successfully".to_string(),
-                            cal_response.data,
-                        )),
-                    )
-                        .into_response(),
-                    Err(e) => {
-                        tracing::error!("Parse error: {} - Body: {}", e, text);
-                        (
-                            StatusCode::INTERNAL_SERVER_ERROR,
-                            Json(ResponseAPI::<()>::error(format!(
-                                "Error parsing response: {}",
-                                e
-                            ))),
-                        )
-                            .into_response()
-                    }
-                }
-            } else {
-                tracing::error!("Cal.com error ({}): {}", status, text);
-                (
+            if !status.is_success() {
+                let body: String = resp.text().await.unwrap_or_default();
+                error!(status = %status, body = %body, "Cal.com returned error");
+                return (
                     StatusCode::from_u16(status.as_u16()).unwrap_or(StatusCode::BAD_REQUEST),
-                    Json(ResponseAPI::<()>::error(format!("Cal.com error: {}", text))),
+                    Json(ResponseAPI::<()>::error(format!("Cal.com error: {}", body))),
                 )
-                    .into_response()
+                    .into_response();
+            }
+
+            match resp.json::<CalApiResponse<Vec<Schedule>>>().await {
+                Ok(cal_response) => (
+                    StatusCode::OK,
+                    Json(ResponseAPI::<Vec<Schedule>>::success(
+                        "Schedules retrieved successfully".to_string(),
+                        cal_response.data,
+                    )),
+                )
+                    .into_response(),
+                Err(e) => {
+                    error!("Parse error: {}", e);
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ResponseAPI::<()>::error(format!(
+                            "Error parsing response: {}",
+                            e
+                        ))),
+                    )
+                        .into_response()
+                }
             }
         }
         Err(e) => {
-            tracing::error!("Request failed: {}", e);
+            error!("Request failed: {}", e);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(ResponseAPI::<()>::error(format!("Request failed: {}", e))),
@@ -399,6 +630,8 @@ pub async fn get_schedules(State(state): State<Arc<AppState>>) -> impl IntoRespo
 }
 
 /// Obtener un calendario específico
+#[axum::debug_handler]
+#[instrument(skip(state))]
 pub async fn get_schedule(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
@@ -415,7 +648,7 @@ pub async fn get_schedule(
         .cal_options
         .client
         .get(&url)
-        .header("cal-api-version", &state.cal_options.api_version)
+        .header("cal-api-version", "2024-06-11")
         .header("Authorization", &state.cal_options.api_key)
         .send()
         .await;
@@ -423,33 +656,33 @@ pub async fn get_schedule(
     match response {
         Ok(resp) => {
             let status = resp.status();
-            let text: String = resp.text().await.unwrap_or_default();
 
-            if status.is_success() {
-                match serde_json::from_str::<CalApiResponse<Schedule>>(&text) {
-                    Ok(cal_response) => (
-                        StatusCode::OK,
-                        Json(ResponseAPI::success(
-                            "Schedule retrieved successfully".to_string(),
-                            cal_response.data,
-                        )),
-                    )
-                        .into_response(),
-                    Err(e) => (
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        Json(ResponseAPI::<()>::error(format!(
-                            "Error parsing response: {}",
-                            e
-                        ))),
-                    )
-                        .into_response(),
-                }
-            } else {
-                (
+            if !status.is_success() {
+                let body: String = resp.text().await.unwrap_or_default();
+                return (
                     StatusCode::from_u16(status.as_u16()).unwrap_or(StatusCode::BAD_REQUEST),
-                    Json(ResponseAPI::<()>::error(format!("Cal.com error: {}", text))),
+                    Json(ResponseAPI::<()>::error(format!("Cal.com error: {}", body))),
                 )
-                    .into_response()
+                    .into_response();
+            }
+
+            match resp.json::<CalApiResponse<Schedule>>().await {
+                Ok(cal_response) => (
+                    StatusCode::OK,
+                    Json(ResponseAPI::success(
+                        "Schedule retrieved successfully".to_string(),
+                        cal_response.data,
+                    )),
+                )
+                    .into_response(),
+                Err(e) => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(ResponseAPI::<()>::error(format!(
+                        "Error parsing response: {}",
+                        e
+                    ))),
+                )
+                    .into_response(),
             }
         }
         Err(e) => (
@@ -461,6 +694,8 @@ pub async fn get_schedule(
 }
 
 /// Obtener todos los bookings
+#[axum::debug_handler]
+#[instrument(skip(state))]
 pub async fn get_all_bookings(
     State(state): State<Arc<AppState>>,
     Query(params): Query<BookingsQueryParams>,
@@ -514,49 +749,49 @@ pub async fn get_all_bookings(
         .cal_options
         .client
         .get(url)
-        .header("cal-api-version", &state.cal_options.api_version)
+        .header("cal-api-version", "2024-06-11")
         .header("Authorization", &state.cal_options.api_key)
         .send()
         .await;
 
     match response {
         Ok(resp) => {
-            let status = resp.status();
-            let text: String = resp.text().await.unwrap_or_default();
+            let status: hyper::StatusCode = resp.status();
 
-            if status.is_success() {
-                match serde_json::from_str::<CalBookingsResponse>(&text) {
-                    Ok(cal_response) => (
-                        StatusCode::OK,
-                        Json(ResponseAPI::<Vec<CalBookingPayload>>::success(
-                            "Bookings retrieved successfully".to_string(),
-                            cal_response.data.bookings,
-                        )),
-                    )
-                        .into_response(),
-                    Err(e) => {
-                        tracing::error!("Parse error: {} - Body: {}", e, text);
-                        (
-                            StatusCode::INTERNAL_SERVER_ERROR,
-                            Json(ResponseAPI::<()>::error(format!(
-                                "Error parsing response: {}",
-                                e
-                            ))),
-                        )
-                            .into_response()
-                    }
-                }
-            } else {
-                tracing::error!("Cal.com error ({}): {}", status, text);
-                (
+            if !status.is_success() {
+                let body: String = resp.text().await.unwrap_or_default();
+                error!("Cal.com error ({}): {}", status, body);
+                return (
                     StatusCode::from_u16(status.as_u16()).unwrap_or(StatusCode::BAD_REQUEST),
-                    Json(ResponseAPI::<()>::error(format!("Cal.com error: {}", text))),
+                    Json(ResponseAPI::<()>::error(format!("Cal.com error: {}", body))),
                 )
-                    .into_response()
+                    .into_response();
+            }
+
+            match resp.json::<CalBookingsResponse>().await {
+                Ok(cal_response) => (
+                    StatusCode::OK,
+                    Json(ResponseAPI::<Vec<CalBookingPayload>>::success(
+                        "Bookings retrieved successfully".to_string(),
+                        cal_response.data.bookings,
+                    )),
+                )
+                    .into_response(),
+                Err(e) => {
+                    error!("Parse error: {}", e);
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(ResponseAPI::<()>::error(format!(
+                            "Error parsing response: {}",
+                            e
+                        ))),
+                    )
+                        .into_response()
+                }
             }
         }
         Err(e) => {
-            tracing::error!("Request failed: {}", e);
+            error!("Request failed: {}", e);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(ResponseAPI::<()>::error(format!("Request failed: {}", e))),

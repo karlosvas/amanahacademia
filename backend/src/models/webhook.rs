@@ -82,12 +82,16 @@ where
 /// Estructura que representa al organizador (profesor) de una reserva de Cal.com
 #[derive(Deserialize, Debug, Serialize, Clone)]
 pub struct Organizer {
-    pub id: i64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<i64>,
+    #[serde(default)]
     pub name: String,
+    #[serde(default)]
     pub email: String,
+    #[serde(default)]
     pub username: String,
-    #[serde(rename = "timeZone")]
-    pub time_zone: String,
+    #[serde(rename = "timeZone", default)]
+    pub time_zone: Option<String>,
 }
 
 /// Estructura de la respuesta al crear un reembolso en Cal.com

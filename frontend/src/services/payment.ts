@@ -1,4 +1,5 @@
 import type {
+  CalBookingPayload,
   CheckoutPaymentIntentRequest,
   CheckoutPaymentIntentResponse,
   RelationalCalStripe,
@@ -11,14 +12,20 @@ import { getPrice } from "./calendar";
 import { log } from "./logger";
 
 // Función para procesar el pago
-export async function handlePayment(stripe: any, elements: any, bookingUid: string) {
+export async function handlePayment(
+  stripe: any,
+  elements: any,
+  bookingUid: string,
+  status: string,
+  slug: string
+): Promise<void> {
   const helper = new ApiService();
 
   // Verificar que Stripe esté inicializado
   if (!stripe || !elements) {
-    console.error("❌ Stripe o Elements no inicializados");
+    log.error("Stripe o Elements no inicializados");
     showError(getErrorFrontStripe(FrontendStripe.STRIPE_NOT_INITIALIZED));
-    return;
+    throw new Error("Stripe o Elements no inicializados");
   }
 
   // Verificar elementos del DOM
@@ -26,9 +33,9 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
   const buttonText = document.getElementById("button-text") as HTMLButtonElement | null;
 
   if (!submitButton || !buttonText) {
-    console.error("❌ Botones no encontrados en el DOM");
+    log.error("Botones no encontrados en el DOM");
     showError(getErrorFrontStripe(FrontendStripe.MISSING_ELEMENTS));
-    return;
+    throw new Error("Botones no encontrados en el DOM");
   }
 
   // Deshabilitar botón y mostrar loading
@@ -36,129 +43,59 @@ export async function handlePayment(stripe: any, elements: any, bookingUid: stri
   buttonText.textContent = "Procesando...";
   clearMessages();
 
-  try {
-    const result = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: location.origin + "/payments/payment-success",
-      },
-      redirect: "if_required",
-    });
+  const result = await stripe.confirmPayment({
+    elements,
+    confirmParams: {
+      return_url: location.origin + "/payments/payment-success",
+    },
+    redirect: "if_required",
+  });
 
-    const { error, paymentIntent } = result;
+  const { error, paymentIntent } = result;
 
-    // ═══════════════════════════════════════
-    // MANEJO DE ERRORES
-    // ═══════════════════════════════════════
-    if (error) {
-      console.error("═══════════════════════════════════════");
-      console.error("❌ ERROR EN STRIPE.CONFIRMPAYMENT");
-      console.error("═══════════════════════════════════════");
-      console.error("Error type:", error.type);
-      console.error("Error code:", error.code);
-      console.error("Error message:", error.message);
-      console.error("Error decline_code:", error.decline_code);
-      console.error("Error doc_url:", error.doc_url);
-      console.error("Payment Intent ID:", error.payment_intent?.id);
-      console.error("Payment Intent status:", error.payment_intent?.status);
-      console.error("Error completo:", JSON.stringify(error, null, 2));
-      console.error("═══════════════════════════════════════");
+  if (error) {
+    // Mensaje específico según el tipo de error
+    let errorMessage = error.message || "Error al procesar el pago";
 
-      // Mensaje específico según el tipo de error
-      let errorMessage = error.message || "Error al procesar el pago";
-
-      if (error.type === "card_error") {
-        console.error("🔴 Tipo: Error de tarjeta");
-        errorMessage = `Tarjeta rechazada: ${error.message}`;
-      } else if (error.type === "validation_error") {
-        console.error("🔴 Tipo: Error de validación");
-        errorMessage = `Validación: ${error.message}`;
-      } else if (error.type === "invalid_request_error") {
-        console.error("🔴 Tipo: Error de petición inválida (posible problema de configuración)");
-        errorMessage = `Configuración: ${error.message}`;
-      } else if (error.type === "api_error") {
-        console.error("🔴 Tipo: Error de API de Stripe");
-        errorMessage = `Error del servidor: ${error.message}`;
-      }
-
-      showError(errorMessage);
-      submitButton.disabled = false;
-      buttonText.textContent = "Pagar ahora";
-      return;
+    if (error.type === "card_error") {
+      log.error("🔴 Tipo: Error de tarjeta");
+      errorMessage = `Tarjeta rechazada: ${error.message}`;
+    } else if (error.type === "validation_error") {
+      log.error("🔴 Tipo: Error de validación");
+      errorMessage = `Validación: ${error.message}`;
+    } else if (error.type === "invalid_request_error") {
+      log.error("🔴 Tipo: Error de petición inválida (posible problema de configuración)");
+      errorMessage = `Configuración: ${error.message}`;
+    } else if (error.type === "api_error") {
+      log.error("🔴 Tipo: Error de API de Stripe");
+      errorMessage = `Error del servidor: ${error.message}`;
     }
 
-    // ═══════════════════════════════════════
-    // PAGO EXITOSO - PROCESAR
-    // ═══════════════════════════════════════
+    log.error(`💥 Error en el pago: ${errorMessage}`);
+    submitButton.disabled = false;
 
-    if (!paymentIntent) {
-      showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
-      submitButton.disabled = false;
-      buttonText.textContent = "Pagar ahora";
-      return;
-    }
+    throw new Error(`Error en el pago: ${errorMessage}`);
+  }
 
-    if (paymentIntent.status === "succeeded") {
-      showSuccess(getErrorFrontStripe(FrontendStripe.PAYMENT_SUCCESS));
+  if (!paymentIntent) {
+    showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
+    submitButton.disabled = false;
+    throw new Error("PaymentIntent no disponible después de la confirmación");
+  }
 
-      if (!bookingUid) {
-        console.error("❌ No hay bookingUid, no se puede confirmar la reserva");
-        showError(getErrorFrontStripe(FrontendStripe.MISSING_BOOKING));
-        return;
-      }
-
-      try {
-        const responseBookingConfirm = await helper.confirmBooking(bookingUid);
-
-        if (!responseBookingConfirm.success) {
-          console.error("❌ Error al confirmar booking");
-          showError(getErrorFrontStripe(FrontendStripe.BOOKING_CONFIRM_ERROR));
-          return;
-        }
-
-        const relation: RelationalCalStripe = {
-          cal_id: bookingUid,
-          stripe_id: paymentIntent.id,
-        };
-
-        const responseSaveRelation = await helper.saveCalStripeConnection(relation);
-
-        if (!responseSaveRelation.success) {
-          console.error("❌ Error al guardar relación");
-          showError(getErrorFrontStripe(FrontendStripe.RELATION_SAVE_ERROR));
-          return;
-        }
-
-        // Todo a salido bien
-        // Enviar evento a Google Analytics
-        if (window.gtag) window.gtag("event", "class_booking", { bookingUid });
-        globalThis.location.href = "/payments/payment-success";
-        return;
-      } catch (e) {
-        console.error("═══════════════════════════════════════");
-        console.error("💥 ERROR al confirmar booking o guardar relación");
-        console.error("═══════════════════════════════════════");
-        console.error("Error completo:", e);
-        console.error("Error message:", (e as Error).message);
-        console.error("Error stack:", (e as Error).stack);
-        showError(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
-      }
-    } else {
-      // if (paymentIntent.status === "requires_action") {
-      // } else if (paymentIntent.status === "processing") {
-      // } else if (paymentIntent.status === "requires_payment_method") {
-      // }
-
-      showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
-    }
-  } catch (error) {
-    console.error("Error name:", (error as Error).name);
-    showError(getErrorFrontStripe(FrontendStripe.CONNECTION_ERROR));
-  } finally {
-    if (!submitButton.disabled) {
-      submitButton.disabled = false;
-      buttonText.textContent = "Pagar ahora";
-    }
+  if (paymentIntent.status === "succeeded") {
+    // El pago fue exitoso
+    await successPayment(
+      helper,
+      paymentIntent,
+      bookingUid,
+      status,
+      slug
+    );
+  } else {
+    log.error(`Estado de pago desconocido: ${paymentIntent.status}`);
+    showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
+    throw new Error(`Estado de pago desconocido: ${paymentIntent.status}`);
   }
 }
 
@@ -175,15 +112,59 @@ export function showError(message: string) {
 }
 
 // Mostrar mensaje de éxito
-export function showSuccess(message: string): void {
-  const errorDiv = document.getElementById("error-message");
-  const successDiv = document.getElementById("success-message");
+export async function successPayment(
+  helper: ApiService,
+  paymentIntent: any,
+  bookingUid: string,
+  status: string,
+  slug: string
+): Promise<void> {
+  if (slug === "group-class") {
+    const actualBooking = await helper.getBookingById(bookingUid);
+    if (!actualBooking.success) {
+      log.error("Error al obtener booking");
+      showError(getErrorFrontStripe(FrontendStripe.MISSING_BOOKING));
+      throw new Error("Error al obtener booking");
+    }
 
-  if (errorDiv) errorDiv.textContent = "";
-  if (successDiv) {
-    successDiv.textContent = message;
-    successDiv.style.display = "block";
+    // TODO: Implementar la lógica para crear un nuevo booking de grupo basado en el booking actual
+    // Esta funcionalidad está pendiente de implementación
+    log.info("Group class booking logic pending implementation");
   }
+
+  // Confirmar la reserva en el backend si procede
+  if (status !== "accepted") {
+    const responseBookingConfirm = await helper.confirmBooking(bookingUid);
+    if (!responseBookingConfirm.success) {
+      log.error("Error al confirmar booking");
+      showError(getErrorFrontStripe(FrontendStripe.BOOKING_CONFIRM_ERROR));
+      throw new Error("Error al confirmar booking");
+    }
+  }
+
+  // Guardar la relacion en el bakend
+  const responseSaveRelation = await helper.saveCalStripeConnection({
+    cal_id: bookingUid,
+    stripe_id: paymentIntent.id,
+  });
+
+  const errorDiv = document.getElementById("error-message");
+  if (errorDiv) errorDiv.textContent = "";
+
+  if (!responseSaveRelation.success) {
+    console.error("Error al guardar relación");
+    showError(getErrorFrontStripe(FrontendStripe.RELATION_SAVE_ERROR));
+    throw new Error("Error al guardar relación");
+  }
+
+  // Todo a salido bien
+  // Enviar evento a Google Analytics
+  if (window.gtag) window.gtag("event", "class_booking", { bookingUid });
+
+  // Redirigir a la página de éxito
+  setTimeout(() => {
+    globalThis.location.href = "/payments/payment-success";
+  }, 2000);
 }
 
 // Limpiar mensajes
@@ -200,6 +181,7 @@ export function clearMessages() {
   }
 }
 
+// Inicializar el precio basado en el país de prueba y el tipo de clase
 export async function initializePrice(testCountry: string | null, slugType: string): Promise<number | undefined> {
   try {
     // Obtenemos la lista de precios desde el backend
@@ -232,6 +214,7 @@ export async function initializePrice(testCountry: string | null, slugType: stri
   }
 }
 
+// Inicializar Stripe y crear el Payment Element
 export async function initializeStripe(
   STRIPE_PUBLIC_KEY: string,
   pricing: number

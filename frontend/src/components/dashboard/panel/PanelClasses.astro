@@ -19,11 +19,14 @@ try {
   }
 
   const timeSlotsResponse: ResponseAPI<Schedule> = await helper.getAvailableTimeSchedule("1081935");
+
   if (timeSlotsResponse.success) timeSlots = timeSlotsResponse.data.availability[0];
   else {
     log.error(`Error al obtener franjas horarias: ${timeSlotsResponse.error}`);
     throw new Error();
   }
+
+  log.info(timeSlots);
 
   let token_cookie = Astro.cookies.get("session")?.value ?? "";
   const bookingsListResponse: ResponseAPI<CalBookingPayload[]> = await helper.getGroupBookings(token_cookie);
@@ -51,7 +54,7 @@ try {
             id="class-date"
             name="class-date"
             required
-            class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white"
+            class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141]"
           />
           <p class="text-xs text-gray-600 mt-1">La clase debe ser programada para una fecha futura</p>
         </div>
@@ -65,7 +68,7 @@ try {
             min={timeSlots?.start_time?.toString() ?? "15:00"}
             max={timeSlots?.end_time?.toString() ?? "20:00"}
             required
-            class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white"
+            class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141]"
           />
           <p class="text-xs text-gray-600 mt-1">
             Horario disponible: {timeSlots?.start_time?.toString() ?? "15:00"} - {
@@ -82,12 +85,12 @@ try {
           id="teacher"
           name="teacher"
           required
-          class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white"
+          class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141]"
         >
           <option value="">Selecciona un profesor</option>
           {
             teachers.map((teacher) => (
-              <option value={teacher.cal_id} data-calLink={teacher.cal_link}>
+              <option value={teacher.cal_id} data-calLink={teacher.cal_link} data-teacherName={teacher.name}>
                 {teacher.name} - {teacher.native_lang}
               </option>
             ))
@@ -102,7 +105,7 @@ try {
           id="language-level"
           name="language-level"
           required
-          class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white"
+          class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141]"
         >
           <option value="">Selecciona un nivel</option>
           <option value="A1">A1 - Principiante</option>
@@ -128,7 +131,7 @@ try {
             max="20"
             required
             placeholder="Ej: 2"
-            class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white"
+            class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141]"
           />
           <p class="text-xs text-gray-600 mt-1">Mínimo requerido para abrir la clase</p>
         </div>
@@ -145,7 +148,7 @@ try {
             max="20"
             required
             placeholder="Ej: 8"
-            class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white"
+            class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141]"
           />
           <p class="text-xs text-gray-600 mt-1">Capacidad máxima de la clase</p>
         </div>
@@ -161,7 +164,7 @@ try {
           name="description"
           rows="4"
           placeholder="Añade información adicional sobre la clase..."
-          class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] bg-white resize-none"
+          class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] resize-none"
         ></textarea>
       </div>
 
@@ -185,6 +188,54 @@ try {
         </button>
       </div>
     </form>
+  </div>
+
+  <!-- Horarios disponibles para reservar -->
+  <div class="my-20">
+    <h2 class="text-red text-3xl font-bold mb-6">Horarios Disponibles para Reservar</h2>
+    <div class="bg-gradient-to-r from-[#fff4e1] to-[#ffe8cc] rounded-xl shadow-lg p-8 border border-[#fee8d6] max-w-4xl">
+      {timeSlots && (
+        <div class="space-y-6">
+          <!-- Horario -->
+          <div class="flex items-center gap-4 pb-4 border-b border-[#fee8d6]">
+            <div class="bg-[#8a4141] text-white p-3 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm text-gray-600 font-medium">Horario disponible</p>
+              <p class="text-2xl font-bold text-[#8a4141]">
+                {(timeSlots as any).startTime || timeSlots.start_time} - {(timeSlots as any).endTime || timeSlots.end_time }
+              </p>
+            </div>
+          </div>
+
+          <!-- Días disponibles -->
+          <div>
+            <div class="flex items-center gap-2 mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#8a4141]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p class="text-sm text-gray-600 font-medium">Días disponibles</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              {timeSlots.days.map((day: string) => (
+                <span class="px-4 py-2 bg-white text-[#8a4141] font-semibold rounded-full border-2 border-[#8a4141] shadow-sm">
+                  {day === 'Monday' ? 'Lunes' :
+                   day === 'Tuesday' ? 'Martes' :
+                   day === 'Wednesday' ? 'Miércoles' :
+                   day === 'Thursday' ? 'Jueves' :
+                   day === 'Friday' ? 'Viernes' :
+                   day === 'Saturday' ? 'Sábado' :
+                   day === 'Sunday' ? 'Domingo' : day}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   </div>
 
   <div class="my-20">
@@ -334,34 +385,31 @@ try {
         // Obtener el profesor seleccionado
         const teacherSelect = document.getElementById("teacher") as HTMLSelectElement;
         const selectedOption = teacherSelect.selectedOptions[0];
-        const teacherName = selectedOption.text.split(" - ")[0];
 
         // Obtenemos el calLink del profesor seleccionado (por si se necesita en el futuro)
         const teacherCalLink = selectedOption.getAttribute("data-calLink") || "";
 
+        // Obtenemos el calLink del profesor seleccionado (por si se necesita en el futuro)
         const bookingData: BookingRequest = {
           startTime: startISO,
           endTime: endISO,
           username: teacherCalLink,
           type: "group-class",
-          title: `Clase de español - Nivel ${formData.get("language-level")}`,
           description: (formData.get("description") as string) || undefined,
           attendees: [
             {
               name: "placeholder",
-              email: "contact@amanahacademia.com",
+              email: "carlosvassan@gmail.com",
               timeZone: "Europe/Madrid",
               language: "es",
             },
           ],
-
           metadata: {
             teacher_id: formData.get("teacher") as string,
             language_level: formData.get("language-level") as string,
             min_students: formData.get("min-students") as string,
             max_students: formData.get("max-students") as string,
-            current_students: "0",
-            is_placeholder: "true",
+            current_students: "1",
           },
           status: "pending",
         };
@@ -371,9 +419,27 @@ try {
         if (response.success) {
           showMessage("Clase creada exitosamente!", false);
           form.reset();
+          // Recargar la página después de 2 segundos para mostrar la nueva clase
+          setTimeout(() => {
+            window.location.reload();
+          }, 5000);
         } else {
           log.error(response.error);
-          showMessage(response.error || "Error al crear la clase", true);
+          // Mostrar un mensaje más descriptivo si es un error de Cal.com
+          const errorMsg = response.error || "Error al crear la clase";
+          if (errorMsg.includes("can't be booked at")) {
+            showMessage(
+              "Error: El horario seleccionado no está disponible en Cal.com. Verifica que el tipo de evento 'group-class' existe y permite reservas para esta fecha/hora.",
+              true
+            );
+          } else if (errorMsg.includes("eventTypeId or eventTypeSlug")) {
+            showMessage(
+              "Error de configuración: Falta información del tipo de evento. Contacta al administrador.",
+              true
+            );
+          } else {
+            showMessage(errorMsg, true);
+          }
         }
       } catch (error) {
         log.error("Error al crear clase:", error);

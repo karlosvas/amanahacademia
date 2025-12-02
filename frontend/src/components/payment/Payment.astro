@@ -9,7 +9,6 @@ import Title from "../common/Title.astro";
     </Title>
 
     <!-- Mensajes de estado -->
-    <div id="success-message" class="message success"></div>
     <div id="error-message" class="message error-message"></div>
 
     <!-- Contenedor para los elementos de pago -->
@@ -47,6 +46,7 @@ import Title from "../common/Title.astro";
   const params = new URLSearchParams(window.location.search);
   const slugType: string | null = params.get("type");
   const bookingUid: string | null = params.get("uid");
+  const status: string | null = params.get("status");
   const testCountry: string | null = params.get("test_country");
 
   // Inicializar cuando el DOM esté listo
@@ -54,17 +54,17 @@ import Title from "../common/Title.astro";
     onAuthStateChanged((user) => {
       if (user) {
         try {
-          if (!slugType || !bookingUid) {
+          if (!slugType || !bookingUid || !status) {
+            log.error("Missing URL parameters, redirecting to home page.");
             showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
-            setTimeout(() => {
-              window.location.href = "/";
-            }, 3000);
+            throw new Error("Missing URL parameters");
           }
 
           // Esperamos a que cargue firebase antes de inicializar Stripe
           setTimeout(async () => {
-            const price = await initializePrice(testCountry, slugType as string);
+            const price = await initializePrice(testCountry, slugType);
             if (!price) {
+              log.error("Missing pricing information");
               showError(getErrorFrontStripe(FrontendStripe.MISSING_PRICING));
               throw new Error("Missing pricing information");
             }
@@ -72,8 +72,9 @@ import Title from "../common/Title.astro";
             const result = await initializeStripe(STRIPE_PUBLIC_KEY, price);
 
             if (!result) {
+              log.error("Stripe initialization failed");
               showError(getErrorFrontStripe(FrontendStripe.STRIPE_INITIALIZATION_ERROR));
-              return;
+              throw new Error("Stripe initialization failed");
             }
 
             // Asignar los valores retornados a las variables del scope
@@ -81,15 +82,31 @@ import Title from "../common/Title.astro";
             elements = result.elements;
 
             const submitButton = document.getElementById("submit-button");
-            if (!submitButton || !bookingUid) return;
-            submitButton.addEventListener("click", () => handlePayment(stripe, elements, bookingUid));
+            if (!submitButton || !bookingUid) {
+              log.error("Submit button not found or missing bookingUid");
+              showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
+              throw new Error("Submit button not found or missing bookingUid");
+            }
+
+            /**
+             * Procesa el pago mediante Stripe cuando el usuario hace click en el botón de pagar
+             * @param stripe - Instancia de Stripe inicializada
+             * @param elements - Elementos de Stripe que contienen los datos del formulario de pago
+             * @param bookingUid - Identificador único de la reserva
+             * @param status - Estado actual de la reserva
+             * @param slug - Tipo de clase seleccionada
+             * @returns Promise que se resuelve cuando el pago se completa o rechaza si falla
+             * @throws {Error} Si el pago es rechazado o hay un error de red
+             */
+            submitButton.addEventListener("click", () => handlePayment(stripe, elements, bookingUid, status, slugType));
           }, 1000);
-        } catch (e) {
-          console.error(e);
+        } catch (_) {
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 5000);
         }
       } else {
         log.error("Debes iniciar sesión para proceder al pago.");
-        showError("Debes iniciar sesión para proceder al pago.");
 
         // Mostrar modal de autenticación
         const modalAuth = document.getElementById("authModalLogin") as HTMLDialogElement;

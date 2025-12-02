@@ -5,6 +5,7 @@ import Layout from "@/layouts/Layout.astro";
 import { getSEOData } from "i18n/seo";
 import type { I18nTranslations, PropsSEO } from "@/types/types";
 import PaymentPage from "@/components/payment/Payment.astro";
+import { log } from "@/services/logger";
 
 // Obtenemos el idioma obtenido mediante la ruta
 const { lang } = Astro.params;
@@ -17,7 +18,10 @@ const seoData = getSEOData("pricing", currentLang) as PropsSEO;
 // Obtener bookingUid de la URL
 const bookingUid = Astro.url.searchParams.get("uid") || Astro.url.searchParams.get("bookingUid");
 
-if (!bookingUid) return Astro.redirect("/");
+if (!bookingUid) {
+  log.info("No bookingUid provided, redirecting to home page.");
+  return Astro.redirect("/");
+}
 ---
 
 <Layout

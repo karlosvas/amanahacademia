@@ -257,7 +257,7 @@ export interface UserCal {
 export interface EventTypeCal {
   id: number;
   slug: string;
-  title: string;
+  title?: string;
 }
 
 /**

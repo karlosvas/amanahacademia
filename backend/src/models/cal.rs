@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use thiserror::Error;
 
 use crate::models::webhook::{Attendee, Organizer};
 
@@ -79,8 +80,11 @@ pub struct BookingsQueryParams {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct UserCal {
+    #[serde(default)]
     pub id: i64,
+    #[serde(default)]
     pub username: String,
+    #[serde(default)]
     pub email: String,
     #[serde(default)]
     pub timeZone: Option<String>,
@@ -88,15 +92,21 @@ pub struct UserCal {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct EventTypeCal {
-    pub id: i64,
-    pub slug: String,
-    pub title: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub slug: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
 }
 
 /// Estructura de los datos de la reserva incluidos en el payload del webhook de Cal.com
 /// Compatible con Cal.com API v2 (webhooks y endpoints REST)
 #[derive(Deserialize, Debug, Serialize, Clone)]
 pub struct CalBookingPayload {
+    /// ID numérico directo de Cal.com (cuando viene como "id" en respuestas)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<i64>,
     /// Identificador único de la reserva en Cal.com
     /// Es opcional porque no viene al crear un booking, solo en respuestas posteriores
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -222,4 +232,73 @@ pub struct CalBookingPayload {
         skip_serializing_if = "Option::is_none"
     )]
     pub reschedule_token: Option<String>,
+
+    /// Hosts/organizadores del evento (puede incluir varios en eventos de equipo)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hosts: Option<Vec<Value>>,
+
+    /// Seat UID para bookings de eventos con asientos (group bookings)
+    #[serde(rename = "seatUid", default, skip_serializing_if = "Option::is_none")]
+    pub seat_uid: Option<String>,
+
+    /// Host ausente
+    #[serde(
+        rename = "absentHost",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub absent_host: Option<bool>,
+
+    /// Fecha de creación
+    #[serde(rename = "createdAt", default, skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<String>,
+
+    /// Fecha de última actualización
+    #[serde(rename = "updatedAt", default, skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<String>,
+
+    /// Rating del evento
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rating: Option<Value>,
+
+    /// ICS UID para integración con calendarios
+    #[serde(rename = "icsUid", default, skip_serializing_if = "Option::is_none")]
+    pub ics_uid: Option<String>,
+
+    /// Email del usuario que reagendó
+    #[serde(
+        rename = "rescheduledByEmail",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub rescheduled_by_email: Option<String>,
+
+    /// Lista de emails de invitados adicionales (para agregar al crear el booking)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub guests: Option<Vec<String>>,
+}
+/// Estructura para agregar invitados a un booking
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct AddGuestsPayload {
+    pub guests: Vec<GuestInput>,
+}
+
+/// Estructura de un invitado para agregar a un booking
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct GuestInput {
+    pub email: String,
+    pub name: Option<String>,
+    pub time_zone: Option<String>,
+    pub phone_number: Option<String>,
+    pub language: Option<String>,
+}
+
+#[derive(Debug, Error)]
+pub enum FetchCalErrors {
+    #[error("Failed to communicate with Cal.com: {0}")]
+    Network(reqwest::Error),
+
+    #[error("Failed to parse Cal.com response: {0}")]
+    ParseError(reqwest::Error),
 }

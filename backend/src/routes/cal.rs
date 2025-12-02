@@ -1,8 +1,8 @@
 use {
     crate::{
         controllers::cal::{
-            add_booking, confirm_booking, get_all_bookings, get_booking, get_schedule,
-            get_schedules,
+            add_booking, add_guests_to_booking, confirm_booking, get_all_bookings, get_booking,
+            get_schedule, get_schedules,
         },
         middleware::auth::firebase_auth_middleware,
         models::state::AppState,
@@ -17,6 +17,7 @@ use {
 pub fn router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     let protected_routes: Router<Arc<AppState>> = Router::new()
         .route("/bookings/:id/confirm", post(confirm_booking))
+        .route("/bookings/:id/guests", post(add_guests_to_booking))
         .route("/bookings/:id", get(get_booking))
         .route("/bookings", get(get_all_bookings))
         .route("/bookings", post(add_booking))

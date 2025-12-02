@@ -1,0 +1,20 @@
+# Ignorar directorios de compilación
+target
+**/target
+
+# Ignorar dependencias de otros lenguajes (si hay)
+node_modules
+vendor
+
+# Archivos de configuración de IDE
+.idea
+.vscode
+
+# Archivos de control de versiones
+.git
+.gitignore
+
+# Archivos de logs y temporales
+*.log
+*.tmp
+.DS_Store

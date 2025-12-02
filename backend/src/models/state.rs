@@ -27,7 +27,6 @@ pub struct GAOptions {
 /// Configuración para interactuar con la API de Cal.com
 pub struct CalOptions {
     pub client: HttpClient,
-    pub api_version: String,
     pub base_url: String,
     pub api_key: String,
     pub booking_cache: Arc<RwLock<HashMap<String, CalBookingPayload>>>,
