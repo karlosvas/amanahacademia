@@ -1,4 +1,6 @@
 import type {
+  Attendee,
+  BookingRequest,
   CalBookingPayload,
   CheckoutPaymentIntentRequest,
   CheckoutPaymentIntentResponse,
@@ -85,13 +87,7 @@ export async function handlePayment(
 
   if (paymentIntent.status === "succeeded") {
     // El pago fue exitoso
-    await successPayment(
-      helper,
-      paymentIntent,
-      bookingUid,
-      status,
-      slug
-    );
+    await successPayment(helper, paymentIntent, bookingUid, status, slug);
   } else {
     log.error(`Estado de pago desconocido: ${paymentIntent.status}`);
     showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
@@ -117,19 +113,29 @@ export async function successPayment(
   paymentIntent: any,
   bookingUid: string,
   status: string,
-  slug: string
+  slug: string,
+  email: string
 ): Promise<void> {
   if (slug === "group-class") {
-    const actualBooking = await helper.getBookingById(bookingUid);
+    const actualBooking: ResponseAPI<CalBookingPayload> = await helper.getBookingById(bookingUid);
     if (!actualBooking.success) {
       log.error("Error al obtener booking");
       showError(getErrorFrontStripe(FrontendStripe.MISSING_BOOKING));
       throw new Error("Error al obtener booking");
     }
 
-    // TODO: Implementar la lógica para crear un nuevo booking de grupo basado en el booking actual
-    // Esta funcionalidad está pendiente de implementación
-    log.info("Group class booking logic pending implementation");
+    let attendees: Attendee[] = actualBooking.data.attendees;
+    attendees.push({ name: "", email: email });
+
+    let booking: BookingRequest = {
+      ...actualBooking.data,
+      attendees: attendees,
+    };
+    const response: ResponseAPI<CalBookingPayload> = await helper.createBooking(booking);
+    if (!response.success) {
+      log.error("Error al actualizar booking");
+      throw new Error("Error al actualizar booking");
+    }
   }
 
   // Confirmar la reserva en el backend si procede

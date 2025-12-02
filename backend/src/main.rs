@@ -170,6 +170,7 @@ async fn main() {
         .allow_origin(AllowOrigin::list(vec![
             "http://localhost:4321".parse().unwrap(), // Frontend desarrollo
             "https://amanahacademia.com".parse().unwrap(), // Dominio de producción
+            "https://amanahacademia.vercel.app".parse().unwrap(), // Dominio alternativo de producción
         ]))
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
         .allow_headers([CONTENT_TYPE, AUTHORIZATION]);

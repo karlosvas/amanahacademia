@@ -84,3 +84,5 @@ develop
 
 # LigthHouse
 .unlighthouse
+.vercel
+.env*.local

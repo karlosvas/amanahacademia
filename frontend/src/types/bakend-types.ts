@@ -167,11 +167,11 @@ export interface PaymentIntentSimplified {
 
 // Cal.com
 export interface BookingRequest {
-  startTime?: string;
-  endTime?: string;
+  startTime: string;
+  endTime: string;
   eventTypeId?: number;
+  type?: string;
   username?: string;
-  type?: string; // Event type slug (ej: "group-class", "standard-class")
   teamSlug?: string;
   organizationSlug?: string;
   title?: string;
@@ -179,7 +179,7 @@ export interface BookingRequest {
   attendees: Attendee[];
   location?: string;
   metadata?: Record<string, string>;
-  status?: string;
+  status: string;
 }
 
 export interface Attendee {
