@@ -7,7 +7,7 @@ mod test;
 use {
     crate::models::{
         metrics::ServiceAccount,
-        state::{AppState, CalOptions, CustomFirebase, GAOptions, MailchimpOptions},
+        state::{AppState, CalOptions, CustomFirebase, GAOptions, KeyCache, MailchimpOptions},
     },
     axum::{
         Router,
@@ -19,9 +19,9 @@ use {
     reqwest::Client as HttpClient,
     resend_rs::Resend,
     serde_json::Value,
-    std::{collections::HashMap, env, net::SocketAddr, sync::Arc},
+    std::{collections::HashMap, env, net::SocketAddr, sync::Arc, time::Instant},
     stripe::Client as StripeClient,
-    tokio::net::TcpListener,
+    tokio::{net::TcpListener, sync::RwLock},
     tower_http::{
         cors::{AllowOrigin, CorsLayer},
         trace::TraceLayer,
@@ -73,33 +73,34 @@ async fn main() {
     }
 
     // Las keys públicas de Firebase son necesarias para validar JWTs en cada request
-    info!("Fetching Firebase public keys");
-    let firebase_keys: Value = match reqwest::get(
+    let initial_keys = fetch_firebase_keys()
+        .await
+        .expect("Failed to fetch initial Firebase keys");
+    let firebase_keys = Arc::new(RwLock::new(KeyCache {
+        keys: initial_keys,
+        fetched_at: Instant::now(),
+    }));
+
+    // Nueva función auxiliar
+    async fn fetch_firebase_keys() -> Result<Value, Box<dyn std::error::Error>> {
+        let response = reqwest::get(
         "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
     )
-    .await
-    {
-        Ok(response) => {
-            debug!("Firebase keys response status: {}", response.status());
-            let keys: Value = response.json().await.unwrap_or_else(|e| {
-                error!("Failed to parse Firebase keys JSON: {}", e);
-                panic!("Cannot start without valid Firebase keys");
-            });
+    .await?;
 
-            // Verificar que sea un objeto no vacío (si no, panic)
-            if !keys.is_object() || keys.as_object().map_or(true, |m| m.is_empty()) {
-                error!("Firebase public keys are empty or invalid: {:?}", keys);
-                panic!("Cannot start without Firebase public keys");
-            }
+        if !response.status().is_success() {
+            return Err("Firebase keys endpoint returned error".into());
+        }
 
-            info!("Firebase public keys fetched and validated successfully");
-            keys
+        let keys: Value = response.json().await?;
+
+        if !keys.is_object() || keys.as_object().map_or(true, |m| m.is_empty()) {
+            return Err("Firebase public keys are empty".into());
         }
-        Err(e) => {
-            error!("Failed to fetch Firebase keys: {}", e);
-            panic!("Cannot start without Firebase keys");
-        }
-    };
+
+        info!("Firebase public keys fetched successfully");
+        Ok(keys)
+    }
 
     let firebase_options: CustomFirebase = CustomFirebase {
         firebase_keys,

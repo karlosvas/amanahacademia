@@ -2,6 +2,7 @@ use {
     crate::models::{cal::CalBookingPayload, metrics::ServiceAccount, webhook::BookingChange},
     reqwest::Client as HttpClient,
     resend_rs::Resend,
+    std::time::{Duration, Instant},
     std::{collections::HashMap, sync::Arc},
     stripe::Client as StripeClient,
     tokio::sync::RwLock,
@@ -36,12 +37,22 @@ pub struct CalOptions {
 /// Configuración personalizada para Firebase
 #[derive(Clone)]
 pub struct CustomFirebase {
-    pub firebase_keys: serde_json::Value,
+    pub firebase_keys: Arc<RwLock<KeyCache>>,
     pub firebase_project_id: String,
     pub firebase_api_key: String,
     pub firebase_database_url: String,
     pub firebase_database_secret: String,
     pub firebase_client: HttpClient,
+}
+/// Estructura con TTL
+pub struct KeyCache {
+    pub keys: serde_json::Value,
+    pub fetched_at: Instant,
+}
+impl KeyCache {
+    pub fn is_expired(&self) -> bool {
+        self.fetched_at.elapsed() > Duration::from_secs(3600) // 1 hora
+    }
 }
 
 /// Configuración para Mailchimp
