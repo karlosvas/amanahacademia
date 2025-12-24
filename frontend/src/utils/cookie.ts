@@ -1,3 +1,6 @@
+import { Languages } from "@/enums/enums";
+import { hideBanner } from "./modals";
+
 /// Cookies consent banner
 export function acceptCookies() {
   const consentUpdate = {
@@ -70,16 +73,6 @@ export function rejectCookies() {
   }
 
   hideBanner();
-}
-
-function hideBanner() {
-  const banner = document.getElementById("cookie-banner");
-  if (banner) {
-    banner.style.animation = "slide-down 0.3s ease-out";
-    setTimeout(() => {
-      banner.classList.add("hidden");
-    }, 300);
-  }
 }
 
 export function initializeCookieConsent() {
@@ -157,7 +150,7 @@ export function initializeCookieConsent() {
 }
 
 /// Language
-export function writeLangCookie(value: string) {
+export function writeLangCookie(value: Languages) {
   // Validar que el valor sea un idioma válido
   if (!value || value.includes("/") || value.includes(".")) {
     console.warn(`[Lang Cookie] Intento de escribir valor inválido: ${value}`);
@@ -182,20 +175,6 @@ export function writeThemeCookie(value: string) {
 export function getThemeFromCookie() {
   if (typeof document === "undefined" || !document.cookie) return "light";
   const cookies = document.cookie.split(";").map((c) => c.trim());
-  for (const c of cookies) {
-    if (c.startsWith("theme=")) {
-      return c.substring("theme=".length);
-    }
-  }
+  for (const c of cookies) if (c.startsWith("theme=")) return c.substring("theme=".length);
   return "light";
-}
-
-export function readThemeCookie() {
-  return (
-    document.cookie
-      .split(";")
-      .map((c) => c.trim())
-      .find((c) => c.startsWith("theme="))
-      ?.split("=")[1] ?? null
-  );
 }

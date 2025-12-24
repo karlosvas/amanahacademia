@@ -20,7 +20,6 @@ use {
         sync::Arc,
         time::{Duration, Instant, SystemTime, UNIX_EPOCH},
     },
-    tokio::sync::RwLock,
     tracing::{error, info, instrument, warn},
 };
 

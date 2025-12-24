@@ -204,3 +204,13 @@ export function startCalScrollManagement(): void {
     }
   }, 200);
 }
+
+export function hideBanner() {
+  const banner = document.getElementById("cookie-banner");
+  if (banner) {
+    banner.style.animation = "slide-down 0.3s ease-out";
+    setTimeout(() => {
+      banner.classList.add("hidden");
+    }, 300);
+  }
+}

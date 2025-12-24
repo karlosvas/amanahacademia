@@ -1,162 +1,193 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import {
   getThemeFromCookie,
   getLangFromCookie,
   acceptCookies,
   rejectCookies,
   initializeCookieConsent,
-} from '@/utils/cookie';
+  writeLangCookie,
+  writeThemeCookie,
+} from "@/utils/cookie.ts";
+import type { Languages } from "@/enums/enums";
+import * as modals from "@/utils/modals";
 
-describe('Cookie Utilities', () => {
+// Mock hideBanner
+vi.mock("@/utils/modals", () => ({
+  hideBanner: vi.fn(),
+}));
+
+describe("Cookie Utilities", () => {
+  let cookieStore: { [key: string]: string };
+  let localStorageStore: { [key: string]: string };
+
   beforeEach(() => {
-    // Reset document.cookie
-    document.cookie = '';
-    // Reset localStorage
-    localStorage.clear();
+    // Mock document.cookie con getter/setter
+    cookieStore = {};
+    Object.defineProperty(document, "cookie", {
+      get: vi.fn(() => {
+        return Object.entries(cookieStore)
+          .map(([key, value]) => `${key}=${value}`)
+          .join("; ");
+      }),
+      set: vi.fn((cookieString: string) => {
+        const [pair] = cookieString.split(";");
+        const [key, value] = pair.split("=");
+        if (value) {
+          cookieStore[key.trim()] = value.trim();
+        }
+      }),
+      configurable: true,
+    });
+
+    // Mock localStorage
+    localStorageStore = {};
+    Object.defineProperty(window, "localStorage", {
+      value: {
+        getItem: vi.fn((key: string) => localStorageStore[key] || null),
+        setItem: vi.fn((key: string, value: string) => {
+          localStorageStore[key] = value;
+        }),
+        clear: vi.fn(() => {
+          localStorageStore = {};
+        }),
+      },
+      configurable: true,
+    });
+
     // Reset mocks
     vi.clearAllMocks();
+
     // Reset gtag
     delete (window as any).gtag;
     window.dataLayer = [];
+
+    // Reset location
+    Object.defineProperty(window, "location", {
+      value: { hostname: "test.com", search: "", protocol: "https:" },
+      writable: true,
+      configurable: true,
+    });
   });
 
-  describe('getThemeFromCookie', () => {
+  // Getters
+  describe("getThemeFromCookie", () => {
     it('should return "light" when no theme cookie exists', () => {
       const theme = getThemeFromCookie();
-      expect(theme).toBe('light');
+      expect(theme).toBe("light");
     });
 
-    it('should return theme value from cookie', () => {
-      document.cookie = 'theme=dark';
+    it("should return theme value from cookie", () => {
+      cookieStore["theme"] = "dark";
       const theme = getThemeFromCookie();
-      expect(theme).toBe('dark');
+      expect(theme).toBe("dark");
     });
 
-    it('should handle multiple cookies and extract theme', () => {
-      document.cookie = 'lang=es; theme=dark; user=test';
+    it("should handle multiple cookies and extract theme", () => {
+      cookieStore["lang"] = "es";
+      cookieStore["theme"] = "dark";
+      cookieStore["user"] = "test";
       const theme = getThemeFromCookie();
-      expect(theme).toBe('dark');
+      expect(theme).toBe("dark");
     });
   });
 
-  describe('getLangFromCookie', () => {
+  describe("getLangFromCookie", () => {
     it('should return "es" as default language', () => {
       const lang = getLangFromCookie();
-      expect(lang).toBe('es');
+      expect(lang).toBe("es");
     });
 
-    it('should return language value from cookie', () => {
-      document.cookie = 'lang=en';
+    it("should return language value from cookie", () => {
+      cookieStore["langCookie"] = "en";
       const lang = getLangFromCookie();
-      expect(lang).toBe('en');
+      expect(lang).toBe("en");
     });
 
-    it('should handle multiple cookies and extract language', () => {
-      // Need to clear previous cookie first
-      document.cookie = 'lang=en; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      document.cookie = 'lang=fr';
+    it("should handle multiple cookies and extract language", () => {
+      cookieStore["other"] = "value";
+      cookieStore["langCookie"] = "fr";
       const lang = getLangFromCookie();
-      expect(lang).toBe('fr');
+      expect(lang).toBe("fr");
     });
   });
 
-  describe('acceptCookies', () => {
+  // Setters
+  describe("writeLangCookie", () => {
+    it("should write valid language cookie", () => {
+      writeLangCookie("en" as Languages);
+      expect(cookieStore["langCookie"]).toBe("en");
+    });
+
+    it("should reject invalid values with slashes", () => {
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      writeLangCookie("en/test" as Languages);
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      expect(cookieStore["langCookie"]).toBeUndefined();
+      consoleWarnSpy.mockRestore();
+    });
+
+    it("should reject invalid values with dots", () => {
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      writeLangCookie("en.test" as Languages);
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
+  });
+
+  describe("writeThemeCookie", () => {
+    it("should write dark theme cookie", () => {
+      writeThemeCookie("dark");
+      expect(cookieStore["theme"]).toBe("dark");
+    });
+
+    it("should write light theme", () => {
+      writeThemeCookie("light");
+      expect(cookieStore["theme"]).toBe("light");
+    });
+  });
+
+  // Cookies
+  describe("acceptCookies", () => {
     beforeEach(() => {
       vi.useFakeTimers();
-      // Mock getElementById for banner
-      document.getElementById = vi.fn((id: string) => {
-        if (id === 'cookie-banner') {
-          return {
-            classList: { add: vi.fn() },
-            style: { animation: '' },
-          } as any;
-        }
-        return null;
-      });
     });
 
     afterEach(() => {
       vi.useRealTimers();
     });
 
-    it('should set cookieConsent to accepted in localStorage', () => {
+    it("should set cookieConsent to accepted in localStorage", () => {
       acceptCookies();
-      expect(localStorage.setItem).toHaveBeenCalledWith('cookieConsent', 'accepted');
+      expect(localStorageStore["cookieConsent"]).toBe("accepted");
     });
 
-    it('should update gtag consent when gtag is available', () => {
+    it("should update gtag consent when gtag is available", () => {
       const mockGtag = vi.fn();
       (window as any).gtag = mockGtag;
 
       acceptCookies();
 
-      expect(mockGtag).toHaveBeenCalledWith('consent', 'update', {
-        ad_storage: 'granted',
-        ad_user_data: 'granted',
-        ad_personalization: 'granted',
-        analytics_storage: 'granted',
+      expect(mockGtag).toHaveBeenCalledWith("consent", "update", {
+        ad_storage: "granted",
+        ad_user_data: "granted",
+        ad_personalization: "granted",
+        analytics_storage: "granted",
       });
 
-      expect(mockGtag).toHaveBeenCalledWith('event', 'cookie_consent_granted', {
-        consent_type: 'accept',
+      expect(mockGtag).toHaveBeenCalledWith("event", "cookie_consent_granted", {
+        consent_type: "accept",
       });
 
-      expect(mockGtag).toHaveBeenCalledWith('event', 'page_view');
+      expect(mockGtag).toHaveBeenCalledWith("event", "page_view");
     });
 
-    it('should hide cookie banner', () => {
-      const mockBanner = {
-        classList: { add: vi.fn() },
-        style: { animation: '' },
-      };
-      document.getElementById = vi.fn(() => mockBanner as any);
-
+    it("should call hideBanner", () => {
       acceptCookies();
-
-      // Wait for timeout
-      vi.runAllTimers();
-      expect(mockBanner.classList.add).toHaveBeenCalledWith('hidden');
+      expect(modals.hideBanner).toHaveBeenCalled();
     });
   });
 
-  describe('rejectCookies', () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-      document.getElementById = vi.fn((id: string) => {
-        if (id === 'cookie-banner') {
-          return {
-            classList: { add: vi.fn() },
-            style: { animation: '' },
-          } as any;
-        }
-        return null;
-      });
-    });
-
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    it('should set cookieConsent to rejected in localStorage', () => {
-      rejectCookies();
-      expect(localStorage.setItem).toHaveBeenCalledWith('cookieConsent', 'rejected');
-    });
-
-    it('should hide cookie banner', () => {
-      const mockBanner = {
-        classList: { add: vi.fn() },
-        style: { animation: '' },
-      };
-      document.getElementById = vi.fn(() => mockBanner as any);
-
-      rejectCookies();
-
-      vi.runAllTimers();
-      expect(mockBanner.classList.add).toHaveBeenCalledWith('hidden');
-    });
-  });
-
-  describe('initializeCookieConsent', () => {
+  describe("rejectCookies", () => {
     beforeEach(() => {
       vi.useFakeTimers();
     });
@@ -165,7 +196,27 @@ describe('Cookie Utilities', () => {
       vi.useRealTimers();
     });
 
-    it('should show banner after 5 seconds when no consent exists', () => {
+    it("should set cookieConsent to rejected in localStorage", () => {
+      rejectCookies();
+      expect(localStorageStore["cookieConsent"]).toBe("rejected");
+    });
+
+    it("should call hideBanner", () => {
+      rejectCookies();
+      expect(modals.hideBanner).toHaveBeenCalled();
+    });
+  });
+
+  describe("initializeCookieConsent", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("should show banner after 5 seconds when no consent exists", () => {
       const mockBanner = {
         classList: { remove: vi.fn() },
       };
@@ -174,11 +225,11 @@ describe('Cookie Utilities', () => {
       initializeCookieConsent();
 
       vi.advanceTimersByTime(5000);
-      expect(mockBanner.classList.remove).toHaveBeenCalledWith('hidden');
+      expect(mockBanner.classList.remove).toHaveBeenCalledWith("hidden");
     });
 
-    it('should not show banner when consent is accepted', () => {
-      localStorage.getItem = vi.fn(() => 'accepted');
+    it("should not show banner when consent is accepted", () => {
+      localStorageStore["cookieConsent"] = "accepted";
       const mockBanner = {
         classList: { remove: vi.fn() },
       };
@@ -190,18 +241,18 @@ describe('Cookie Utilities', () => {
       expect(mockBanner.classList.remove).not.toHaveBeenCalled();
     });
 
-    it('should update gtag consent when previously accepted', () => {
-      localStorage.getItem = vi.fn(() => 'accepted');
+    it("should update gtag consent when previously accepted", () => {
+      localStorageStore["cookieConsent"] = "accepted";
       const mockGtag = vi.fn();
       (window as any).gtag = mockGtag;
 
       initializeCookieConsent();
 
-      expect(mockGtag).toHaveBeenCalledWith('consent', 'update', {
-        ad_storage: 'granted',
-        ad_user_data: 'granted',
-        ad_personalization: 'granted',
-        analytics_storage: 'granted',
+      expect(mockGtag).toHaveBeenCalledWith("consent", "update", {
+        ad_storage: "granted",
+        ad_user_data: "granted",
+        ad_personalization: "granted",
+        analytics_storage: "granted",
       });
     });
   });

@@ -1,33 +1,28 @@
-import { describe, it, expect } from 'vitest';
-import {
-  parseUsersMetricData,
-  parseArticleMetricData,
-  parseClassMetricData,
-  mapToMonths,
-} from '@/utils/metrics';
-import type { MetricData } from '@/types/types';
+import { describe, it, expect } from "vitest";
+import { parseUsersMetricData, parseArticleMetricData, parseClassMetricData, mapToMonths } from "@/utils/metrics";
+import type { MetricData } from "@/types/types";
 
-describe('Metrics Utilities', () => {
-  describe('parseUsersMetricData', () => {
-    it('should parse user metrics correctly', () => {
+describe("Metrics Utilities", () => {
+  describe("parseUsersMetricData", () => {
+    it("should parse user metrics correctly", () => {
       const mockData: MetricData = {
-        dimensionValues: [{ value: '202401' }],
+        dimensionValues: [{ value: "202401" }],
         metricValues: [
-          { value: '100' }, // activeUsers
-          { value: '500' }, // totalUsers
-          { value: '50' },  // newUsers
-          { value: '200' }, // sessions
-          { value: '150' }, // engagedSessions
-          { value: '120.5' }, // avgSessionDuration
-          { value: '0.25' }, // bounceRate
-          { value: '2.5' },  // sessionsPerUser
+          { value: "100" }, // activeUsers
+          { value: "500" }, // totalUsers
+          { value: "50" }, // newUsers
+          { value: "200" }, // sessions
+          { value: "150" }, // engagedSessions
+          { value: "120.5" }, // avgSessionDuration
+          { value: "0.25" }, // bounceRate
+          { value: "2.5" }, // sessionsPerUser
         ],
       };
 
       const result = parseUsersMetricData(mockData);
 
       expect(result).toEqual({
-        yearMonth: '202401',
+        yearMonth: "202401",
         activeUsers: 100,
         totalUsers: 500,
         newUsers: 50,
@@ -39,16 +34,16 @@ describe('Metrics Utilities', () => {
       });
     });
 
-    it('should handle missing values with defaults', () => {
+    it("should handle missing values with defaults", () => {
       const mockData: MetricData = {
-        dimensionValues: [{ value: '202401' }],
+        dimensionValues: [{ value: "202401" }],
         metricValues: [],
       };
 
       const result = parseUsersMetricData(mockData);
 
       expect(result).toEqual({
-        yearMonth: '202401',
+        yearMonth: "202401",
         activeUsers: 0,
         totalUsers: 0,
         newUsers: 0,
@@ -61,86 +56,84 @@ describe('Metrics Utilities', () => {
     });
   });
 
-  describe('parseArticleMetricData', () => {
-    it('should parse article metrics correctly', () => {
+  describe("parseArticleMetricData", () => {
+    it("should parse article metrics correctly", () => {
       const mockData: MetricData = {
-        dimensionValues: [
-          { value: 'article_view' },
-          { value: '202401' },
-        ],
+        dimensionValues: [{ value: "article_view" }, { value: "202401" }],
         metricValues: [
-          { value: '250' }, // eventCount
-          { value: '150' }, // totalUsers
+          { value: "250" }, // eventCount
+          { value: "150" }, // totalUsers
         ],
       };
 
       const result = parseArticleMetricData(mockData);
 
       expect(result).toEqual({
-        yearMonth: '202401',
-        eventName: 'article_view',
+        yearMonth: "202401",
+        eventName: "article_view",
         eventCount: 250,
         totalUsers: 150,
       });
     });
 
-    it('should handle undefined values', () => {
+    it("should handle undefined values", () => {
       const mockData: MetricData = {
-        dimensionValues: [
-          { value: 'test_event' },
-          { value: '202401' },
-        ],
-        metricValues: [
-          { value: undefined },
-          { value: undefined },
-        ],
+        dimensionValues: [{ value: "test_event" }, { value: "202401" }],
+        metricValues: [{ value: undefined }, { value: undefined }],
       };
 
       const result = parseArticleMetricData(mockData);
 
       expect(result).toEqual({
-        yearMonth: '202401',
-        eventName: 'test_event',
+        yearMonth: "202401",
+        eventName: "test_event",
         eventCount: 0,
         totalUsers: 0,
       });
     });
   });
 
-  describe('parseClassMetricData', () => {
-    it('should parse class metrics correctly', () => {
+  describe("parseClassMetricData", () => {
+    it("should parse class metrics correctly", () => {
       const mockData: MetricData = {
-        dimensionValues: [
-          { value: '202401' },
-          { value: 'booking_created' },
-        ],
+        dimensionValues: [{ value: "202401" }, { value: "booking_created" }],
         metricValues: [
-          { value: '42' }, // bookings
+          { value: "42" }, // bookings
         ],
       };
 
       const result = parseClassMetricData(mockData);
 
       expect(result).toEqual({
-        yearMonth: '202401',
-        eventName: 'booking_created',
+        yearMonth: "202401",
+        eventName: "booking_created",
         bookings: 42,
       });
     });
   });
 
-  describe('mapToMonths', () => {
-    it('should map data to months correctly', () => {
+  describe("mapToMonths", () => {
+    it("should map data to months correctly", () => {
       const dataMap = new Map<string, number>([
-        ['202401', 100],
-        ['202402', 150],
-        ['202403', 200],
+        ["202401", 100],
+        ["202402", 150],
+        ["202403", 200],
       ]);
 
-      const labels = ['enero 2024', 'febrero 2024', 'marzo 2024'];
+      const labels = ["enero 2024", "febrero 2024", "marzo 2024"];
       const monthLabels = [
-        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio",
+        "julio",
+        "agosto",
+        "septiembre",
+        "octubre",
+        "noviembre",
+        "diciembre",
       ];
 
       const result = mapToMonths(dataMap, labels, monthLabels);
@@ -148,16 +141,26 @@ describe('Metrics Utilities', () => {
       expect(result).toEqual([100, 150, 200]);
     });
 
-    it('should return 0 for months without data', () => {
+    it("should return 0 for months without data", () => {
       const dataMap = new Map<string, number>([
-        ['202401', 100],
-        ['202403', 200],
+        ["202401", 100],
+        ["202403", 200],
       ]);
 
-      const labels = ['enero 2024', 'febrero 2024', 'marzo 2024'];
+      const labels = ["enero 2024", "febrero 2024", "marzo 2024"];
       const monthLabels = [
-        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio",
+        "julio",
+        "agosto",
+        "septiembre",
+        "octubre",
+        "noviembre",
+        "diciembre",
       ];
 
       const result = mapToMonths(dataMap, labels, monthLabels);
@@ -165,12 +168,22 @@ describe('Metrics Utilities', () => {
       expect(result).toEqual([100, 0, 200]);
     });
 
-    it('should handle empty data map', () => {
+    it("should handle empty data map", () => {
       const dataMap = new Map<string, number>();
-      const labels = ['enero 2024', 'febrero 2024'];
+      const labels = ["enero 2024", "febrero 2024"];
       const monthLabels = [
-        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio",
+        "julio",
+        "agosto",
+        "septiembre",
+        "octubre",
+        "noviembre",
+        "diciembre",
       ];
 
       const result = mapToMonths(dataMap, labels, monthLabels);

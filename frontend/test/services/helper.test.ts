@@ -1,289 +1,504 @@
-// import { describe, it, expect, beforeEach, vi } from 'vitest';
-// import { ResultUtils, ApiService } from '@/services/helper';
-// import { ApiError } from '@/services/globalHandler';
-// import { ApiErrorType } from '@/enums/enums';
+// We recommend installing an extension to run vitest tests.
+import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from "vitest";
+import { ApiService } from "@/services/helper.ts";
+import { getCurrentUserToken } from "@/services/firebase.ts";
 
-// // Mock de getCurrentUserToken
-// vi.mock('@/services/firebase', () => ({
-//   getCurrentUserToken: vi.fn(() => Promise.resolve('mock-token')),
-// }));
+// Mock de dependencias
+vi.mock("@/services/firebase", () => ({
+  getCurrentUserToken: vi.fn(() => Promise.resolve("mock-token")),
+}));
 
-// describe('ResultUtils', () => {
-//   describe('ok', () => {
-//     it('should create a successful result with data', () => {
-//       const data = { id: 1, name: 'Test' };
-//       const result = ResultUtils.ok(data);
+vi.mock("@/services/logger", () => ({
+  log: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}));
 
-//       expect(result.success).toBe(true);
-//       expect(result.data).toEqual(data);
-//     });
+const mockFetchResponse = (status: number, body: any, asJson = true) => {
+  const textPayload = asJson ? JSON.stringify(body) : body;
+  return {
+    status,
+    text: vi.fn().mockResolvedValue(textPayload),
+    json: vi.fn().mockResolvedValue(body),
+  } as any;
+};
 
-//     it('should handle null data', () => {
-//       const result = ResultUtils.ok(null);
+const mockedGetCurrentUserToken = getCurrentUserToken as unknown as Mock;
+let mockedFetch: Mock;
+let consoleErrorSpy: any;
 
-//       expect(result.success).toBe(true);
-//       expect(result.data).toBe(null);
-//     });
+describe("ApiService", () => {
+  let apiService: ApiService;
 
-//     it('should handle undefined data', () => {
-//       const result = ResultUtils.ok(undefined);
+  beforeEach(() => {
+    vi.clearAllMocks();
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    (global as any).fetch = vi.fn();
+    mockedFetch = global.fetch as unknown as Mock;
+    apiService = new ApiService();
+  });
 
-//       expect(result.success).toBe(true);
-//       expect(result.data).toBe(undefined);
-//     });
-//   });
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
+  });
 
-//   describe('error', () => {
-//     it('should create an error result', () => {
-//       const error = new ApiError(ApiErrorType.SERVER_ERROR, 'Test error');
-//       const result = ResultUtils.error(error);
+  //////////////////// COMENTARIOS ////////////////////
+  it("should return data when fetch returns valid JSON", async () => {
+    const payload = { success: true, data: [{ id: "1" }] };
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, payload));
 
-//       expect(result.success).toBe(false);
-//       expect(result.error).toBe(error);
-//     });
+    const result = await apiService.getAllComments();
 
-//     it('should handle string errors', () => {
-//       const result = ResultUtils.error('Simple error');
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/comments/all", { method: "GET" });
+    expect(result).toEqual(payload);
+  });
 
-//       expect(result.success).toBe(false);
-//       expect(result.error).toBe('Simple error');
-//     });
-//   });
+  it("should handle 204 responses with undefined data", async () => {
+    mockedFetch.mockResolvedValueOnce({ status: 204 } as any);
 
-//   describe('getErrorType', () => {
-//     it('should return error type from ApiError', () => {
-//       const error = new ApiError(ApiErrorType.AUTHENTICATION_ERROR, 'Auth failed');
-//       const result = ResultUtils.error(error);
+    const result = await apiService.getAllComments();
 
-//       const errorType = ResultUtils.getErrorType(result);
+    expect(result).toEqual({ success: true, data: undefined });
+  });
 
-//       expect(errorType).toBe(ApiErrorType.AUTHENTICATION_ERROR);
-//     });
+  it("should surface invalid JSON as an error", async () => {
+    mockedFetch.mockResolvedValueOnce({
+      status: 200,
+      text: vi.fn().mockResolvedValue("not-json"),
+    } as any);
 
-//     it('should return null for successful results', () => {
-//       const result = ResultUtils.ok({ data: 'test' });
+    const result = await apiService.getAllComments();
 
-//       const errorType = ResultUtils.getErrorType(result);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toContain("Invalid JSON response");
+      expect(result.error).toContain("not-json");
+    }
+  });
 
-//       expect(errorType).toBe(null);
-//     });
+  it("should map network failures to a ResponseAPI error", async () => {
+    mockedFetch.mockRejectedValueOnce(new Error("boom"));
 
-//     it('should return null for non-ApiError errors', () => {
-//       const result = ResultUtils.error('Simple error');
+    const result = await apiService.getAllComments();
 
-//       const errorType = ResultUtils.getErrorType(result as any);
+    expect(result).toEqual({ success: false, error: "Network error: boom" });
+  });
 
-//       expect(errorType).toBe(null);
-//     });
-//   });
-// });
+  it("should include auth token when posting comments", async () => {
+    const comment = { content: "hola" } as any;
+    mockedFetch.mockResolvedValueOnce(
+      mockFetchResponse(200, {
+        success: true,
+        data: comment,
+      })
+    );
 
-// describe('ApiService', () => {
-//   let apiService: ApiService;
-//   let mockFetch: any;
+    await apiService.postComment(comment);
 
-//   beforeEach(() => {
-//     apiService = new ApiService();
-//     mockFetch = vi.fn();
-//     global.fetch = mockFetch;
-//   });
+    expect(mockedGetCurrentUserToken).toHaveBeenCalledTimes(1);
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/comments/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+      body: JSON.stringify(comment),
+    });
+  });
 
-//   describe('getAllComments', () => {
-//     it('should fetch all comments successfully', async () => {
-//       const mockComments = [
-//         { id: '1', content: 'Test comment 1' },
-//         { id: '2', content: 'Test comment 2' },
-//       ];
+  it("should call setLike with PUT and auth header", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: {} }));
 
-//       mockFetch.mockResolvedValue({
-//         ok: true,
-//         status: 200,
-//         json: async () => ({ success: true, data: mockComments }),
-//       });
+    await apiService.setLike("123");
 
-//       const result = await apiService.getAllComments();
+    expect(mockedGetCurrentUserToken).toHaveBeenCalled();
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/comments/like/123", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+    });
+  });
 
-//       expect(result.success).toBe(true);
-//       if (result.success) {
-//         expect(result.data).toEqual(mockComments);
-//       }
-//       expect(mockFetch).toHaveBeenCalledWith(
-//         expect.stringContaining('/comments/all'),
-//         expect.objectContaining({
-//           method: 'GET',
-//           headers: { 'Content-Type': 'application/json' },
-//         })
-//       );
-//     });
+  it("should delete a comment with DELETE and auth header", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true }));
 
-//     it('should handle network errors', async () => {
-//       mockFetch.mockRejectedValue(new Error('Network error'));
+    await apiService.deleteComment("abc");
 
-//       const result = await apiService.getAllComments();
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/comments/del/abc", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+    });
+  });
 
-//       expect(result.success).toBe(false);
-//       if (!result.success) {
-//         expect(result.error).toBeInstanceOf(ApiError);
-//         expect(result.error.type).toBe(ApiErrorType.NETWORK_ERROR);
-//       }
-//     });
-//   });
+  it("should edit a comment with body and auth header", async () => {
+    const payload = { message: "hi" };
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true }));
 
-//   describe('getTeachers', () => {
-//     it('should fetch all teachers successfully', async () => {
-//       const mockTeachers = [
-//         { id: '1', name: 'Teacher 1' },
-//         { id: '2', name: 'Teacher 2' },
-//       ];
+    await apiService.editComment("abc", payload as any);
 
-//       mockFetch.mockResolvedValue({
-//         ok: true,
-//         status: 200,
-//         json: async () => ({ success: true, data: mockTeachers }),
-//       });
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/comments/edit/abc", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+      body: JSON.stringify(payload),
+    });
+  });
 
-//       const result = await apiService.getTeachers();
+  //////////////////// PROFESORES ////////////////////
 
-//       expect(result.success).toBe(true);
-//       if (result.success) {
-//         expect(result.data).toEqual(mockTeachers);
-//       }
-//     });
+  //////////////////// CONNECTIONS ////////////////////
+  it("should prefer provided cookie token over firebase token", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: [] }));
 
-//     it('should handle 404 errors', async () => {
-//       mockFetch.mockResolvedValue({
-//         ok: false,
-//         status: 404,
-//       });
+    await apiService.getAllConnections("cookie-token");
 
-//       const result = await apiService.getTeachers();
+    expect(mockedGetCurrentUserToken).not.toHaveBeenCalled();
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/payment/cal/connection/all", {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer cookie-token",
+      },
+    });
+  });
 
-//       expect(result.success).toBe(false);
-//       if (!result.success) {
-//         expect(result.error.type).toBe(ApiErrorType.SESSION_NOT_FOUND);
-//       }
-//     });
-//   });
+  //////////////////// BOOKINGS ////////////////////
+  it("should create bookings using the base URL and return parsed payload", async () => {
+    const bookingResponse = { success: true, data: { id: "bk-1" } };
+    mockedFetch.mockResolvedValueOnce({
+      status: 200,
+      json: vi.fn().mockResolvedValue(bookingResponse),
+    } as any);
 
-//   describe('registerUser', () => {
-//     it('should register user successfully', async () => {
-//       const userRequest = {
-//         name: 'Test User',
-//         email: 'test@example.com',
-//         password: 'password123',
-//         provider: 'email' as const,
-//         first_free_class: false,
-//       };
+    const result = await apiService.createBooking({} as any, "cookie-token");
 
-//       mockFetch.mockResolvedValue({
-//         ok: true,
-//         status: 200,
-//         json: async () => ({ success: true, data: 'User created' }),
-//       });
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/cal/bookings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer cookie-token",
+      },
+      body: JSON.stringify({}),
+    });
+    expect(result).toEqual(bookingResponse);
+  });
 
-//       const result = await apiService.registerUser(userRequest);
+  it("should use cookie token for paid reservations when provided", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: [] }));
 
-//       expect(result.success).toBe(true);
-//       if (result.success) {
-//         expect(result.data).toBe('User created');
-//       }
-//       expect(mockFetch).toHaveBeenCalledWith(
-//         expect.stringContaining('/users/register'),
-//         expect.objectContaining({
-//           method: 'POST',
-//           body: JSON.stringify(userRequest),
-//         })
-//       );
-//     });
+    await apiService.getPaidReservations("cookie-token");
 
-//     it('should handle validation errors', async () => {
-//       mockFetch.mockResolvedValue({
-//         ok: false,
-//         status: 422,
-//       });
+    expect(mockedGetCurrentUserToken).not.toHaveBeenCalled();
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/payment/history", {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer cookie-token",
+      },
+    });
+  });
 
-//       const userRequest = {
-//         name: '',
-//         email: 'invalid-email',
-//         password: '123',
-//         provider: 'email' as const,
-//         first_free_class: false,
-//       };
+  it("should fetch booking by id with provided cookie token", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: { id: "bk" } }));
 
-//       const result = await apiService.registerUser(userRequest);
+    await apiService.getBookingById("bk", "cookie-token");
 
-//       expect(result.success).toBe(false);
-//       if (!result.success) {
-//         expect(result.error.type).toBe(ApiErrorType.VALIDATION_ERROR);
-//       }
-//     });
-//   });
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/cal/bookings/bk", {
+      method: "GET",
+      headers: { Authorization: "Bearer cookie-token" },
+    });
+  });
 
-//   describe('sendContact', () => {
-//     it('should send contact email successfully', async () => {
-//       const emailData = {
-//         email: 'test@example.com',
-//         message: 'Test message',
-//         name: 'Test User',
-//       };
+  it("should confirm booking with auth header", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true }));
 
-//       mockFetch.mockResolvedValue({
-//         ok: true,
-//         status: 200,
-//         json: async () => ({ success: true, data: { id: '123' } }),
-//       });
+    await apiService.confirmBooking("bk-123");
 
-//       const result = await apiService.sendContact(emailData);
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/cal/bookings/bk-123/confirm", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+    });
+  });
 
-//       expect(result.success).toBe(true);
-//       expect(mockFetch).toHaveBeenCalledWith(
-//         expect.stringContaining('/email/contact'),
-//         expect.objectContaining({
-//           method: 'POST',
-//           body: JSON.stringify(emailData),
-//         })
-//       );
-//     });
-//   });
+  //////////////////// COMENTARIOS - Métodos faltantes ////////////////////
+  it("should get comment by id with auth", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: { id: "123" } }));
 
-//   describe('HTTP Error Handling', () => {
-//     it('should handle 401 authentication errors', async () => {
-//       mockFetch.mockResolvedValue({
-//         ok: false,
-//         status: 401,
-//       });
+    await apiService.getCommentById("123");
 
-//       const result = await apiService.getAllComments();
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/comments/123", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+    });
+  });
 
-//       expect(result.success).toBe(false);
-//       if (!result.success) {
-//         expect(result.error.type).toBe(ApiErrorType.AUTHENTICATION_ERROR);
-//       }
-//     });
+  it("should create reply to comment", async () => {
+    const reply = { content: "respuesta" } as any;
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: reply }));
 
-//     it('should handle 500 server errors', async () => {
-//       mockFetch.mockResolvedValue({
-//         ok: false,
-//         status: 500,
-//       });
+    await apiService.createReply("parent-123", reply);
 
-//       const result = await apiService.getAllComments();
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/comments/reply/parent-123", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+      body: JSON.stringify(reply),
+    });
+  });
 
-//       expect(result.success).toBe(false);
-//       if (!result.success) {
-//         expect(result.error.type).toBe(ApiErrorType.SERVER_ERROR);
-//       }
-//     });
+  it("should edit reply", async () => {
+    const reply = { content: "editado" } as any;
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: reply }));
 
-//     it('should handle 204 No Content responses', async () => {
-//       mockFetch.mockResolvedValue({
-//         ok: true,
-//         status: 204,
-//       });
+    await apiService.editReply("comment-123", "reply-456", reply);
 
-//       const result = await apiService.deleteComment('test-id');
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/comments/reply/comment-123/reply-456/edit", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+      body: JSON.stringify(reply),
+    });
+  });
 
-//       expect(result.success).toBe(true);
-//     });
-//   });
-// });
+  it("should delete reply", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true }));
+
+    await apiService.deleteReply("comment-123", "reply-456");
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/comments/del/comment-123/reply/reply-456", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+    });
+  });
+
+  it("should get comment reply by id", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: {} }));
+
+    await apiService.getCommentReplyById("comment-123", "reply-456");
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/comments/comment-123/reply/reply-456", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+    });
+  });
+
+  //////////////////// PROFESORES ////////////////////
+  it("should get teacher by id", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: { id: "teacher-1" } }));
+
+    await apiService.getTeacher("teacher-1");
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/teachers/teacher-1", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+  });
+
+  it("should get all teachers", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: [] }));
+
+    await apiService.getTeachers();
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/teachers/all", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+  });
+
+  it("should get available schedule", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: {} }));
+
+    await apiService.getAvailableTimeSchedule("schedule-1");
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/cal/schedule/schedule-1", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+  });
+
+  //////////////////// RESEND & USUARIOS ////////////////////
+  it("should send contact email", async () => {
+    const email = { to: "test@test.com", subject: "Test" } as any;
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: {} }));
+
+    await apiService.sendContact(email);
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/email/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(email),
+    });
+  });
+
+  it("should register user", async () => {
+    const user = { email: "user@test.com", password: "pass" } as any;
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: "user-id" }));
+
+    await apiService.registerUser(user);
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/users/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user),
+    });
+  });
+
+  it("should login user", async () => {
+    const user = { email: "user@test.com", password: "pass" } as any;
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: "token" }));
+
+    await apiService.loginUser(user);
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/users/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user),
+    });
+  });
+
+  it("should get current user", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: {} }));
+
+    await apiService.getUser();
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/users/me", {
+      method: "GET",
+      headers: { Authorization: "Bearer mock-token" },
+    });
+  });
+
+  it("should check if user is admin", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: true }));
+
+    await apiService.isAdminUser("cookie-token");
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/users/admin_check", {
+      method: "GET",
+      headers: { Authorization: "Bearer mock-token" },
+    });
+  });
+
+  //////////////////// MAILCHIMP & STRIPE ////////////////////
+  it("should add contact to newsletter", async () => {
+    const contact = { email: "test@test.com" } as any;
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: {} }));
+
+    await apiService.addContactToNewsletter(contact);
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/mailchimp/add_contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(contact),
+    });
+  });
+
+  it("should create checkout payment intent", async () => {
+    const payload = { amount: 100 } as any;
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: {} }));
+
+    await apiService.checkout(payload);
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/payment/intent", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+      body: JSON.stringify(payload),
+    });
+  });
+
+  it("should save cal-stripe connection", async () => {
+    const payload = { calId: "cal-1", stripeId: "stripe-1" } as any;
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true }));
+
+    await apiService.saveCalStripeConnection(payload);
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/payment/cal/connection", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+      body: JSON.stringify(payload),
+    });
+  });
+
+  it("should get group bookings", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: [] }));
+
+    await apiService.getGroupBookings("cookie-token");
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/cal/bookings", {
+      method: "GET",
+      headers: { Authorization: "Bearer cookie-token" },
+    });
+  });
+
+  //////////////////// ANALYTICS ////////////////////
+  it("should get user metrics", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: {} }));
+
+    await apiService.getUserMetrics("cookie-token");
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/metrics/users", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer cookie-token",
+      },
+    });
+  });
+
+  it("should get articles metrics", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: {} }));
+
+    await apiService.getArticlesMetrics();
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/metrics/articles", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+    });
+  });
+
+  it("should get class metrics", async () => {
+    mockedFetch.mockResolvedValueOnce(mockFetchResponse(200, { success: true, data: {} }));
+
+    await apiService.getClassMetrics();
+
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/metrics/class", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer mock-token",
+      },
+    });
+  });
+});

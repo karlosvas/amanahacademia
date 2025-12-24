@@ -8,21 +8,6 @@ import { cookiesTranslation } from "@/../i18n/index";
 import { Languages } from "@/enums/enums";
 import ArrowIcon from "@/assets/arrow.svg";
 
-declare global {
-  interface Window {
-    turnstile?: any;
-    JustValidate?: any;
-    handlePaymentSubmission: () => Promise<void>;
-    Cal?: any;
-    __calScrollPollingActive?: boolean;
-    api?: any;
-    Stripe: any;
-    dataLayer: any[];
-    setTheme?: (value: string) => void;
-    gtag?: (...args: any[]) => void;
-  }
-}
-
 // Obtener el idioma de la cookie o usar español por defecto
 const langCookies = Astro.cookies.get("langCookie")?.value || Languages.SPANISH;
 
@@ -190,11 +175,12 @@ const cookieMessage =
     </script>
     <!-- Inicialización de cookies (tema e idioma) -->
     <script>
-      import { readThemeCookie, writeThemeCookie, getLangFromCookie, writeLangCookie } from "@/utils/cookie";
+      import { Languages } from "@/enums/enums";
+      import { getThemeFromCookie, writeThemeCookie, getLangFromCookie, writeLangCookie } from "@/utils/cookie";
       import { applyThemeClass } from "@/utils/theme";
 
       const initTheme = () => {
-        const cookieTheme = readThemeCookie();
+        const cookieTheme = getThemeFromCookie();
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
         const theme = cookieTheme ?? (prefersDark ? "dark" : "light");
 
@@ -218,7 +204,7 @@ const cookieMessage =
         // Si la cookie tiene un valor inválido (como favicon.ico), limpiarla
         if (!validLangs.includes(currentLang)) {
           console.warn(`[Lang Init] Cookie con valor inválido detectada: ${currentLang}. Limpiando...`);
-          writeLangCookie("es"); // Establecer español por defecto
+          writeLangCookie(Languages.SPANISH); // Establecer español por defecto
         }
       };
 
@@ -360,11 +346,7 @@ const cookieMessage =
     const updateButtonVisibility = () => {
       // Intentar obtener scroll de múltiples fuentes
       const scrolled =
-        window.pageYOffset ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop ||
-        window.scrollY ||
-        0;
+        window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || window.scrollY || 0;
 
       // Solo actualizar si cambió
       if (scrolled !== lastKnownScrollPosition) {

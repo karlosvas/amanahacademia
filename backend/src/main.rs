@@ -26,7 +26,7 @@ use {
         cors::{AllowOrigin, CorsLayer},
         trace::TraceLayer,
     },
-    tracing::{debug, error, info},
+    tracing::{error, info},
     tracing_subscriber::{
         EnvFilter, fmt,
         layer::{Layer, SubscriberExt},

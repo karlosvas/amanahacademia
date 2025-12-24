@@ -8,7 +8,7 @@ import ThemeIcon from "@/assets/theme.svg";
 </div>
 
 <script>
-  import { readThemeCookie } from "@/utils/cookie";
+  import { getThemeFromCookie } from "@/utils/cookie";
   import { applyTheme } from "@/utils/theme";
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -17,7 +17,7 @@ import ThemeIcon from "@/assets/theme.svg";
     window.setTheme = applyTheme;
 
     // Inicialización: lee cookie, si no existe usa preferencia y guarda cookie
-    const cookieTheme = readThemeCookie();
+    const cookieTheme = getThemeFromCookie();
     if (cookieTheme) {
       applyTheme(cookieTheme);
     } else {

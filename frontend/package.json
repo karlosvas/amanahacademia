@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "cloudflare": "npm run build && npx wrangler pages dev ./dist",
     "astro": "astro",
     "test": "vitest",
     "test:run": "vitest run",
@@ -38,6 +37,7 @@
     "@types/node": "24.3.0",
     "@types/stripe": "^8.0.416",
     "@vitest/coverage-v8": "^4.0.2",
+    "@vitest/ui": "^4.0.2",
     "jsdom": "^25.0.1",
     "prettier": "3.6.2",
     "wrangler": "^4.40.3"

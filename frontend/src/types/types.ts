@@ -1,5 +1,20 @@
 import type { FrontendErrorCode } from "@/enums/enums";
 
+declare global {
+  interface Window {
+    turnstile?: any;
+    JustValidate?: any;
+    handlePaymentSubmission: () => Promise<void>;
+    Cal?: any;
+    __calScrollPollingActive?: boolean;
+    api?: any;
+    Stripe: any;
+    dataLayer: any[];
+    setTheme?: (value: string) => void;
+    gtag?: (...args: any[]) => void;
+  }
+}
+
 // I18n traducciones
 export interface I18nTranslations {
   header: HeaderI18n;

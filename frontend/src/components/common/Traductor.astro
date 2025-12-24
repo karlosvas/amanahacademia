@@ -68,6 +68,7 @@ const label = Astro.props.label;
 </div>
 
 <script>
+  import { Languages } from "@/enums/enums";
   import { writeLangCookie } from "@/utils/cookie";
 
   // Espera a que el DOM esté completamente cargado
@@ -92,7 +93,7 @@ const label = Astro.props.label;
 
         if (link) {
           e.preventDefault();
-          const lang = link.getAttribute("data-lang");
+          const lang = link.getAttribute("data-lang") as Languages;
 
           if (!lang) return;
 
@@ -102,7 +103,7 @@ const label = Astro.props.label;
           const pathWithoutLang = currentPath.replace(/^\/(ar|de|en|es|fr|it|pt)(\/|$)/, "/");
 
           // Construir nueva URL
-          let newPath = lang === "es" ? pathWithoutLang || "/" : `/${lang}${pathWithoutLang || "/"}`;
+          let newPath = lang === Languages.SPANISH ? pathWithoutLang || "/" : `/${lang}${pathWithoutLang || "/"}`;
           // Limpiar dobles barras
           newPath = newPath.replace(/\/+/g, "/");
 

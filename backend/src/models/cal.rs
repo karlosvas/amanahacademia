@@ -46,7 +46,7 @@ pub struct Schedule {
     pub time_zone: String,
     pub availability: Vec<Availability>,
     pub is_default: bool,
-    pub overrides: Vec<serde_json::Value>, // si quieres un tipo más concreto, se puede reemplazar
+    pub overrides: Vec<serde_json::Value>,
 }
 
 #[derive(Debug, Deserialize)]
