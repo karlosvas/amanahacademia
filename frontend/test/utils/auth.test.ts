@@ -9,12 +9,12 @@ vi.mock("@/services/firebase", () => ({
 }));
 
 describe("Auth Utilities", () => {
-  let fetchMock: ReturnType<typeof vi.fn>;
+  let fetchMock: ReturnType<typeof vi.fn<typeof fetch>>;
 
   beforeEach(() => {
     // Mock de fetch global
-    fetchMock = vi.fn();
-    global.fetch = fetchMock;
+    fetchMock = vi.fn<typeof fetch>();
+    global.fetch = fetchMock as typeof fetch;
 
     // Reset de mocks
     vi.clearAllMocks();
@@ -29,11 +29,7 @@ describe("Auth Utilities", () => {
       const mockToken = "test-firebase-token-12345";
       vi.mocked(firebase.getCurrentUserToken).mockResolvedValue(mockToken);
 
-      fetchMock.mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => ({ success: true }),
-      });
+      fetchMock.mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
 
       await syncTokenWithServer();
 
