@@ -74,7 +74,11 @@ pub async fn confirm_booking(
     }
 
     info!("Booking confirmed successfully");
-    StatusCode::NO_CONTENT.into_response()
+    (
+        StatusCode::NO_CONTENT,
+        Json(ResponseAPI::<()>::success_no_data()),
+    )
+        .into_response()
 }
 
 /// Obtener últimos bookings para HTTP Polling
@@ -227,7 +231,7 @@ pub async fn get_booking(
         id, response_text
     );
 
-    let booking_response =
+    let booking_response: CalBookingPayload =
         match serde_json::from_str::<CalApiResponse<CalBookingPayload>>(&response_text) {
             Ok(b) => b.data,
             Err(e) => {
@@ -393,7 +397,7 @@ pub async fn add_booking(
                 id: 0,
                 username: username_str.to_string(),
                 email: String::new(),
-                timeZone: None,
+                time_zone: None,
             });
         }
     }

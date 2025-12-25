@@ -25,6 +25,7 @@ pub enum BookingStatus {
 /// Wrapper para respuestas de Cal.com API v2
 #[derive(Deserialize, Debug)]
 pub struct CalApiResponse<T> {
+    #[allow(dead_code)]
     pub status: String,
     pub data: T,
 }
@@ -86,8 +87,8 @@ pub struct UserCal {
     pub username: String,
     #[serde(default)]
     pub email: String,
-    #[serde(default)]
-    pub timeZone: Option<String>,
+    #[serde(default, rename = "timeZone")]
+    pub time_zone: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

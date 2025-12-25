@@ -3,7 +3,11 @@ mod middleware;
 mod models;
 mod routes;
 mod services;
+mod validations;
+
+#[cfg(test)]
 mod test;
+
 use {
     crate::models::{
         metrics::ServiceAccount,

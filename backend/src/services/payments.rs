@@ -22,7 +22,7 @@ pub fn insert_options_by_country(
     );
 
     // SAR (ejemplo: 1 EUR = 4.1 SAR)
-    let amount_sar = ((amount_eur as f64) * 4.1).round() as i64;
+    let amount_sar: i64 = ((amount_eur as f64) * 4.1).round() as i64;
     currency_opts.insert(
         Currency::SAR,
         CreateProductDefaultPriceDataCurrencyOptions {

@@ -27,3 +27,9 @@ resend-rs = "0.18.0"
 ecow = "0.2"
 uuid = { version = "1.4", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
+validator = { version = "0.16", features = ["derive"] }
+async-trait = "0.1"
+
+[dev-dependencies]
+mockito = "1.5"
+tower = "0.5"
