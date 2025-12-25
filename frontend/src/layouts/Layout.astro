@@ -175,36 +175,26 @@ const cookieMessage =
     </script>
     <!-- Inicialización de cookies (tema e idioma) -->
     <script>
-      import { Languages } from "@/enums/enums";
-      import { getThemeFromCookie, writeThemeCookie, getLangFromCookie, writeLangCookie } from "@/utils/cookie";
-      import { applyThemeClass } from "@/utils/theme";
+      import { Languages, Theme } from "@/enums/enums";
+      import { getThemeFromCookie, applyTheme, getLangFromCookie, writeLangCookie } from "@/utils/cookie";
 
       const initTheme = () => {
         const cookieTheme = getThemeFromCookie();
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        const theme = cookieTheme ?? (prefersDark ? "dark" : "light");
+        // getThemeFromCookie() siempre devuelve un tema válido
+        applyTheme(cookieTheme);
 
-        applyThemeClass(theme);
-        if (!cookieTheme) writeThemeCookie(theme);
-
+        // Exponer helper global para otros módulos
         window.setTheme = (value) => {
-          if (value === "dark" || value === "light") {
-            applyThemeClass(value);
-            writeThemeCookie(value);
-          } else {
-            console.warn(`Valor de tema no válido: ${value}`);
-          }
+          applyTheme(value as Theme);
         };
       };
 
       const initLang = () => {
         const currentLang = getLangFromCookie();
-        const validLangs = ["ar", "de", "en", "es", "fr", "it", "pt"];
-
-        // Si la cookie tiene un valor inválido (como favicon.ico), limpiarla
-        if (!validLangs.includes(currentLang)) {
+        // Si la cookie tiene un valor inválido establecemos español por defetco
+        if (!currentLang) {
           console.warn(`[Lang Init] Cookie con valor inválido detectada: ${currentLang}. Limpiando...`);
-          writeLangCookie(Languages.SPANISH); // Establecer español por defecto
+          writeLangCookie(Languages.SPANISH);
         }
       };
 

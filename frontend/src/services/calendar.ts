@@ -1,5 +1,6 @@
 import type { Class } from "@/enums/enums";
 import type { PricingApiResponse } from "@/types/types";
+import { getPricingByCountry } from "@/utils/auth";
 
 /**
  * Inicializa y configura el calendario embebido de Cal.com para el namespace dado.
@@ -103,15 +104,7 @@ export function initCalendar(namespaceId: Class): boolean {
 // Actualizar en el frontend los precios
 export async function updatePricing() {
   try {
-    // Obtener el país de la URL si existe
-    const urlParams: URLSearchParams = new URLSearchParams(window.location.search);
-    const testCountry: string | null = urlParams.get("test_country");
-    const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
-    const response: Response = await fetch(apiUrl);
-
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-    const pricingData: PricingApiResponse = (await response.json()) as PricingApiResponse;
+    const pricingData: PricingApiResponse = await getPricingByCountry();
 
     document.querySelectorAll("[card-pricing-tier]").forEach((card) => {
       const tier: string | null = card.getAttribute("card-pricing-tier");

@@ -1,10 +1,10 @@
 // Cerrar el modal con animación
 export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElement | null = null) {
-  modal.setAttribute("closing", "");
+  modal.dataset.closing = "";
   modal.addEventListener(
     "animationend",
     () => {
-      modal.removeAttribute("closing");
+      delete modal.dataset.closing;
       modal.close();
 
       // Guardar la posición del scroll antes de restaurar los estilos
@@ -19,24 +19,24 @@ export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElem
       const header = document.querySelector("header");
       if (header instanceof HTMLElement) {
         header.style.width = "";
-        header.removeAttribute("data-original-width");
+        delete header.dataset.originalWidth;
       }
 
       // Restaurar posición del menú de navegación
       const selectPage = document.getElementById("select-page");
       if (selectPage instanceof HTMLElement) {
         selectPage.style.left = "";
-        selectPage.removeAttribute("data-original-left");
+        delete selectPage.dataset.originalLeft;
       }
 
       // Restaurar padding original de otros elementos fixed
       const fixedElements = document.querySelectorAll(".fixed");
       fixedElements.forEach((el) => {
         if (el instanceof HTMLElement) {
-          const originalPadding = el.getAttribute("data-original-padding");
+          const originalPadding = el.dataset.originalPadding;
           if (originalPadding) {
             el.style.paddingRight = `${originalPadding}px`;
-            el.removeAttribute("data-original-padding");
+            delete el.dataset.originalPadding;
           } else {
             el.style.paddingRight = "";
           }
@@ -77,7 +77,7 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
       // Guardamos el ancho actual del header (incluyendo la scrollbar)
       const currentWidth = header.offsetWidth;
       header.style.width = `${currentWidth}px`;
-      header.setAttribute("data-original-width", currentWidth.toString());
+      header.dataset.originalWidth = currentWidth.toString();
     }
 
     // Aplicar compensación al menú de navegación para evitar desplazamiento
@@ -85,7 +85,7 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
     if (selectPage instanceof HTMLElement) {
       const currentLeft = selectPage.offsetLeft;
       selectPage.style.left = `${currentLeft - scrollbarWidth / 2}px`;
-      selectPage.setAttribute("data-original-left", currentLeft.toString());
+      selectPage.dataset.originalLeft = currentLeft.toString();
     }
 
     // Aplicar padding a otros elementos fixed
@@ -95,7 +95,7 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
         const currentPadding = parseInt(window.getComputedStyle(el).paddingRight) || 0;
         el.style.paddingRight = `${currentPadding + scrollbarWidth}px`;
         // Guardar el padding original como data attribute
-        el.setAttribute("data-original-padding", currentPadding.toString());
+        el.dataset.originalPadding = currentPadding.toString();
       }
     });
   }
@@ -185,6 +185,7 @@ export function startCalScrollManagement(): void {
       document.body.style.top = `-${savedScroll}px`;
       document.body.style.width = "100%";
     }
+
     // ==========================================
     // TRANSICIÓN: ABIERTO → CERRADO
     // ==========================================

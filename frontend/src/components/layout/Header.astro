@@ -2,21 +2,25 @@
 import type { HeaderI18n } from "@/types/types";
 import Hamburger from "@/components/common/Hamburger.astro";
 import Traductor from "@/components/common/Traductor.astro";
-import Theme from "@/components/common/Theme.astro";
+import ChangeTheme from "@/components/common/Theme.astro";
 import AuthModal from "@/components/common/AuthModal.astro";
 import PasswordResetModal from "@/components/common/PasswordResetModal.astro";
 import type { Lang } from "@/types/types";
-import { labels_header } from "../../../i18n/index";
+import { labels_header } from "@/../i18n/index";
+import { Theme } from "@/enums/enums";
 
 // Obtener las traduccciones
 const data = Astro.props.data as HeaderI18n;
 let { lang } = Astro.params as { lang?: Lang };
-const theme = Astro.cookies.get("theme")?.value ?? "light";
+
+// Obtener el tema desde la cookie "theme"
+const themeCookie = Astro.cookies.get("theme")?.value;
+const theme: Theme = themeCookie === Theme.DARK ? Theme.DARK : Theme.LIGHT;
 
 if (!lang) lang = "es";
 
-// Guardamos el lengauje en las cookies
-Astro.cookies.set("lang", lang, { path: "/", maxAge: 31536000 });
+// Guardamos el idioma en las cookies (consistente con el nombre usado en el cliente)
+Astro.cookies.set("langCookie", lang, { path: "/", maxAge: 31536000, sameSite: "lax", httpOnly: false });
 ---
 
 <header
@@ -56,7 +60,7 @@ Astro.cookies.set("lang", lang, { path: "/", maxAge: 31536000 });
     >
       {data.identification.button.login}
     </button>
-    <Theme />
+    <ChangeTheme />
     <Traductor label={labels_header[lang]?.traductor || "Cambiar idioma"} />
   </div>
 </header>

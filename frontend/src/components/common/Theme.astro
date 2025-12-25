@@ -8,29 +8,17 @@ import ThemeIcon from "@/assets/theme.svg";
 </div>
 
 <script>
-  import { getThemeFromCookie } from "@/utils/cookie";
-  import { applyTheme } from "@/utils/theme";
+  import { Theme } from "@/enums/enums";
+  import { applyTheme } from "@/utils/cookie";
 
   document.addEventListener("DOMContentLoaded", () => {
     const themeButton = document.getElementById("theme");
-    // Exponer helper global por si otros módulos lo usan
-    window.setTheme = applyTheme;
-
-    // Inicialización: lee cookie, si no existe usa preferencia y guarda cookie
-    const cookieTheme = getThemeFromCookie();
-    if (cookieTheme) {
-      applyTheme(cookieTheme);
-    } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      applyTheme(prefersDark ? "dark" : "light");
-    }
 
     // Toggle desde el botón del UI
     if (themeButton) {
       themeButton.addEventListener("click", () => {
-        const current = document.documentElement.classList.contains("dark") ? "dark" : "light";
-        const next = current === "dark" ? "light" : "dark";
-        applyTheme(next);
+        const current: Theme = document.documentElement.classList.contains(Theme.DARK) ? Theme.DARK : Theme.LIGHT;
+        applyTheme(current);
       });
     }
   });

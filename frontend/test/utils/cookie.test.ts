@@ -6,9 +6,9 @@ import {
   rejectCookies,
   initializeCookieConsent,
   writeLangCookie,
-  writeThemeCookie,
+  applyTheme,
 } from "@/utils/cookie.ts";
-import type { Languages } from "@/enums/enums";
+import { Languages, Theme } from "@/enums/enums";
 import * as modals from "@/utils/modals";
 
 // Mock hideBanner
@@ -109,6 +109,50 @@ describe("Cookie Utilities", () => {
       const lang = getLangFromCookie();
       expect(lang).toBe("fr");
     });
+
+    it("should return default language when cookie value is invalid", () => {
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      cookieStore["langCookie"] = "invalid_lang";
+      const lang = getLangFromCookie();
+      expect(lang).toBe("es");
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Valor inválido detectado: "invalid_lang"')
+      );
+      consoleWarnSpy.mockRestore();
+    });
+
+    it("should handle XSS attempts in cookie value", () => {
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      cookieStore["langCookie"] = "<script>alert('xss')</script>";
+      const lang = getLangFromCookie();
+      expect(lang).toBe("es");
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
+
+    it("should handle path traversal attempts in cookie value", () => {
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      cookieStore["langCookie"] = "../../../etc/passwd";
+      const lang = getLangFromCookie();
+      expect(lang).toBe("es");
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
+    });
+
+    it("should reset cookie to valid value when invalid", () => {
+      cookieStore["langCookie"] = "hacked";
+      getLangFromCookie();
+      expect(cookieStore["langCookie"]).toBe("es");
+    });
+
+    it("should accept all valid language codes", () => {
+      const validLangs = ["en", "es", "fr", "de", "it", "pt", "ar"];
+      validLangs.forEach((lang) => {
+        cookieStore["langCookie"] = lang;
+        const result = getLangFromCookie();
+        expect(result).toBe(lang);
+      });
+    });
   });
 
   // Setters
@@ -134,15 +178,15 @@ describe("Cookie Utilities", () => {
     });
   });
 
-  describe("writeThemeCookie", () => {
+  describe("applyTheme", () => {
     it("should write dark theme cookie", () => {
-      writeThemeCookie("dark");
-      expect(cookieStore["theme"]).toBe("dark");
+      applyTheme(Theme.DARK);
+      expect(cookieStore["theme"]).toBe(Theme.DARK);
     });
 
     it("should write light theme", () => {
-      writeThemeCookie("light");
-      expect(cookieStore["theme"]).toBe("light");
+      applyTheme(Theme.LIGHT);
+      expect(cookieStore["theme"]).toBe(Theme.LIGHT);
     });
   });
 

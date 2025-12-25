@@ -108,7 +108,7 @@ describe("Modal Utilities", () => {
 
     it("should set closing attribute on modal", () => {
       closeModalAnimation(mockModal, mockForm);
-      expect(mockModal.setAttribute).toHaveBeenCalledWith("closing", "");
+      expect(mockModal.dataset.closing).toBe("");
     });
 
     it("should reset form when provided", async () => {
@@ -146,7 +146,7 @@ describe("Modal Utilities", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(mockModal.removeAttribute).toHaveBeenCalledWith("closing");
+      expect(mockModal.dataset.closing).toBeUndefined();
       expect(mockModal.close).toHaveBeenCalled();
     });
 
@@ -171,9 +171,10 @@ describe("Modal Utilities", () => {
 
     it("should restore header width", async () => {
       const style = { width: "1200px" };
+      const dataset = { originalWidth: "1200" };
       const mockHeader = {
         style,
-        removeAttribute: vi.fn(),
+        dataset,
       } as any;
 
       // Make it an instance of HTMLElement
@@ -189,14 +190,15 @@ describe("Modal Utilities", () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(mockHeader.style.width).toBe("");
-      expect(mockHeader.removeAttribute).toHaveBeenCalledWith("data-original-width");
+      expect(mockHeader.dataset.originalWidth).toBeUndefined();
     });
 
     it("should restore select-page left position", async () => {
       const style = { left: "90px" };
+      const dataset = { originalLeft: "90" };
       const mockSelectPage = {
         style,
-        removeAttribute: vi.fn(),
+        dataset,
       } as any;
 
       Object.setPrototypeOf(mockSelectPage, HTMLElement.prototype);
@@ -211,15 +213,15 @@ describe("Modal Utilities", () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(mockSelectPage.style.left).toBe("");
-      expect(mockSelectPage.removeAttribute).toHaveBeenCalledWith("data-original-left");
+      expect(mockSelectPage.dataset.originalLeft).toBeUndefined();
     });
 
     it("should restore padding of fixed elements", async () => {
       const style = { paddingRight: "16px" };
+      const dataset = { originalPadding: "0" };
       const mockFixedElement = {
         style,
-        getAttribute: vi.fn(() => "0"),
-        removeAttribute: vi.fn(),
+        dataset,
       } as any;
 
       Object.setPrototypeOf(mockFixedElement, HTMLElement.prototype);
@@ -234,7 +236,7 @@ describe("Modal Utilities", () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(mockFixedElement.style.paddingRight).toBe("0px");
-      expect(mockFixedElement.removeAttribute).toHaveBeenCalledWith("data-original-padding");
+      expect(mockFixedElement.dataset.originalPadding).toBeUndefined();
     });
   });
 
@@ -307,10 +309,10 @@ describe("Modal Utilities", () => {
       });
 
       const style = { width: "" };
+      const dataset = {};
       const mockHeader = {
         style,
-        setAttribute: vi.fn(),
-        removeAttribute: vi.fn(),
+        dataset,
         offsetWidth: 1200,
       } as any;
 
@@ -324,7 +326,7 @@ describe("Modal Utilities", () => {
       showModalAnimation(mockModal, mockForm, true);
 
       expect(mockHeader.style.width).toBe("1200px");
-      expect(mockHeader.setAttribute).toHaveBeenCalledWith("data-original-width", "1200");
+      expect(mockHeader.dataset.originalWidth).toBe("1200");
     });
 
     it("should adjust select-page position for scrollbar compensation", () => {
@@ -340,10 +342,10 @@ describe("Modal Utilities", () => {
       });
 
       const style = { left: "" };
+      const dataset = {};
       const mockSelectPage = {
         style,
-        setAttribute: vi.fn(),
-        removeAttribute: vi.fn(),
+        dataset,
         offsetLeft: 100,
       } as any;
 
@@ -357,7 +359,7 @@ describe("Modal Utilities", () => {
       showModalAnimation(mockModal, mockForm, true);
 
       expect(mockSelectPage.style.left).toBe("92px"); // 100 - 16/2
-      expect(mockSelectPage.setAttribute).toHaveBeenCalledWith("data-original-left", "100");
+      expect(mockSelectPage.dataset.originalLeft).toBe("100");
     });
 
     it("should add padding to fixed elements", () => {
@@ -373,9 +375,10 @@ describe("Modal Utilities", () => {
       });
 
       const style = { paddingRight: "" };
+      const dataset = {};
       const mockFixedElement = {
         style,
-        setAttribute: vi.fn(),
+        dataset,
       } as any;
 
       Object.setPrototypeOf(mockFixedElement, HTMLElement.prototype);
@@ -388,7 +391,7 @@ describe("Modal Utilities", () => {
       showModalAnimation(mockModal, mockForm, true);
 
       expect(mockFixedElement.style.paddingRight).toBe("16px");
-      expect(mockFixedElement.setAttribute).toHaveBeenCalledWith("data-original-padding", "0");
+      expect(mockFixedElement.dataset.originalPadding).toBe("0");
     });
 
     it("should focus first input in form", () => {

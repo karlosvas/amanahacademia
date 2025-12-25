@@ -25,8 +25,8 @@ const avatar: AvatarProps = {
   url_img: comment.url_img ?? "",
 };
 
-// Lenguaje actual del commentario
-const lang = Astro.cookies.get("lang")?.value || "es";
+// Lenguaje actual del comentario
+const lang = Astro.cookies.get("langCookie")?.value || "es";
 ---
 
 <div

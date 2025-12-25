@@ -325,43 +325,43 @@ export function getErrorFrontStripe(code: FrontendStripe): string {
 export enum AuthSuccessCode {
   REGISTER_SUCCESS = "REGISTER_SUCCESS",
   LOGIN_SUCCESS = "LOGIN_SUCCESS",
-  PASSWORD_RESET_SUCCESS = "PASSWORD_RESET_SUCCESS",
+  RESET_SUCCESS = "RESET_SUCCESS",
 }
 export const AuthSuccessMessages: Record<string, Record<AuthSuccessCode, string>> = {
   es: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "¡Registro exitoso! Vamos a empezar con tu primer curso.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "¡Bienvenido de vuelta!",
-    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "Se ha enviado un correo de restablecimiento de contraseña",
+    [AuthSuccessCode.RESET_SUCCESS]: "Se ha enviado un correo de restablecimiento de contraseña",
   },
   en: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "Registration successful! Let's start with your first course.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Welcome back!",
-    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "A password reset email has been sent",
+    [AuthSuccessCode.RESET_SUCCESS]: "A password reset email has been sent",
   },
   pt: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "Registro bem-sucedido! Vamos começar com seu primeiro curso.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Bem-vindo de volta!",
-    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "Um e-mail de redefinição de senha foi enviado",
+    [AuthSuccessCode.RESET_SUCCESS]: "Um e-mail de redefinição de senha foi enviado",
   },
   it: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "Registrazione riuscita! Iniziamo con il tuo primo corso.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Bentornato!",
-    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "È stata inviata un'email di reimpostazione della password",
+    [AuthSuccessCode.RESET_SUCCESS]: "È stata inviata un'email di reimpostazione della password",
   },
   fr: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "Inscription réussie ! Commençons par votre premier cours.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Bon retour !",
-    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "Un email de réinitialisation du mot de passe a été envoyé",
+    [AuthSuccessCode.RESET_SUCCESS]: "Un email de réinitialisation du mot de passe a été envoyé",
   },
   de: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "Registrierung erfolgreich! Beginnen wir mit Ihrem ersten Kurs.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Willkommen zurück!",
-    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "Eine E-Mail zum Zurücksetzen des Passworts wurde gesendet",
+    [AuthSuccessCode.RESET_SUCCESS]: "Eine E-Mail zum Zurücksetzen des Passworts wurde gesendet",
   },
   ar: {
     [AuthSuccessCode.REGISTER_SUCCESS]: "تم التسجيل بنجاح! لنبدأ مع دورتك الأولى.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "مرحباً بعودتك!",
-    [AuthSuccessCode.PASSWORD_RESET_SUCCESS]: "تم إرسال بريد إلكتروني لإعادة تعيين كلمة المرور",
+    [AuthSuccessCode.RESET_SUCCESS]: "تم إرسال بريد إلكتروني لإعادة تعيين كلمة المرور",
   },
 };
 export function getAuthSuccessMessage(code: AuthSuccessCode): string {
@@ -452,7 +452,7 @@ export function getValidationMessage(code: ValidationCode): string {
 }
 
 // Lenguajes permitidos
-export const enum Languages {
+export enum Languages {
   ENGLISH = "en",
   SPANISH = "es",
   FRENCH = "fr",
@@ -460,4 +460,10 @@ export const enum Languages {
   ITALIAN = "it",
   PORTUGUESE = "pt",
   ARABIC = "ar",
+}
+
+// Themas
+export enum Theme {
+  LIGHT = "light",
+  DARK = "dark",
 }

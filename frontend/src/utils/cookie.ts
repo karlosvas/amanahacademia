@@ -1,4 +1,4 @@
-import { Languages } from "@/enums/enums";
+import { Languages, Theme } from "@/enums/enums";
 import { hideBanner } from "./modals";
 
 /// Cookies consent banner
@@ -161,20 +161,89 @@ export function writeLangCookie(value: Languages) {
   document.cookie = `langCookie=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
 }
 
-export function getLangFromCookie(): string {
+export function getLangFromCookie(): Languages {
   const match = document.cookie.match(/(?:^|; )langCookie=([^;]*)/);
-  return match ? match[1] : "es";
+
+  if (!match) return Languages.SPANISH;
+
+  const cookieValue = match[1];
+
+  // Validar que el valor sea un idioma válido del enum Languages
+  if (Object.values(Languages).includes(cookieValue as Languages)) return cookieValue as Languages;
+
+  // Si el valor es inválido, registrar advertencia y devolver español por defecto
+  console.warn(`[Lang Cookie] Valor inválido detectado: "${cookieValue}". Usando idioma por defecto.`);
+
+  // Opcionalmente, limpiar la cookie corrupta
+  writeLangCookie(Languages.SPANISH);
+
+  return Languages.SPANISH;
 }
 
 /// Theme
-export function writeThemeCookie(value: string) {
+function writeThemeCookie(value: Theme) {
+  // Validar que el valor sea un tema válido
+  if (!value || (value !== Theme.DARK && value !== Theme.LIGHT)) {
+    console.warn(`[Theme Cookie] Intento de escribir valor inválido: ${value}`);
+    return;
+  }
+
   const maxAge = 60 * 60 * 24 * 365; // 1 año
   document.cookie = `theme=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
 }
 
-export function getThemeFromCookie() {
-  if (typeof document === "undefined" || !document.cookie) return "light";
-  const cookies = document.cookie.split(";").map((c) => c.trim());
-  for (const c of cookies) if (c.startsWith("theme=")) return c.substring("theme=".length);
-  return "light";
+export function getThemeFromCookie(): Theme {
+  // Si no hay acceso al documento (SSR), devolver tema por defecto
+  if (typeof document === "undefined") {
+    return Theme.LIGHT;
+  }
+
+  // Buscar la cookie de tema
+  const match = document.cookie.match(/(?:^|; )theme=([^;]*)/);
+
+  if (!match) {
+    // No existe cookie, usar preferencia del sistema
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const systemTheme = prefersDark ? Theme.DARK : Theme.LIGHT;
+    writeThemeCookie(systemTheme);
+    return systemTheme;
+  }
+
+  const cookieValue = match[1];
+
+  // Validar que el valor sea un tema válido del enum Theme
+  if (cookieValue === Theme.DARK || cookieValue === Theme.LIGHT) {
+    return cookieValue as Theme;
+  }
+
+  // Si el valor es inválido, registrar advertencia y usar tema por defecto
+  console.warn(`[Theme Cookie] Valor inválido detectado: "${cookieValue}". Usando tema por defecto.`);
+
+  // Limpiar la cookie corrupta y establecer tema por defecto
+  const defaultTheme = Theme.LIGHT;
+  writeThemeCookie(defaultTheme);
+  return defaultTheme;
+}
+
+export function applyTheme(newTheme: Theme) {
+  const html = document.documentElement;
+
+  // Validación estricta del tema
+  if (newTheme !== Theme.DARK && newTheme !== Theme.LIGHT) {
+    console.warn(`[Apply Theme] Tema inválido: ${newTheme}`);
+    return;
+  }
+
+  // Remover clases de tema anteriores y agregar la nueva
+  html.classList.remove(Theme.DARK, Theme.LIGHT);
+  html.classList.add(newTheme);
+
+  // Actualizar la cookie
+  writeThemeCookie(newTheme);
+
+  // Actualizar logo si existe
+  const logo = document.getElementById("logo_amanah");
+  if (logo && logo instanceof HTMLImageElement) {
+    logo.src = newTheme === Theme.DARK ? "/img/logo_amanah_dark.webp" : "/img/logo_amanah.webp";
+  }
 }
