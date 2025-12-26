@@ -1,20 +1,18 @@
-use {
-    crate::services::firebase::handle_firebase_response,
-    axum::http::StatusCode,
-    serde::{Deserialize, Serialize},
-};
-
-// Estructura de prueba para deserializar respuestas exitosas
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
-struct MockUser {
-    id: String,
-    email: String,
-    name: String,
-}
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use {
+        crate::services::firebase::handle_firebase_response,
+        axum::http::StatusCode,
+        serde::{Deserialize, Serialize},
+    };
+
+    // Estructura de prueba para deserializar respuestas exitosas
+    #[derive(Debug, Deserialize, Serialize, PartialEq)]
+    struct MockUser {
+        id: String,
+        email: String,
+        name: String,
+    }
 
     #[tokio::test]
     async fn test_successful_response_with_valid_json() {

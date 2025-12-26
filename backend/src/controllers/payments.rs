@@ -27,7 +27,7 @@ use {
     tracing::instrument,
 };
 
-// Comprar precios genericos
+/// Comprar precios genericos
 #[debug_handler]
 #[instrument(
     skip(state, payload),
@@ -156,29 +156,6 @@ pub async fn payment_intent(
     }
 }
 
-// Consultar un payment para saber su estado actual
-pub async fn get_payment_status(// Path(id): Path<String>,
-    // State(state): State<Arc<AppState>>,
-) -> impl IntoResponse {
-    StatusCode::NO_CONTENT.into_response()
-}
-
-// Cancelar un payment
-pub async fn cancel_payment(// Path(id): Path<String>,
-    // State(state): State<Arc<AppState>>,
-) -> impl IntoResponse {
-    StatusCode::NO_CONTENT.into_response()
-}
-
-// Devolver el pago
-pub async fn refund_payment(// Path(id): Path<String>,
-    // State(state): State<Arc<AppState>>,
-) -> impl IntoResponse {
-    StatusCode::NO_CONTENT.into_response()
-}
-
-// Consultar el historial de pagos del usuario
-
 /// Obtener historial de pagos de un usuario
 #[debug_handler]
 #[instrument(skip(state), fields(operation = "get_payment_history"))]
@@ -218,7 +195,7 @@ pub async fn get_payment_history(State(state): State<Arc<AppState>>) -> impl Int
     }
 }
 
-// Crear un producto
+/// Crear un producto
 #[debug_handler]
 #[instrument(
     skip(state, payload),
@@ -320,7 +297,7 @@ pub async fn create_product(
     }
 }
 
-// Obtener toda la lista de productos
+/// Obtener toda la lista de productos
 #[debug_handler]
 #[instrument(skip(state), fields(operation = "get_all_products"))]
 pub async fn get_all_products(State(state): State<Arc<AppState>>) -> impl IntoResponse {
@@ -339,7 +316,7 @@ pub async fn get_all_products(State(state): State<Arc<AppState>>) -> impl IntoRe
     }
 }
 
-// Obtener todos los precios
+/// Obtener todos los precios
 #[debug_handler]
 #[instrument(skip(state), fields(operation = "get_all_prices"))]
 pub async fn get_all_prices(State(state): State<Arc<AppState>>) -> impl IntoResponse {
@@ -357,7 +334,15 @@ pub async fn get_all_prices(State(state): State<Arc<AppState>>) -> impl IntoResp
     }
 }
 
-// Eliminar un producto
+/// Eliminar un producto
+#[debug_handler]
+#[instrument(
+    skip(state),
+    fields(
+        product_id = %id,
+        operation = "archive_product"
+    )
+)]
 pub async fn archive_product(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
@@ -433,7 +418,15 @@ pub async fn archive_product(
     }
 }
 
-// Archivar precio
+/// Archivar precio
+#[debug_handler]
+#[instrument(
+    skip(state),
+    fields(
+        price_id = %id,
+        operation = "archive_price"
+    )
+)]
 pub async fn delete_price(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
@@ -458,7 +451,16 @@ pub async fn delete_price(
     }
 }
 
-/// Estructura para recibir la relacion entre cal y stripe
+/// Recibir la relación entre cal y stripe
+#[debug_handler]
+#[instrument(
+    skip(state),
+    fields(
+        cal_id = %payload.cal_id,
+        stripe_id = %payload.stripe_id,
+        operation = "archive_cal_connection"
+    )
+)]
 pub async fn archive_cal_connection(
     State(state): State<Arc<AppState>>,
     Extension(id_token): Extension<String>,
@@ -527,6 +529,8 @@ pub async fn archive_cal_connection(
 }
 
 /// Obtener todas las reservas pagadas vinculadas a Cal.com
+#[debug_handler]
+#[instrument(skip(state), fields(operation = "get_all_paid_reservations"))]
 pub async fn get_all_paid_reservations(
     State(state): State<Arc<AppState>>,
     Extension(id_token): Extension<String>,
@@ -581,3 +585,28 @@ pub async fn get_all_paid_reservations(
         }
     }
 }
+
+///////// POSIBLES FUTURAS FUNCIONES /////////
+// Consultar un payment para saber su estado actual
+// pub async fn get_payment_status(
+//     Path(id): Path<String>,
+//     State(state): State<Arc<AppState>>,
+// ) -> impl IntoResponse {
+//     StatusCode::NO_CONTENT.into_response()
+// }
+
+// Cancelar un payment
+// pub async fn cancel_payment(
+//     Path(id): Path<String>,
+//     State(state): State<Arc<AppState>>,
+// ) -> impl IntoResponse {
+//     StatusCode::NO_CONTENT.into_response()
+// }
+
+// Devolver el pago
+// pub async fn refund_payment(
+//     Path(id): Path<String>,
+//     State(state): State<Arc<AppState>>,
+// ) -> impl IntoResponse {
+//     StatusCode::NO_CONTENT.into_response()
+// }

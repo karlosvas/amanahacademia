@@ -1,17 +1,11 @@
-mod controllers;
-mod middleware;
-mod models;
-mod routes;
-mod services;
-mod validations;
-
-#[cfg(test)]
-mod test;
-
 use {
-    crate::models::{
-        metrics::ServiceAccount,
-        state::{AppState, CalOptions, CustomFirebase, GAOptions, KeyCache, MailchimpOptions},
+    amanahacademia::{
+        controllers,
+        models::{
+            metrics::ServiceAccount,
+            state::{AppState, CalOptions, CustomFirebase, GAOptions, KeyCache, MailchimpOptions},
+        },
+        routes,
     },
     axum::{
         Router,

@@ -1,14 +1,12 @@
-use {
-    crate::{
-        models::metrics::{GAErrorResponse, GAResponse},
-        services::metrics::parse_ga_response,
-    },
-    mockito::Server,
-};
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use {
+        crate::{
+            models::metrics::{GAErrorResponse, GAResponse},
+            services::metrics::parse_ga_response,
+        },
+        mockito::Server,
+    };
 
     #[tokio::test]
     async fn test_parse_ga_response_with_success() {
@@ -141,7 +139,10 @@ mod tests {
     async fn test_parse_ga_response_with_network_error() {
         // Act: Intentar conectar a un servidor que no existe
         let client = reqwest::Client::new();
-        let response = client.get("http://invalid-url-that-does-not-exist").send().await;
+        let response = client
+            .get("http://invalid-url-that-does-not-exist")
+            .send()
+            .await;
 
         let result: Result<GAResponse, _> = parse_ga_response(response).await;
 

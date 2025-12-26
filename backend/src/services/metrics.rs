@@ -31,3 +31,7 @@ where
         Err(e) => Err(MetricsError::Network(e)),
     }
 }
+
+#[cfg(test)]
+#[path = "../test/services/metrics.rs"]
+mod tests;

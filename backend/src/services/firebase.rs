@@ -46,3 +46,7 @@ where
         Err((status, error_msg))
     }
 }
+
+#[cfg(test)]
+#[path = "../test/services/firebase.rs"]
+mod tests;

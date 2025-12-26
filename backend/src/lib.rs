@@ -5,5 +5,7 @@ pub mod routes;
 pub mod services;
 pub mod validations;
 
+// Test helpers (fixtures compartidos)
 #[cfg(test)]
-mod test;
+#[path = "test/helpers/fixtures.rs"]
+pub mod test_fixtures;

@@ -1,15 +1,10 @@
-use {
-    crate::{
-        models::stripe::PricePayload,
-        services::payments::insert_options_by_country,
-    },
-    std::collections::HashMap,
-    stripe::{CreateProductDefaultPriceDataCurrencyOptions, Currency},
-};
-
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use {
+        crate::{models::stripe::PricePayload, services::payments::insert_options_by_country},
+        std::collections::HashMap,
+        stripe::{CreateProductDefaultPriceDataCurrencyOptions, Currency},
+    };
 
     #[test]
     fn test_insert_options_by_country_with_base_price() {

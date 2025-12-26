@@ -41,3 +41,7 @@ where
         Ok(ValidatedJson(data))
     }
 }
+
+#[cfg(test)]
+#[path = "../test/validations/validations.rs"]
+mod tests;
