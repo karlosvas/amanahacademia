@@ -15,7 +15,7 @@ pub struct ServiceAccount {
     pub private_key: String,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct GAResponse {
     #[serde(default)]
     pub rows: Vec<MetricData>,
@@ -35,7 +35,7 @@ pub struct GAError {
     pub status: String,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct MetricData {
     #[serde(rename = "dimensionValues")]
     dimension_values: Vec<DimensionValue>,
@@ -43,12 +43,12 @@ pub struct MetricData {
     metric_values: Vec<MetricValue>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 struct DimensionValue {
     value: String, // "202410" formato YYYYMM
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 struct MetricValue {
     value: String, // "1234" como string
 }

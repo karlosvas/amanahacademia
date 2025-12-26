@@ -1,1 +1,2 @@
-pub mod validations;
+#[cfg(test)]
+mod validations;

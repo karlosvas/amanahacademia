@@ -1,61 +1,59 @@
-#[cfg(test)]
-mod tests {
-    use {
-        crate::{
-            middleware::auth::verify_firebase_token,
-            models::{
-                error::AuthError,
-                firebase::UserAuthentication,
-                metrics::{ClaimsGA, GAToken, ServiceAccount},
-                state::KeyCache,
-            },
+use {
+    crate::{
+        middleware::auth::verify_firebase_token,
+        models::{
+            error::AuthError,
+            firebase::UserAuthentication,
+            metrics::{ClaimsGA, GAToken, ServiceAccount},
+            state::KeyCache,
         },
-        axum::http::StatusCode,
-        jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, encode},
-        serde_json::{Value, json},
-        std::time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+    },
+    axum::http::StatusCode,
+    jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, encode},
+    serde_json::{Value, json},
+    std::time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+};
+
+// ========== FIXTURES Y HELPERS ==========
+
+/// Crea un token JWT válido para testing
+fn create_valid_test_token(
+    project_id: &str,
+    user_id: &str,
+    encoding_key: &EncodingKey,
+    kid: &str,
+) -> String {
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs() as i64;
+
+    let claims = UserAuthentication {
+        sub: user_id.to_string(),
+        iss: format!("https://securetoken.google.com/{}", project_id),
+        aud: project_id.to_string(),
+        iat: now,
+        exp: now + 3600,
+        email: Some("test@example.com".to_string()),
+        email_verified: Some(true),
+        name: Some("Test User".to_string()),
+        picture: None,
+        auth_time: now,
+        user_id: user_id.to_string(),
+        firebase: None,
+        phone_number: None,
+        provider_id: Some("password".to_string()),
     };
 
-    // ========== FIXTURES Y HELPERS ==========
+    let mut header = Header::new(Algorithm::RS256);
+    header.kid = Some(kid.to_string());
 
-    /// Crea un token JWT válido para testing
-    fn create_valid_test_token(
-        project_id: &str,
-        user_id: &str,
-        encoding_key: &EncodingKey,
-        kid: &str,
-    ) -> String {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
+    encode(&header, &claims, encoding_key).expect("Failed to encode JWT")
+}
 
-        let claims = UserAuthentication {
-            sub: user_id.to_string(),
-            iss: format!("https://securetoken.google.com/{}", project_id),
-            aud: project_id.to_string(),
-            iat: now,
-            exp: now + 3600,
-            email: Some("test@example.com".to_string()),
-            email_verified: Some(true),
-            name: Some("Test User".to_string()),
-            picture: None,
-            auth_time: now,
-            user_id: user_id.to_string(),
-            firebase: None,
-            phone_number: None,
-            provider_id: Some("password".to_string()),
-        };
-
-        let mut header = Header::new(Algorithm::RS256);
-        header.kid = Some(kid.to_string());
-
-        encode(&header, &claims, encoding_key).expect("Failed to encode JWT")
-    }
-
-    /// Crea un par de claves RSA para testing
-    fn create_test_rsa_keys() -> (EncodingKey, DecodingKey, String) {
-        let private_key = r#"-----BEGIN PRIVATE KEY-----
+/// Crea un par de claves RSA para testing
+fn create_test_rsa_keys() -> (EncodingKey, DecodingKey, String) {
+    let private_key = r#"-----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDNPyPzvh7i+WMs
 0S5Px8ip6Mxjag6Xxf1SZ979q+L/nPDvuOADnzUnSbeBNYzAwz79zYoqra64zK1H
 cFrxCcVfMqu8Wrko7Wevshoo5fbxzTE8i+/J3cd6lRE0+pwrN0+k5gUiPj1KziJ9
@@ -84,7 +82,7 @@ bi+aXQnjxeU9u61V7erNTVaVqMnwQYjQzoq/1Fpuf14HeV2qV/YEGFrU7baBodRg
 XrivCALoN8O9Gvb+bMTIf4Ut
 -----END PRIVATE KEY-----"#;
 
-        let public_key = r#"-----BEGIN PUBLIC KEY-----
+    let public_key = r#"-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzT8j874e4vljLNEuT8fI
 qejMY2oOl8X9Umfe/avi/5zw77jgA581J0m3gTWMwMM+/c2KKq2uuMytR3Ba8QnF
 XzKrvFq5KO1nr7IaKOX28c0xPIvvyd3HepURNPqcKzdPpOYFIj49Ss4ifa+HDnsX
@@ -94,26 +92,26 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
 5QIDAQAB
 -----END PUBLIC KEY-----"#;
 
-        let kid = "test-key-id-123".to_string();
+    let kid = "test-key-id-123".to_string();
 
-        (
-            EncodingKey::from_rsa_pem(private_key.as_bytes()).unwrap(),
-            DecodingKey::from_rsa_pem(public_key.as_bytes()).unwrap(),
-            kid,
-        )
-    }
+    (
+        EncodingKey::from_rsa_pem(private_key.as_bytes()).unwrap(),
+        DecodingKey::from_rsa_pem(public_key.as_bytes()).unwrap(),
+        kid,
+    )
+}
 
-    // ========== TESTS DE verify_firebase_token ==========
+// ========== TESTS DE verify_firebase_token ==========
 
-    #[test]
-    fn test_verify_firebase_token_success() {
-        let (encoding_key, _, kid) = create_test_rsa_keys();
-        let project_id: &str = "amanahacademia";
-        let user_id: &str = "test-user-123";
+#[test]
+fn test_verify_firebase_token_success() {
+    let (encoding_key, _, kid) = create_test_rsa_keys();
+    let project_id: &str = "amanahacademia";
+    let user_id: &str = "test-user-123";
 
-        let token: String = create_valid_test_token(project_id, user_id, &encoding_key, &kid);
+    let token: String = create_valid_test_token(project_id, user_id, &encoding_key, &kid);
 
-        let public_key: &str = r#"-----BEGIN PUBLIC KEY-----
+    let public_key: &str = r#"-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzT8j874e4vljLNEuT8fI
 qejMY2oOl8X9Umfe/avi/5zw77jgA581J0m3gTWMwMM+/c2KKq2uuMytR3Ba8QnF
 XzKrvFq5KO1nr7IaKOX28c0xPIvvyd3HepURNPqcKzdPpOYFIj49Ss4ifa+HDnsX
@@ -123,83 +121,83 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
 5QIDAQAB
 -----END PUBLIC KEY-----"#;
 
-        let firebase_keys = json!({
-            kid: public_key
-        });
+    let firebase_keys = json!({
+        kid: public_key
+    });
 
-        let result = verify_firebase_token(&token, &firebase_keys, project_id);
-        assert!(result.is_ok());
+    let result = verify_firebase_token(&token, &firebase_keys, project_id);
+    assert!(result.is_ok());
 
-        let token_data = result.unwrap();
-        assert_eq!(token_data.claims.user_id, user_id);
-        assert_eq!(
-            token_data.claims.email,
-            Some("test@example.com".to_string())
-        );
-    }
+    let token_data = result.unwrap();
+    assert_eq!(token_data.claims.user_id, user_id);
+    assert_eq!(
+        token_data.claims.email,
+        Some("test@example.com".to_string())
+    );
+}
 
-    #[test]
-    fn test_verify_firebase_token_missing_kid() {
-        let token: &str = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.invalid";
-        let firebase_keys: Value = json!({});
-        let project_id: &str = "amanahacademia";
+#[test]
+fn test_verify_firebase_token_missing_kid() {
+    let token: &str = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.invalid";
+    let firebase_keys: Value = json!({});
+    let project_id: &str = "amanahacademia";
 
-        let result = verify_firebase_token(token, &firebase_keys, project_id);
-        assert!(result.is_err());
-    }
+    let result = verify_firebase_token(token, &firebase_keys, project_id);
+    assert!(result.is_err());
+}
 
-    #[test]
-    fn test_verify_firebase_token_no_matching_key() {
-        let (encoding_key, _, kid) = create_test_rsa_keys();
-        let project_id: &str = "amanahacademia";
-        let user_id: &str = "test-user-123";
+#[test]
+fn test_verify_firebase_token_no_matching_key() {
+    let (encoding_key, _, kid) = create_test_rsa_keys();
+    let project_id: &str = "amanahacademia";
+    let user_id: &str = "test-user-123";
 
-        let token: String = create_valid_test_token(project_id, user_id, &encoding_key, &kid);
-        // Firebase keys con kid diferente
-        let firebase_keys = json!({
-            "different-kid": "some-public-key"
-        });
+    let token: String = create_valid_test_token(project_id, user_id, &encoding_key, &kid);
+    // Firebase keys con kid diferente
+    let firebase_keys = json!({
+        "different-kid": "some-public-key"
+    });
 
-        let result = verify_firebase_token(&token, &firebase_keys, project_id);
-        assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), AuthError::NoMatchingKey));
-    }
+    let result = verify_firebase_token(&token, &firebase_keys, project_id);
+    assert!(result.is_err());
+    assert!(matches!(result.unwrap_err(), AuthError::NoMatchingKey));
+}
 
-    #[test]
-    fn test_verify_firebase_token_expired() {
-        let (encoding_key, _, kid) = create_test_rsa_keys();
-        let project_id: &str = "amanahacademia";
-        let user_id: &str = "test-user-123";
+#[test]
+fn test_verify_firebase_token_expired() {
+    let (encoding_key, _, kid) = create_test_rsa_keys();
+    let project_id: &str = "amanahacademia";
+    let user_id: &str = "test-user-123";
 
-        // Crear token expirado (exp en el pasado)
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
+    // Crear token expirado (exp en el pasado)
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs() as i64;
 
-        let claims = UserAuthentication {
-            sub: user_id.to_string(),
-            iss: format!("https://securetoken.google.com/{}", project_id),
-            aud: project_id.to_string(),
-            iat: now - 7200,
-            exp: now - 3600, // Expirado hace 1 hora
-            email: Some("test@example.com".to_string()),
-            email_verified: Some(true),
-            name: Some("Test User".to_string()),
-            picture: None,
-            auth_time: now - 7200,
-            user_id: user_id.to_string(),
-            firebase: None,
-            phone_number: None,
-            provider_id: Some("password".to_string()),
-        };
+    let claims = UserAuthentication {
+        sub: user_id.to_string(),
+        iss: format!("https://securetoken.google.com/{}", project_id),
+        aud: project_id.to_string(),
+        iat: now - 7200,
+        exp: now - 3600, // Expirado hace 1 hora
+        email: Some("test@example.com".to_string()),
+        email_verified: Some(true),
+        name: Some("Test User".to_string()),
+        picture: None,
+        auth_time: now - 7200,
+        user_id: user_id.to_string(),
+        firebase: None,
+        phone_number: None,
+        provider_id: Some("password".to_string()),
+    };
 
-        let mut header: Header = Header::new(Algorithm::RS256);
-        header.kid = Some(kid.clone());
+    let mut header: Header = Header::new(Algorithm::RS256);
+    header.kid = Some(kid.clone());
 
-        let token: String = encode(&header, &claims, &encoding_key).unwrap();
+    let token: String = encode(&header, &claims, &encoding_key).unwrap();
 
-        let public_key = r#"-----BEGIN PUBLIC KEY-----
+    let public_key = r#"-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzT8j874e4vljLNEuT8fI
 qejMY2oOl8X9Umfe/avi/5zw77jgA581J0m3gTWMwMM+/c2KKq2uuMytR3Ba8QnF
 XzKrvFq5KO1nr7IaKOX28c0xPIvvyd3HepURNPqcKzdPpOYFIj49Ss4ifa+HDnsX
@@ -209,26 +207,26 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
 5QIDAQAB
 -----END PUBLIC KEY-----"#;
 
-        let firebase_keys: Value = json!({
-            kid: public_key
-        });
+    let firebase_keys: Value = json!({
+        kid: public_key
+    });
 
-        let result = verify_firebase_token(&token, &firebase_keys, project_id);
-        assert!(result.is_err());
-        assert!(matches!(
-            result.unwrap_err(),
-            AuthError::TokenVerification(_)
-        ));
-    }
+    let result = verify_firebase_token(&token, &firebase_keys, project_id);
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        AuthError::TokenVerification(_)
+    ));
+}
 
-    #[test]
-    fn test_verify_firebase_token_invalid_audience() {
-        let (encoding_key, _, kid) = create_test_rsa_keys();
-        let project_id: &str = "wrong-project-id";
-        let user_id: &str = "test-user-123";
+#[test]
+fn test_verify_firebase_token_invalid_audience() {
+    let (encoding_key, _, kid) = create_test_rsa_keys();
+    let project_id: &str = "wrong-project-id";
+    let user_id: &str = "test-user-123";
 
-        let token: String = create_valid_test_token(project_id, user_id, &encoding_key, &kid);
-        let public_key = r#"-----BEGIN PUBLIC KEY-----
+    let token: String = create_valid_test_token(project_id, user_id, &encoding_key, &kid);
+    let public_key = r#"-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzT8j874e4vljLNEuT8fI
 qejMY2oOl8X9Umfe/avi/5zw77jgA581J0m3gTWMwMM+/c2KKq2uuMytR3Ba8QnF
 XzKrvFq5KO1nr7IaKOX28c0xPIvvyd3HepURNPqcKzdPpOYFIj49Ss4ifa+HDnsX
@@ -238,54 +236,54 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
 5QIDAQAB
 -----END PUBLIC KEY-----"#;
 
-        let firebase_keys: Value = json!({
-            kid: public_key
-        });
+    let firebase_keys: Value = json!({
+        kid: public_key
+    });
 
-        // Verificar con proyecto diferente
-        let result = verify_firebase_token(&token, &firebase_keys, "amanahacademia");
-        assert!(result.is_err());
-        assert!(matches!(
-            result.unwrap_err(),
-            AuthError::TokenVerification(_)
-        ));
-    }
+    // Verificar con proyecto diferente
+    let result = verify_firebase_token(&token, &firebase_keys, "amanahacademia");
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        AuthError::TokenVerification(_)
+    ));
+}
 
-    #[test]
-    fn test_verify_firebase_token_invalid_issuer() {
-        let (encoding_key, _, kid) = create_test_rsa_keys();
-        let project_id = "amanahacademia";
-        let user_id = "test-user-123";
+#[test]
+fn test_verify_firebase_token_invalid_issuer() {
+    let (encoding_key, _, kid) = create_test_rsa_keys();
+    let project_id = "amanahacademia";
+    let user_id = "test-user-123";
 
-        // Crear token con issuer inválido
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
+    // Crear token con issuer inválido
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs() as i64;
 
-        let claims = UserAuthentication {
-            sub: user_id.to_string(),
-            iss: "https://invalid-issuer.com".to_string(), // Issuer inválido
-            aud: project_id.to_string(),
-            iat: now,
-            exp: now + 3600,
-            email: Some("test@example.com".to_string()),
-            email_verified: Some(true),
-            name: Some("Test User".to_string()),
-            picture: None,
-            auth_time: now,
-            user_id: user_id.to_string(),
-            firebase: None,
-            phone_number: None,
-            provider_id: Some("password".to_string()),
-        };
+    let claims = UserAuthentication {
+        sub: user_id.to_string(),
+        iss: "https://invalid-issuer.com".to_string(), // Issuer inválido
+        aud: project_id.to_string(),
+        iat: now,
+        exp: now + 3600,
+        email: Some("test@example.com".to_string()),
+        email_verified: Some(true),
+        name: Some("Test User".to_string()),
+        picture: None,
+        auth_time: now,
+        user_id: user_id.to_string(),
+        firebase: None,
+        phone_number: None,
+        provider_id: Some("password".to_string()),
+    };
 
-        let mut header: Header = Header::new(Algorithm::RS256);
-        header.kid = Some(kid.clone());
+    let mut header: Header = Header::new(Algorithm::RS256);
+    header.kid = Some(kid.clone());
 
-        let token: String = encode(&header, &claims, &encoding_key).unwrap();
+    let token: String = encode(&header, &claims, &encoding_key).unwrap();
 
-        let public_key: &str = r#"-----BEGIN PUBLIC KEY-----
+    let public_key: &str = r#"-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzT8j874e4vljLNEuT8fI
 qejMY2oOl8X9Umfe/avi/5zw77jgA581J0m3gTWMwMM+/c2KKq2uuMytR3Ba8QnF
 XzKrvFq5KO1nr7IaKOX28c0xPIvvyd3HepURNPqcKzdPpOYFIj49Ss4ifa+HDnsX
@@ -295,167 +293,203 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
 5QIDAQAB
 -----END PUBLIC KEY-----"#;
 
-        let firebase_keys = json!({
-            kid: public_key
-        });
+    let firebase_keys = json!({
+        kid: public_key
+    });
 
-        let result = verify_firebase_token(&token, &firebase_keys, project_id);
-        assert!(result.is_err());
-        assert!(matches!(
-            result.unwrap_err(),
-            AuthError::TokenVerification(_)
-        ));
-    }
+    let result = verify_firebase_token(&token, &firebase_keys, project_id);
+    assert!(result.is_err());
+    assert!(matches!(
+        result.unwrap_err(),
+        AuthError::TokenVerification(_)
+    ));
+}
 
-    // ========== TESTS DE MODELOS Y ESTRUCTURAS ==========
+// ========== TESTS DE MODELOS Y ESTRUCTURAS ==========
 
-    #[test]
-    fn test_claims_ga_structure() {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+#[test]
+fn test_claims_ga_structure() {
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
 
-        let claims = ClaimsGA {
-            iss: "test@test-project.iam.gserviceaccount.com".to_string(),
-            scope: "https://www.googleapis.com/auth/analytics.readonly".to_string(),
-            aud: "https://oauth2.googleapis.com/token".to_string(),
-            exp: now + 3600,
-            iat: now,
-        };
+    let claims = ClaimsGA {
+        iss: "test@test-project.iam.gserviceaccount.com".to_string(),
+        scope: "https://www.googleapis.com/auth/analytics.readonly".to_string(),
+        aud: "https://oauth2.googleapis.com/token".to_string(),
+        exp: now + 3600,
+        iat: now,
+    };
 
-        assert_eq!(claims.iss, "test@test-project.iam.gserviceaccount.com");
-        assert_eq!(
-            claims.scope,
-            "https://www.googleapis.com/auth/analytics.readonly"
-        );
-        assert_eq!(claims.aud, "https://oauth2.googleapis.com/token");
-        assert_eq!(claims.exp, now + 3600);
-        assert_eq!(claims.iat, now);
-    }
+    assert_eq!(claims.iss, "test@test-project.iam.gserviceaccount.com");
+    assert_eq!(
+        claims.scope,
+        "https://www.googleapis.com/auth/analytics.readonly"
+    );
+    assert_eq!(claims.aud, "https://oauth2.googleapis.com/token");
+    assert_eq!(claims.exp, now + 3600);
+    assert_eq!(claims.iat, now);
+}
 
-    #[test]
-    fn test_service_account_structure() {
-        let service_account = ServiceAccount {
-            client_email: "test@test-project.iam.gserviceaccount.com".to_string(),
-            private_key: "-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----".to_string(),
-        };
+#[test]
+fn test_service_account_structure() {
+    let service_account = ServiceAccount {
+        client_email: "test@test-project.iam.gserviceaccount.com".to_string(),
+        private_key: "-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----".to_string(),
+    };
 
-        assert_eq!(
-            service_account.client_email,
-            "test@test-project.iam.gserviceaccount.com"
-        );
-        assert!(service_account.private_key.contains("BEGIN PRIVATE KEY"));
-    }
+    assert_eq!(
+        service_account.client_email,
+        "test@test-project.iam.gserviceaccount.com"
+    );
+    assert!(service_account.private_key.contains("BEGIN PRIVATE KEY"));
+}
 
-    // ========== TESTS DE CONVERSIÓN DE ERRORES ==========
+// ========== TESTS DE CONVERSIÓN DE ERRORES ==========
 
-    #[test]
-    fn test_auth_error_to_status_code() {
-        assert_eq!(
-            StatusCode::from(AuthError::MissingHeader),
-            StatusCode::UNAUTHORIZED
-        );
-        assert_eq!(
-            StatusCode::from(AuthError::InvalidHeaderFormat),
-            StatusCode::UNAUTHORIZED
-        );
-        assert_eq!(
-            StatusCode::from(AuthError::MissingKid),
-            StatusCode::FORBIDDEN
-        );
-        assert_eq!(
-            StatusCode::from(AuthError::NoMatchingKey),
-            StatusCode::FORBIDDEN
-        );
-        assert_eq!(
-            StatusCode::from(AuthError::TokenVerification("test".to_string())),
-            StatusCode::FORBIDDEN
-        );
-    }
+#[test]
+fn test_auth_error_to_status_code() {
+    assert_eq!(
+        StatusCode::from(AuthError::MissingHeader),
+        StatusCode::UNAUTHORIZED
+    );
+    assert_eq!(
+        StatusCode::from(AuthError::InvalidHeaderFormat),
+        StatusCode::UNAUTHORIZED
+    );
+    assert_eq!(
+        StatusCode::from(AuthError::MissingKid),
+        StatusCode::FORBIDDEN
+    );
+    assert_eq!(
+        StatusCode::from(AuthError::NoMatchingKey),
+        StatusCode::FORBIDDEN
+    );
+    assert_eq!(
+        StatusCode::from(AuthError::TokenVerification("test".to_string())),
+        StatusCode::FORBIDDEN
+    );
+}
 
-    // ========== TESTS DE KEY CACHE ==========
+// ========== TESTS DE KEY CACHE ==========
 
-    #[tokio::test]
-    async fn test_key_cache_expiration() {
-        let firebase_keys = json!({"test-kid": "test-key"});
+#[tokio::test]
+async fn test_key_cache_expiration() {
+    let firebase_keys = json!({"test-kid": "test-key"});
 
-        // Cache recién creado (no expirado)
-        let fresh_cache = KeyCache {
-            keys: firebase_keys.clone(),
-            fetched_at: Instant::now(),
-        };
-        assert!(!fresh_cache.is_expired());
+    // Cache recién creado (no expirado)
+    let fresh_cache = KeyCache {
+        keys: firebase_keys.clone(),
+        fetched_at: Instant::now(),
+    };
+    assert!(!fresh_cache.is_expired());
 
-        // Cache expirado (simulado con timestamp antiguo)
-        let expired_cache = KeyCache {
-            keys: firebase_keys,
-            fetched_at: Instant::now() - Duration::from_secs(3601),
-        };
-        assert!(expired_cache.is_expired());
-    }
+    // Cache expirado (simulado con timestamp antiguo)
+    let expired_cache = KeyCache {
+        keys: firebase_keys,
+        fetched_at: Instant::now() - Duration::from_secs(3601),
+    };
+    assert!(expired_cache.is_expired());
+}
 
-    #[test]
-    fn test_key_cache_ttl() {
-        let firebase_keys = json!({"test-kid": "test-key"});
-        let cache = KeyCache {
-            keys: firebase_keys,
-            fetched_at: Instant::now(),
-        };
+#[test]
+fn test_key_cache_ttl() {
+    let firebase_keys = json!({"test-kid": "test-key"});
+    let cache = KeyCache {
+        keys: firebase_keys,
+        fetched_at: Instant::now(),
+    };
 
-        // Verificar que el TTL es exactamente 1 hora (3600 segundos)
-        assert!(!cache.is_expired());
-    }
+    // Verificar que el TTL es exactamente 1 hora (3600 segundos)
+    assert!(!cache.is_expired());
+}
 
-    #[test]
-    fn test_ga_token_wrapper() {
-        let token = GAToken("test-token-123".to_string());
-        assert_eq!(token.0, "test-token-123");
+#[test]
+fn test_ga_token_wrapper() {
+    let token = GAToken("test-token-123".to_string());
+    assert_eq!(token.0, "test-token-123");
 
-        // Verificar que es cloneable
-        let cloned = token.clone();
-        assert_eq!(cloned.0, "test-token-123");
-    }
+    // Verificar que es cloneable
+    let cloned = token.clone();
+    assert_eq!(cloned.0, "test-token-123");
+}
 
-    // ========== TESTS DE VALIDACIÓN DE JWT ==========
+// ========== TESTS DE VALIDACIÓN DE JWT ==========
 
-    #[test]
-    fn test_jwt_header_structure() {
-        let mut header = Header::new(Algorithm::RS256);
-        header.kid = Some("test-kid-123".to_string());
+#[test]
+fn test_jwt_header_structure() {
+    let mut header = Header::new(Algorithm::RS256);
+    header.kid = Some("test-kid-123".to_string());
 
-        assert_eq!(header.alg, Algorithm::RS256);
-        assert_eq!(header.kid, Some("test-kid-123".to_string()));
-    }
+    assert_eq!(header.alg, Algorithm::RS256);
+    assert_eq!(header.kid, Some("test-kid-123".to_string()));
+}
 
-    #[test]
-    fn test_user_authentication_claims() {
-        let now = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs() as i64;
+#[test]
+fn test_user_authentication_claims() {
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs() as i64;
 
-        let claims = UserAuthentication {
-            sub: "user-123".to_string(),
-            iss: "https://securetoken.google.com/amanahacademia".to_string(),
-            aud: "amanahacademia".to_string(),
-            iat: now,
-            exp: now + 3600,
-            email: Some("test@example.com".to_string()),
-            email_verified: Some(true),
-            name: Some("Test User".to_string()),
-            picture: Some("https://example.com/photo.jpg".to_string()),
-            auth_time: now,
-            user_id: "user-123".to_string(),
-            firebase: None,
-            phone_number: Some("+1234567890".to_string()),
-            provider_id: Some("google.com".to_string()),
-        };
+    let claims = UserAuthentication {
+        sub: "user-123".to_string(),
+        iss: "https://securetoken.google.com/amanahacademia".to_string(),
+        aud: "amanahacademia".to_string(),
+        iat: now,
+        exp: now + 3600,
+        email: Some("test@example.com".to_string()),
+        email_verified: Some(true),
+        name: Some("Test User".to_string()),
+        picture: Some("https://example.com/photo.jpg".to_string()),
+        auth_time: now,
+        user_id: "user-123".to_string(),
+        firebase: None,
+        phone_number: Some("+1234567890".to_string()),
+        provider_id: Some("google.com".to_string()),
+    };
 
-        assert_eq!(claims.sub, "user-123");
-        assert_eq!(claims.user_id, "user-123");
-        assert_eq!(claims.email, Some("test@example.com".to_string()));
-        assert_eq!(claims.email_verified, Some(true));
-        assert_eq!(claims.provider_id, Some("google.com".to_string()));
-    }
+    assert_eq!(claims.sub, "user-123");
+    assert_eq!(claims.user_id, "user-123");
+    assert_eq!(claims.email, Some("test@example.com".to_string()));
+    assert_eq!(claims.email_verified, Some(true));
+    assert_eq!(claims.provider_id, Some("google.com".to_string()));
+}
+
+// ========== TESTS DE GOOGLE ANALYTICS TOKEN ==========
+
+#[test]
+fn test_claims_ga_expiration() {
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+
+    let claims = ClaimsGA {
+        iss: "test@test-project.iam.gserviceaccount.com".to_string(),
+        scope: "https://www.googleapis.com/auth/analytics.readonly".to_string(),
+        aud: "https://oauth2.googleapis.com/token".to_string(),
+        exp: now + 3600,
+        iat: now,
+    };
+
+    // Verificar que el token es válido por 1 hora
+    assert_eq!(claims.exp - claims.iat, 3600);
+}
+
+#[test]
+fn test_service_account_email_format() {
+    let service_account = ServiceAccount {
+        client_email: "test@test-project.iam.gserviceaccount.com".to_string(),
+        private_key: "-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----".to_string(),
+    };
+
+    // Verificar formato de email de service account
+    assert!(service_account.client_email.contains("@"));
+    assert!(
+        service_account
+            .client_email
+            .ends_with(".iam.gserviceaccount.com")
+    );
 }

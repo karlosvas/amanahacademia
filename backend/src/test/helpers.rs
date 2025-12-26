@@ -1,1 +1,1 @@
-pub mod fixtures;
+mod fixtures;
