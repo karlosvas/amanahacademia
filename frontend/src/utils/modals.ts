@@ -68,7 +68,7 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
   // Compensar el ancho de la scrollbar para evitar el salto de contenido
   if (scrollbarWidth > 0 && background) {
     // Guardar y sumar el padding original del body
-    const bodyPaddingRight = parseInt(globalThis.getComputedStyle(document.body).paddingRight) || 0;
+    const bodyPaddingRight = Number.parseInt(globalThis.getComputedStyle(document.body).paddingRight) || 0;
     document.body.style.paddingRight = `${bodyPaddingRight + scrollbarWidth}px`;
 
     // Para el header: fijar su ancho ANTES de que el viewport cambie

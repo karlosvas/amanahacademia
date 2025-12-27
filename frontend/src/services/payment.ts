@@ -165,7 +165,6 @@ export async function successPayment(
     throw new Error("Error al guardar relación");
   }
 
-  // Todo a salido bien
   // Enviar evento a Google Analytics
   if ((globalThis as any).gtag) (globalThis as any).gtag("event", "class_booking", { bookingUid });
 
@@ -221,6 +220,7 @@ export async function initializePrice(testCountry: string | null, slugType: stri
   } catch (error) {
     log.error(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
     showError(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
+    return undefined;
   }
 }
 
@@ -301,8 +301,8 @@ export async function initializeStripe(
     const paymentElement = elements.create("payment");
 
     // Ocultar loading y mostrar el elemento de pago
-    const loading = document.querySelector(".loading") as HTMLDivElement | null;
-    if (!loading || !loading.style) {
+    const loading = document.querySelector(".loading") as HTMLDivElement;
+    if (!loading.style) {
       showError(getErrorFrontStripe(FrontendStripe.PAYMENT_FORM_ERROR));
       return null;
     }

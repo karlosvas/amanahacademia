@@ -1,7 +1,7 @@
 // Servicio para manejar Cloudflare Turnstile
 export function executeTurnstileIfPresent(formHTML: HTMLFormElement): Promise<void> | void {
   const turnstileDiv = formHTML.querySelector(".cf-turnstile");
-  const t = (globalThis as any)?.turnstile;
+  const t = globalThis.turnstile;
   if (!t || !turnstileDiv) return;
   return new Promise((resolve, reject) => {
     try {

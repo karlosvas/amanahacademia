@@ -115,7 +115,11 @@ describe("Cookie Utilities", () => {
       cookieStore["langCookie"] = "invalid_lang";
       const lang = getLangFromCookie();
       expect(lang).toBe("es");
-      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Valor inválido detectado: "invalid_lang"'));
+      // Check that warn was called with the right message (accounting for adze logger formatting)
+      expect(consoleWarnSpy).toHaveBeenCalled();
+      const warnCall = consoleWarnSpy.mock.calls[0];
+      const fullMessage = warnCall.join(" ");
+      expect(fullMessage).toContain('Valor inválido detectado: "invalid_lang"');
       consoleWarnSpy.mockRestore();
     });
 

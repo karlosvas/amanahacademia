@@ -6,6 +6,7 @@ interface TurnstileAPI {
   render: (container: string | HTMLElement, options: any) => void;
   reset: (widgetId?: string) => void;
   remove: (widgetId?: string) => void;
+  execute: (container: Element, options: any) => void;
 }
 
 type StripeStatic = (publicKey: string) => any;

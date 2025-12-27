@@ -1,5 +1,6 @@
 import { Languages, Theme } from "@/enums/enums";
 import { hideBanner } from "./modals";
+import { log } from "@/services/logger";
 
 /// Cookies consent banner
 export function acceptCookies() {
@@ -18,7 +19,7 @@ export function acceptCookies() {
 
   // Función que actualiza el consentimiento
   const updateConsent = () => {
-    if (typeof globalThis.gtag !== "undefined") {
+    if (globalThis.gtag !== undefined) {
       globalThis.gtag("consent", "update", consentUpdate);
 
       //  Enviar un evento después de actualizar el consentimiento
@@ -31,50 +32,49 @@ export function acceptCookies() {
       globalThis.gtag("event", "page_view");
 
       if (isDebug) {
-        console.log("[GA Debug] Consent updated (ACCEPTED):", consentUpdate);
-        console.log("[GA Debug] Event sent: cookie_consent_granted");
-        console.log("[GA Debug] Event sent: page_view");
-        console.log("[GA Debug] DataLayer:", globalThis.dataLayer);
+        log.debug("[GA Debug] Consent updated (ACCEPTED):", consentUpdate);
+        log.debug("[GA Debug] Event sent: cookie_consent_granted");
+        log.debug("[GA Debug] Event sent: page_view");
+        log.debug("[GA Debug] DataLayer:", globalThis.dataLayer);
       }
     } else if (isDebug) {
-      console.log("[GA Debug] gtag not available when accepting cookies");
+      log.info("[GA Debug] gtag not available when accepting cookies");
+    } else {
+      if (isDebug) {
+        log.debug("[GA Debug] Waiting for gtag to be available...");
+      }
+
+      // Esperar hasta 5 segundos a que gtag esté disponible
+      const checkGtag = setInterval(() => {
+        if (globalThis.gtag !== undefined) {
+          clearInterval(checkGtag);
+          updateConsent();
+        }
+      }, 100);
+
+      setTimeout(() => clearInterval(checkGtag), 5000);
     }
   };
 
-  // Esperar a que gtag esté disponible
-  if (typeof globalThis.gtag !== "undefined") {
-    updateConsent();
-  } else {
-    if (isDebug) {
-      console.log("[GA Debug] Waiting for gtag to be available...");
-    }
-
-    // Esperar hasta 5 segundos a que gtag esté disponible
-    const checkGtag = setInterval(() => {
-      if (typeof globalThis.gtag !== "undefined") {
-        clearInterval(checkGtag);
-        updateConsent();
-      }
-    }, 100);
-
-    setTimeout(() => clearInterval(checkGtag), 5000);
-  }
+  updateConsent();
 
   localStorage.setItem("cookieConsent", "accepted");
   hideBanner();
 }
 
+// Rechazar cookies y mantener analíticas deshabilitadas
 export function rejectCookies() {
   localStorage.setItem("cookieConsent", "rejected");
 
   // Debug log (solo en desarrollo)
   if (globalThis.location.hostname === "localhost" || globalThis.location.hostname === "127.0.0.1") {
-    console.log("[GA Debug] Cookies REJECTED - Analytics will remain disabled");
+    log.debug("[GA Debug] Cookies REJECTED - Analytics will remain disabled");
   }
 
   hideBanner();
 }
 
+// Inicializar el consentimiento de cookies al cargar la página
 export function initializeCookieConsent() {
   const consent = localStorage.getItem("cookieConsent");
   // Debug habilitado en desarrollo O si hay parámetro ?ga_debug=1
@@ -93,7 +93,7 @@ export function initializeCookieConsent() {
         analytics_storage: "granted",
       };
 
-      if (typeof globalThis.gtag !== "undefined") {
+      if (globalThis.gtag !== undefined) {
         globalThis.gtag("consent", "update", consentUpdate);
 
         // CRÍTICO: Enviar un evento para que GA4 registre el hit
@@ -105,32 +105,24 @@ export function initializeCookieConsent() {
         globalThis.gtag("event", "page_view");
 
         if (isDebug) {
-          console.log("[GA Debug] Initializing with ACCEPTED consent:", consentUpdate);
-          console.log("[GA Debug] Event sent: cookie_consent_restored");
-          console.log("[GA Debug] Event sent: page_view");
-          console.log("[GA Debug] DataLayer after init:", globalThis.dataLayer);
+          log.debug("[GA Debug] Initializing with ACCEPTED consent:", consentUpdate);
+          log.debug("[GA Debug] Event sent: cookie_consent_restored");
+          log.debug("[GA Debug] Event sent: page_view");
+          log.debug("[GA Debug] DataLayer after init:", globalThis.dataLayer);
         }
-      } else if (isDebug) {
-        console.log("[GA Debug] gtag not ready yet, waiting...");
-      }
+      } else if (isDebug) log.debug("[GA Debug] gtag not ready yet, waiting...");
     } else if (consent === "rejected") {
-      if (isDebug) {
-        console.log("[GA Debug] User previously REJECTED cookies - Analytics disabled");
-      }
+      if (isDebug) log.info("[GA Debug] User previously REJECTED cookies - Analytics disabled");
     } else {
-      if (isDebug) {
-        console.log("[GA Debug] No consent decision found - Banner will show in 5s");
-      }
+      if (isDebug) log.debug("[GA Debug] No consent decision found - Banner will show in 5s");
     }
   };
 
   // Esperar a que gtag esté disponible
-  if (typeof globalThis.gtag !== "undefined") {
-    updateConsent();
-  } else {
+  if (globalThis.gtag === undefined) {
     // Si gtag no está listo, esperar a que se cargue
     const checkGtag = setInterval(() => {
-      if (typeof globalThis.gtag !== "undefined") {
+      if (globalThis.gtag !== undefined) {
         clearInterval(checkGtag);
         updateConsent();
       }
@@ -138,6 +130,8 @@ export function initializeCookieConsent() {
 
     // Timeout de seguridad (máximo 5 segundos)
     setTimeout(() => clearInterval(checkGtag), 5000);
+  } else {
+    updateConsent();
   }
 
   // Mostrar banner si no hay decisión (después de 5 segundos)
@@ -153,7 +147,7 @@ export function initializeCookieConsent() {
 export function writeLangCookie(value: Languages) {
   // Validar que el valor sea un idioma válido
   if (!value || value.includes("/") || value.includes(".")) {
-    console.warn(`[Lang Cookie] Intento de escribir valor inválido: ${value}`);
+    log.warn(`[Lang Cookie] Intento de escribir valor inválido: ${value}`);
     return;
   }
 
@@ -161,6 +155,7 @@ export function writeLangCookie(value: Languages) {
   document.cookie = `langCookie=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
 }
 
+// Leer el idioma desde la cookie
 export function getLangFromCookie(): Languages {
   const match = document.cookie.match(/(?:^|; )langCookie=([^;]*)/);
 
@@ -172,7 +167,7 @@ export function getLangFromCookie(): Languages {
   if (Object.values(Languages).includes(cookieValue as Languages)) return cookieValue as Languages;
 
   // Si el valor es inválido, registrar advertencia y devolver español por defecto
-  console.warn(`[Lang Cookie] Valor inválido detectado: "${cookieValue}". Usando idioma por defecto.`);
+  log.warn(`[Lang Cookie] Valor inválido detectado: "${cookieValue}". Usando idioma por defecto.`);
 
   // Opcionalmente, limpiar la cookie corrupta
   writeLangCookie(Languages.SPANISH);
@@ -184,7 +179,7 @@ export function getLangFromCookie(): Languages {
 function writeThemeCookie(value: Theme) {
   // Validar que el valor sea un tema válido
   if (!value || (value !== Theme.DARK && value !== Theme.LIGHT)) {
-    console.warn(`[Theme Cookie] Intento de escribir valor inválido: ${value}`);
+    log.warn(`[Theme Cookie] Intento de escribir valor inválido: ${value}`);
     return;
   }
 
@@ -192,6 +187,7 @@ function writeThemeCookie(value: Theme) {
   document.cookie = `theme=${value}; path=/; max-age=${maxAge}; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
 }
 
+// Leer el tema desde la cookie
 export function getThemeFromCookie(): Theme {
   // Si no hay acceso al documento (SSR), devolver tema por defecto
   if (typeof document === "undefined") {
@@ -217,7 +213,7 @@ export function getThemeFromCookie(): Theme {
   }
 
   // Si el valor es inválido, registrar advertencia y usar tema por defecto
-  console.warn(`[Theme Cookie] Valor inválido detectado: "${cookieValue}". Usando tema por defecto.`);
+  log.warn(`[Theme Cookie] Valor inválido detectado: "${cookieValue}". Usando tema por defecto.`);
 
   // Limpiar la cookie corrupta y establecer tema por defecto
   const defaultTheme = Theme.LIGHT;
@@ -225,12 +221,13 @@ export function getThemeFromCookie(): Theme {
   return defaultTheme;
 }
 
+// Aplicar el tema al documento y actualizar la cookie
 export function applyTheme(newTheme: Theme) {
   const html = document.documentElement;
 
   // Validación estricta del tema
   if (newTheme !== Theme.DARK && newTheme !== Theme.LIGHT) {
-    console.warn(`[Apply Theme] Tema inválido: ${newTheme}`);
+    log.warn(`[Apply Theme] Tema inválido: ${newTheme}`);
     return;
   }
 
