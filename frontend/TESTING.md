@@ -45,7 +45,7 @@ export default defineConfig({
 
 El archivo `test/setup.ts` contiene los mocks globales:
 - Mock de Firebase Auth
-- Mock de window.matchMedia
+- Mock de globalThis.matchMedia
 - Mock de solid-toast
 - Mock de Cloudflare Turnstile
 - Mock de localStorage

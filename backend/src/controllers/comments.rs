@@ -625,7 +625,7 @@ pub async fn edit_reply(
         reply.content = reply_update.content.clone();
         reply.timestamp = Utc::now().format("%d/%m/%Y %H:%M").to_string();
 
-        reply.clone() // ✅ Clonamos para devolverla después
+        reply.clone()
     }; // <- aquí termina el mutable borrow
 
     // Guardamos el comentario actualizado en Firebase

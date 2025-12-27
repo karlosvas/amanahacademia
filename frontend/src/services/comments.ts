@@ -1,4 +1,4 @@
-import type { Comment, ReplyComment, Result } from "@/types/bakend-types";
+import type { Comment, ReplyComment, ResponseAPI } from "@/types/bakend-types";
 import { ApiService } from "./helper";
 import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 import { getFirebaseAuth } from "./firebase";
@@ -19,7 +19,7 @@ export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanEleme
   }
 
   // Llamamos a la API para registrar el like
-  const commentResponse: Result<Comment> = await helper.setLike(commentId);
+  const commentResponse: ResponseAPI<Comment> = await helper.setLike(commentId);
 
   if (commentResponse.success) {
     // Obtenemos el span dentro de likeIcon y actualizamos el conteo
@@ -105,42 +105,8 @@ export function updateLikeState(user: User | null, likeIcon: Element | null, com
   }
 }
 
-export function updateModalUser(user: User | null) {
-  const modal = document.getElementById("comment-modal");
-  if (!modal) {
-    console.error("Modal element not found.");
-    return;
-  }
-  const avatarNameElem = modal.querySelector("#avatar-name") as HTMLSpanElement;
-  const avatarContainer = modal.querySelector("#avatar-container") as HTMLDivElement;
-  const avatarImg = modal.querySelector(".avatar-img") as HTMLImageElement;
-  const avatarDefault = modal.querySelector("#avatar-default") as HTMLDivElement;
-
-  if (!avatarNameElem || !avatarContainer || !avatarImg || !avatarDefault) {
-    return;
-  }
-
-  if (user) {
-    if (avatarNameElem) {
-      avatarNameElem.textContent = user.displayName || "Anonimo";
-    }
-
-    if (user.photoURL) {
-      avatarImg.src = user.photoURL;
-      avatarImg.style.display = "block";
-      avatarDefault.style.display = "none";
-    } else {
-      avatarImg.style.display = "none";
-      avatarDefault.style.display = "flex";
-      // Oculta la imagen y muestra el SVG
-      avatarImg.src = "";
-      // Si el SVG ya está en el DOM, solo muéstralo
-    }
-  }
-}
-
 export async function verifyAuthorInComment(helper: ApiService, commentId: string) {
-  const comment: Result<Comment> = await helper.getCommentById(commentId);
+  const comment: ResponseAPI<Comment> = await helper.getCommentById(commentId);
   if (!comment.success) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
   const auth = getFirebaseAuth();
@@ -149,7 +115,7 @@ export async function verifyAuthorInComment(helper: ApiService, commentId: strin
 }
 
 export async function verifyAuthorInCommentReply(helper: ApiService, commentId: string, replyId: string) {
-  const comment: Result<Comment> = await helper.getCommentReplyById(commentId, replyId);
+  const comment: ResponseAPI<Comment> = await helper.getCommentReplyById(commentId, replyId);
   if (!comment.success) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
   const auth = getFirebaseAuth();
@@ -189,14 +155,11 @@ export async function handleSubmitReply(helper: ApiService, commentEl: HTMLEleme
       users_liked: [],
     };
 
-    const res: Result<ReplyComment> = await helper.createReply(commentId, newReply);
+    const res: ResponseAPI<ReplyComment> = await helper.createReply(commentId, newReply);
 
     if (!res.success) {
       console.error("Error creando respuesta:", {
         error: res.error,
-        message: res.error?.message,
-        statusCode: res.error?.statusCode,
-        type: res.error?.type,
       });
       throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
     }
@@ -214,14 +177,10 @@ export async function handleSubmitReply(helper: ApiService, commentEl: HTMLEleme
 // Función para manejar la eliminación de comentarios
 export async function handleDeleteComment(helper: ApiService, commentId: string) {
   await verifyAuthorInComment(helper, commentId);
-  const res: Result<void> = await helper.deleteComment(commentId);
+  const res: ResponseAPI<void> = await helper.deleteComment(commentId);
 
   if (!res.success) {
-    throw new FrontendError(
-      res.error.message && res.error.statusCode == 403
-        ? getErrorToast(FrontendErrorCode.MUST_BE_OWNER)
-        : getErrorToast(FrontendErrorCode.UNKNOWN_ERROR)
-    );
+    throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
   }
 
   return res;
@@ -235,14 +194,10 @@ export async function handleEditComment(helper: ApiService, commentId: string) {
 // Función para manejar la eliminación de respuestas
 export async function handleDeleteReply(helper: ApiService, commentId: string, replyId: string) {
   await verifyAuthorInCommentReply(helper, commentId, replyId);
-  const result = await helper.deleteReply(commentId, replyId);
+  const result: ResponseAPI<void> = await helper.deleteReply(commentId, replyId);
 
   if (!result.success) {
-    throw new FrontendError(
-      result.error.message == "NOT FOUND"
-        ? getErrorToast(FrontendErrorCode.NOT_FOUND)
-        : getErrorToast(FrontendErrorCode.UNKNOWN_ERROR)
-    );
+    throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
   }
 
   return result;
@@ -274,19 +229,11 @@ export async function handleEditReply(
     users_liked: [],
   };
 
-  const result: Result<ReplyComment> = await helper.editReply(commentId, replyId, reply);
+  const result: ResponseAPI<ReplyComment> = await helper.editReply(commentId, replyId, reply);
 
   if (!result.success) {
-    throw new FrontendError(result.error.message || getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+    throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
   }
 
   return result;
-}
-
-// Para abrir el modal (por ejemplo, desde un botón)
-export function openCommentModal(idCommentShared: string, isEdit: boolean = false) {
-  const modal = document.getElementById(idCommentShared) as HTMLDialogElement;
-  const form = modal?.querySelector("form") as HTMLFormElement;
-
-  if (modal && form) showModalAnimation(modal, form, true); // true para showModal() en lugar de show()
 }

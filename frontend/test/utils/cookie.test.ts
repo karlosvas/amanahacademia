@@ -41,7 +41,7 @@ describe("Cookie Utilities", () => {
 
     // Mock localStorage
     localStorageStore = {};
-    Object.defineProperty(window, "localStorage", {
+    Object.defineProperty(globalThis, "localStorage", {
       value: {
         getItem: vi.fn((key: string) => localStorageStore[key] || null),
         setItem: vi.fn((key: string, value: string) => {
@@ -58,11 +58,11 @@ describe("Cookie Utilities", () => {
     vi.clearAllMocks();
 
     // Reset gtag
-    delete (window as any).gtag;
-    window.dataLayer = [];
+    delete (globalThis as any).gtag;
+    globalThis.dataLayer = [];
 
     // Reset location
-    Object.defineProperty(window, "location", {
+    Object.defineProperty(globalThis, "location", {
       value: { hostname: "test.com", search: "", protocol: "https:" },
       writable: true,
       configurable: true,
@@ -115,9 +115,7 @@ describe("Cookie Utilities", () => {
       cookieStore["langCookie"] = "invalid_lang";
       const lang = getLangFromCookie();
       expect(lang).toBe("es");
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Valor inválido detectado: "invalid_lang"')
-      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Valor inválido detectado: "invalid_lang"'));
       consoleWarnSpy.mockRestore();
     });
 
@@ -207,7 +205,7 @@ describe("Cookie Utilities", () => {
 
     it("should update gtag consent when gtag is available", () => {
       const mockGtag = vi.fn();
-      (window as any).gtag = mockGtag;
+      (globalThis as any).gtag = mockGtag;
 
       acceptCookies();
 
@@ -288,7 +286,7 @@ describe("Cookie Utilities", () => {
     it("should update gtag consent when previously accepted", () => {
       localStorageStore["cookieConsent"] = "accepted";
       const mockGtag = vi.fn();
-      (window as any).gtag = mockGtag;
+      (globalThis as any).gtag = mockGtag;
 
       initializeCookieConsent();
 

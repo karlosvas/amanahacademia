@@ -4,6 +4,7 @@ import {
   showModalAnimation,
   closeModalsEvents,
   startCalScrollManagement,
+  openCommentModal,
 } from "@/utils/modals.ts";
 import { rejectCookies } from "@/utils/cookie";
 
@@ -54,8 +55,8 @@ describe("Modal Utilities", () => {
     document.body.style.top = "";
     document.body.style.width = "";
 
-    // Mock window properties
-    Object.defineProperty(window, "innerWidth", {
+    // Mock globalThis properties
+    Object.defineProperty(globalThis, "innerWidth", {
       writable: true,
       configurable: true,
       value: 1024,
@@ -67,13 +68,13 @@ describe("Modal Utilities", () => {
       value: 1024,
     });
 
-    Object.defineProperty(window, "scrollY", {
+    Object.defineProperty(globalThis, "scrollY", {
       writable: true,
       configurable: true,
       value: 0,
     });
 
-    Object.defineProperty(window, "pageYOffset", {
+    Object.defineProperty(globalThis, "pageYOffset", {
       writable: true,
       configurable: true,
       value: 0,
@@ -84,9 +85,9 @@ describe("Modal Utilities", () => {
       return 0;
     }) as any;
 
-    window.scrollTo = vi.fn();
+    globalThis.scrollTo = vi.fn();
 
-    Object.defineProperty(window, "getComputedStyle", {
+    Object.defineProperty(globalThis, "getComputedStyle", {
       writable: true,
       configurable: true,
       value: () => ({ paddingRight: "0px" }),
@@ -165,7 +166,7 @@ describe("Modal Utilities", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(window.scrollTo).toHaveBeenCalledWith(0, 500);
+      expect(globalThis.scrollTo).toHaveBeenCalledWith(0, 500);
       expect(mockModal.dataset.scrollPosition).toBeUndefined();
     });
 
@@ -264,7 +265,7 @@ describe("Modal Utilities", () => {
     });
 
     it("should save scroll position in dataset", () => {
-      Object.defineProperty(window, "scrollY", {
+      Object.defineProperty(globalThis, "scrollY", {
         writable: true,
         configurable: true,
         value: 300,
@@ -280,7 +281,7 @@ describe("Modal Utilities", () => {
     });
 
     it("should compensate for scrollbar width when background=true", () => {
-      Object.defineProperty(window, "innerWidth", {
+      Object.defineProperty(globalThis, "innerWidth", {
         writable: true,
         configurable: true,
         value: 1024,
@@ -297,7 +298,7 @@ describe("Modal Utilities", () => {
     });
 
     it("should set header width to prevent layout shift", () => {
-      Object.defineProperty(window, "innerWidth", {
+      Object.defineProperty(globalThis, "innerWidth", {
         writable: true,
         configurable: true,
         value: 1024,
@@ -330,7 +331,7 @@ describe("Modal Utilities", () => {
     });
 
     it("should adjust select-page position for scrollbar compensation", () => {
-      Object.defineProperty(window, "innerWidth", {
+      Object.defineProperty(globalThis, "innerWidth", {
         writable: true,
         configurable: true,
         value: 1024,
@@ -363,7 +364,7 @@ describe("Modal Utilities", () => {
     });
 
     it("should add padding to fixed elements", () => {
-      Object.defineProperty(window, "innerWidth", {
+      Object.defineProperty(globalThis, "innerWidth", {
         writable: true,
         configurable: true,
         value: 1024,
@@ -479,7 +480,7 @@ describe("Modal Utilities", () => {
 
     it("should start an interval to check modal visibility", () => {
       vi.useFakeTimers();
-      const setIntervalSpy = vi.spyOn(window, "setInterval");
+      const setIntervalSpy = vi.spyOn(globalThis, "setInterval");
 
       startCalScrollManagement();
 

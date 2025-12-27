@@ -1,7 +1,6 @@
 import toast from "solid-toast";
-import { closeModalAnimation, showModalAnimation } from "../utils/modals";
-import type { ResponseAPI, UserMerged, UserRequest } from "@/types/bakend-types";
-import { ApiService } from "./helper";
+import { closeModalAnimation, showModalAnimation } from "@/utils/modals";
+import { ApiService } from "@/services/helper";
 import {
   FrontendErrorCode,
   getErrorToast,
@@ -10,9 +9,6 @@ import {
   ValidationCode,
   getValidationMessage,
 } from "@/enums/enums";
-import type { Auth, User } from "firebase/auth";
-
-// Import estático de Firebase
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -21,9 +17,13 @@ import {
   signInWithPopup,
   onAuthStateChanged as firebaseOnAuthStateChanged,
 } from "firebase/auth";
-import { executeTurnstileIfPresent } from "./claudflare";
-import { suscribeToNewsletter } from "./mailchimp";
-import { log } from "./logger";
+import { executeTurnstileIfPresent } from "@/services/claudflare";
+import { suscribeToNewsletter } from "@/services/mailchimp";
+import { log } from "@/services/logger";
+
+// Tipos
+import type { ResponseAPI, UserMerged, UserRequest } from "@/types/bakend-types";
+import type { Auth, User } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY,
@@ -44,6 +44,7 @@ export function getFirebaseAuth(): Auth {
   return firebaseAuth;
 }
 
+// Proveedor de Google
 export function getGoogleProvider() {
   return new GoogleAuthProvider();
 }
@@ -68,7 +69,7 @@ export function toggleLoginToRegister(
   return isRegister;
 }
 
-// Enviar formularios
+// Login o Register con email y password
 export function submitFormToRegisterOrLogin(
   modal: HTMLDialogElement,
   loading: HTMLElement,
@@ -76,7 +77,7 @@ export function submitFormToRegisterOrLogin(
   isRegister: boolean,
   errorMessage: HTMLElement
 ) {
-  const validation = new window.JustValidate(form, {
+  const validation = new globalThis.JustValidate(form, {
     errorFieldCssClass: "border-red",
     errorLabelStyle: { color: "#e53e3e", fontSize: "0.875rem" },
   });
@@ -109,10 +110,17 @@ export function submitFormToRegisterOrLogin(
 
     // Obtenemos los datos del formulario
     const formData = new FormData(event.target as HTMLFormElement);
+
+    // Helper function para obtener valores del formulario
+    const getFormValue = (name: string): string => {
+      const value = formData.get(name);
+      return typeof value === "string" ? value : "";
+    };
+
     const userRequest: UserRequest = {
-      name: toStringFormValue(formData.get("name") || ""),
-      email: toStringFormValue(formData.get("email") || ""),
-      password: toStringFormValue(formData.get("password") || ""),
+      name: getFormValue("name"),
+      email: getFormValue("email"),
+      password: getFormValue("password"),
       provider: "email",
       first_free_class: false,
     };
@@ -138,10 +146,7 @@ export function submitFormToRegisterOrLogin(
         if (isRegister) await suscribeToNewsletter(formData, userRequest);
 
         // Una vez creado el usuario desde el backend lo logeamos desde el frontend
-        const cred = await signInWithEmailAndPassword(firebaseAuth, userRequest.email, userRequest.password);
-
-        // Lo guardamos en las cookies
-        const token = await cred.user.getIdToken();
+        await signInWithEmailAndPassword(firebaseAuth, userRequest.email, userRequest.password);
 
         modal.close();
         setTimeout(() => {
@@ -166,10 +171,6 @@ export function submitFormToRegisterOrLogin(
       loading.classList.add("hidden");
     }
   });
-}
-
-function toStringFormValue(v: FormDataEntryValue | undefined): string {
-  return typeof v === "string" ? v : "";
 }
 
 // Logout
@@ -208,7 +209,7 @@ export function setupAuth(
   }
 }
 
-// Google login
+// Google login y register
 export async function handleLogGoogleProvider(
   modal: HTMLDialogElement,
   formHTML: HTMLFormElement,
@@ -221,9 +222,7 @@ export async function handleLogGoogleProvider(
 
     // Get the ID token from Firebase
     const idToken = await firebaseAuth.currentUser?.getIdToken();
-    if (!idToken) {
-      throw new Error("No se pudo obtener el token de autenticación");
-    }
+    if (!idToken) throw new Error("No se pudo obtener el token de autenticación");
 
     // Registramos o logeamos al usuario según corresponda
     const helper = new ApiService();
@@ -243,7 +242,7 @@ export async function handleLogGoogleProvider(
 
     if (!response.success) {
       // Deslogeamos al usuario de Firebase auth
-      await firebaseAuth.signOut();
+      await handleLogout();
 
       // Manejo específico si el usuario no existe
       loginError.textContent = getErrorToast(FrontendErrorCode.USER_NOT_EXISTS);
@@ -259,7 +258,6 @@ export async function handleLogGoogleProvider(
     //  Si el usuario se está registrando lo añadimos al newsletter
     if (isRegister) await suscribeToNewsletter(formData, userRequest);
 
-    // Comprobamos si es un usuario nuevo
     closeModalAnimation(modal, formHTML);
 
     // Devolbemos el scroll

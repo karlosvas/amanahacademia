@@ -2,7 +2,6 @@
 import Avatar from "@/components/common/Avatar.astro";
 import StarsSelectionIcon from "@/assets/star-selecion.svg";
 import ArrowSubmitIcon from "@/assets/arrow-submit.svg";
-import { log } from "@/services/logger";
 import type { ModalComent } from "@/types/types";
 
 // Modal de comentario, (edit) verifica si es para editarlo o para editar o enviar
@@ -283,7 +282,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
                 toast.success("Comentario actualizado con éxito.");
                 if (this.modal) closeModalAnimation(this.modal);
                 setTimeout(() => {
-                  window.location.reload();
+                  globalThis.location.reload();
                 }, 1000);
               })
               .catch((_) => {
@@ -309,7 +308,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
                 toast.success("Comentario enviado con éxito.");
                 if (this.modal) closeModalAnimation(this.modal);
                 setTimeout(() => {
-                  window.location.reload();
+                  globalThis.location.reload();
                 }, 1000);
               })
               .catch((_) => {
@@ -349,18 +348,12 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
   // Esperamos a que carge en el doom
   document.addEventListener("DOMContentLoaded", () => {
     const commentModals = document.querySelectorAll("dialog[data-comment-modal='true']");
-    window.commentModals = window.commentModals || {};
+    globalThis.commentModals = globalThis.commentModals || {};
     commentModals.forEach((modal) => {
       const id = modal.id;
       if (id) {
-        window.commentModals[id] = new CommentModal(id);
+        globalThis.commentModals[id] = new CommentModal(id);
       }
     });
   });
-
-  declare global {
-    interface Window {
-      commentModals: Record<string, CommentModal>;
-    }
-  }
 </script>

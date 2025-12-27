@@ -12,29 +12,29 @@ export function acceptCookies() {
 
   // Debug habilitado en desarrollo O si hay parámetro ?ga_debug=1
   const isDebug =
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1" ||
-    new URLSearchParams(window.location.search).get("ga_debug") === "1";
+    globalThis.location.hostname === "localhost" ||
+    globalThis.location.hostname === "127.0.0.1" ||
+    new URLSearchParams(globalThis.location.search).get("ga_debug") === "1";
 
   // Función que actualiza el consentimiento
   const updateConsent = () => {
-    if (typeof window.gtag !== "undefined") {
-      window.gtag("consent", "update", consentUpdate);
+    if (typeof globalThis.gtag !== "undefined") {
+      globalThis.gtag("consent", "update", consentUpdate);
 
       //  Enviar un evento después de actualizar el consentimiento
       // para que GA4 registre el hit inmediatamente
-      window.gtag("event", "cookie_consent_granted", {
+      globalThis.gtag("event", "cookie_consent_granted", {
         consent_type: "accept",
       });
 
       // Enviar page_view explícito para que la extensión lo detecte
-      window.gtag("event", "page_view");
+      globalThis.gtag("event", "page_view");
 
       if (isDebug) {
         console.log("[GA Debug] Consent updated (ACCEPTED):", consentUpdate);
         console.log("[GA Debug] Event sent: cookie_consent_granted");
         console.log("[GA Debug] Event sent: page_view");
-        console.log("[GA Debug] DataLayer:", window.dataLayer);
+        console.log("[GA Debug] DataLayer:", globalThis.dataLayer);
       }
     } else if (isDebug) {
       console.log("[GA Debug] gtag not available when accepting cookies");
@@ -42,7 +42,7 @@ export function acceptCookies() {
   };
 
   // Esperar a que gtag esté disponible
-  if (typeof window.gtag !== "undefined") {
+  if (typeof globalThis.gtag !== "undefined") {
     updateConsent();
   } else {
     if (isDebug) {
@@ -51,7 +51,7 @@ export function acceptCookies() {
 
     // Esperar hasta 5 segundos a que gtag esté disponible
     const checkGtag = setInterval(() => {
-      if (typeof window.gtag !== "undefined") {
+      if (typeof globalThis.gtag !== "undefined") {
         clearInterval(checkGtag);
         updateConsent();
       }
@@ -68,7 +68,7 @@ export function rejectCookies() {
   localStorage.setItem("cookieConsent", "rejected");
 
   // Debug log (solo en desarrollo)
-  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+  if (globalThis.location.hostname === "localhost" || globalThis.location.hostname === "127.0.0.1") {
     console.log("[GA Debug] Cookies REJECTED - Analytics will remain disabled");
   }
 
@@ -79,9 +79,9 @@ export function initializeCookieConsent() {
   const consent = localStorage.getItem("cookieConsent");
   // Debug habilitado en desarrollo O si hay parámetro ?ga_debug=1
   const isDebug =
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1" ||
-    new URLSearchParams(window.location.search).get("ga_debug") === "1";
+    globalThis.location.hostname === "localhost" ||
+    globalThis.location.hostname === "127.0.0.1" ||
+    new URLSearchParams(globalThis.location.search).get("ga_debug") === "1";
 
   // Función que actualiza el consentimiento cuando gtag esté listo
   const updateConsent = () => {
@@ -93,22 +93,22 @@ export function initializeCookieConsent() {
         analytics_storage: "granted",
       };
 
-      if (typeof window.gtag !== "undefined") {
-        window.gtag("consent", "update", consentUpdate);
+      if (typeof globalThis.gtag !== "undefined") {
+        globalThis.gtag("consent", "update", consentUpdate);
 
         // CRÍTICO: Enviar un evento para que GA4 registre el hit
-        window.gtag("event", "cookie_consent_restored", {
+        globalThis.gtag("event", "cookie_consent_restored", {
           consent_type: "previously_accepted",
         });
 
         // Enviar page_view explícito para que la extensión lo detecte
-        window.gtag("event", "page_view");
+        globalThis.gtag("event", "page_view");
 
         if (isDebug) {
           console.log("[GA Debug] Initializing with ACCEPTED consent:", consentUpdate);
           console.log("[GA Debug] Event sent: cookie_consent_restored");
           console.log("[GA Debug] Event sent: page_view");
-          console.log("[GA Debug] DataLayer after init:", window.dataLayer);
+          console.log("[GA Debug] DataLayer after init:", globalThis.dataLayer);
         }
       } else if (isDebug) {
         console.log("[GA Debug] gtag not ready yet, waiting...");
@@ -125,12 +125,12 @@ export function initializeCookieConsent() {
   };
 
   // Esperar a que gtag esté disponible
-  if (typeof window.gtag !== "undefined") {
+  if (typeof globalThis.gtag !== "undefined") {
     updateConsent();
   } else {
     // Si gtag no está listo, esperar a que se cargue
     const checkGtag = setInterval(() => {
-      if (typeof window.gtag !== "undefined") {
+      if (typeof globalThis.gtag !== "undefined") {
         clearInterval(checkGtag);
         updateConsent();
       }
@@ -203,7 +203,7 @@ export function getThemeFromCookie(): Theme {
 
   if (!match) {
     // No existe cookie, usar preferencia del sistema
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
     const systemTheme = prefersDark ? Theme.DARK : Theme.LIGHT;
     writeThemeCookie(systemTheme);
     return systemTheme;

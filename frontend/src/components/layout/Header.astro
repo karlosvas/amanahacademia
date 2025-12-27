@@ -80,7 +80,7 @@ Astro.cookies.set("langCookie", lang, { path: "/", maxAge: 31536000, sameSite: "
     // Obtenemos la instancia de auth
     const auth = await getFirebaseAuth();
 
-    window.addEventListener("resize", async () => {
+    globalThis.addEventListener("resize", async () => {
       setupAuth(auth.currentUser, authModalLogin, formLogin, headerData);
     });
 

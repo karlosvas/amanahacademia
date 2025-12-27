@@ -46,7 +46,7 @@ export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElem
       // Restaurar el scroll después de que el navegador haya procesado los cambios de estilo
       if (scrollY !== undefined) {
         requestAnimationFrame(() => {
-          window.scrollTo(0, Number.parseInt(scrollY));
+          globalThis.scrollTo(0, Number.parseInt(scrollY));
           delete modal.dataset.scrollPosition;
         });
       }
@@ -59,16 +59,16 @@ export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElem
 // Abrir el modal
 export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormElement | null, background: boolean) {
   // Guardar la posición actual del scroll antes de bloquear el scroll
-  const scrollY = window.scrollY || window.pageYOffset;
+  const scrollY = globalThis.scrollY || globalThis.pageYOffset;
   modal.dataset.scrollPosition = scrollY.toString();
 
   // Calcular el ancho de la scrollbar para evitar el salto de contenido
-  const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+  const scrollbarWidth = globalThis.innerWidth - document.documentElement.clientWidth;
 
   // Compensar el ancho de la scrollbar para evitar el salto de contenido
   if (scrollbarWidth > 0 && background) {
     // Guardar y sumar el padding original del body
-    const bodyPaddingRight = parseInt(window.getComputedStyle(document.body).paddingRight) || 0;
+    const bodyPaddingRight = parseInt(globalThis.getComputedStyle(document.body).paddingRight) || 0;
     document.body.style.paddingRight = `${bodyPaddingRight + scrollbarWidth}px`;
 
     // Para el header: fijar su ancho ANTES de que el viewport cambie
@@ -92,7 +92,7 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
     const fixedElements = document.querySelectorAll(".fixed");
     fixedElements.forEach((el) => {
       if (el instanceof HTMLElement) {
-        const currentPadding = parseInt(window.getComputedStyle(el).paddingRight) || 0;
+        const currentPadding = parseInt(globalThis.getComputedStyle(el).paddingRight) || 0;
         el.style.paddingRight = `${currentPadding + scrollbarWidth}px`;
         // Guardar el padding original como data attribute
         el.dataset.originalPadding = currentPadding.toString();
@@ -148,14 +148,14 @@ export function closeModalsEvents() {
 }
 
 // Variable global para almacenar la referencia del intervalo
-let calScrollInterval: number | null = null;
+let calScrollInterval: ReturnType<typeof setInterval> | null = null;
 export function startCalScrollManagement(): void {
   let savedScroll = 0;
   let wasOpen = false;
 
   if (calScrollInterval !== null) return;
 
-  calScrollInterval = window.setInterval(() => {
+  calScrollInterval = setInterval(() => {
     const modalBoxes = document.querySelectorAll("cal-modal-box");
 
     // Si no hay modales, no hacer nada
@@ -178,7 +178,7 @@ export function startCalScrollManagement(): void {
     // ==========================================
     if (isOpen && !wasOpen) {
       wasOpen = true;
-      savedScroll = window.scrollY || window.pageYOffset;
+      savedScroll = globalThis.scrollY || globalThis.pageYOffset;
       // Bloquear scroll
       document.body.style.overflow = "hidden";
       document.body.style.position = "fixed";
@@ -196,7 +196,7 @@ export function startCalScrollManagement(): void {
       document.body.style.top = "";
       document.body.style.width = "";
       // Cerramnos el intervalo de scroll
-      window.scrollTo(0, savedScroll);
+      globalThis.scrollTo(0, savedScroll);
 
       if (calScrollInterval !== null) {
         clearInterval(calScrollInterval);
@@ -206,6 +206,7 @@ export function startCalScrollManagement(): void {
   }, 200);
 }
 
+// Para ocultar el banner de cookies
 export function hideBanner() {
   const banner = document.getElementById("cookie-banner");
   if (banner) {
@@ -214,4 +215,12 @@ export function hideBanner() {
       banner.classList.add("hidden");
     }, 300);
   }
+}
+
+// Para abrir el modal
+export function openCommentModal(idCommentShared: string, isEdit: boolean = false) {
+  const modal = document.getElementById(idCommentShared) as HTMLDialogElement;
+  const form = modal?.querySelector("form") as HTMLFormElement;
+
+  if (modal && form) showModalAnimation(modal, form, true); // true para showModal() en lugar de show()
 }

@@ -13,8 +13,8 @@ export function initCalendar(namespaceId: Class): boolean {
   const CAL_ORIGIN = "https://app.cal.com";
 
   // Embebe el script de Cal.com si no está cargado
-  (function (globalWindow, embedScriptUrl, initCommandName) {
-    const documentReference = globalWindow.document;
+  (function (globalglobalThis, embedScriptUrl, initCommandName) {
+    const documentReference = globalglobalThis.document;
 
     // Función auxiliar para encolar comandos en la API de Cal
     const enqueueCommand = function (calendarApi: any, commandArguments: any) {
@@ -22,10 +22,10 @@ export function initCalendar(namespaceId: Class): boolean {
     };
 
     // Inicializa el objeto Cal en el contexto global si no existe
-    globalWindow.Cal =
-      globalWindow.Cal ||
+    globalglobalThis.Cal =
+      globalglobalThis.Cal ||
       function () {
-        const calInstance = globalWindow.Cal;
+        const calInstance = globalglobalThis.Cal;
         const functionArguments = arguments;
 
         // Primera carga: inicializa estructuras y carga el script
@@ -65,13 +65,13 @@ export function initCalendar(namespaceId: Class): boolean {
         // Encola cualquier otro comando
         enqueueCommand(calInstance, functionArguments);
       };
-  })(window, CAL_EMBED_SCRIPT_URL, CAL_INIT_COMMAND);
+  })(globalThis, CAL_EMBED_SCRIPT_URL, CAL_INIT_COMMAND);
 
   // Inicializa el calendario para el namespace específico
-  window.Cal(CAL_INIT_COMMAND, `${namespaceId}`, { origin: CAL_ORIGIN });
+  globalThis.Cal(CAL_INIT_COMMAND, `${namespaceId}`, { origin: CAL_ORIGIN });
 
   // Configura la UI del calendario embebido con temas personalizados
-  window.Cal.ns[`${namespaceId}`]("ui", {
+  globalThis.Cal.ns[`${namespaceId}`]("ui", {
     cssVarsPerTheme: {
       light: {
         "cal-brand": "#fa8072", // Salmón vibrante para marca

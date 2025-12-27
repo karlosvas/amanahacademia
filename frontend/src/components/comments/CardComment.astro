@@ -353,7 +353,7 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
             if (result) {
               toast.success("Respuesta editada correctamente");
               contentElement.textContent = newContent;
-              window.location.reload();
+              globalThis.location.reload();
             } else {
               contentElement.style.display = "block";
               editForm.style.display = "none";

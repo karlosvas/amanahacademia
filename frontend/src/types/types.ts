@@ -1,18 +1,27 @@
 import type { FrontendErrorCode } from "@/enums/enums";
+import type { FirebaseApp } from "firebase/app";
+
+// Tipos para las librerías externas
+interface TurnstileAPI {
+  render: (container: string | HTMLElement, options: any) => void;
+  reset: (widgetId?: string) => void;
+  remove: (widgetId?: string) => void;
+}
+
+type StripeStatic = (publicKey: string) => any;
 
 declare global {
-  interface Window {
-    turnstile?: any;
-    JustValidate?: any;
-    handlePaymentSubmission: () => Promise<void>;
-    Cal?: any;
-    __calScrollPollingActive?: boolean;
-    api?: any;
-    Stripe: any;
-    dataLayer: any[];
-    setTheme?: (value: string) => void;
-    gtag?: (...args: any[]) => void;
-  }
+  var turnstile: TurnstileAPI | undefined;
+  var JustValidate: any; // Mantén any si no quieres tipar
+  var handlePaymentSubmission: () => Promise<void>;
+  var Cal: any;
+  var api: any;
+  var Stripe: StripeStatic;
+  var dataLayer: any[];
+  var setTheme: ((value: string) => void) | undefined;
+  var gtag: ((...args: any[]) => void) | undefined;
+  var firebaseCache: FirebaseApp | undefined;
+  var commentModals: Record<string, any>;
 }
 
 // I18n traducciones

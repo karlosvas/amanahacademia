@@ -1,4 +1,4 @@
-import { getLangFromCookie } from "@/utils/cookie";
+// Removed circular dependency - import moved to functions that use it
 
 export enum Class {
   Standard = "standard-class",
@@ -52,6 +52,7 @@ export enum FrontendStripe {
   PAYMENT_FORM_ERROR = "PAYMENT_FORM_ERROR",
   STRIPE_INITIALIZATION_ERROR = "STRIPE_INITIALIZATION_ERROR",
   SERVER_ERROR = "SERVER_ERROR",
+  MISSING_USER_EMAIL = "MISSING_USER_EMAIL",
 }
 
 // Manejar en todos los idiomas erroes de los toast
@@ -167,8 +168,7 @@ export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, str
     [FrontendErrorCode.MANTENIANCE]: "Aulas não disponíveis no momento, devido a problemas técnicos.",
   },
 };
-export function getErrorToast(code: FrontendErrorCode) {
-  const lang = getLangFromCookie();
+export function getErrorToast(code: FrontendErrorCode, lang: string = "es") {
   return FrontendErrorMessages[lang]?.[code] || FrontendErrorMessages["es"][code];
 }
 
@@ -193,6 +193,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.PAYMENT_FORM_ERROR]: "No se pudo inicializar el formulario de pago",
     [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Error de inicialización de Stripe",
     [FrontendStripe.SERVER_ERROR]: "Error del servidor",
+    [FrontendStripe.MISSING_USER_EMAIL]: "Se requiere un correo electrónico válido para procesar el pago",
   },
   en: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Payment system could not be initialized",
@@ -213,6 +214,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.PAYMENT_FORM_ERROR]: "Could not initialize payment form",
     [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Stripe initialization error",
     [FrontendStripe.SERVER_ERROR]: "Server error",
+    [FrontendStripe.MISSING_USER_EMAIL]: "A valid email is required to process the payment",
   },
   pt: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "O sistema de pagamento não pôde ser inicializado",
@@ -233,6 +235,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.PAYMENT_FORM_ERROR]: "Não foi possível inicializar o formulário de pagamento",
     [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Erro ao inicializar Stripe",
     [FrontendStripe.SERVER_ERROR]: "Erro do servidor",
+    [FrontendStripe.MISSING_USER_EMAIL]: "Um e-mail válido é necessário para processar o pagamento",
   },
   it: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Il sistema di pagamento non è stato inizializzato",
@@ -254,6 +257,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.PAYMENT_FORM_ERROR]: "Impossibile inizializzare il modulo di pagamento",
     [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Errore di inizializzazione Stripe",
     [FrontendStripe.SERVER_ERROR]: "Errore del server",
+    [FrontendStripe.MISSING_USER_EMAIL]: "È richiesta un'email valida per elaborare il pagamento",
   },
   fr: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Le système de paiement n'a pas pu être initialisé",
@@ -274,6 +278,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.PAYMENT_FORM_ERROR]: "Impossible d'initialiser le formulaire de paiement",
     [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Erreur d'initialisation Stripe",
     [FrontendStripe.SERVER_ERROR]: "Erreur du serveur",
+    [FrontendStripe.MISSING_USER_EMAIL]: "Une adresse e-mail valide est requise pour traiter le paiement",
   },
   de: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Das Zahlungssystem konnte nicht initialisiert werden",
@@ -294,6 +299,7 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.PAYMENT_FORM_ERROR]: "Zahlungsformular konnte nicht initialisiert werden",
     [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Stripe-Initialisierungsfehler",
     [FrontendStripe.SERVER_ERROR]: "Serverfehler",
+    [FrontendStripe.MISSING_USER_EMAIL]: "Eine gültige E-Mail-Adresse ist erforderlich, um die Zahlung zu verarbeiten",
   },
   ar: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "تعذر تهيئة نظام الدفع",
@@ -314,10 +320,10 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.PAYMENT_FORM_ERROR]: "تعذر تهيئة نموذج الدفع",
     [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "خطأ في تهيئة Stripe",
     [FrontendStripe.SERVER_ERROR]: "خطأ في الخادم",
+    [FrontendStripe.MISSING_USER_EMAIL]: "يجب توفير بريد إلكتروني صالح لمعالجة الدفع",
   },
 };
-export function getErrorFrontStripe(code: FrontendStripe): string {
-  const lang = getLangFromCookie();
+export function getErrorFrontStripe(code: FrontendStripe, lang: string = "es"): string {
   return FrontendStripeTranslations[lang]?.[code] || FrontendStripeTranslations["es"][code];
 }
 
@@ -364,8 +370,7 @@ export const AuthSuccessMessages: Record<string, Record<AuthSuccessCode, string>
     [AuthSuccessCode.RESET_SUCCESS]: "تم إرسال بريد إلكتروني لإعادة تعيين كلمة المرور",
   },
 };
-export function getAuthSuccessMessage(code: AuthSuccessCode): string {
-  const lang = getLangFromCookie();
+export function getAuthSuccessMessage(code: AuthSuccessCode, lang: string = "es"): string {
   return AuthSuccessMessages[lang]?.[code] || AuthSuccessMessages["es"][code];
 }
 
@@ -446,8 +451,7 @@ export const ValidationMessages: Record<string, Record<ValidationCode, string>> 
   },
 };
 
-export function getValidationMessage(code: ValidationCode): string {
-  const lang = getLangFromCookie();
+export function getValidationMessage(code: ValidationCode, lang: string = "es"): string {
   return ValidationMessages[lang]?.[code] || ValidationMessages["es"][code];
 }
 

@@ -421,7 +421,7 @@ try {
           form.reset();
           // Recargar la página después de 2 segundos para mostrar la nueva clase
           setTimeout(() => {
-            window.location.reload();
+            globalThis.location.reload();
           }, 5000);
         } else {
           log.error(response.error);

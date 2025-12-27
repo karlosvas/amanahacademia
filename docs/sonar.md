@@ -18,7 +18,7 @@ Este documento explica cómo generar los informes de cobertura y ejecutar el an�
 cd frontend
 ```
 
-2. Ejecuta los tests con cobertura:
+2.Ejecuta los tests con cobertura:
 
 ```powershell
 # Si usas npm
@@ -50,7 +50,7 @@ cargo tarpaulin --out Xml --output-dir ./coverage
 # renombra o indica esa ruta como cobertura en sonar config
 ```
 
-> Nota: `cargo-tarpaulin` funciona mejor en Linux. Si necesitas cobertura en Windows/macOS, considera `grcov` + llvm-cov (configuración más avanzada).
+> Nota: `cargo-tarpaulin` funciona mejor en Linux. Si necesitas cobertura en globalThiss/macOS, considera `grcov` + llvm-cov (configuración más avanzada).
 
 Si el scanner de Sonar necesita específicamente `cobertura.xml` puedes renombrar el archivo o convertirlo antes de subir:
 
@@ -125,7 +125,7 @@ sonar-scanner \
 
 - Obtener un token en SonarCloud:
 
-  1. Entra en https://sonarcloud.io y haz login con tu cuenta.
+  1. Entra en [https://sonarcloud.io] y haz login con tu cuenta.
   2. Ve a tu organización → **My Account** (arriba a la derecha) → **Security** → **Tokens**.
   3. Crea un token nuevo, ponle un nombre descriptivo (por ejemplo `amanah-ci`) y copia el valor (no se mostrará otra vez).
 

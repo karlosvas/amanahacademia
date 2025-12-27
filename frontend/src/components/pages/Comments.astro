@@ -113,11 +113,11 @@ const percentaje = ["90", "70", "95", "80", "89"];
 </main>
 <script>
   // Importa la instancia de autenticación de Firebase y el listener de cambios de usuario
-  import { onAuthStateChanged, getFirebaseAuth } from "@/services/firebase";
-  import { submitLike } from "@/services/comments";
+  import { onAuthStateChanged } from "@/services/firebase";
+  import { submitLike, updateLikeState } from "@/services/comments";
   import toast from "solid-toast";
   import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
-  import { openCommentModal, updateLikeState } from "@/services/comments";
+  import { openCommentModal } from "@/utils/modals";
 
   // Espera a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", async function () {

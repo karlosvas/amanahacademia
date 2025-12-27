@@ -43,7 +43,7 @@ import Title from "../common/Title.astro";
 
   let stripe: any;
   let elements: any;
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(globalThis.location.search);
   const slugType: string | null = params.get("type");
   const bookingUid: string | null = params.get("uid");
   const status: string | null = params.get("status");
@@ -88,6 +88,11 @@ import Title from "../common/Title.astro";
               throw new Error("Submit button not found or missing bookingUid");
             }
 
+            if (!user.email) {
+              log.error("User email is required for payment processing");
+              showError(getErrorFrontStripe(FrontendStripe.MISSING_USER_EMAIL));
+              throw new Error("User email is required for payment processing");
+            }
             /**
              * Procesa el pago mediante Stripe cuando el usuario hace click en el botón de pagar
              * @param stripe - Instancia de Stripe inicializada
@@ -98,11 +103,13 @@ import Title from "../common/Title.astro";
              * @returns Promise que se resuelve cuando el pago se completa o rechaza si falla
              * @throws {Error} Si el pago es rechazado o hay un error de red
              */
-            submitButton.addEventListener("click", () => handlePayment(stripe, elements, bookingUid, status, slugType));
+            submitButton.addEventListener("click", () =>
+              handlePayment(stripe, elements, bookingUid, status, slugType, user.email as string)
+            );
           }, 1000);
         } catch (_) {
           setTimeout(() => {
-            window.location.href = "/";
+            globalThis.location.href = "/";
           }, 5000);
         }
       } else {

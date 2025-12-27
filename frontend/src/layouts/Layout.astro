@@ -140,17 +140,17 @@ const cookieMessage =
       const GA_ID = "G-CW35G9DQ63";
 
       // Inicializar dataLayer
-      window.dataLayer = window.dataLayer || [];
+      globalThis.dataLayer = globalThis.dataLayer || [];
       function gtag() {
-        window.dataLayer.push(arguments);
+        globalThis.dataLayer.push(arguments);
       }
-      window.gtag = gtag;
+      globalThis.gtag = gtag;
 
       // Debug mode
       const isDebug =
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1" ||
-        new URLSearchParams(window.location.search).get("ga_debug") === "1";
+        globalThis.location.hostname === "localhost" ||
+        globalThis.location.hostname === "127.0.0.1" ||
+        new URLSearchParams(globalThis.location.search).get("ga_debug") === "1";
 
       // Consentimiento por defecto
       gtag("consent", "default", {
@@ -184,7 +184,7 @@ const cookieMessage =
         applyTheme(cookieTheme);
 
         // Exponer helper global para otros módulos
-        window.setTheme = (value) => {
+        globalThis.setTheme = (value) => {
           applyTheme(value as Theme);
         };
       };
@@ -198,7 +198,7 @@ const cookieMessage =
         }
       };
 
-      window.addEventListener("DOMContentLoaded", () => {
+      globalThis.addEventListener("DOMContentLoaded", () => {
         initTheme();
         initLang();
       });
@@ -274,7 +274,7 @@ const cookieMessage =
     <div
       id="backToTop"
       class="fixed bottom-24 right-8 w-14 h-14 bg-salmon hover:bg-lightSalmon text-white flex items-center justify-center cursor-pointer z-[9999] bg-gradient-to-br from-lightRed to-salmon rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 opacity-0 invisible"
-      onclick="window.scrollTo({top:0, behavior:'smooth'})"
+      onclick="globalThis.scrollTo({top:0, behavior:'smooth'})"
     >
       <ArrowIcon height={25} />
     </div>
@@ -336,7 +336,11 @@ const cookieMessage =
     const updateButtonVisibility = () => {
       // Intentar obtener scroll de múltiples fuentes
       const scrolled =
-        window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || window.scrollY || 0;
+        globalThis.pageYOffset ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop ||
+        globalThis.scrollY ||
+        0;
 
       // Solo actualizar si cambió
       if (scrolled !== lastKnownScrollPosition) {
@@ -360,7 +364,7 @@ const cookieMessage =
 
     // Click handler
     backToTopButton.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      globalThis.scrollTo({ top: 0, behavior: "smooth" });
       // También intentar scroll en body y html
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;

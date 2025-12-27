@@ -97,7 +97,7 @@ const label = Astro.props.label;
 
           if (!lang) return;
 
-          const currentPath = window.location.pathname;
+          const currentPath = globalThis.location.pathname;
 
           // Remover el prefijo de idioma actual si existe
           const pathWithoutLang = currentPath.replace(/^\/(ar|de|en|es|fr|it|pt)(\/|$)/, "/");
@@ -109,7 +109,7 @@ const label = Astro.props.label;
 
           // Escribir la cookie de idioma usando la función centralizada
           writeLangCookie(lang);
-          window.location.href = newPath;
+          globalThis.location.href = newPath;
         }
       });
     }

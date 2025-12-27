@@ -4,7 +4,6 @@ import type {
   CalBookingPayload,
   CheckoutPaymentIntentRequest,
   CheckoutPaymentIntentResponse,
-  RelationalCalStripe,
   ResponseAPI,
 } from "@/types/bakend-types";
 import { ApiService } from "./helper";
@@ -19,7 +18,8 @@ export async function handlePayment(
   elements: any,
   bookingUid: string,
   status: string,
-  slug: string
+  slug: string,
+  email: string
 ): Promise<void> {
   const helper = new ApiService();
 
@@ -87,7 +87,7 @@ export async function handlePayment(
 
   if (paymentIntent.status === "succeeded") {
     // El pago fue exitoso
-    await successPayment(helper, paymentIntent, bookingUid, status, slug);
+    await successPayment(helper, paymentIntent, bookingUid, status, slug, email);
   } else {
     log.error(`Estado de pago desconocido: ${paymentIntent.status}`);
     showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
@@ -130,7 +130,9 @@ export async function successPayment(
     let booking: BookingRequest = {
       ...actualBooking.data,
       attendees: attendees,
-    };
+      startTime: actualBooking.data.startTime, // Explicitly set required fields
+      endTime: actualBooking.data.endTime,
+    } as BookingRequest;
     const response: ResponseAPI<CalBookingPayload> = await helper.createBooking(booking);
     if (!response.success) {
       log.error("Error al actualizar booking");
@@ -165,7 +167,7 @@ export async function successPayment(
 
   // Todo a salido bien
   // Enviar evento a Google Analytics
-  if (window.gtag) window.gtag("event", "class_booking", { bookingUid });
+  if ((globalThis as any).gtag) (globalThis as any).gtag("event", "class_booking", { bookingUid });
 
   // Redirigir a la página de éxito
   setTimeout(() => {
@@ -190,15 +192,17 @@ export function clearMessages() {
 // Inicializar el precio basado en el país de prueba y el tipo de clase
 export async function initializePrice(testCountry: string | null, slugType: string): Promise<number | undefined> {
   try {
+    // Validar que el tipo de clase esté definido
+    if (!slugType) {
+      showError(getErrorFrontStripe(FrontendStripe.MISSING_SLUG));
+      return;
+    }
+
     // Obtenemos la lista de precios desde el backend
     const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
     const response: Response = await fetch(apiUrl);
     const pricingData: PricingApiResponse = (await response.json()) as PricingApiResponse;
-
-    if (!slugType) {
-      showError(getErrorFrontStripe(FrontendStripe.MISSING_SLUG));
-      return;
-    } else if (!response.ok) {
+    if (!response.ok) {
       showError(getErrorFrontStripe(FrontendStripe.PRICING_FETCH_ERROR));
       return;
     }
@@ -229,7 +233,7 @@ export async function initializeStripe(
     const helper = new ApiService();
 
     // Inicializar Stripe
-    const stripe = window.Stripe(STRIPE_PUBLIC_KEY);
+    const stripe = globalThis.Stripe(STRIPE_PUBLIC_KEY);
 
     // Transformamos de euros a centimos
     const amount = Math.round(pricing * 100);
