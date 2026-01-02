@@ -54,7 +54,7 @@ if (!section || !validSections.includes(section as DashboardAdminTypes)) {
     <div class="max-w-7xl mx-auto">
       {
         section === DashboardAdminTypes.DASHBOARD ? (
-          <PanelDashboard helper={helper} token={token} />
+          <PanelDashboard />
         ) : section === DashboardAdminTypes.CLASSES ? (
           <PanelClasses />
         ) : section === DashboardAdminTypes.USERS ? (

@@ -217,11 +217,16 @@ export async function handleLogGoogleProvider(
   loginError: HTMLDivElement
 ) {
   try {
+    log.info(`[handleLogGoogleProvider] Iniciando ${isRegister ? "registro" : "login"} con Google`);
+
     const googleProvider: GoogleAuthProvider = getGoogleProvider();
+    log.info("[handleLogGoogleProvider] Abriendo popup de Google");
     await signInWithPopup(firebaseAuth, googleProvider);
+    log.info("[handleLogGoogleProvider] Popup de Google cerrado exitosamente");
 
     // Get the ID token from Firebase
     const idToken = await firebaseAuth.currentUser?.getIdToken();
+    log.info(`[handleLogGoogleProvider] Token obtenido: ${idToken ? "Sí" : "No"}`);
     if (!idToken) throw new Error("No se pudo obtener el token de autenticación");
 
     // Registramos o logeamos al usuario según corresponda
@@ -248,6 +253,7 @@ export async function handleLogGoogleProvider(
       loginError.textContent = getErrorToast(FrontendErrorCode.USER_NOT_EXISTS);
       loginError.classList.remove("hidden");
       log.error(FrontendErrorCode.USER_NOT_EXISTS);
+      return;
     }
 
     // Al ser el registro con google el formulario actual no tiene que ver con el registro asique creamos un form data custom
@@ -258,9 +264,10 @@ export async function handleLogGoogleProvider(
     //  Si el usuario se está registrando lo añadimos al newsletter
     if (isRegister) await suscribeToNewsletter(formData, userRequest);
 
+    // Cerramos el modal
     closeModalAnimation(modal, formHTML);
 
-    // Devolbemos el scroll
+    // Mostramos el toast de éxito
     setTimeout(() => {
       toast.success(
         isRegister
@@ -271,7 +278,7 @@ export async function handleLogGoogleProvider(
       loginError.classList.add("hidden");
     }, 300);
   } catch (error) {
-    log.error("Error during Google sign-in:", error);
+    log.error("[handleLogGoogleProvider] Error capturado en catch:", error);
     loginError.textContent = getErrorToast(FrontendErrorCode.GOOGLE_LOGIN_ERROR);
     loginError.classList.remove("hidden");
   }

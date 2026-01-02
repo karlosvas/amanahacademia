@@ -19,8 +19,16 @@ describe("Modal Utilities", () => {
 
     // Mock modal element with dataset
     mockModal = {
-      setAttribute: vi.fn(),
-      removeAttribute: vi.fn(),
+      setAttribute: vi.fn((attr) => {
+        if (attr === "closing") {
+          mockModal.dataset.closing = "";
+        }
+      }),
+      removeAttribute: vi.fn((attr) => {
+        if (attr === "closing") {
+          delete mockModal.dataset.closing;
+        }
+      }),
       close: vi.fn(),
       showModal: vi.fn(),
       show: vi.fn(),
@@ -472,26 +480,36 @@ describe("Modal Utilities", () => {
       const mockCarousel = { classList: { contains: vi.fn(() => true) } } as any;
       Object.setPrototypeOf(mockCarousel, HTMLElement.prototype);
 
-      const mockModal = {
-        dataset: {},
+      const mockModalLocal = {
+        dataset: {} as any,
         classList: {
           add: vi.fn(),
           remove: vi.fn(),
         },
         querySelector: vi.fn(() => mockForm),
         close: vi.fn(),
+        setAttribute: vi.fn((attr) => {
+          if (attr === "closing") {
+            mockModalLocal.dataset.closing = "";
+          }
+        }),
+        removeAttribute: vi.fn((attr) => {
+          if (attr === "closing") {
+            delete mockModalLocal.dataset.closing;
+          }
+        }),
         addEventListener: vi.fn((event, callback) => {
           if (event === "animationend") {
             setTimeout(callback, 0);
           }
         }),
       } as any;
-      Object.setPrototypeOf(mockModal, HTMLDialogElement.prototype);
+      Object.setPrototypeOf(mockModalLocal, HTMLDialogElement.prototype);
 
       const mockTarget = {
         closest: vi.fn((selector) => {
           if (selector === ".embla__container") return mockCarousel;
-          if (selector === "dialog") return mockModal;
+          if (selector === "dialog") return mockModalLocal;
           return null;
         }),
         getAttribute: vi.fn(() => null),
@@ -519,8 +537,8 @@ describe("Modal Utilities", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(mockModal.dataset.closing).toBeUndefined();
-      expect(mockModal.close).toHaveBeenCalled();
+      expect(mockModalLocal.dataset.closing).toBeUndefined();
+      expect(mockModalLocal.close).toHaveBeenCalled();
     });
 
     it("should close modal when clicking on backdrop (HTMLDialogElement)", () => {
@@ -540,25 +558,35 @@ describe("Modal Utilities", () => {
     it("should close modal when clicking on close button with aria-label", async () => {
       const mockForm = { reset: vi.fn() } as any;
 
-      const mockModal = {
-        dataset: {},
+      const mockModalLocal2 = {
+        dataset: {} as any,
         classList: {
           add: vi.fn(),
           remove: vi.fn(),
         },
         querySelector: vi.fn(() => mockForm),
         close: vi.fn(),
+        setAttribute: vi.fn((attr) => {
+          if (attr === "closing") {
+            mockModalLocal2.dataset.closing = "";
+          }
+        }),
+        removeAttribute: vi.fn((attr) => {
+          if (attr === "closing") {
+            delete mockModalLocal2.dataset.closing;
+          }
+        }),
         addEventListener: vi.fn((event, callback) => {
           if (event === "animationend") {
             setTimeout(callback, 0);
           }
         }),
       } as any;
-      Object.setPrototypeOf(mockModal, HTMLDialogElement.prototype);
+      Object.setPrototypeOf(mockModalLocal2, HTMLDialogElement.prototype);
 
       const mockTarget = {
         closest: vi.fn((selector) => {
-          if (selector === "dialog") return mockModal;
+          if (selector === "dialog") return mockModalLocal2;
           return null;
         }),
         getAttribute: vi.fn((attr) => {
@@ -589,20 +617,30 @@ describe("Modal Utilities", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      expect(mockModal.close).toHaveBeenCalled();
+      expect(mockModalLocal2.close).toHaveBeenCalled();
     });
 
     it("should prevent default and close modal on cancel event", async () => {
       const mockForm = { reset: vi.fn() } as any;
 
       const mockDialog = {
-        dataset: {},
+        dataset: {} as any,
         classList: {
           add: vi.fn(),
           remove: vi.fn(),
         },
         querySelector: vi.fn(() => mockForm),
         close: vi.fn(),
+        setAttribute: vi.fn((attr) => {
+          if (attr === "closing") {
+            mockDialog.dataset.closing = "";
+          }
+        }),
+        removeAttribute: vi.fn((attr) => {
+          if (attr === "closing") {
+            delete mockDialog.dataset.closing;
+          }
+        }),
         addEventListener: vi.fn((event, callback) => {
           if (event === "animationend") {
             setTimeout(callback, 0);
@@ -701,30 +739,6 @@ describe("Modal Utilities", () => {
       expect(document.body.style.position).toBe("");
 
       vi.useRealTimers();
-    });
-
-    // Note: The following scenarios are difficult to test due to the closure-based state
-    // management and setInterval timing. The code paths are covered by integration testing
-    // in a real browser environment. These tests verify the interval logic is set up correctly.
-
-    it.skip("should handle transition from closed to open state - integration test", () => {
-      // This test requires a real browser environment to properly test the interval callback
-      // and state transitions. The covered code: lines 179-187 (CERRADO → ABIERTO transition)
-    });
-
-    it.skip("should handle transition from open to closed state - integration test", () => {
-      // This test requires a real browser environment to properly test the interval callback
-      // and state transitions. The covered code: lines 192-205 (ABIERTO → CERRADO transition)
-    });
-
-    it.skip("should clear interval when modal closes - integration test", () => {
-      // This test requires a real browser environment to properly test the interval cleanup
-      // The covered code: lines 201-204 (clearInterval call)
-    });
-
-    it.skip("should treat modal with empty visibility as open - integration test", () => {
-      // This test requires a real browser environment to properly test visibility checks
-      // The covered code: lines 170-174 (visibility !== "hidden" check)
     });
   });
 

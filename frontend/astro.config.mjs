@@ -3,13 +3,13 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import solidJs from '@astrojs/solid-js';
-// import cloudflare from '@astrojs/cloudflare';
 import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://amanahacademia.com',
   output: 'server',
+  // Antiguo adaptador de Cloudflare
   // adapter: cloudflare({
   //   imageService: 'passthrough',
   //   routes: {
@@ -21,7 +21,9 @@ export default defineConfig({
   //     }
   //   }
   // }),
-  adapter: vercel(),
+  adapter: vercel({
+    runtime: 'nodejs20.x',
+  }),
   i18n: {
     defaultLocale: 'es',
     locales: ['es', 'en', 'fr', 'de', 'it', 'pt', 'ar'],
