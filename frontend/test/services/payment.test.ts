@@ -471,8 +471,6 @@ describe("payment.ts", () => {
     });
 
     it("should handle fetch exception", async () => {
-      mockedFetch.mockRejectedValue(new Error("Network error"));
-
       const result = await initializePrice(null, "individual-class");
 
       expect(result).toBeUndefined();

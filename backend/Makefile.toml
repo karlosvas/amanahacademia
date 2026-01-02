@@ -1,0 +1,18 @@
+[tasks.cov-run]
+command = "cargo"
+args = ["llvm-cov", "--html", "--output-dir", "target/llvm-cov"]
+
+[tasks.cov]
+dependencies = ["cov-run"]
+script_runner = "@shell"
+script = '''
+start target\llvm-cov\html\index.html
+'''
+
+[tasks.cov-ci]
+script_runner = "@shell"
+script = '''
+if not exist coverage mkdir coverage
+# Cambiado a ignore-filename-regex para compatibilidad
+cargo llvm-cov --cobertura --output-path coverage/cobertura.xml --ignore-filename-regex "src/test.rs"
+'''

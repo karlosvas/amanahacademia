@@ -31,5 +31,6 @@ validator = { version = "0.16", features = ["derive"] }
 async-trait = "0.1"
 
 [dev-dependencies]
-mockito = "1.5"
-tower = "0.5"
+mockito = "1.5"    # Mock de HTTP servers para testing
+tower = "0.5"      # Testing de servicios/middleware de Axum
+

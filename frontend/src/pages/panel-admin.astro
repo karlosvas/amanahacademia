@@ -1,27 +1,29 @@
 ---
 import { getSEOData } from "i18n/seo";
 import { DashboardAdminTypes, type PropsSEO } from "@/types/types";
-import { parseUsersMetricData } from "@/utils/metrics";
 import { ApiService } from "@/services/helper";
-import PanelDashboard from "@/components/dashboard/panel/PanelDashboard.astro";
 import PanelClasses from "@/components/dashboard/panel/PanelClasses.astro";
 import Layout from "@/layouts/Layout.astro";
 import { log } from "@/services/logger";
 import PanelUser from "@/components/dashboard/panel/PanelUser.astro";
 import PanelPayments from "@/components/dashboard/panel/PanelPayments.astro";
 import PanelContent from "@/components/dashboard/panel/PanelContent.astro";
+import PanelDashboard from "@/components/dashboard/panel/PanelDashboard.astro";
 import type { ResponseAPI } from "@/types/bakend-types";
 
 const helper = new ApiService();
 const token = Astro.cookies.get("session")?.value ?? "";
 
 if (!token) {
-  log.error("Deves logearte previamente");
+  log.error("Debes logearte previamente");
   return Astro.redirect("/");
 }
 const isAdmin: ResponseAPI<boolean> = await helper.isAdminUser(token);
 
-if (!isAdmin.success || !isAdmin.data) return Astro.redirect("/");
+if (!isAdmin.success || !isAdmin.data) {
+  log.error("El usuario no tiene permisos de administrador");
+  return Astro.redirect("/");
+}
 
 const currentLang = "es";
 const seoData = getSEOData("panel-admin", currentLang) as PropsSEO;
@@ -31,68 +33,9 @@ let section = url.searchParams.get("section");
 
 // Verificar si section es uno de los valores válidos del enum
 const validSections = Object.values(DashboardAdminTypes);
-if (!section || !validSections.includes(section as DashboardAdminTypes)) return Astro.redirect("/");
-
-// Obtenemos las metricasmos las metricas necesarias
-const metrics = await helper.getUserMetrics(token);
-let stats = {
-  totalUsers: 0,
-  activeUsers: 0,
-  newUsers: 0,
-  conversionRate: 0,
-  changes: {
-    totalUsers: "+0%",
-    activeUsers: "+0%",
-    newUsers: "+0%",
-    conversionRate: "+0%",
-  },
-};
-
-if (metrics.success && metrics.data.rows.length > 0) {
-  const parsed = metrics.data.rows.map(parseUsersMetricData);
-
-  const latest = parsed[parsed.length - 1];
-  const previous = parsed.length > 1 ? parsed[parsed.length - 2] : null;
-
-  stats.totalUsers = latest.totalUsers;
-  stats.activeUsers = latest.activeUsers;
-  stats.newUsers = latest.newUsers;
-
-  const convRate = (latest.engagedSessions / latest.sessions) * 100;
-  stats.conversionRate = convRate;
-
-  // Calcular cambios vs mes anterior
-  if (previous) {
-    if (previous.totalUsers > 0) {
-      const totalChange = ((latest.totalUsers - previous.totalUsers) / previous.totalUsers) * 100;
-      stats.changes.totalUsers = `${totalChange > 0 ? "+" : ""}${totalChange.toFixed(1)}%`;
-    } else {
-      stats.changes.totalUsers = `+${latest.totalUsers}`;
-    }
-
-    if (previous.activeUsers > 0) {
-      const activeChange = ((latest.activeUsers - previous.activeUsers) / previous.activeUsers) * 100;
-      stats.changes.activeUsers = `${activeChange > 0 ? "+" : ""}${activeChange.toFixed(1)}%`;
-    } else {
-      stats.changes.activeUsers = `+${latest.activeUsers}`;
-    }
-
-    if (previous.newUsers > 0) {
-      const newChange = ((latest.newUsers - previous.newUsers) / previous.newUsers) * 100;
-      stats.changes.newUsers = `${newChange > 0 ? "+" : ""}${newChange.toFixed(1)}%`;
-    } else {
-      stats.changes.newUsers = `+${latest.newUsers}`;
-    }
-
-    const prevRate = (previous.engagedSessions / previous.sessions) * 100;
-    const convChange = convRate - prevRate;
-    stats.changes.conversionRate = `${convChange > 0 ? "+" : ""}${convChange.toFixed(1)}%`;
-  } else {
-    stats.changes.totalUsers = `+${latest.totalUsers}`;
-    stats.changes.activeUsers = `+${latest.activeUsers}`;
-    stats.changes.newUsers = `+${latest.newUsers}`;
-    stats.changes.conversionRate = `${convRate.toFixed(1)}%`;
-  }
+if (!section || !validSections.includes(section as DashboardAdminTypes)) {
+  log.warn("Sección no válida o no proporcionada, redirigiendo al dashboard por defecto.");
+  return Astro.redirect("/");
 }
 ---
 
@@ -111,15 +54,15 @@ if (metrics.success && metrics.data.rows.length > 0) {
     <div class="max-w-7xl mx-auto">
       {
         section === DashboardAdminTypes.DASHBOARD ? (
-          <PanelDashboard stats={stats} />
+          <PanelDashboard helper={helper} token={token} />
         ) : section === DashboardAdminTypes.CLASSES ? (
-          <PanelClasses stats={stats} />
+          <PanelClasses />
         ) : section === DashboardAdminTypes.USERS ? (
           <PanelUser />
         ) : section === DashboardAdminTypes.PAYMENTS ? (
           <PanelPayments />
         ) : section === DashboardAdminTypes.CONTENT ? (
-          <PanelContent stats={stats} />
+          <PanelContent />
         ) : null
       }
     </div>

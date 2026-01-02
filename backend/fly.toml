@@ -13,7 +13,7 @@ primary_region = "cdg"
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
-  min_machines_running = 1
+  min_machines_running = 0  # Permite que todas las máquinas se detengan
   processes = ['app']
 
 [[vm]]
@@ -21,9 +21,11 @@ primary_region = "cdg"
   cpu_kind = 'shared'
   cpus = 1
 
+# Health check cada 1 hora para balance entre monitoreo y costo
+# La máquina se despertará 1 vez por hora para verificar salud
 [[http_service.checks]]
   grace_period = "20s"
-  interval = "60s"
+  interval = "3600s"
   method = "GET"
   timeout = "5s"
   path = "/webhook/health"

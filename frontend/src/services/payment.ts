@@ -166,7 +166,7 @@ export async function successPayment(
   }
 
   // Enviar evento a Google Analytics
-  if ((globalThis as any).gtag) (globalThis as any).gtag("event", "class_booking", { bookingUid });
+  if (gtag) gtag("event", "class_booking", { bookingUid });
 
   // Redirigir a la página de éxito
   setTimeout(() => {
@@ -190,13 +190,13 @@ export function clearMessages() {
 
 // Inicializar el precio basado en el país de prueba y el tipo de clase
 export async function initializePrice(testCountry: string | null, slugType: string): Promise<number | undefined> {
-  try {
-    // Validar que el tipo de clase esté definido
-    if (!slugType) {
-      showError(getErrorFrontStripe(FrontendStripe.MISSING_SLUG));
-      return;
-    }
+  // Validar que el tipo de clase esté definido
+  if (!slugType) {
+    showError(getErrorFrontStripe(FrontendStripe.MISSING_SLUG));
+    return;
+  }
 
+  try {
     // Obtenemos la lista de precios desde el backend
     const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
     const response: Response = await fetch(apiUrl);
@@ -220,7 +220,7 @@ export async function initializePrice(testCountry: string | null, slugType: stri
   } catch (error) {
     log.error(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
     showError(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
-    return undefined;
+    return;
   }
 }
 

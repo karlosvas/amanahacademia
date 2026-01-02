@@ -19,7 +19,7 @@ export function acceptCookies() {
 
   // Función que actualiza el consentimiento
   const updateConsent = () => {
-    if (globalThis.gtag !== undefined) {
+    if (typeof globalThis.gtag !== "undefined") {
       globalThis.gtag("consent", "update", consentUpdate);
 
       //  Enviar un evento después de actualizar el consentimiento
@@ -46,7 +46,7 @@ export function acceptCookies() {
 
       // Esperar hasta 5 segundos a que gtag esté disponible
       const checkGtag = setInterval(() => {
-        if (globalThis.gtag !== undefined) {
+        if (typeof globalThis.gtag !== "undefined") {
           clearInterval(checkGtag);
           updateConsent();
         }
