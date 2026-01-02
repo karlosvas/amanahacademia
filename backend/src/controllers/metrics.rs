@@ -17,19 +17,21 @@ use {
 };
 
 /// Función auxiliar para ejecutar consultas a Google Analytics
-async fn fetch_ga_metrics(
+async fn get_ga_metrics(
     state: Arc<AppState>,
     token_ga: String,
     body: Value,
     success_message: String,
 ) -> impl IntoResponse {
+    let url: String = format!(
+        "{}/properties/{}:runReport",
+        state.ga_options.base_url, state.ga_options.property_id
+    );
+
     let response: Result<Response, Error> = state
         .ga_options
         .client
-        .post(format!(
-            "https://analyticsdata.googleapis.com/v1beta/properties/{}:runReport",
-            state.ga_options.property_id
-        ))
+        .post(&url)
         .bearer_auth(&token_ga)
         .header("Content-Type", "application/json")
         .json(&body)
@@ -77,7 +79,13 @@ pub async fn get_user_metrics(
         ]
     });
 
-    fetch_ga_metrics(state, token_ga, body, "Metrics retrieved successfully".to_string()).await
+    get_ga_metrics(
+        state,
+        token_ga,
+        body,
+        "Metrics retrieved successfully".to_string(),
+    )
+    .await
 }
 
 /// Controlador para obtener métricas de artículos desde Google Analytics
@@ -106,7 +114,13 @@ pub async fn get_article_metrics(
         }
     });
 
-    fetch_ga_metrics(state, token_ga, body, "Metrics of articles retrieved successfully".to_string()).await
+    get_ga_metrics(
+        state,
+        token_ga,
+        body,
+        "Metrics of articles retrieved successfully".to_string(),
+    )
+    .await
 }
 
 /// Controlador para obtener métricas de reservas de clases
@@ -133,5 +147,15 @@ pub async fn get_class_metrics(
         }
     });
 
-    fetch_ga_metrics(state, token_ga, body, "Class booking metrics retrieved successfully".to_string()).await
+    get_ga_metrics(
+        state,
+        token_ga,
+        body,
+        "Class booking metrics retrieved successfully".to_string(),
+    )
+    .await
 }
+
+#[cfg(test)]
+#[path = "../test/controllers/metrics.rs"]
+mod tests;

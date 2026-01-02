@@ -274,8 +274,8 @@ try {
 
     // Validación en tiempo real
     const validateStudentCounts = () => {
-      const min = parseInt(minStudentsInput.value);
-      const max = parseInt(maxStudentsInput.value);
+      const min = Number.parseInt(minStudentsInput.value);
+      const max = Number.parseInt(maxStudentsInput.value);
 
       if (min && max && min > max) {
         maxStudentsInput.setCustomValidity("El máximo debe ser mayor o igual al mínimo");

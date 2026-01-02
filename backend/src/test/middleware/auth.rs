@@ -446,6 +446,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
                     client_email: "test@test-project.iam.gserviceaccount.com".to_string(),
                     private_key: private_key.to_string(),
                 },
+                base_url: "https://www.google-analytics.com/".to_string(),
                 property_id: "properties/123456".to_string(),
             },
             stripe_client: stripe::Client::new("sk_test_fake"),
@@ -527,12 +528,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
 
     use {
         crate::models::metrics::GAToken,
-        axum::{
-            body::Body,
-            http::Request,
-            routing::get,
-            Router,
-        },
+        axum::{Router, body::Body, http::Request, routing::get},
         tower::ServiceExt,
     };
 
@@ -552,10 +548,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
             .with_state(state);
 
         // Crear un request de prueba
-        let request = Request::builder()
-            .uri("/test")
-            .body(Body::empty())
-            .unwrap();
+        let request = Request::builder().uri("/test").body(Body::empty()).unwrap();
 
         // Ejecutar el middleware a través del router
         // Esto ejecutará el código de get_ga_token (líneas 181-184)
@@ -593,10 +586,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
             ))
             .with_state(state);
 
-        let request = Request::builder()
-            .uri("/test")
-            .body(Body::empty())
-            .unwrap();
+        let request = Request::builder().uri("/test").body(Body::empty()).unwrap();
 
         let result = app.oneshot(request).await;
 
@@ -867,9 +857,7 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
         assert_eq!(result.unwrap(), "valid-token-123");
 
         // Test sin header
-        let request = Request::builder()
-            .body(Body::empty())
-            .unwrap();
+        let request = Request::builder().body(Body::empty()).unwrap();
 
         let result = extract_bearer_token(&request);
         assert!(result.is_err());
@@ -883,6 +871,9 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
 
         let result = extract_bearer_token(&request);
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), AuthError::InvalidHeaderFormat));
+        assert!(matches!(
+            result.unwrap_err(),
+            AuthError::InvalidHeaderFormat
+        ));
     }
 }

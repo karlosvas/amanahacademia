@@ -6,7 +6,14 @@ mod tests {
                 add_booking, add_guests_to_booking, confirm_booking, fetch_and_detect_changes,
                 get_all_bookings, get_booking, get_schedule, get_schedules,
             },
-            models::cal::{AddGuestsPayload, BookingStatus, BookingsQueryParams, GuestInput},
+            models::{
+                cal::{
+                    AddGuestsPayload, BookingStatus, BookingsQueryParams, CalBookingPayload,
+                    GuestInput,
+                },
+                state::AppState,
+                webhook::BookingChange,
+            },
             test_fixtures::fixtures::{create_mock_app_state, create_test_booking},
         },
         axum::{
@@ -22,13 +29,13 @@ mod tests {
     #[tokio::test]
     async fn test_fetch_and_detect_changes_status_change() {
         // Arrange: Crear AppState mock con cache inicial
-        let mut initial_cache = HashMap::new();
+        let mut initial_cache: HashMap<String, CalBookingPayload> = HashMap::new();
         let booking_uid = "test-booking-123";
         let cached_booking = create_test_booking(booking_uid, BookingStatus::Pending);
 
         initial_cache.insert(booking_uid.to_string(), cached_booking);
 
-        let app_state = create_mock_app_state(initial_cache).await;
+        let app_state: AppState = create_mock_app_state(initial_cache).await;
 
         // Act: Simular que no hay cambios (misma función sin mock del client retornaría error)
         // Para este test básico, verificamos que la función se puede llamar
@@ -43,15 +50,14 @@ mod tests {
     #[tokio::test]
     async fn test_fetch_and_detect_changes_no_status_change() {
         // Arrange: Cache vacío
-        let app_state = create_mock_app_state(HashMap::new()).await;
+        let app_state: AppState = create_mock_app_state(HashMap::new()).await;
 
         // Act
-        let result = fetch_and_detect_changes(&app_state).await;
+        let result: Result<Vec<BookingChange>, String> = fetch_and_detect_changes(&app_state).await;
 
         // Assert: Sin cliente HTTP real, debe fallar
         assert!(result.is_err());
     }
-
 
     /// Test: confirm_booking con mock HTTP server que responde éxito
     #[tokio::test]
@@ -126,9 +132,9 @@ mod tests {
     #[tokio::test]
     async fn test_add_guests_empty_payload() {
         // Arrange
-        let app_state = Arc::new(create_mock_app_state(HashMap::new()).await);
-        let booking_id = "booking-789".to_string();
-        let empty_payload = AddGuestsPayload { guests: vec![] };
+        let app_state: Arc<AppState> = Arc::new(create_mock_app_state(HashMap::new()).await);
+        let booking_id: String = "booking-789".to_string();
+        let empty_payload: AddGuestsPayload = AddGuestsPayload { guests: vec![] };
 
         // Act
         let response = add_guests_to_booking(
@@ -160,17 +166,12 @@ mod tests {
         };
 
         // Act
-        let response = add_guests_to_booking(
-            State(app_state),
-            Path(booking_id),
-            axum::Json(payload),
-        )
-        .await;
+        let response =
+            add_guests_to_booking(State(app_state), Path(booking_id), axum::Json(payload)).await;
 
         // Assert: Verifica que no hay panic (fallará por red, pero sin panic)
         let _result = response.into_response();
     }
-
 
     /// Test: get_all_bookings sin parámetros
     #[tokio::test]
@@ -195,7 +196,6 @@ mod tests {
         // Assert: No debe hacer panic
         let _result = response.into_response();
     }
-
 
     /// Test: add_booking rechaza payload sin attendees
     #[tokio::test]
@@ -334,7 +334,6 @@ mod tests {
         let _result = response.into_response();
     }
 
-
     /// Test: add_booking maneja payload inválido
     #[tokio::test]
     async fn test_add_booking_invalid_json() {
@@ -352,7 +351,6 @@ mod tests {
         let resp = response.into_response();
         assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
     }
-
 
     /// Test: add_booking con mock HTTP server que responde éxito
     #[tokio::test]
@@ -453,46 +451,82 @@ mod tests {
     /// Test: get_booking maneja error de API correctamente
     #[tokio::test]
     async fn test_get_booking_api_error() {
-        // Arrange: Crear AppState que usará las credenciales de test
-        let app_state = Arc::new(create_mock_app_state(HashMap::new()).await);
+        // Arrange: Mock server que responde con error 401
+        let mut server = mockito::Server::new_async().await;
+        let mock_url = server.url();
 
-        // Act: Intentar obtener un booking con la API real (fallará por credenciales inválidas)
+        let _m = server
+            .mock("GET", "/bookings/test-123")
+            .match_header("Authorization", "test-api-key")
+            .match_header("cal-api-version", "2024-06-11")
+            .with_status(401)
+            .with_header("content-type", "application/json")
+            .with_body(json!({"error": "Unauthorized"}).to_string())
+            .create_async()
+            .await;
+
+        let mut app_state = create_mock_app_state(HashMap::new()).await;
+        app_state.cal_options.base_url = mock_url;
+        let app_state = Arc::new(app_state);
+
+        // Act
         let response = get_booking(State(app_state), Path("test-123".to_string())).await;
 
-        // Assert: Debería retornar un error de cliente (4xx)
+        // Assert
         let resp = response.into_response();
-        // Puede ser 404 (not found), 401 (unauthorized), o 400 (bad request)
-        assert!(resp.status().is_client_error());
+        assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
     }
 
     /// Test: get_schedules maneja error de API correctamente
     #[tokio::test]
     async fn test_get_schedules_api_error() {
-        // Arrange: Crear AppState que usará las credenciales de test
-        let app_state = Arc::new(create_mock_app_state(HashMap::new()).await);
+        let mut server = mockito::Server::new_async().await;
+        let mock_url = server.url();
 
-        // Act: Intentar obtener schedules (fallará por credenciales inválidas)
+        let _m = server
+            .mock("GET", "/schedules")
+            .match_header("Authorization", "test-api-key")
+            .match_header("cal-api-version", "2024-06-11")
+            .with_status(401)
+            .with_header("content-type", "application/json")
+            .with_body(json!({"error": "Unauthorized"}).to_string())
+            .create_async()
+            .await;
+
+        let mut app_state = create_mock_app_state(HashMap::new()).await;
+        app_state.cal_options.base_url = mock_url;
+        let app_state = Arc::new(app_state);
+
         let response = get_schedules(State(app_state)).await;
 
-        // Assert: Debería retornar un error de cliente (4xx)
         let resp = response.into_response();
-        // Puede ser 401 (unauthorized) o 400 (bad request)
-        assert!(resp.status().is_client_error());
+        assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
     }
 
     /// Test: get_schedule maneja error de API correctamente
     #[tokio::test]
     async fn test_get_schedule_api_error() {
-        // Arrange: Crear AppState que usará las credenciales de test
-        let app_state = Arc::new(create_mock_app_state(HashMap::new()).await);
+        let mut server = mockito::Server::new_async().await;
+        let mock_url = server.url();
 
-        // Act: Intentar obtener un schedule (fallará por credenciales inválidas)
+        let _m = server
+            .mock("GET", "/schedules/1")
+            .match_header("Authorization", "test-api-key")
+            .match_header("cal-api-version", "2024-06-11")
+            .with_status(404)
+            .with_header("content-type", "application/json")
+            .with_body(json!({"error": "Not found"}).to_string())
+            .create_async()
+            .await;
+
+        let mut app_state = create_mock_app_state(HashMap::new()).await;
+        app_state.cal_options.base_url = mock_url;
+        let app_state = Arc::new(app_state);
+
         let response = get_schedule(State(app_state), Path("1".to_string())).await;
 
-        // Assert: Debería retornar un error de cliente (4xx)
         let resp = response.into_response();
-        // Puede ser 401 (unauthorized) o 400 (bad request)
-        assert!(resp.status().is_client_error());
+        assert_eq!(resp.status(), StatusCode::NOT_FOUND);
     }
 
     /// Test: get_booking con mock que retorna JSON inválido (no parseable)
@@ -544,7 +578,7 @@ mod tests {
             .match_header("cal-api-version", "2024-06-11")
             .with_status(200)
             .with_header("content-type", "application/json")
-            .with_body("")  // Body vacío
+            .with_body("") // Body vacío
             .create_async()
             .await;
 
@@ -761,13 +795,6 @@ mod tests {
         // Crear AppState con cache inicial
         let app_state = create_mock_app_state(initial_cache).await;
 
-        // Cambiar base_url para usar nuestro mock
-        // Necesitamos que fetch_cal_bookings_internal use este servidor
-        // Dado que la función usa hardcoded "https://api.cal.com/v2/bookings",
-        // no podemos cambiar fácilmente la URL sin modificar el código.
-        // Por lo tanto, este test verificará que la lógica de cache funciona
-        // cuando se ejecuta el código de detección de cambios (líneas 126-163)
-
         // Modificar el booking para simular cambio de status
         cached_booking.status = BookingStatus::Accepted;
 
@@ -875,8 +902,8 @@ mod tests {
     #[tokio::test]
     async fn test_fetch_and_detect_changes_no_change_when_status_equal() {
         use crate::models::cal::BookingStatus;
-        use chrono::Utc;
         use crate::models::webhook::BookingChange;
+        use chrono::Utc;
 
         // Arrange: Cache con booking
         let booking_uid = "booking-same-status";
@@ -924,17 +951,26 @@ mod tests {
 
         // Arrange: Cache con varios bookings
         let mut initial_cache = HashMap::new();
-        initial_cache.insert("booking-1".to_string(), create_test_booking("booking-1", BookingStatus::Pending));
-        initial_cache.insert("booking-2".to_string(), create_test_booking("booking-2", BookingStatus::Accepted));
-        initial_cache.insert("booking-3".to_string(), create_test_booking("booking-3", BookingStatus::Cancelled));
+        initial_cache.insert(
+            "booking-1".to_string(),
+            create_test_booking("booking-1", BookingStatus::Pending),
+        );
+        initial_cache.insert(
+            "booking-2".to_string(),
+            create_test_booking("booking-2", BookingStatus::Accepted),
+        );
+        initial_cache.insert(
+            "booking-3".to_string(),
+            create_test_booking("booking-3", BookingStatus::Cancelled),
+        );
 
         let app_state = create_mock_app_state(initial_cache).await;
 
         // Simular actualización de múltiples bookings
         let bookings_to_update = vec![
-            create_test_booking("booking-1", BookingStatus::Accepted),  // Cambio
-            create_test_booking("booking-2", BookingStatus::Accepted),  // Sin cambio
-            create_test_booking("booking-4", BookingStatus::Pending),   // Nuevo
+            create_test_booking("booking-1", BookingStatus::Accepted), // Cambio
+            create_test_booking("booking-2", BookingStatus::Accepted), // Sin cambio
+            create_test_booking("booking-4", BookingStatus::Pending),  // Nuevo
         ];
 
         {

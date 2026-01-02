@@ -79,7 +79,6 @@ async fn main() {
         fetched_at: Instant::now(),
     }));
 
-    // Nueva función auxiliar
     async fn fetch_firebase_keys() -> Result<Value, Box<dyn std::error::Error>> {
         let response = reqwest::get(
         "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com",
@@ -145,12 +144,14 @@ async fn main() {
         recent_changes: Arc::new(tokio::sync::RwLock::new(Vec::new())),
     };
 
+    // Configurar cliente HTTP para Google Analytics
     let ga_options: GAOptions = GAOptions {
         client: HttpClient::new(),
         service_account: ServiceAccount {
             client_email: env::var("GA_CLIENT_EMAIL").expect("GA_CLIENT_EMAIL must be set"),
             private_key: env::var("GA_PRIVATE_KEY").expect("GA_PRIVATE_KEY must be set"),
         },
+        base_url: "https://analyticsdata.googleapis.com/v1beta".to_string(),
         property_id: env::var("GA_PROPERTY_ID").expect("GA_PROPERTY_ID must be set"),
     };
 

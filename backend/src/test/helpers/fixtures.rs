@@ -79,6 +79,7 @@ pub mod fixtures {
                     client_email: "test@test.com".to_string(),
                     private_key: "test-key".to_string(),
                 },
+                base_url: "https://analyticsdata.googleapis.com/v1beta".to_string(),
                 property_id: "test-property".to_string(),
             },
         }

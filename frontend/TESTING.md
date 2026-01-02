@@ -1,6 +1,7 @@
 # Testing Documentation - Amanah Academia Frontend
 
 ## Índice
+
 - [Introducción](#introducción)
 - [Configuración](#configuración)
 - [Ejecutar Tests](#ejecutar-tests)
@@ -27,10 +28,10 @@ La configuración de Vitest se encuentra en `vitest.config.ts`:
 ```typescript
 export default defineConfig({
   test: {
-    environment: 'jsdom',
-    setupFiles: ['./test/setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["./test/setup.ts"],
     coverage: {
-      provider: 'v8',
+      provider: "v8",
       lines: 60,
       functions: 60,
       branches: 60,
@@ -44,6 +45,7 @@ export default defineConfig({
 ### Setup Global
 
 El archivo `test/setup.ts` contiene los mocks globales:
+
 - Mock de Firebase Auth
 - Mock de globalThis.matchMedia
 - Mock de solid-toast
@@ -98,7 +100,7 @@ frontend/
 ### Resumen General
 
 | Métrica    | Cobertura |
-|-----------|-----------|
+| ---------- | --------- |
 | Statements | 53.47%    |
 | Branches   | 56.48%    |
 | Functions  | 62.5%     |
@@ -107,11 +109,13 @@ frontend/
 ### Detalles por Módulo
 
 #### Utilities (65.03%)
+
 - ✅ **metrics.ts**: 100% - Completamente testeado
 - ⚠️ **cookie.ts**: 69.62% - Buen coverage
 - ⚠️ **modals.ts**: 52.85% - Mejorable
 
 #### Services (38.4%)
+
 - ⚠️ **helper.ts**: 37.16% - Necesita más tests
 - ⚠️ **globalHandler.ts**: 50% - Mejorable
 
@@ -120,6 +124,7 @@ frontend/
 ### 1. Tests de Utilidades (utils/)
 
 #### cookie.test.ts (14 tests)
+
 - ✅ Obtención de tema desde cookies
 - ✅ Obtención de idioma desde cookies
 - ✅ Aceptación de cookies con gtag
@@ -127,12 +132,14 @@ frontend/
 - ✅ Inicialización de consentimiento
 
 #### metrics.test.ts (8 tests)
+
 - ✅ Parseo de métricas de usuarios
 - ✅ Parseo de métricas de artículos
 - ✅ Parseo de métricas de clases
 - ✅ Mapeo de datos a meses
 
 #### modals.test.ts (13 tests)
+
 - ✅ Animación de cierre de modales
 - ✅ Animación de apertura de modales
 - ✅ Bloqueo de scroll
@@ -142,6 +149,7 @@ frontend/
 ### 2. Tests de Servicios (services/)
 
 #### helper.test.ts (18 tests)
+
 - ✅ ResultUtils.ok()
 - ✅ ResultUtils.error()
 - ✅ ResultUtils.getErrorType()
@@ -156,23 +164,23 @@ frontend/
 ### Estructura Básica
 
 ```typescript
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
-describe('MiComponente', () => {
+describe("MiComponente", () => {
   beforeEach(() => {
     // Setup antes de cada test
     vi.clearAllMocks();
   });
 
-  it('debería hacer algo específico', () => {
+  it("debería hacer algo específico", () => {
     // Arrange
-    const input = 'test';
+    const input = "test";
 
     // Act
     const result = miFunction(input);
 
     // Assert
-    expect(result).toBe('expected');
+    expect(result).toBe("expected");
   });
 });
 ```
@@ -182,8 +190,8 @@ describe('MiComponente', () => {
 #### Mock de Firebase
 
 ```typescript
-vi.mock('@/services/firebase', () => ({
-  getCurrentUserToken: vi.fn(() => Promise.resolve('mock-token')),
+vi.mock("@/services/firebase", () => ({
+  getCurrentUserToken: vi.fn(() => Promise.resolve("mock-token")),
 }));
 ```
 
@@ -209,7 +217,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-it('debería ejecutar después de timeout', () => {
+it("debería ejecutar después de timeout", () => {
   myFunction();
   vi.advanceTimersByTime(1000);
   expect(callback).toHaveBeenCalled();
@@ -219,6 +227,7 @@ it('debería ejecutar después de timeout', () => {
 ## Mejores Prácticas
 
 ### 1. Nombres Descriptivos
+
 ```typescript
 // ❌ Mal
 it('test 1', () => { ... });
@@ -228,8 +237,9 @@ it('should return user data when authentication is successful', () => { ... });
 ```
 
 ### 2. Arrange-Act-Assert
+
 ```typescript
-it('should calculate total correctly', () => {
+it("should calculate total correctly", () => {
   // Arrange
   const items = [{ price: 10 }, { price: 20 }];
 
@@ -242,15 +252,16 @@ it('should calculate total correctly', () => {
 ```
 
 ### 3. Tests Independientes
+
 ```typescript
 // ❌ Mal - Tests dependientes entre sí
 let sharedState = null;
 
-it('test 1', () => {
+it("test 1", () => {
   sharedState = { value: 1 };
 });
 
-it('test 2', () => {
+it("test 2", () => {
   expect(sharedState.value).toBe(1); // Depende de test 1
 });
 
@@ -261,12 +272,13 @@ beforeEach(() => {
 ```
 
 ### 4. Mock Solo lo Necesario
+
 ```typescript
 // ❌ Mal - Mock de todo
-vi.mock('../../entire-module');
+vi.mock("../../entire-module");
 
 // ✅ Bien - Mock específico
-vi.mock('@/services/firebase', () => ({
+vi.mock("@/services/firebase", () => ({
   getCurrentUserToken: vi.fn(),
 }));
 ```
@@ -314,6 +326,7 @@ Completar tests para casos edge en modals.ts
 ### GitHub Actions
 
 El workflow `.github/workflows/frontend-tests.yml` ejecuta automáticamente:
+
 1. Tests en cada push a `main` o `develop`
 2. Tests en cada Pull Request
 3. Generación de reporte de cobertura
@@ -323,6 +336,7 @@ El workflow `.github/workflows/frontend-tests.yml` ejecuta automáticamente:
 ### SonarQube
 
 Configuración en `sonar-project.properties`:
+
 - Análisis de código TypeScript
 - Exclusión de node_modules, dist, tests
 - Reporte de cobertura desde `coverage/lcov.info`
@@ -360,6 +374,7 @@ npm run test:ui
 ## Contribuir
 
 Al agregar nuevas funcionalidades, por favor:
+
 1. Escribe tests para el nuevo código
 2. Mantén la cobertura mínima del 60%
 3. Ejecuta `npm run test:coverage` antes de hacer commit

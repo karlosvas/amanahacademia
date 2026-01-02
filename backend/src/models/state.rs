@@ -22,6 +22,7 @@ pub struct AppState {
 pub struct GAOptions {
     pub client: HttpClient,
     pub service_account: ServiceAccount,
+    pub base_url: String,
     pub property_id: String,
 }
 

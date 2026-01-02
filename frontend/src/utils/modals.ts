@@ -92,7 +92,7 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
     const fixedElements = document.querySelectorAll(".fixed");
     fixedElements.forEach((el) => {
       if (el instanceof HTMLElement) {
-        const currentPadding = parseInt(globalThis.getComputedStyle(el).paddingRight) || 0;
+        const currentPadding = Number.parseInt(globalThis.getComputedStyle(el).paddingRight) || 0;
         el.style.paddingRight = `${currentPadding + scrollbarWidth}px`;
         // Guardar el padding original como data attribute
         el.dataset.originalPadding = currentPadding.toString();
