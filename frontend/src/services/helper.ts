@@ -356,8 +356,8 @@ export class ApiService {
     });
   }
 
-  async getArticlesMetrics(): Promise<ResponseAPI<MetricsResponse>> {
-    const token = await getCurrentUserToken();
+  async getArticlesMetrics(cookie_token?: string): Promise<ResponseAPI<MetricsResponse>> {
+    const token = cookie_token || (await getCurrentUserToken());
     return this.fetchApi<MetricsResponse>("/metrics/articles", {
       method: "GET",
       headers: {
@@ -367,8 +367,8 @@ export class ApiService {
     });
   }
 
-  async getClassMetrics(): Promise<ResponseAPI<MetricsResponse>> {
-    const token = await getCurrentUserToken();
+  async getClassMetrics(cookie_token?: string): Promise<ResponseAPI<MetricsResponse>> {
+    const token = cookie_token || (await getCurrentUserToken());
     return this.fetchApi<MetricsResponse>("/metrics/class", {
       method: "GET",
       headers: {

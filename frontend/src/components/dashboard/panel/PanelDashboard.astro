@@ -1,9 +1,11 @@
 ---
 import StatsCard from "@/components/dashboard/StatsCard.astro";
 import { parseUsersMetricData } from "@/utils/metrics";
+import { ApiService } from "@/services/helper";
 
+const helper = new ApiService();
+const token = Astro.cookies.get("session")?.value ?? "";
 
-const { helper, token } = Astro.props;
 // Obtenemos las metricasmos las metricas necesarias
 const metrics = await helper.getUserMetrics(token);
 let stats = {
@@ -101,41 +103,86 @@ if (metrics.success && metrics.data.rows.length > 0) {
 
 <div class="bg-[#fff4e1] rounded-xl shadow-sm border border-[#fee8d6] p-6">
   <div class="mb-6">
-    <h2 class="text-xl font-bold text-[#131313] mb-2">Analiticas</h2>
-    <p class="text-[#8a4141] text-sm">Evolución de la web en los últimos 12 meses</p>
+    <h2 class="text-xl font-bold text-[#131313] mb-2">Analíticas</h2>
+    <p class="text-[#8a4141] text-sm">
+      Evolución de la web en los últimos 12 meses (desde <span id="chartDateRange">...</span>)
+    </p>
   </div>
 
   <div class="relative" style="height: 400px;">
-    <canvas id="activeUsersChart"></canvas>
+    <!-- Loading indicator -->
+    <div id="chartLoading" class="absolute inset-0 flex items-center justify-center bg-[#fff4e1] z-10">
+      <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#b2443a]"></div>
+        <p class="mt-4 text-[#8a4141]">Cargando analíticas...</p>
+      </div>
+    </div>
+    <canvas id="activeUsersChart" class="w-full h-full" style="opacity: 0;"></canvas>
   </div>
 </div>
 
 <script>
+  import { onAuthStateChanged } from "@/services/firebase";
   import { ApiService } from "@/services/helper";
+  import { log } from "@/services/logger";
   import { parseArticleMetricData, parseUsersMetricData, parseClassMetricData, mapToMonths } from "@/utils/metrics";
   import Chart from "chart.js/auto";
 
-  document.addEventListener("DOMContentLoaded", async () => {
+  let chartInstance: Chart | null = null;
+  let chartInitialized = false;
+
+  // Esperar a que Firebase esté listo antes de cargar las métricas
+  onAuthStateChanged(async (user) => {
+    // Evitar inicializar el gráfico múltiples veces
+    if (chartInitialized) return;
+
+    if (!user) {
+      log.error("Usuario no autenticado");
+      const loadingEl = document.getElementById("chartLoading");
+      if (loadingEl) {
+        loadingEl.innerHTML = `
+          <div class="text-center">
+            <p class="text-[#8a4141]">Debes estar autenticado para ver las analíticas</p>
+          </div>
+        `;
+      }
+      return;
+    }
+
     const ctx = document.getElementById("activeUsersChart") as HTMLCanvasElement;
 
-    if (!ctx) return;
+    if (!ctx) {
+      log.error("Canvas elemento no encontrado");
+      return;
+    }
+
+    // Marcar como inicializado para evitar múltiples ejecuciones
+    chartInitialized = true;
 
     // Crear gradiente para el fondo del área
     const gradient = ctx.getContext("2d")!.createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, "rgba(178, 68, 58, 0.25)");
     gradient.addColorStop(1, "rgba(178, 68, 58, 0)");
 
-    const currentMonth = new Date().getMonth();
+    const now = new Date();
+    const currentMonth = now.getMonth(); // 0 = Enero, 11 = Diciembre
+    const currentYear = now.getFullYear();
     const monthLabels = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-    const currentYear = new Date().getFullYear();
 
-    const makeLastNMonths = (currentMonthIndex: number, count: number) => {
+    // Generar los últimos 12 meses desde el mes actual hacia atrás
+    const makeLastNMonths = (count: number) => {
       return Array.from({ length: count }, (_, i) => {
-        const monthIndex = (currentMonthIndex - (count - 1 - i) + 12) % 12;
-        return `${monthLabels[monthIndex]} ${currentYear}`;
+        // Calcular cuántos meses hacia atrás vamos (de 11 a 0)
+        const monthsBack = count - 1 - i;
+
+        // Crear una fecha para ese mes
+        const date = new Date(currentYear, currentMonth - monthsBack, 1);
+        const monthIndex = date.getMonth();
+        const year = date.getFullYear();
+
+        return `${monthLabels[monthIndex]} ${year}`;
       });
     };
-
     // Y actualiza getMonthKey para usar año completo:
     const getMonthKey = (label: string) => {
       const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
@@ -145,15 +192,18 @@ if (metrics.success && metrics.data.rows.length > 0) {
 
     try {
       const helper = new ApiService();
+      log.info("Obteniendo métricas del servidor...");
 
-      // Obtener todas las métricas
+      // Obtener todas las métricas (Firebase se encarga del token automáticamente)
       const [userMetrics, articlesMetrics, classMetrics] = await Promise.all([
         helper.getUserMetrics(),
         helper.getArticlesMetrics(),
         helper.getClassMetrics(),
       ]);
-      if (!userMetrics.success || !articlesMetrics.success || !classMetrics.success)
+      if (!userMetrics.success || !articlesMetrics.success || !classMetrics.success) {
+        log.error("Error en métricas:", { userMetrics, articlesMetrics, classMetrics });
         throw new Error("Error al obtener métricas");
+      }
 
       // Parsear todas las filas, artículos, usuarios y clases
       const parsedUserData = userMetrics.data.rows.map(parseUsersMetricData);
@@ -182,8 +232,14 @@ if (metrics.success && metrics.data.rows.length > 0) {
         sessionsMap.set(m.yearMonth, m.sessions);
       });
 
-      // Generar labels de los últimos 6 meses
-      const labels = makeLastNMonths(currentMonth, 6);
+      // Generar labels de los últimos 12 meses
+      const labels = makeLastNMonths(12);
+
+      // Actualizar el rango de fechas en el título
+      const dateRangeEl = document.getElementById("chartDateRange");
+      if (dateRangeEl && labels.length > 0) {
+        dateRangeEl.textContent = `${labels[0]} hasta ${labels[labels.length - 1]}`;
+      }
 
       // Datos de reservas de clases
       const bookingsData = labels.map((l) => totalByMonth.get(getMonthKey(l)) || 0);
@@ -193,7 +249,9 @@ if (metrics.success && metrics.data.rows.length > 0) {
       const sessionsChartData = mapToMonths(sessionsMap, labels, monthLabels);
       const activeUsersChartData = mapToMonths(activeUsersMap, labels, monthLabels);
 
-      new Chart(ctx, {
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
         type: "line",
         data: {
           labels: labels,
@@ -350,8 +408,47 @@ if (metrics.success && metrics.data.rows.length > 0) {
           },
         },
       });
+
+      // Ocultar loading y mostrar gráfico
+      const loadingEl = document.getElementById("chartLoading");
+      if (loadingEl) {
+        loadingEl.style.display = "none";
+        log.info("Loading ocultado");
+      }
+
+      // Mostrar el canvas con opacity 1
+      ctx.style.opacity = "1";
+
+      // Verificar que Chart.js renderizó correctamente
+      setTimeout(() => {
+        const chartData = chartInstance?.data;
+        log.info("Verificación post-render:", {
+          chartExists: !!chartInstance,
+          datasetsCount: chartData?.datasets?.length || 0,
+          labelsCount: chartData?.labels?.length || 0,
+        });
+      }, 500);
+
+      log.info("Gráfico creado exitosamente");
     } catch (error) {
-      console.error("Error fetching or rendering chart data:", error);
+      log.error("Error fetching or rendering chart data:", error);
+
+      // Mostrar mensaje de error al usuario
+      const loadingEl = document.getElementById("chartLoading");
+      if (loadingEl) {
+        loadingEl.innerHTML = `
+          <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="mt-4 text-[#8a4141] font-semibold">Error al cargar las analíticas</p>
+            <p class="mt-2 text-sm text-[#8a4141]">${error instanceof Error ? error.message : "Error desconocido"}</p>
+            <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-[#b2443a] text-white rounded-lg hover:bg-[#8a4141]">
+              Reintentar
+            </button>
+          </div>
+        `;
+      }
     }
   });
 </script>

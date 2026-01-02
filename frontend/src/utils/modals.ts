@@ -1,10 +1,14 @@
 // Cerrar el modal con animación
 export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElement | null = null) {
-  modal.dataset.closing = "";
+  console.log("[closeModalAnimation] Iniciando cierre del modal", modal);
+  modal.setAttribute("closing", "");
+  console.log("[closeModalAnimation] atributo closing establecido, esperando animationend");
+
   modal.addEventListener(
     "animationend",
     () => {
-      delete modal.dataset.closing;
+      console.log("[closeModalAnimation] animationend disparado, cerrando modal");
+      modal.removeAttribute("closing");
       modal.close();
 
       // Guardar la posición del scroll antes de restaurar los estilos
