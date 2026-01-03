@@ -1,11 +1,10 @@
 // Servicio para manejar Cloudflare Turnstile
 export function executeTurnstileIfPresent(formHTML: HTMLFormElement): Promise<void> | void {
   const turnstileDiv = formHTML.querySelector(".cf-turnstile");
-  const t = globalThis.turnstile;
-  if (!t || !turnstileDiv) return;
+  if (!globalThis.turnstile || !turnstileDiv) return;
   return new Promise((resolve, reject) => {
     try {
-      t.execute(turnstileDiv, {
+      (globalThis.turnstile as any).execute(turnstileDiv, {
         callback: () => resolve(),
         "error-callback": (error: unknown) => {
           console.error("Error de Turnstile:", error);
@@ -18,6 +17,7 @@ export function executeTurnstileIfPresent(formHTML: HTMLFormElement): Promise<vo
   });
 }
 
+// Actualiza la visibilidad de los widgets de Turnstile según el contexto (login o registro)
 export function updateTurnstileVisibility(isRegister: boolean) {
   const loginWidget = document.getElementById("turnstile-login");
   const registerWidget = document.getElementById("turnstile-register");

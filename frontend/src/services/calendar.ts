@@ -127,6 +127,7 @@ export async function updatePricing() {
   }
 }
 
+// Obtener el precio según el tier
 export function getPrice(tier: string, pricingData: PricingApiResponse): number {
   switch (tier) {
     case "standard-class":
