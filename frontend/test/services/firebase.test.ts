@@ -338,6 +338,68 @@ describe("firebase.ts", () => {
 
       expect(identificationButton.onclick).toBeDefined();
     });
+
+    it("should set button text to logout when user is logged in", () => {
+      const mockUser = { uid: "123", email: "test@test.com" } as User;
+
+      // Mock getElementById to return our button (workaround for JSDOM issue)
+      const originalGetElementById = document.getElementById;
+      document.getElementById = vi.fn((id: string) => {
+        if (id === "identification") return identificationButton;
+        return originalGetElementById.call(document, id);
+      }) as any;
+
+      setupAuth(mockUser, authModalLogin, formLogin, headerData);
+
+      expect(identificationButton.textContent).toBe(headerData.button.logout);
+      expect(identificationButton.onclick).toBe(handleLogout);
+
+      // Restore original
+      document.getElementById = originalGetElementById;
+    });
+
+    it("should set button text to login when user is not logged in", () => {
+      // Mock getElementById to return our button (workaround for JSDOM issue)
+      const originalGetElementById = document.getElementById;
+      document.getElementById = vi.fn((id: string) => {
+        if (id === "identification") return identificationButton;
+        return originalGetElementById.call(document, id);
+      }) as any;
+
+      setupAuth(null, authModalLogin, formLogin, headerData);
+
+      expect(identificationButton.textContent).toBe(headerData.button.login);
+      expect(identificationButton.onclick).toBeDefined();
+      expect(identificationButton.onclick).not.toBe(handleLogout);
+
+      // Restore original
+      document.getElementById = originalGetElementById;
+    });
+
+    it("should setup login button onclick handler correctly", async () => {
+      const { showModalAnimation } = await import("@/utils/modals");
+
+      setupAuth(null, authModalLogin, formLogin, headerData);
+
+      // Simulate click
+      if (identificationButton.onclick) {
+        identificationButton.onclick(new Event("click"));
+        expect(showModalAnimation).toHaveBeenCalledWith(authModalLogin, formLogin, true);
+      }
+    });
+
+    it("should not call showModalAnimation if modal is hidden", async () => {
+      const { showModalAnimation } = await import("@/utils/modals");
+      authModalLogin.classList.add("hidden");
+
+      setupAuth(null, authModalLogin, formLogin, headerData);
+
+      // Simulate click
+      if (identificationButton.onclick) {
+        identificationButton.onclick(new Event("click"));
+        expect(showModalAnimation).not.toHaveBeenCalled();
+      }
+    });
   });
 
   //////////////////// getCurrentUserToken ////////////////////
@@ -591,6 +653,95 @@ describe("firebase.ts", () => {
 
       // Clean up the promise
       await onSuccessCallback(mockEvent).catch(() => {});
+    });
+
+    it("should execute successful login flow", async () => {
+      vi.useFakeTimers();
+
+      // Mock getElementById to return our form
+      const originalGetElementById = document.getElementById;
+      document.getElementById = vi.fn((id: string) => {
+        if (id === "test-form") return form;
+        return originalGetElementById.call(document, id);
+      }) as any;
+
+      // Import modules to get the mocked functions
+      const claudflareModule = await import("@/services/claudflare");
+      const firebaseAuthModule = await import("firebase/auth");
+      const toastModule = await import("solid-toast");
+
+      submitFormToRegisterOrLogin(modal, loading, "#test-form", false, errorMessage);
+
+      // Verify onSuccess was called
+      expect(mockOnSuccess).toHaveBeenCalled();
+
+      const onSuccessCallback = mockOnSuccess.mock.calls[0][0];
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        target: form,
+      };
+
+      // Execute the callback
+      const promise = onSuccessCallback(mockEvent);
+      await promise;
+      await vi.runAllTimersAsync();
+
+      expect(claudflareModule.executeTurnstileIfPresent).toHaveBeenCalledWith(form);
+      expect(firebaseAuthModule.signInWithEmailAndPassword).toHaveBeenCalledWith(
+        expect.anything(),
+        "test@test.com",
+        "password123"
+      );
+      expect(modal.close).toHaveBeenCalled();
+      expect(toastModule.default.success).toHaveBeenCalled();
+      expect(loading.classList.contains("hidden")).toBe(true);
+
+      // Restore original
+      document.getElementById = originalGetElementById;
+      vi.useRealTimers();
+    });
+
+    it("should execute successful registration flow with newsletter", async () => {
+      vi.useFakeTimers();
+
+      // Mock getElementById to return our form
+      const originalGetElementById = document.getElementById;
+      document.getElementById = vi.fn((id: string) => {
+        if (id === "test-form") return form;
+        return originalGetElementById.call(document, id);
+      }) as any;
+
+      // Import modules to get the mocked functions
+      const claudflareModule = await import("@/services/claudflare");
+      const firebaseAuthModule = await import("firebase/auth");
+      const mailchimpModule = await import("@/services/mailchimp");
+      const toastModule = await import("solid-toast");
+
+      submitFormToRegisterOrLogin(modal, loading, "#test-form", true, errorMessage);
+
+      const onSuccessCallback = mockOnSuccess.mock.calls[0][0];
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        target: form,
+      };
+
+      const promise = onSuccessCallback(mockEvent);
+      await promise;
+      await vi.runAllTimersAsync();
+
+      expect(claudflareModule.executeTurnstileIfPresent).toHaveBeenCalledWith(form);
+      expect(mailchimpModule.suscribeToNewsletter).toHaveBeenCalled();
+      expect(firebaseAuthModule.signInWithEmailAndPassword).toHaveBeenCalledWith(
+        expect.anything(),
+        "test@test.com",
+        "password123"
+      );
+      expect(modal.close).toHaveBeenCalled();
+      expect(toastModule.default.success).toHaveBeenCalled();
+
+      // Restore original
+      document.getElementById = originalGetElementById;
+      vi.useRealTimers();
     });
 
     it("should handle API error responses", async () => {

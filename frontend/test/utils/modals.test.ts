@@ -3,7 +3,6 @@ import {
   closeModalAnimation,
   showModalAnimation,
   closeModalsEvents,
-  startCalScrollManagement,
   openCommentModal,
 } from "@/utils/modals.ts";
 import { rejectCookies } from "@/utils/cookie";
@@ -684,19 +683,33 @@ describe("Modal Utilities", () => {
   });
 
   describe("startCalScrollManagement", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       document.querySelectorAll = vi.fn(() => [] as any as NodeListOf<Element>) as any;
+      // Limpiar estilos del body
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+
+      // Reset the global calScrollInterval by reimporting the module
+      vi.resetModules();
     });
 
     afterEach(() => {
       vi.clearAllTimers();
       vi.useRealTimers();
+      // Limpiar estilos del body después de cada test
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
     });
 
-    it("should start an interval to check modal visibility", () => {
+    it("should start an interval to check modal visibility", async () => {
       vi.useFakeTimers();
       const setIntervalSpy = vi.spyOn(globalThis, "setInterval");
 
+      const { startCalScrollManagement } = await import("@/utils/modals");
       startCalScrollManagement();
 
       expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 200);
@@ -704,13 +717,14 @@ describe("Modal Utilities", () => {
       vi.useRealTimers();
     });
 
-    it("should not start multiple intervals if already running", () => {
+    it("should not start multiple intervals if already running", async () => {
       vi.useFakeTimers();
 
       // Primer intervalo
       const mockModalBox1 = { style: { visibility: "visible" } } as any;
       document.querySelectorAll = vi.fn(() => [mockModalBox1] as any as NodeListOf<Element>) as any;
 
+      const { startCalScrollManagement } = await import("@/utils/modals");
       startCalScrollManagement();
       const firstInterval = vi.getTimerCount();
 
@@ -724,11 +738,12 @@ describe("Modal Utilities", () => {
       vi.useRealTimers();
     });
 
-    it("should do nothing when no cal-modal-box elements exist", () => {
+    it("should do nothing when no cal-modal-box elements exist", async () => {
       vi.useFakeTimers();
 
       document.querySelectorAll = vi.fn(() => [] as any as NodeListOf<Element>) as any;
 
+      const { startCalScrollManagement } = await import("@/utils/modals");
       startCalScrollManagement();
 
       // Avanzar el intervalo
@@ -737,6 +752,169 @@ describe("Modal Utilities", () => {
       // No debe haber modificado los estilos del body
       expect(document.body.style.overflow).toBe("");
       expect(document.body.style.position).toBe("");
+
+      vi.useRealTimers();
+    });
+
+    it("should handle CLOSED→OPEN→CLOSED transitions correctly", async () => {
+      vi.useFakeTimers();
+
+      Object.defineProperty(globalThis, "scrollY", {
+        writable: true,
+        configurable: true,
+        value: 250,
+      });
+
+      const mockModalBox = {
+        style: { visibility: "hidden" }, // Start with modal hidden
+      } as any;
+
+      document.querySelectorAll = vi.fn(() => [mockModalBox] as any as NodeListOf<Element>) as any;
+
+      // Clear any previous intervals
+      vi.clearAllTimers();
+
+      const { startCalScrollManagement } = await import("@/utils/modals");
+      startCalScrollManagement();
+
+      // First iteration - modal still hidden (no change)
+      vi.advanceTimersByTime(200);
+      expect(document.body.style.overflow).toBe("");
+
+      // Now make modal visible (CLOSED → OPEN transition)
+      mockModalBox.style.visibility = "";
+      vi.advanceTimersByTime(200);
+
+      // Should have blocked scroll
+      expect(document.body.style.overflow).toBe("hidden");
+      expect(document.body.style.position).toBe("fixed");
+      expect(document.body.style.top).toBe("-250px");
+      expect(document.body.style.width).toBe("100%");
+
+      // Now hide modal again (OPEN → CLOSED transition)
+      mockModalBox.style.visibility = "hidden";
+      vi.advanceTimersByTime(200);
+
+      // Should have restored scroll
+      expect(document.body.style.overflow).toBe("");
+      expect(document.body.style.position).toBe("");
+      expect(document.body.style.top).toBe("");
+      expect(document.body.style.width).toBe("");
+
+      vi.useRealTimers();
+    });
+
+    it("should not block scroll if all modals are hidden", async () => {
+      vi.useFakeTimers();
+
+      const mockModalBox1 = { style: { visibility: "hidden" } } as any;
+      const mockModalBox2 = { style: { visibility: "hidden" } } as any;
+
+      document.querySelectorAll = vi.fn(() => [mockModalBox1, mockModalBox2] as any as NodeListOf<Element>) as any;
+
+      const { startCalScrollManagement } = await import("@/utils/modals");
+      startCalScrollManagement();
+
+      vi.advanceTimersByTime(200);
+
+      // No debe bloquear el scroll
+      expect(document.body.style.overflow).toBe("");
+
+      vi.useRealTimers();
+    });
+
+    it("should use pageYOffset fallback when scrollY is not available", async () => {
+      vi.useFakeTimers();
+
+      Object.defineProperty(globalThis, "scrollY", {
+        writable: true,
+        configurable: true,
+        value: undefined,
+      });
+
+      Object.defineProperty(globalThis, "pageYOffset", {
+        writable: true,
+        configurable: true,
+        value: 300,
+      });
+
+      const mockModalBox = {
+        style: { visibility: "hidden" },
+      } as any;
+
+      document.querySelectorAll = vi.fn(() => [mockModalBox] as any as NodeListOf<Element>) as any;
+
+      const { startCalScrollManagement } = await import("@/utils/modals");
+      startCalScrollManagement();
+
+      // Make modal visible
+      mockModalBox.style.visibility = "";
+      vi.advanceTimersByTime(200);
+
+      // Should save pageYOffset value
+      expect(document.body.style.top).toBe("-300px");
+
+      vi.useRealTimers();
+    });
+
+    it("should restore scroll position when modal closes", async () => {
+      vi.useFakeTimers();
+
+      const scrollToSpy = vi.spyOn(globalThis, "scrollTo");
+
+      Object.defineProperty(globalThis, "scrollY", {
+        writable: true,
+        configurable: true,
+        value: 400,
+      });
+
+      const mockModalBox = {
+        style: { visibility: "hidden" },
+      } as any;
+
+      document.querySelectorAll = vi.fn(() => [mockModalBox] as any as NodeListOf<Element>) as any;
+
+      const { startCalScrollManagement } = await import("@/utils/modals");
+      startCalScrollManagement();
+
+      // Open modal
+      mockModalBox.style.visibility = "";
+      vi.advanceTimersByTime(200);
+
+      // Close modal
+      mockModalBox.style.visibility = "hidden";
+      vi.advanceTimersByTime(200);
+
+      // Should restore scroll to saved position
+      expect(scrollToSpy).toHaveBeenCalledWith(0, 400);
+
+      vi.useRealTimers();
+    });
+
+    it("should clear interval when modal closes", async () => {
+      vi.useFakeTimers();
+
+      const mockModalBox = {
+        style: { visibility: "hidden" },
+      } as any;
+
+      document.querySelectorAll = vi.fn(() => [mockModalBox] as any as NodeListOf<Element>) as any;
+
+      const { startCalScrollManagement } = await import("@/utils/modals");
+      startCalScrollManagement();
+      const initialTimerCount = vi.getTimerCount();
+
+      // Open modal
+      mockModalBox.style.visibility = "";
+      vi.advanceTimersByTime(200);
+
+      // Close modal (should clear interval)
+      mockModalBox.style.visibility = "hidden";
+      vi.advanceTimersByTime(200);
+
+      // Timer should be cleared
+      const finalTimerCount = vi.getTimerCount();
+      expect(finalTimerCount).toBeLessThan(initialTimerCount);
 
       vi.useRealTimers();
     });
