@@ -18,7 +18,8 @@ import ThemeIcon from "@/assets/theme.svg";
     if (themeButton) {
       themeButton.addEventListener("click", () => {
         const current: Theme = document.documentElement.classList.contains(Theme.DARK) ? Theme.DARK : Theme.LIGHT;
-        applyTheme(current);
+        const newTheme: Theme = current === Theme.DARK ? Theme.LIGHT : Theme.DARK;
+        applyTheme(newTheme);
       });
     }
   });
