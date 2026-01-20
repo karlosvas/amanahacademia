@@ -24,6 +24,8 @@ import { log } from "./logger";
 
 export class ApiService {
   private readonly baseUrl: string;
+  private readonly MAX_RETRIES = 3;
+  private readonly RETRY_DELAY = 500;
 
   constructor() {
     this.baseUrl = import.meta.env.PUBLIC_BACKEND_URL || "http://localhost:3000";
@@ -384,37 +386,89 @@ export class ApiService {
    * Mantiene exactamente la estructura { success: boolean, data?: T, error?: string }
    */
   private async fetchApi<T>(endpoint: string, options: RequestInit): Promise<ResponseAPI<T>> {
-    try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, options);
+    let lastError: Error | null = null;
 
-      // Si es 204 No Content, retornar éxito sin data
-      if (response.status === 204) {
-        return { success: true, data: undefined as T };
-      }
-
-      // Obtener el contenido como texto primero
-      const text = await response.text();
-
-      // Intentar parsear como JSON
+    for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
       try {
-        const data: ResponseAPI<T> = JSON.parse(text);
-        return data;
-      } catch (parseError) {
-        // Si no es JSON válido, retornar el texto como error
-        console.error("Failed to parse JSON response:", text);
-        return {
-          success: false,
-          error: `Invalid JSON response: ${text.substring(0, 200)}`,
-        };
+        const response = await fetch(`${this.baseUrl}${endpoint}`, options);
+
+        // Si es 204 No Content, retornar éxito sin data
+        if (response.status === 204) {
+          log.info(`[ApiService] ${endpoint} returned 204 No Content`);
+          return { success: true, data: undefined as T };
+        }
+
+        // Intentar parsear la respuesta
+        const result = await this.parseResponse<T>(response);
+        if (result) {
+          // Solo loggear en info si hubo reintentos, sino debug
+          if (attempt > 1) {
+            log.info(`[ApiService] ${endpoint} succeeded on attempt ${attempt}`);
+          } else {
+            log.debug(`[ApiService] ${endpoint} succeeded on attempt ${attempt}`);
+          }
+          return result;
+        }
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error("Unknown error");
+
+        log.warn(`[ApiService] ${endpoint} failed on attempt ${attempt}:`, lastError);
+        // Si no es el último intento, reintentar
+        if (attempt < this.MAX_RETRIES) {
+          this.logRetry(endpoint, attempt, lastError);
+          await this.delay();
+        }
       }
-    } catch (error) {
-      // Solo capturar errores de red
-      console.error("Network error:", error);
-      return {
-        success: false,
-        error: error instanceof Error ? `Network error: ${error.message}` : "Unknown network error",
-      };
     }
+
+    // Si llegamos aquí, todos los intentos fallaron
+    log.error(`[ApiService] All ${this.MAX_RETRIES} attempts failed for ${endpoint}:`, lastError);
+    return {
+      success: false,
+      error: lastError instanceof Error ? `Network error: ${lastError.message}` : "Unknown network error",
+    };
+  }
+
+  /**
+   * Parsea la respuesta del fetch como JSON
+   */
+  private async parseResponse<T>(response: Response): Promise<ResponseAPI<T> | null> {
+    const text = await response.text();
+
+    try {
+      const data: ResponseAPI<T> = JSON.parse(text);
+      return data;
+    } catch (parseError) {
+      // Lanzar error para que se active el retry
+      log.error("Failed to parse JSON response:", text.substring(0, 200));
+      throw new Error(`Invalid JSON response: ${text.substring(0, 100)}`);
+    }
+  }
+
+  /**
+   * Registra un intento fallido y el próximo reintento
+   */
+  private logRetry(endpoint: string, attempt: number, error: Error): void {
+    console.warn(`[ApiService] Attempt ${attempt}/${this.MAX_RETRIES} failed for ${endpoint}:`, error.message);
+    console.log(`[ApiService] Retrying in ${this.RETRY_DELAY}ms...`);
+  }
+
+  /**
+   * Espera el tiempo configurado antes de reintentar
+   */
+  private delay(): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, this.RETRY_DELAY));
+  }
+
+  /**
+   * Maneja el caso donde todos los intentos fallaron
+   */
+  private handleAllAttemptsFailed<T>(endpoint: string, lastError: Error | null): ResponseAPI<T> {
+    log.error(`[ApiService] All ${this.MAX_RETRIES} attempts failed for ${endpoint}:`, lastError);
+    return {
+      success: false,
+      error: lastError instanceof Error ? `Network error: ${lastError.message}` : "Unknown network error",
+    };
   }
 }
 
