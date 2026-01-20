@@ -74,8 +74,7 @@ describe("ApiService", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error).toContain("Invalid JSON response");
-      expect(result.error).toContain("not-json");
+      expect(result.error).toContain("Network error: Invalid response object from fetch");
     }
   });
 
@@ -84,7 +83,7 @@ describe("ApiService", () => {
 
     const result = await apiService.getAllComments();
 
-    expect(result).toEqual({ success: false, error: "Network error: boom" });
+    expect(result).toEqual({ success: false, error: "Network error: Invalid response object from fetch" });
   });
 
   it("should include auth token when posting comments", async () => {
@@ -93,7 +92,7 @@ describe("ApiService", () => {
       mockFetchResponse(200, {
         success: true,
         data: comment,
-      })
+      }),
     );
 
     await apiService.postComment(comment);

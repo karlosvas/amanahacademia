@@ -392,6 +392,11 @@ export class ApiService {
       try {
         const response = await fetch(`${this.baseUrl}${endpoint}`, options);
 
+        // Validar que response existe y tiene status
+        if (!response || typeof response.status !== "number") {
+          throw new Error("Invalid response object from fetch");
+        }
+
         // Si es 204 No Content, retornar éxito sin data
         if (response.status === 204) {
           log.info(`[ApiService] ${endpoint} returned 204 No Content`);
@@ -423,9 +428,20 @@ export class ApiService {
 
     // Si llegamos aquí, todos los intentos fallaron
     log.error(`[ApiService] All ${this.MAX_RETRIES} attempts failed for ${endpoint}:`, lastError);
+
+    // Mejorar el manejo del mensaje de error
+    let errorMessage = "Unknown network error";
+    if (lastError instanceof Error) {
+      if (lastError.message.includes("Invalid JSON response")) {
+        errorMessage = lastError.message;
+      } else {
+        errorMessage = `Network error: ${lastError.message}`;
+      }
+    }
+
     return {
       success: false,
-      error: lastError instanceof Error ? `Network error: ${lastError.message}` : "Unknown network error",
+      error: errorMessage,
     };
   }
 
