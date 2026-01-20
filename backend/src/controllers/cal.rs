@@ -2,7 +2,7 @@ use {
     crate::models::{
         cal::{
             AddGuestsPayload, BookingsQueryParams, CalApiResponse, CalBookingPayload,
-            FetchCalErrors, Schedule, UserCal,
+            FetchCalErrors, Schedule, SchedulesQuery, UserCal,
         },
         response::ResponseAPI,
         state::AppState,
@@ -528,11 +528,23 @@ pub async fn add_booking(
 /// Obtener todos los calendarios del usuario autenticado
 #[debug_handler]
 #[instrument(skip(state))]
-pub async fn get_schedules(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+pub async fn get_all_schedules(
+    State(state): State<Arc<AppState>>,
+    Query(params): Query<SchedulesQuery>,
+) -> impl IntoResponse {
+    let url: String;
+    if params.team {
+        url = format!(
+            "{}/teams/{}/schedules",
+            state.cal_options.base_url, state.cal_options.team_id
+        );
+    } else {
+        url = format!("{}/schedules", state.cal_options.base_url)
+    }
     let response = state
         .cal_options
         .client
-        .get(format!("{}/schedules", state.cal_options.base_url))
+        .get(&url)
         .header("cal-api-version", "2024-06-11")
         .header("Authorization", &state.cal_options.api_key)
         .send()

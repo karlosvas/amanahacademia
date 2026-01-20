@@ -303,3 +303,9 @@ pub enum FetchCalErrors {
     #[error("Failed to parse Cal.com response: {0}")]
     ParseError(reqwest::Error),
 }
+
+#[derive(Deserialize, Debug)]
+pub struct SchedulesQuery {
+    #[serde(default)]
+    pub team: bool,
+}

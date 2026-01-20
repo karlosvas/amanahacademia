@@ -31,6 +31,7 @@ pub struct CalOptions {
     pub client: HttpClient,
     pub base_url: String,
     pub api_key: String,
+    pub team_id: String,
     pub booking_cache: Arc<RwLock<HashMap<String, CalBookingPayload>>>,
     pub recent_changes: Arc<RwLock<Vec<BookingChange>>>,
 }

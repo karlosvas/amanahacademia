@@ -39,7 +39,10 @@ const cookieMessage =
 ---
 
 <!doctype html>
-<html lang={langCookies} class={`m-0 w-full h-full ${theme ? ` ${theme}` : ""}`}>
+<html
+  lang={langCookies}
+  class={`m-0 w-full h-full ${theme ? ` ${theme}` : ""}${Astro.props.htmlClass ? ` ${Astro.props.htmlClass}` : ""}`}
+>
   <head>
     <!-- Codificacion -->
     <meta charset="UTF-8" />
@@ -273,7 +276,7 @@ const cookieMessage =
     </aside>
     <div
       id="backToTop"
-      class="fixed bottom-24 right-8 w-14 h-14 bg-salmon hover:bg-lightSalmon text-white flex items-center justify-center cursor-pointer z-[9999] bg-gradient-to-br from-lightRed to-salmon rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 opacity-0 invisible"
+      class=`fixed bottom-24 right-8 w-14 h-14 bg-salmon hover:bg-lightSalmon text-white flex items-center justify-center cursor-pointer z-[9999] bg-gradient-to-br from-lightRed to-salmon rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 opacity-0 invisible  ${Astro.props.htmlClass === "security-hall-page" ? "hidden" : ""}`
       onclick="globalThis.scrollTo({top:0, behavior:'smooth'})"
     >
       <ArrowIcon height={25} />
@@ -305,7 +308,7 @@ const cookieMessage =
         async () => {
           await syncTokenWithServer();
         },
-        50 * 60 * 1000
+        50 * 60 * 1000,
       );
     } else await syncLogoutWithServer();
   });
@@ -382,7 +385,7 @@ const cookieMessage =
     {
       threshold: 0.1,
       rootMargin: "-50px 0px -50px 0px",
-    }
+    },
   );
 
   elements.forEach((el) => observer.observe(el));

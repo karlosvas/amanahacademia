@@ -28,7 +28,7 @@ export class ApiService {
   private readonly RETRY_DELAY = 500;
 
   constructor() {
-    this.baseUrl = import.meta.env.PUBLIC_BACKEND_URL || "http://localhost:3000";
+    this.baseUrl = import.meta.env.PUBLIC_BACKEND_URL ?? "http://localhost:3000";
   }
 
   //////////////////// COMENTARIOS /////////////////////
@@ -169,6 +169,22 @@ export class ApiService {
   // Obtener un calendario especifico
   async getAvailableTimeSchedule(id: string): Promise<ResponseAPI<Schedule>> {
     return this.fetchApi<Schedule>(`/cal/schedule/${id}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Obtener todos los calendarios
+  async getAllAvailableTimeSchedules(): Promise<ResponseAPI<Schedule[]>> {
+    return this.fetchApi<Schedule[]>("/cal/schedules/all", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Obtener todos los calendarios
+  async getAllAvailableTimeSchedulesTeam(): Promise<ResponseAPI<Schedule[]>> {
+    return this.fetchApi<Schedule[]>("/cal/schedules/all?team=true", {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
@@ -335,14 +351,10 @@ export class ApiService {
     return data.json();
   }
 
-  // Obtener todos los bookings de grupo
-  async getGroupBookings(token_cookie?: string): Promise<ResponseAPI<CalBookingPayload[]>> {
-    const token = token_cookie || (await getCurrentUserToken());
-    return this.fetchApi<CalBookingPayload[]>("/cal/bookings", {
+  // Obtener todos los bookings
+  async getGroupBookings(): Promise<ResponseAPI<CalBookingPayload[]>> {
+    return this.fetchApi<CalBookingPayload[]>("/cal/bookings/all", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     });
   }
 
@@ -390,7 +402,8 @@ export class ApiService {
 
     for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
       try {
-        const response = await fetch(`${this.baseUrl}${endpoint}`, options);
+        const url = `${this.baseUrl}${endpoint}`;
+        const response = await fetch(url, options);
 
         // Validar que response existe y tiene status
         if (!response || typeof response.status !== "number") {
@@ -456,7 +469,9 @@ export class ApiService {
       return data;
     } catch (parseError) {
       // Lanzar error para que se active el retry
-      log.error("Failed to parse JSON response:", text.substring(0, 200));
+      log.error(
+        `Failed to parse JSON response. Status: ${response.status}, Content-Type: ${response.headers.get("content-type")}, Body: "${text.substring(0, 200)}"`,
+      );
       throw new Error(`Invalid JSON response: ${text.substring(0, 100)}`);
     }
   }

@@ -16,6 +16,7 @@ const seoData = getSEOData("security-hall-of-fame", currentLang) as PropsSEO;
 ---
 
 <Layout
+  htmlClass="security-hall-page"
   lang={seoData.lang}
   title={seoData.title}
   description={seoData.description}
@@ -26,8 +27,20 @@ const seoData = getSEOData("security-hall-of-fame", currentLang) as PropsSEO;
   structuredDataType={seoData.structuredDataType}
   structuredData={seoData.structuredData}
 >
-  <header class="flex w-full items-center align-middle justify-end p-5 bg-gray-900 fixed">
-    <Traductor customStyle={"bg-gray-700"} />
-  </header>
-  <SecurityHallOfFamePage data={data.security} />
+  <div class="security-hall-page">
+    <header class="flex w-full items-center align-middle justify-end pt-8 pr-10 md:pr-20 bg-gray-900 fixed">
+      <Traductor customStyle={"bg-gray-700"} />
+    </header>
+    <SecurityHallOfFamePage data={data.security} />
+  </div>
 </Layout>
+
+<style>
+  html.security-hall-page {
+    scrollbar-color: rgba(74, 222, 128, 1) rgba(17, 24, 39, 1);
+  }
+
+  html.security-hall-page::-webkit-scrollbar-thumb:hover {
+    background-color: lightgreen;
+  }
+</style>

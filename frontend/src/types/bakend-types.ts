@@ -194,7 +194,7 @@ export interface Attendee {
 
 export interface Schedule {
   id: number;
-  owner_id: number;
+  ownerId: number;
   name: string;
   time_zone: string;
   availability: Availability[];

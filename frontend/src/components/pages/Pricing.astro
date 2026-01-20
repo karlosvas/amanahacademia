@@ -7,32 +7,68 @@ import { log } from "@/services/logger";
 import type { PricingI18n } from "@/types/types";
 import toast from "solid-toast";
 import Carrousel from "../pricing/Carrousel.astro";
-import type { BookingStatus, CalBookingPayload, Teacher } from "@/types/bakend-types";
+import type { CalBookingPayload, ResponseAPI, Schedule, Teacher } from "@/types/bakend-types";
 
 const data = Astro.props.data as PricingI18n;
 
 // Obtenemos los profesores desde la API
-let teachers;
-let bookings;
+let teachers: Teacher[] | undefined;
+let bookings: CalBookingPayload[] = [];
+let schedules: Schedule[] = [];
 try {
   // Obtenemos los profesores desde la API
   const helper = new ApiService();
-  const response = await helper.getTeachers();
+  const response: ResponseAPI<Teacher[]> = await helper.getTeachers();
 
   // Si la respuesta es exitosa, asignamos los datos a la variable teachers
-  if (response.success && response.data) teachers = Object.values(response.data);
-  else if (!response.success) log.error(response);
+  if (response.success && response.data) {
+    teachers = Object.values(response.data);
+    log.info(`Fetched ${teachers}`);
+  } else if (!response.success) log.error(response);
   else log.error("Unknown error fetching teachers");
 
   // Si no hay profesores porque ubo un probelma en el servidor lo redirijimos a /, si no hay profesores mostramos un toast
   if (teachers === undefined || teachers === null) return Astro.redirect("/");
   else if (teachers.length === 0) toast.error("No teachers available at the moment.");
 
-  // Obtenemos las bookings de clases grupales
-  let token_cookie = Astro.cookies.get("session")?.value ?? "";
-  const bookingsResponse = await helper.getGroupBookings(token_cookie);
-  if (bookingsResponse.success && bookingsResponse.data) bookings = bookingsResponse.data;
-  else if (!bookingsResponse.success) log.error(bookingsResponse);
+  // Obtenemos las bookings de clases grupales (público, no requiere autenticación)
+  const bookingsResponse: ResponseAPI<CalBookingPayload[]> = await helper.getGroupBookings();
+
+  if (bookingsResponse.success && bookingsResponse.data) {
+    bookings = bookingsResponse.data;
+  } else if (!bookingsResponse.success) log.error(bookingsResponse);
+  else log.error("Unknown error fetching group bookings");
+
+  let shedulesResponse: ResponseAPI<Schedule[]> = await helper.getAllAvailableTimeSchedulesTeam();
+  if (shedulesResponse.success && shedulesResponse.data) {
+    schedules = shedulesResponse.data;
+
+    // Crear un map de teacher.id -> cantidad total de slots disponibles
+    const availabilityMap = new Map<string, number>();
+    const GRUPAL_ID_SCHEDULE = 1081935;
+
+    schedules.forEach((schedule) => {
+      if (schedule.id == GRUPAL_ID_SCHEDULE) return; // Excluir calendario grupal
+
+      const currentCount = availabilityMap.get(schedule.ownerId.toString()) || 0;
+      availabilityMap.set(schedule.ownerId.toString(), currentCount + schedule.availability.length);
+    });
+
+    // Ordenar teachers por cantidad de slots disponibles (de mayor a menor)
+    if (teachers) {
+      teachers.sort((a, b) => {
+        log.info(`Comparando disponibilidad de ${a.cal_id} y ${b.cal_id}`);
+        const slotsA = availabilityMap.get(a.cal_id) || 0;
+        const slotsB = availabilityMap.get(b.cal_id) || 0;
+        return slotsB - slotsA;
+      });
+
+      log.info(`Teachers ordenados por disponibilidad:`);
+      teachers.forEach((t) => {
+        log.info(`  ${t.name}: ${availabilityMap.get(t.cal_id) || 0} slots disponibles`);
+      });
+    }
+  } else if (!shedulesResponse.success) log.error(shedulesResponse);
   else log.error("Unknown error fetching group bookings");
 } catch (e) {
   log.error("Error fetching teachers:", e);
@@ -99,7 +135,7 @@ try {
   id={Class.Free}
   class="modal border-0 rounded-2xl shadow-2xl max-w-2xl w-[95%] mx-auto overflow-hidden p-8 bg-background"
 >
-  <Carrousel id={Class.Free} teachers={teachers} />
+  <Carrousel id={Class.Free} teachers={teachers} data={data} />
 </dialog>
 <div id="cal-inline-root" class="relative mx-auto"></div>
 
