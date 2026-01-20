@@ -18,14 +18,15 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
       - name: Frontend - install & test
         working-directory: ./frontend
         run: |
-          npm ci --legacy-peer-deps --ignore-scripts
+          npm ci --legacy-peer-deps
+          npm install @rollup/rollup-linux-x64-gnu --no-save
           npm run test:coverage
 
       - name: Setup Rust
