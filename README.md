@@ -89,7 +89,7 @@ cd amanah-academia
 #### Frontend
 
 ```
- cd backend
+cd backend
 cargo run
 ```
 
