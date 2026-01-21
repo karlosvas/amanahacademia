@@ -16,7 +16,7 @@
     "test:coverage:watch": "vitest watch --coverage"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "12.6.7",
+    "@astrojs/cloudflare": "12.6.12",
     "@astrojs/sitemap": "3.5.1",
     "@astrojs/solid-js": "5.1.0",
     "@astrojs/tailwind": "6.0.2",
@@ -41,7 +41,7 @@
     "@vitest/ui": "^4.0.2",
     "jsdom": "^25.0.1",
     "prettier": "3.6.2",
-    "wrangler": "^4.40.3"
+    "wrangler": "^4.59.3"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.0.0"
