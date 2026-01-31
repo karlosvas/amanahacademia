@@ -4,12 +4,12 @@ mod tests {
         crate::{
             controllers::cal::{
                 add_booking, add_guests_to_booking, confirm_booking, fetch_and_detect_changes,
-                get_all_bookings, get_booking, get_schedule, get_schedules,
+                get_all_bookings, get_all_schedules, get_booking, get_schedule,
             },
             models::{
                 cal::{
                     AddGuestsPayload, BookingStatus, BookingsQueryParams, CalBookingPayload,
-                    GuestInput,
+                    GuestInput, SchedulesQuery,
                 },
                 state::AppState,
                 webhook::BookingChange,
@@ -497,7 +497,8 @@ mod tests {
         app_state.cal_options.base_url = mock_url;
         let app_state = Arc::new(app_state);
 
-        let response = get_schedules(State(app_state)).await;
+        let params = SchedulesQuery { team: false };
+        let response = get_all_schedules(State(app_state), Query(params)).await;
 
         let resp = response.into_response();
         assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
@@ -724,7 +725,8 @@ mod tests {
         let app_state = Arc::new(app_state);
 
         // Act
-        let response = get_schedules(State(app_state)).await;
+        let params = SchedulesQuery { team: false };
+        let response = get_all_schedules(State(app_state), Query(params)).await;
 
         // Assert: Debería retornar INTERNAL_SERVER_ERROR
         let resp = response.into_response();

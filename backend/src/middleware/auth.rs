@@ -18,7 +18,7 @@ use {
     serde_json::Value,
     std::{
         sync::Arc,
-        time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+        time::{Duration, SystemTime, UNIX_EPOCH},
     },
     tracing::{error, info, instrument, warn},
 };
@@ -141,7 +141,7 @@ async fn get_or_refresh_keys(
     {
         let mut cache = state.firebase_options.firebase_keys.write().await;
         cache.keys = new_keys.clone();
-        cache.fetched_at = Instant::now();
+        cache.fetched_at = SystemTime::now();
     }
 
     info!("Firebase keys refreshed successfully");

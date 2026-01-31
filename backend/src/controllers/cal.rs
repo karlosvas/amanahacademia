@@ -6,7 +6,7 @@ use {
         },
         response::ResponseAPI,
         state::AppState,
-        webhook::{BookingChange, CalBookingsResponse},
+        webhook::{Attendee, BookingChange, CalBookingsResponse},
     },
     axum::{
         Json, debug_handler,
@@ -89,9 +89,10 @@ async fn fetch_cal_bookings_internal(
     client: &reqwest::Client,
     api_key: &str,
     api_version: &str,
+    url: &str,
 ) -> Result<Vec<CalBookingPayload>, FetchCalErrors> {
     let response: Response = client
-        .get("https://api.cal.com/v2/bookings")
+        .get(url)
         .header("Authorization", api_key)
         .header("cal-api-version", api_version)
         .query(&[("take", "10"), ("sortUpdatedAt", "desc")])
@@ -115,6 +116,7 @@ pub async fn fetch_and_detect_changes(state: &AppState) -> Result<Vec<BookingCha
         &state.cal_options.client,
         &state.cal_options.api_key,
         "2024-06-11",
+        &state.cal_options.base_url,
     )
     .await
     .map_err(|e| {
@@ -341,15 +343,15 @@ pub async fn add_booking(
         };
 
     // Si viene username como string plano, extraerlo y crear el objeto user
-    if let Some(username_str) = flexible_payload.get("username").and_then(|v| v.as_str()) {
-        if payload.user.is_none() {
-            payload.user = Some(UserCal {
-                id: 0,
-                username: username_str.to_string(),
-                email: String::new(),
-                time_zone: None,
-            });
-        }
+    if let Some(username_str) = flexible_payload.get("username").and_then(|v| v.as_str())
+        && payload.user.is_none()
+    {
+        payload.user = Some(UserCal {
+            id: 0,
+            username: username_str.to_string(),
+            email: String::new(),
+            time_zone: None,
+        });
     }
 
     // Validaciones
@@ -373,29 +375,33 @@ pub async fn add_booking(
             .into_response();
     }
 
-    let attendee = &payload.attendees[0];
-    let start_time = payload.start_time.as_ref().unwrap();
+    let attendee: &Attendee = &payload.attendees[0];
+    let start_time: &String = payload.start_time.as_ref().unwrap();
 
-    // Validar que se cumple al menos uno de los requisitos de Cal.com:
-    // 1. eventTypeId solo
-    // 2. eventTypeSlug + username
-    // 3. eventTypeSlug + teamSlug
-    let has_event_type_id = payload.event_type_id.is_some();
-    let has_event_type_slug = payload.event_type_slug.is_some();
-    let has_username = payload
+    // 1. ¿Tenemos los datos básicos?
+    let has_id: bool = payload.event_type_id.is_some();
+    let has_slug: bool = payload.event_type_slug.is_some();
+
+    // 2. ¿Tenemos un destino válido (usuario o equipo)?
+    let has_username: bool = payload
         .user
         .as_ref()
         .map(|u| !u.username.is_empty())
         .unwrap_or(false);
-    let has_team_slug = payload
-        .team_slug
-        .as_ref()
-        .map(|t| !t.is_empty())
-        .unwrap_or(false);
 
-    let valid_combination = has_event_type_id
-        || (has_event_type_slug && has_username)
-        || (has_event_type_slug && has_team_slug);
+    // Aquí está la clave: El equipo solo cuenta si tienes la flag activada
+    let has_team = state.cal_options.enable_teams
+        && payload
+            .team_slug
+            .as_ref()
+            .map(|t| !t.is_empty())
+            .unwrap_or(false);
+
+    // 3. COMBINACIÓN VÁLIDA
+    // A: Tienes el ID numérico (eso basta)
+    // B: Tienes Slug Y Usuario
+    // C: Tienes Slug Y Equipo (y los equipos están activados)
+    let valid_combination = has_id || (has_slug && has_username) || (has_slug && has_team);
 
     if !valid_combination {
         return (
@@ -430,9 +436,6 @@ pub async fn add_booking(
         body["title"] = json!(title);
     }
 
-    // Nota: Cal.com API v2 no acepta el campo 'notes' directamente
-    // Si necesitas agregar notas, deben ir en metadata o bookingFieldsResponses
-
     // Añadir campos opcionales según estén disponibles
     if let Some(event_type_id) = payload.event_type_id {
         body["eventTypeId"] = json!(event_type_id);
@@ -443,8 +446,10 @@ pub async fn add_booking(
     if let Some(user) = &payload.user {
         body["username"] = json!(user.username);
     }
-    if let Some(team_slug) = &payload.team_slug {
-        body["teamSlug"] = json!(team_slug);
+    if state.cal_options.enable_teams {
+        if let Some(team_slug) = &payload.team_slug {
+            body["teamSlug"] = json!(team_slug);
+        }
     }
     if let Some(organization_slug) = &payload.organization_slug {
         body["organizationSlug"] = json!(organization_slug);
@@ -462,12 +467,10 @@ pub async fn add_booking(
         serde_json::to_string_pretty(&body).unwrap_or_default()
     );
 
-    let url: String = format!("{}/bookings", state.cal_options.base_url);
-
     let response = state
         .cal_options
         .client
-        .post(&url)
+        .post(&format!("{}/bookings", state.cal_options.base_url))
         .header("Content-Type", "application/json")
         .header("cal-api-version", "2024-08-13")
         .header("Authorization", &state.cal_options.api_key)
@@ -479,7 +482,7 @@ pub async fn add_booking(
 
     match response {
         Ok(resp) => {
-            let status = resp.status();
+            let status: hyper::http::StatusCode = resp.status();
             let text: String = resp.text().await.unwrap_or_default();
 
             if status.is_success() {
@@ -532,15 +535,15 @@ pub async fn get_all_schedules(
     State(state): State<Arc<AppState>>,
     Query(params): Query<SchedulesQuery>,
 ) -> impl IntoResponse {
-    let url: String;
-    if params.team {
-        url = format!(
+    let url: String = if params.team && state.cal_options.enable_teams {
+        format!(
             "{}/teams/{}/schedules",
             state.cal_options.base_url, state.cal_options.team_id
-        );
+        )
     } else {
-        url = format!("{}/schedules", state.cal_options.base_url)
-    }
+        format!("{}/schedules", state.cal_options.base_url)
+    };
+
     let response = state
         .cal_options
         .client
@@ -670,8 +673,10 @@ pub async fn get_all_bookings(
         if let Some(name) = params.attendee_name {
             query.append_pair("attendeeName", &name);
         }
-        if let Some(team_id) = params.team_id {
-            query.append_pair("teamId", &team_id);
+        if state.cal_options.enable_teams {
+            if let Some(team_id) = params.team_id {
+                query.append_pair("teamId", &team_id);
+            }
         }
         if let Some(after) = params.after_start {
             query.append_pair("afterStart", &after);

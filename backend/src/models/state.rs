@@ -2,8 +2,7 @@ use {
     crate::models::{cal::CalBookingPayload, metrics::ServiceAccount, webhook::BookingChange},
     reqwest::Client as HttpClient,
     resend_rs::Resend,
-    std::time::{Duration, Instant},
-    std::{collections::HashMap, sync::Arc},
+    std::{collections::HashMap, sync::Arc, time::SystemTime},
     stripe::Client as StripeClient,
     tokio::sync::RwLock,
 };
@@ -34,6 +33,7 @@ pub struct CalOptions {
     pub team_id: String,
     pub booking_cache: Arc<RwLock<HashMap<String, CalBookingPayload>>>,
     pub recent_changes: Arc<RwLock<Vec<BookingChange>>>,
+    pub enable_teams: bool,
 }
 
 /// Configuración personalizada para Firebase
@@ -49,11 +49,14 @@ pub struct CustomFirebase {
 /// Estructura con TTL
 pub struct KeyCache {
     pub keys: serde_json::Value,
-    pub fetched_at: Instant,
+    pub fetched_at: SystemTime,
 }
 impl KeyCache {
     pub fn is_expired(&self) -> bool {
-        self.fetched_at.elapsed() > Duration::from_secs(3600) // 1 hora
+        match SystemTime::now().duration_since(self.fetched_at) {
+            Ok(duration) => duration.as_secs() > 3600,
+            Err(_) => true,
+        }
     }
 }
 

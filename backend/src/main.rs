@@ -17,7 +17,7 @@ use {
     reqwest::Client as HttpClient,
     resend_rs::Resend,
     serde_json::Value,
-    std::{collections::HashMap, env, net::SocketAddr, sync::Arc, time::Instant},
+    std::{collections::HashMap, env, net::SocketAddr, sync::Arc, time::SystemTime},
     stripe::Client as StripeClient,
     tokio::{net::TcpListener, sync::RwLock},
     tower_http::{
@@ -26,7 +26,8 @@ use {
     },
     tracing::{error, info},
     tracing_subscriber::{
-        EnvFilter, fmt,
+        EnvFilter,
+        fmt::{self},
         layer::{Layer, SubscriberExt},
         util::SubscriberInitExt,
     },
@@ -76,7 +77,7 @@ async fn main() {
         .expect("Failed to fetch initial Firebase keys");
     let firebase_keys = Arc::new(RwLock::new(KeyCache {
         keys: initial_keys,
-        fetched_at: Instant::now(),
+        fetched_at: SystemTime::now(),
     }));
 
     async fn fetch_firebase_keys() -> Result<Value, Box<dyn std::error::Error>> {
@@ -143,6 +144,10 @@ async fn main() {
         team_id: env::var("TEAM_ID").expect("TEAM_ID must be set"),
         booking_cache: Arc::new(tokio::sync::RwLock::new(HashMap::new())),
         recent_changes: Arc::new(tokio::sync::RwLock::new(Vec::new())),
+        enable_teams: env::var("CAL_ENABLE_TEAMS")
+            .expect("CAL_ENABLE_TEAMS must be set")
+            .parse()
+            .expect("CAL_ENABLE_TEAMS value is not a bolean"),
     };
 
     // Configurar cliente HTTP para Google Analytics

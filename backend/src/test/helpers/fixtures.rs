@@ -8,7 +8,7 @@ pub mod fixtures {
         user::{Provider, UserRequest},
     };
     use resend_rs::Resend;
-    use std::{collections::HashMap, sync::Arc, time::Instant};
+    use std::{collections::HashMap, sync::Arc, time::SystemTime};
     use tokio::sync::RwLock;
 
     /// Crea un UserRequest válido para tests
@@ -54,11 +54,13 @@ pub mod fixtures {
                 base_url: "https://api.cal.com/v2".to_string(),
                 booking_cache: Arc::new(RwLock::new(initial_cache)),
                 recent_changes: Arc::new(RwLock::new(vec![])),
+                team_id: "1234".to_string(),
+                enable_teams: false,
             },
             firebase_options: CustomFirebase {
                 firebase_keys: Arc::new(RwLock::new(KeyCache {
                     keys: serde_json::json!({}),
-                    fetched_at: Instant::now(),
+                    fetched_at: SystemTime::now(),
                 })),
                 firebase_project_id: "test-project".to_string(),
                 firebase_api_key: "test-api-key".to_string(),
