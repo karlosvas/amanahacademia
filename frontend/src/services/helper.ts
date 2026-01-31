@@ -352,9 +352,13 @@ export class ApiService {
   }
 
   // Obtener todos los bookings
-  async getGroupBookings(): Promise<ResponseAPI<CalBookingPayload[]>> {
+  async getGroupBookings(token_cookie?: string): Promise<ResponseAPI<CalBookingPayload[]>> {
+    const token = token_cookie || (await getCurrentUserToken());
     return this.fetchApi<CalBookingPayload[]>("/cal/bookings/all", {
       method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
   }
 

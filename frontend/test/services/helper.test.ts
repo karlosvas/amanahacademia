@@ -36,8 +36,8 @@ describe("ApiService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    (global as any).fetch = vi.fn();
-    mockedFetch = global.fetch as unknown as Mock;
+    (globalThis as any).fetch = vi.fn();
+    mockedFetch = globalThis.fetch as unknown as Mock;
     apiService = new ApiService();
   });
 
@@ -452,7 +452,7 @@ describe("ApiService", () => {
 
     await apiService.getGroupBookings("cookie-token");
 
-    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/cal/bookings", {
+    expect(mockedFetch).toHaveBeenCalledWith("http://localhost:3000/cal/bookings/all", {
       method: "GET",
       headers: { Authorization: "Bearer cookie-token" },
     });
