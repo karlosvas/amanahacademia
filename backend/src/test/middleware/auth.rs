@@ -16,7 +16,7 @@ mod tests {
         serde_json::{Value, json},
         std::{
             sync::Arc,
-            time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+            time::{Duration, SystemTime, UNIX_EPOCH},
         },
         tokio::sync::RwLock,
     };
@@ -344,14 +344,14 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
         // Cache recién creado (no expirado)
         let fresh_cache = KeyCache {
             keys: firebase_keys.clone(),
-            fetched_at: Instant::now(),
+            fetched_at: SystemTime::now(),
         };
         assert!(!fresh_cache.is_expired());
 
         // Cache expirado (simulado con timestamp antiguo)
         let expired_cache = KeyCache {
             keys: firebase_keys,
-            fetched_at: Instant::now() - Duration::from_secs(3601),
+            fetched_at: SystemTime::now() - Duration::from_secs(3601),
         };
         assert!(expired_cache.is_expired());
     }
@@ -432,7 +432,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
             firebase_options: crate::models::state::CustomFirebase {
                 firebase_keys: Arc::new(RwLock::new(KeyCache {
                     keys: json!({"test-kid": "test-key"}),
-                    fetched_at: Instant::now(),
+                    fetched_at: SystemTime::now(),
                 })),
                 firebase_project_id: "amanahacademia".to_string(),
                 firebase_api_key: "test-api-key".to_string(),
@@ -462,6 +462,8 @@ XrivCALoN8O9Gvb+bMTIf4Ut
                 api_key: "test-cal-api-key".to_string(),
                 booking_cache: Arc::new(RwLock::new(std::collections::HashMap::new())),
                 recent_changes: Arc::new(RwLock::new(Vec::new())),
+                team_id: "1234".to_string(),
+                enable_teams: false,
             },
         })
     }
@@ -516,7 +518,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
         {
             let mut cache = state.firebase_options.firebase_keys.write().await;
             cache.keys = json!({"new-kid": "new-key"});
-            cache.fetched_at = Instant::now();
+            cache.fetched_at = SystemTime::now();
         }
 
         // Verificar que se actualizó
@@ -803,8 +805,9 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
 
         // Expirar el cache manualmente
         {
-            let mut cache = state.firebase_options.firebase_keys.write().await;
-            cache.fetched_at = Instant::now() - Duration::from_secs(3601);
+            let mut cache: tokio::sync::RwLockWriteGuard<'_, KeyCache> =
+                state.firebase_options.firebase_keys.write().await;
+            cache.fetched_at = SystemTime::now() - Duration::from_secs(3601);
         }
 
         // Intentar refrescar (fallará sin servidor real, pero cubre el código)
