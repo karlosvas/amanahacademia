@@ -257,6 +257,7 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
   import { toggleLoginToRegister, submitFormToRegisterOrLogin, handleLogGoogleProvider } from "@/services/firebase";
   import { updateTurnstileVisibility } from "@/services/claudflare";
   import { log } from "@/services/logger";
+  import { suscribeToNewsletter } from "@/services/mailchimp";
 
   // Estado actual de registro o Login
   let isRegister = false;
@@ -285,20 +286,38 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
     });
 
     // Gestiona los formularios, las validaciones y los envios de formulario
-    submitFormToRegisterOrLogin(authModalLogin, loginLoading, "#loginForm", false, loginError);
-    submitFormToRegisterOrLogin(authModalRegister, registerLoading, "#registerForm", true, registerError);
+    submitFormToRegisterOrLogin(authModalLogin, loginLoading, "#loginForm", false, loginError).then((resultado) => {
+      if (resultado.success && resultado.formData && resultado.userRequest) {
+        suscribeToNewsletter(resultado.formData, resultado.userRequest);
+      }
+    });
+    submitFormToRegisterOrLogin(authModalRegister, registerLoading, "#registerForm", true, registerError).then(
+      (resultado) => {
+        if (resultado.success && resultado.formData && resultado.userRequest) {
+          suscribeToNewsletter(resultado.formData, resultado.userRequest);
+        }
+      },
+    );
 
     const googleBtns = document.querySelectorAll(".googleLoginBtn") as NodeListOf<HTMLButtonElement>;
     googleBtns.forEach((googleBtn) => {
       googleBtn.addEventListener("click", async () => {
         if (isRegister) {
-          handleLogGoogleProvider(authModalRegister, formRegister, isRegister, loginError).catch((error) =>
-            log.error("Error al iniciar sesión con Google:", error)
-          );
+          handleLogGoogleProvider(authModalRegister, formRegister, isRegister, loginError)
+            .then((resultado) => {
+              if (resultado.success && resultado.formData && resultado.userRequest) {
+                suscribeToNewsletter(resultado.formData, resultado.userRequest);
+              }
+            })
+            .catch((error) => log.error("Error logging in with Google", error));
         } else {
-          handleLogGoogleProvider(authModalLogin, formLogin, isRegister, loginError).catch((error) =>
-            log.error("Error al iniciar sesión con Google:", error)
-          );
+          handleLogGoogleProvider(authModalLogin, formLogin, isRegister, loginError)
+            .then((resultado) => {
+              if (resultado.success && resultado.formData && resultado.userRequest) {
+                suscribeToNewsletter(resultado.formData, resultado.userRequest);
+              }
+            })
+            .catch((error) => log.error("Error logging in with Google", error));
         }
       });
     });
@@ -307,28 +326,23 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
     forgotPass.addEventListener("click", (e) => {
       e.preventDefault();
 
-      // Close login modal
-      authModalLogin.close();
-
-      // Open password reset modal
       const passwordResetModal = document.getElementById("passwordResetModal") as HTMLDialogElement;
-      if (passwordResetModal) {
-        // Pre-fill email if available
-        const emailInput = formLogin.querySelector('input[name="email"]') as HTMLInputElement;
-        const resetEmailInput = passwordResetModal.querySelector('input[name="email"]') as HTMLInputElement;
-        if (emailInput && resetEmailInput && emailInput.value) {
-          resetEmailInput.value = emailInput.value;
-        }
+      const emailValue = (formLogin.querySelector('input[name="email"]') as HTMLInputElement)?.value;
+      const successMsg = forgotPass.getAttribute("data-success-msg");
 
-        // Get success message from forgot password element
-        const successMsg = forgotPass.getAttribute("data-success-msg");
-        const resetSuccess = passwordResetModal.querySelector("#resetSuccess") as HTMLDivElement;
-        if (resetSuccess && successMsg) {
-          resetSuccess.setAttribute("data-success-msg", successMsg);
-        }
+      // Si falta lo básico, salimos rápido.
+      if (!passwordResetModal || !successMsg) return;
 
-        passwordResetModal.showModal();
-      }
+      // Preparar el modal de reset
+      const resetEmailInput = passwordResetModal.querySelector('input[name="email"]') as HTMLInputElement;
+      const resetSuccess = passwordResetModal.querySelector("#resetSuccess") as HTMLDivElement;
+
+      if (resetEmailInput) resetEmailInput.value = emailValue || "";
+      if (resetSuccess) resetSuccess.setAttribute("data-success-msg", successMsg);
+
+      // Ejecutar el cambio visual
+      authModalLogin.close();
+      passwordResetModal.showModal();
     });
   });
 </script>
