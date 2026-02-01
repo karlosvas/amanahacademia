@@ -10,10 +10,7 @@ const idCommentShared = Astro.props.id as string;
 // Traduccion de modal
 const dataModal = Astro.props.data as ModalComent;
 
-if (!idCommentShared) {
-  // log.error("CommentModal component requires an 'id' prop.");
-  return Astro.redirect("/");
-}
+if (!idCommentShared) return Astro.redirect("/");
 
 const formId = `comment-form-${idCommentShared}`;
 const starRatingId = `star-rating-${idCommentShared}`;
@@ -109,6 +106,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
   import toast from "solid-toast";
   import type { Comment, UpdateComment } from "@/types/bakend-types";
   import type { User } from "firebase/auth";
+  import { log } from "@/services/logger";
 
   class CommentModal {
     private id: string;
@@ -129,7 +127,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
       this.modal = document.getElementById(idBase) as HTMLDialogElement;
 
       if (!this.modal) {
-        console.error("Modal element not found:", idBase);
+        log.error("Modal element not found:", idBase);
         return;
       }
 
@@ -162,7 +160,7 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
         !this.resetBtn ||
         !this.avatarName
       ) {
-        console.error("Algunos elementos del modal no se encontraron:", {
+        log.error("Some elements of the modal were not found:", {
           form: !!this.form,
           starButtons: this.starButtons.length,
           commentText: !!this.commentText,

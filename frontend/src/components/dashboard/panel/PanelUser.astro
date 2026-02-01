@@ -7,12 +7,12 @@ import type { ResponseAPI, CalBookingPayload, StripeRelation } from "@/types/bak
 const helper = new ApiService();
 
 const token_cookie = Astro.cookies.get("session")?.value ?? "";
-if (!token_cookie) log.error("Deves iniciar sessión primero");
+if (!token_cookie) log.error("Dont find session token in cookies for PanelUser component");
 
 let response: ResponseAPI<StripeRelation[]> = await helper.getAllConnections(token_cookie);
 
 if (!response.success) {
-  log.error(`Error al obtener las reservas pagadas: ${response.error}`);
+  log.error("Error to get paid bookings", response);
   return;
 }
 
@@ -26,8 +26,7 @@ const bookingResponses: ResponseAPI<CalBookingPayload>[] = await Promise.all(boo
 const listOfClass: CalBookingPayload[] = bookingResponses
   .filter((response): response is { success: true; data: CalBookingPayload } => {
     if (!response.success) {
-      log.error(response);
-      log.error(`Error al obtener booking: ${response.error}`);
+      log.error("Error to get booking", response);
       return false;
     }
     return true;
@@ -55,7 +54,7 @@ const classesByOrganizer = listOfClass.reduce(
     acc[organizerName].push(booking);
     return acc;
   },
-  {} as Record<string, CalBookingPayload[]>
+  {} as Record<string, CalBookingPayload[]>,
 );
 ---
 

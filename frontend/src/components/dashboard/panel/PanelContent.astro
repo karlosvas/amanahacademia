@@ -18,6 +18,7 @@ import StatsCard from "../StatsCard.astro";
 
 <script>
   import { ApiService } from "@/services/helper";
+  import { log } from "@/services/logger";
   import type { ResponseAPI } from "@/types/bakend-types";
   import type { MetricsResponse } from "@/types/types";
   import { mapToMonths, parseArticleMetricData } from "@/utils/metrics";
@@ -124,7 +125,7 @@ import StatsCard from "../StatsCard.astro";
         },
       });
     } catch (error) {
-      console.error("Error fetching or rendering chart data:", error);
+      log.error("Error fetching or rendering chart data:", error);
     }
   });
 </script>

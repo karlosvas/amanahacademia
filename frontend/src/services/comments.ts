@@ -4,7 +4,7 @@ import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
 import { getFirebaseAuth } from "./firebase";
 import { FrontendError, isFrontendError } from "@/types/types";
 import toast from "solid-toast";
-import { showModalAnimation } from "@/utils/modals";
+import { log } from "./logger";
 type User = import("firebase/auth").User;
 
 export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanElement) {
@@ -14,7 +14,7 @@ export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanEleme
   const el = likeIcon as HTMLElement;
   const commentId = el.dataset.id;
   if (!commentId) {
-    console.error("Error: commentId not found");
+    log.error("No comment ID found on like icon");
     return;
   }
 
@@ -26,7 +26,7 @@ export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanEleme
     likeCountSpan.innerText = String(commentResponse.data.like || 0);
   } else {
     // La respuesta no es válida, puedes mostrar un error o ignorar
-    console.error("Error: la respuesta no es un Comment válido");
+    log.error("Error submitting like", commentResponse);
   }
 }
 
@@ -158,7 +158,7 @@ export async function handleSubmitReply(helper: ApiService, commentEl: HTMLEleme
     const res: ResponseAPI<ReplyComment> = await helper.createReply(commentId, newReply);
 
     if (!res.success) {
-      console.error("Error creando respuesta:", {
+      log.error("Error creating reply", {
         error: res.error,
       });
       throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
@@ -209,7 +209,7 @@ export async function handleEditReply(
   commentId: string,
   replyId: string,
   newContent: string,
-  currentContent: string
+  currentContent: string,
 ) {
   if (!newContent || newContent === currentContent) {
     return null;

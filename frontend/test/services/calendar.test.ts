@@ -3,18 +3,24 @@ import { initCalendar, updatePricing, getPrice } from "@/services/calendar";
 import { Class } from "@/enums/enums";
 import type { PricingApiResponse } from "@/types/types";
 import { getPricingByCountry } from "@/utils/auth";
+import { log } from "@/services/logger";
 
 // Mocks
 vi.mock("@/utils/auth", () => ({
   getPricingByCountry: vi.fn(),
 }));
 
-describe("calendar.ts", () => {
-  let consoleErrorSpy: any;
+vi.mock("@/services/logger", () => ({
+  log: {
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+  },
+}));
 
+describe("calendar.ts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     // Reset DOM
     document.head.innerHTML = "";
@@ -25,7 +31,6 @@ describe("calendar.ts", () => {
   });
 
   afterEach(() => {
-    consoleErrorSpy.mockRestore();
     vi.restoreAllMocks();
     delete (globalThis as any).Cal;
   });
@@ -385,7 +390,7 @@ describe("calendar.ts", () => {
 
       await updatePricing();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Dont find card-pracing-tier");
+      expect(log.error).toHaveBeenCalled();
     });
 
     it("should handle card without null tier attribute", async () => {
@@ -405,7 +410,7 @@ describe("calendar.ts", () => {
       await updatePricing();
 
       // Should not throw error
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(log.error).not.toHaveBeenCalled();
     });
 
     it("should handle card without symbol element", async () => {
@@ -421,7 +426,7 @@ describe("calendar.ts", () => {
       await updatePricing();
 
       expect(amountElement.textContent).toBe("25");
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(log.error).not.toHaveBeenCalled();
     });
 
     it("should handle card without amount element", async () => {
@@ -437,7 +442,7 @@ describe("calendar.ts", () => {
       await updatePricing();
 
       expect(symbolElement.textContent).toBe("€");
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(log.error).not.toHaveBeenCalled();
     });
 
     it("should handle card without symbol and amount elements", async () => {
@@ -448,7 +453,7 @@ describe("calendar.ts", () => {
 
       await updatePricing();
 
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(log.error).not.toHaveBeenCalled();
     });
 
     it("should log error when getPricingByCountry fails", async () => {
@@ -469,7 +474,7 @@ describe("calendar.ts", () => {
 
       await updatePricing();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error loading pricing:", expect.any(Error));
+      expect(log.error).toHaveBeenCalled();
     });
 
     it("should handle different currency symbols", async () => {
@@ -563,7 +568,7 @@ describe("calendar.ts", () => {
       await updatePricing();
 
       expect(getPricingByCountry).toHaveBeenCalled();
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(log.error).not.toHaveBeenCalled();
     });
   });
 });

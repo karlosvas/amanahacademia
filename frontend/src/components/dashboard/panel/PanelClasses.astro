@@ -14,7 +14,7 @@ try {
   const teachersResponse: ResponseAPI<Teacher[]> = await helper.getTeachers();
   if (teachersResponse.success) teachers = Object.values(teachersResponse.data);
   else {
-    log.error(`Error al obtener profesores: ${teachersResponse.error}`);
+    log.error("Error to get teachers", teachersResponse);
     throw new Error();
   }
 
@@ -22,7 +22,7 @@ try {
 
   if (timeSlotsResponse.success) timeSlots = timeSlotsResponse.data.availability[0];
   else {
-    log.error(`Error al obtener franjas horarias: ${timeSlotsResponse.error}`);
+    log.error("Error to get time slots", timeSlotsResponse);
     throw new Error();
   }
 
@@ -32,11 +32,11 @@ try {
   const bookingsListResponse: ResponseAPI<CalBookingPayload[]> = await helper.getGroupBookings(token_cookie);
   if (bookingsListResponse.success) bookingsList = bookingsListResponse.data;
   else {
-    log.error(`Error al obtener lista de reservas: ${bookingsListResponse.error}`);
+    log.error("Error to get bookings list", bookingsListResponse);
     throw new Error();
   }
 } catch (error) {
-  log.error("Error al cargar profesores:", error);
+  log.error("Error loading teachers:", error);
 }
 ---
 
@@ -424,9 +424,8 @@ try {
             globalThis.location.reload();
           }, 5000);
         } else {
-          log.error(response.error);
           // Mostrar un mensaje más descriptivo si es un error de Cal.com
-          const errorMsg = response.error || "Error al crear la clase";
+          const errorMsg: string = response.error || "Error al crear la clase";
           if (errorMsg.includes("can't be booked at")) {
             showMessage(
               "Error: El horario seleccionado no está disponible en Cal.com. Verifica que el tipo de evento 'group-class' existe y permite reservas para esta fecha/hora.",
@@ -440,9 +439,10 @@ try {
           } else {
             showMessage(errorMsg, true);
           }
+          log.error(errorMsg, response);
         }
       } catch (error) {
-        log.error("Error al crear clase:", error);
+        log.error("Error creating class", error);
         showMessage("Error al crear la clase. Por favor, inténtalo de nuevo.", true);
       } finally {
         submitBtn.disabled = false;

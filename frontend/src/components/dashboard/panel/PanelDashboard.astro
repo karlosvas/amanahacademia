@@ -137,7 +137,7 @@ if (metrics.success && metrics.data.rows.length > 0) {
     if (chartInitialized) return;
 
     if (!user) {
-      log.error("Usuario no autenticado");
+      log.error("User does not authenticated, cannot load metrics");
       const loadingEl = document.getElementById("chartLoading");
       if (loadingEl) {
         loadingEl.innerHTML = `
@@ -152,7 +152,7 @@ if (metrics.success && metrics.data.rows.length > 0) {
     const ctx = document.getElementById("activeUsersChart") as HTMLCanvasElement;
 
     if (!ctx) {
-      log.error("Canvas elemento no encontrado");
+      log.error("Canvas element not found");
       return;
     }
 
@@ -192,7 +192,7 @@ if (metrics.success && metrics.data.rows.length > 0) {
 
     try {
       const helper = new ApiService();
-      log.info("Obteniendo métricas del servidor...");
+      log.info("Getting metrics from server...");
 
       // Obtener todas las métricas (Firebase se encarga del token automáticamente)
       const [userMetrics, articlesMetrics, classMetrics] = await Promise.all([
@@ -201,8 +201,12 @@ if (metrics.success && metrics.data.rows.length > 0) {
         helper.getClassMetrics(),
       ]);
       if (!userMetrics.success || !articlesMetrics.success || !classMetrics.success) {
-        log.error("Error en métricas:", { userMetrics, articlesMetrics, classMetrics });
-        throw new Error("Error al obtener métricas");
+        log.error("Error to get metrics or get articles or get classes", {
+          userMetrics,
+          articlesMetrics,
+          classMetrics,
+        });
+        throw new Error("Error to get metrics");
       }
 
       // Parsear todas las filas, artículos, usuarios y clases

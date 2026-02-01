@@ -216,7 +216,7 @@ const PayloadNoClass = {
           const selectedClass = el.dataset.classId;
 
           if (!selectedClass) {
-            alert("No se encontró la reserva.");
+            log.error("The selectedClass is undefined or null", selectedClass);
             return;
           }
 
@@ -224,18 +224,16 @@ const PayloadNoClass = {
           const response: ResponseAPI<CalBookingPayload> = await helper.getBookingById(selectedClass);
 
           if (!response.success || !response.data) {
-            alert("No se encontró la reserva.");
+            log.error("Error with getting booking by ID", response);
             return;
           } else if (!import.meta.env.PUBLIC_FRONTEND_URL) {
             log.error("PUBLIC_FRONTEND_URL is not defined");
-            alert("Error de configuración del sitio.");
             return;
           }
 
           // Validar que exista el uid antes de continuar
           if (!response.data.uid) {
-            log.error("No se encontró el identificador de la reserva.");
-            alert("No se encontró el identificador de la reserva.");
+            log.error("The booking UID is missing", response);
             return;
           }
 
@@ -247,8 +245,7 @@ const PayloadNoClass = {
 
           location.href = `${import.meta.env.PUBLIC_FRONTEND_URL}/payment?${params}`;
         } catch (error) {
-          log.error("Error al obtener la reserva:", error);
-          alert("Error al procesar la reserva.");
+          log.error("Error selecting booking", error);
         }
       });
     });

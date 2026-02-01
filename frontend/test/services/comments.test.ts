@@ -14,6 +14,7 @@ import {
 import { getFirebaseAuth } from "@/services/firebase";
 import type { Comment } from "@/types/bakend-types";
 import toast from "solid-toast";
+import { log } from "@/services/logger";
 
 // Mocks
 vi.mock("@/services/firebase", () => ({
@@ -46,12 +47,9 @@ const mockFetchResponse = (status: number, body: any) => {
 
 describe("comments.ts", () => {
   let mockApiService: any;
-  let consoleErrorSpy: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
     // Mock fetch
     globalThis.fetch = vi.fn();
 
@@ -78,7 +76,6 @@ describe("comments.ts", () => {
   });
 
   afterEach(() => {
-    consoleErrorSpy.mockRestore();
     vi.restoreAllMocks();
   });
 
@@ -99,7 +96,7 @@ describe("comments.ts", () => {
         mockFetchResponse(200, {
           success: true,
           data: { like: 6 },
-        })
+        }),
       );
 
       await submitLike(likeIcon, likeCountSpan);
@@ -113,7 +110,7 @@ describe("comments.ts", () => {
 
       await submitLike(likeIcon, likeCountSpan);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: commentId not found");
+      expect(log.error).toHaveBeenCalledWith("No comment ID found on like icon");
     });
 
     it("should handle unsuccessful response", async () => {
@@ -123,12 +120,12 @@ describe("comments.ts", () => {
       (globalThis.fetch as any).mockResolvedValue(
         mockFetchResponse(200, {
           success: false,
-        })
+        }),
       );
 
       await submitLike(likeIcon, likeCountSpan);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error: la respuesta no es un Comment válido");
+      expect(log.error).toHaveBeenCalled();
     });
   });
 
@@ -365,7 +362,7 @@ describe("comments.ts", () => {
           author_uid: "user-123",
           name: "Test User",
           url_img: "https://example.com/photo.jpg",
-        })
+        }),
       );
       expect(toast.success).toHaveBeenCalledWith("Respuesta añadida correctamente");
       expect(mockLocation.reload).toHaveBeenCalled();
@@ -527,7 +524,7 @@ describe("comments.ts", () => {
         "comment-123",
         "reply-456",
         "Updated content",
-        "Old content"
+        "Old content",
       );
 
       expect(mockApiService.editReply).toHaveBeenCalledWith(
@@ -537,7 +534,7 @@ describe("comments.ts", () => {
           id: "reply-456",
           content: "Updated content",
           author_uid: "user-123",
-        })
+        }),
       );
       expect(result?.success).toBe(true);
     });
@@ -562,7 +559,7 @@ describe("comments.ts", () => {
       } as any);
 
       await expect(
-        handleEditReply(mockApiService, "comment-123", "reply-456", "New content", "Old content")
+        handleEditReply(mockApiService, "comment-123", "reply-456", "New content", "Old content"),
       ).rejects.toThrow();
     });
 
@@ -573,7 +570,7 @@ describe("comments.ts", () => {
       });
 
       await expect(
-        handleEditReply(mockApiService, "comment-123", "reply-456", "New content", "Old content")
+        handleEditReply(mockApiService, "comment-123", "reply-456", "New content", "Old content"),
       ).rejects.toThrow();
     });
   });

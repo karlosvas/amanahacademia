@@ -1,9 +1,10 @@
 ---
 import StarIcon from "@/assets/star.svg";
+import { log } from "@/services/logger";
 
 const { star, size } = Astro.props;
 if (!star || !size || star < 0 || star > 5) {
-  console.error("StarGroup component requires 'star' (0-5) and 'size' props.");
+  log.error("StarGroup component requires 'star' (0-5) and 'size' props");
   return null;
 }
 ---

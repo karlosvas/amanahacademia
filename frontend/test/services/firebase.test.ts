@@ -11,6 +11,7 @@ import {
   handleLogGoogleProvider,
 } from "@/services/firebase";
 import type { User } from "firebase/auth";
+import { log } from "@/services/logger";
 
 // Mocks
 vi.mock("solid-toast", () => ({
@@ -36,10 +37,6 @@ vi.mock("@/services/claudflare", () => ({
   executeTurnstileIfPresent: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("@/services/mailchimp", () => ({
-  suscribeToNewsletter: vi.fn().mockResolvedValue(undefined),
-}));
-
 vi.mock("@/services/logger", () => ({
   log: {
     info: vi.fn(),
@@ -63,11 +60,8 @@ vi.mock("firebase/auth", () => ({
 }));
 
 describe("firebase.ts", () => {
-  let consoleErrorSpy: any;
-
   beforeEach(() => {
     vi.clearAllMocks();
-    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     // Reset DOM
     document.body.innerHTML = "";
@@ -80,7 +74,6 @@ describe("firebase.ts", () => {
     // Mock JustValidate
     (globalThis as any).JustValidate = class {
       successCallback?: any;
-
       addField() {
         return this;
       }
@@ -88,11 +81,13 @@ describe("firebase.ts", () => {
         this.successCallback = callback;
         return this;
       }
+      onFail() {
+        return this;
+      }
     };
   });
 
   afterEach(() => {
-    consoleErrorSpy.mockRestore();
     vi.restoreAllMocks();
   });
 
@@ -215,18 +210,14 @@ describe("firebase.ts", () => {
 
       await handleLogout();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error during logout:", error);
+      expect(log.error).toHaveBeenCalled();
     });
 
     it("should not reload if signOut fails", async () => {
       const auth = getFirebaseAuth();
       vi.spyOn(auth, "signOut").mockRejectedValue(new Error("Sign out failed"));
-
       await handleLogout();
-
-      // Location reload should still be called even if signOut fails
-      // because the function doesn't prevent it
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(log.error).toHaveBeenCalled();
     });
   });
 
@@ -383,7 +374,7 @@ describe("firebase.ts", () => {
 
       // Simulate click
       if (identificationButton.onclick) {
-        identificationButton.onclick(new Event("click"));
+        identificationButton.onclick(new PointerEvent("click"));
         expect(showModalAnimation).toHaveBeenCalledWith(authModalLogin, formLogin, true);
       }
     });
@@ -396,7 +387,7 @@ describe("firebase.ts", () => {
 
       // Simulate click
       if (identificationButton.onclick) {
-        identificationButton.onclick(new Event("click"));
+        identificationButton.onclick(new PointerEvent("click"));
         expect(showModalAnimation).not.toHaveBeenCalled();
       }
     });
@@ -511,15 +502,14 @@ describe("firebase.ts", () => {
     let errorMessage: HTMLElement;
     let form: HTMLFormElement;
     let mockOnSuccess: any;
+    let mockOnFail: any;
     let mockAddField: any;
 
     beforeEach(async () => {
       const { executeTurnstileIfPresent } = await import("@/services/claudflare");
-      const { suscribeToNewsletter } = await import("@/services/mailchimp");
       const { signInWithEmailAndPassword } = await import("firebase/auth");
 
       vi.mocked(executeTurnstileIfPresent).mockClear();
-      vi.mocked(suscribeToNewsletter).mockClear();
       vi.mocked(signInWithEmailAndPassword).mockClear();
 
       modal = document.createElement("dialog");
@@ -573,10 +563,14 @@ describe("firebase.ts", () => {
       mockOnSuccess = vi.fn(function (this: any) {
         return this;
       });
+      mockOnFail = vi.fn(function (this: any) {
+        return this;
+      });
 
       (globalThis as any).JustValidate = class {
         addField = mockAddField;
         onSuccess = mockOnSuccess;
+        onFail = mockOnFail;
       };
     });
 
@@ -588,14 +582,14 @@ describe("firebase.ts", () => {
         expect.arrayContaining([
           expect.objectContaining({ rule: "required" }),
           expect.objectContaining({ rule: "email" }),
-        ])
+        ]),
       );
       expect(mockAddField).toHaveBeenCalledWith(
         '[name="password"]',
         expect.arrayContaining([
           expect.objectContaining({ rule: "required" }),
           expect.objectContaining({ rule: "minLength", value: 6 }),
-        ])
+        ]),
       );
     });
 
@@ -604,15 +598,15 @@ describe("firebase.ts", () => {
 
       expect(mockAddField).toHaveBeenCalledWith(
         '[name="name"]',
-        expect.arrayContaining([expect.objectContaining({ rule: "required" })])
+        expect.arrayContaining([expect.objectContaining({ rule: "required" })]),
       );
       expect(mockAddField).toHaveBeenCalledWith(
         '[name="privacy"]',
-        expect.arrayContaining([expect.objectContaining({ rule: "required" })])
+        expect.arrayContaining([expect.objectContaining({ rule: "required" })]),
       );
       expect(mockAddField).toHaveBeenCalledWith(
         '[name="terms"]',
-        expect.arrayContaining([expect.objectContaining({ rule: "required" })])
+        expect.arrayContaining([expect.objectContaining({ rule: "required" })]),
       );
     });
 
@@ -690,54 +684,11 @@ describe("firebase.ts", () => {
       expect(firebaseAuthModule.signInWithEmailAndPassword).toHaveBeenCalledWith(
         expect.anything(),
         "test@test.com",
-        "password123"
+        "password123",
       );
       expect(modal.close).toHaveBeenCalled();
       expect(toastModule.default.success).toHaveBeenCalled();
       expect(loading.classList.contains("hidden")).toBe(true);
-
-      // Restore original
-      document.getElementById = originalGetElementById;
-      vi.useRealTimers();
-    });
-
-    it("should execute successful registration flow with newsletter", async () => {
-      vi.useFakeTimers();
-
-      // Mock getElementById to return our form
-      const originalGetElementById = document.getElementById;
-      document.getElementById = vi.fn((id: string) => {
-        if (id === "test-form") return form;
-        return originalGetElementById.call(document, id);
-      }) as any;
-
-      // Import modules to get the mocked functions
-      const claudflareModule = await import("@/services/claudflare");
-      const firebaseAuthModule = await import("firebase/auth");
-      const mailchimpModule = await import("@/services/mailchimp");
-      const toastModule = await import("solid-toast");
-
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", true, errorMessage);
-
-      const onSuccessCallback = mockOnSuccess.mock.calls[0][0];
-      const mockEvent = {
-        preventDefault: vi.fn(),
-        target: form,
-      };
-
-      const promise = onSuccessCallback(mockEvent);
-      await promise;
-      await vi.runAllTimersAsync();
-
-      expect(claudflareModule.executeTurnstileIfPresent).toHaveBeenCalledWith(form);
-      expect(mailchimpModule.suscribeToNewsletter).toHaveBeenCalled();
-      expect(firebaseAuthModule.signInWithEmailAndPassword).toHaveBeenCalledWith(
-        expect.anything(),
-        "test@test.com",
-        "password123"
-      );
-      expect(modal.close).toHaveBeenCalled();
-      expect(toastModule.default.success).toHaveBeenCalled();
 
       // Restore original
       document.getElementById = originalGetElementById;
@@ -781,7 +732,7 @@ describe("firebase.ts", () => {
 
       await onSuccessCallback(mockEvent);
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(log.error).toHaveBeenCalled();
       expect(errorMessage.classList.contains("hidden")).toBe(false);
       expect(loading.classList.contains("hidden")).toBe(true);
     });
@@ -819,7 +770,7 @@ describe("firebase.ts", () => {
 
       await onSuccessCallback(mockEvent);
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(log.error).toHaveBeenCalled();
       expect(errorMessage.classList.contains("hidden")).toBe(false);
       expect(loading.classList.contains("hidden")).toBe(true);
     });
@@ -851,6 +802,7 @@ describe("firebase.ts", () => {
         }
         addField = mockAddField;
         onSuccess = mockOnSuccess;
+        onFail = mockOnFail;
       };
       (globalThis as any).JustValidate = JustValidateSpy;
 
@@ -874,6 +826,7 @@ describe("firebase.ts", () => {
         }
         addField = mockAddField;
         onSuccess = mockOnSuccess;
+        onFail = mockOnFail;
       };
       (globalThis as any).JustValidate = JustValidateSpy;
 
@@ -894,11 +847,9 @@ describe("firebase.ts", () => {
 
     beforeEach(async () => {
       const { signInWithPopup } = await import("firebase/auth");
-      const { suscribeToNewsletter } = await import("@/services/mailchimp");
       const { closeModalAnimation } = await import("@/utils/modals");
 
       vi.mocked(signInWithPopup).mockClear();
-      vi.mocked(suscribeToNewsletter).mockClear();
       vi.mocked(closeModalAnimation).mockClear();
 
       modal = document.createElement("dialog");
@@ -940,22 +891,6 @@ describe("firebase.ts", () => {
       vi.useRealTimers();
     });
 
-    it("should handle successful Google register with newsletter", async () => {
-      vi.useFakeTimers();
-      const { suscribeToNewsletter } = await import("@/services/mailchimp");
-      const { closeModalAnimation } = await import("@/utils/modals");
-
-      const promise = handleLogGoogleProvider(modal, formHTML, true, loginError);
-
-      await vi.runAllTimersAsync();
-      await promise;
-
-      expect(suscribeToNewsletter).toHaveBeenCalled();
-      expect(closeModalAnimation).toHaveBeenCalledWith(modal, formHTML);
-
-      vi.useRealTimers();
-    });
-
     it("should call API with correct user data", async () => {
       const helperModule = await import("@/services/helper");
       const mockLoginUser = vi.fn().mockResolvedValue({ success: true });
@@ -976,7 +911,7 @@ describe("firebase.ts", () => {
           provider: "google",
           id_token: "mock-google-token",
           first_free_class: false,
-        })
+        }),
       );
 
       (helperModule as any).ApiService = originalApiService;

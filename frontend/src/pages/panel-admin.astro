@@ -15,13 +15,13 @@ const helper = new ApiService();
 const token = Astro.cookies.get("session")?.value ?? "";
 
 if (!token) {
-  log.error("Debes logearte previamente");
+  log.error("No session token found in cookies for Panel Admin Page");
   return Astro.redirect("/");
 }
 const isAdmin: ResponseAPI<boolean> = await helper.isAdminUser(token);
 
 if (!isAdmin.success || !isAdmin.data) {
-  log.error("El usuario no tiene permisos de administrador");
+  log.error("User does not have admin permissions for Panel Admin Page");
   return Astro.redirect("/");
 }
 

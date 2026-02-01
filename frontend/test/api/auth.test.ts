@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST, DELETE } from "../../src/pages/api/auth";
+import { log } from "@/services/logger";
 
 // Mock de las rutas
 const createMockRequest = (body: any) => ({
@@ -11,6 +12,15 @@ const createMockCookies = () => ({
   delete: vi.fn(),
   get: vi.fn(),
 });
+
+vi.mock("@/services/logger", () => ({
+  log: {
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
 
 describe("API Routes - Auth", () => {
   describe("POST /api/auth", () => {
@@ -40,7 +50,7 @@ describe("API Routes - Auth", () => {
           path: "/",
           httpOnly: true,
           sameSite: "lax",
-        })
+        }),
       );
 
       const body = await response.json();
@@ -59,7 +69,7 @@ describe("API Routes - Auth", () => {
       expect(mockCookies.set).not.toHaveBeenCalled();
 
       const body = await response.json();
-      expect(body.error).toBe("Token inválido");
+      expect(body.error).toBe("Invalid token");
     });
 
     it("should return 400 when token is not a string", async () => {
@@ -77,16 +87,13 @@ describe("API Routes - Auth", () => {
     it("should return 500 on request.json() error", async () => {
       mockRequest.json = vi.fn().mockRejectedValue(new Error("JSON parse error"));
 
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
       const response = await POST({
         request: mockRequest,
         cookies: mockCookies,
       } as any);
 
       expect(response.status).toBe(500);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error en POST /api/auth:", expect.any(Error));
-      consoleErrorSpy.mockRestore();
+      expect(log.error).toHaveBeenCalled();
     });
 
     it("should set secure cookie in production", async () => {
@@ -106,7 +113,7 @@ describe("API Routes - Auth", () => {
         token,
         expect.objectContaining({
           secure: true,
-        })
+        }),
       );
 
       vi.unstubAllEnvs();

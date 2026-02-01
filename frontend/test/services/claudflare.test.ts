@@ -1,13 +1,21 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { executeTurnstileIfPresent, updateTurnstileVisibility } from "@/services/claudflare";
+import { log } from "@/services/logger";
+
+vi.mock("@/services/logger", () => ({
+  log: {
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
 
 describe("claudflare.ts", () => {
-  let consoleErrorSpy: any;
   let mockTurnstile: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     // Reset DOM
     document.body.innerHTML = "";
@@ -21,7 +29,6 @@ describe("claudflare.ts", () => {
   });
 
   afterEach(() => {
-    consoleErrorSpy.mockRestore();
     vi.restoreAllMocks();
     delete (globalThis as any).turnstile;
   });
@@ -71,7 +78,7 @@ describe("claudflare.ts", () => {
         expect.objectContaining({
           callback: expect.any(Function),
           "error-callback": expect.any(Function),
-        })
+        }),
       );
     });
 
@@ -106,7 +113,7 @@ describe("claudflare.ts", () => {
 
       await expect(promise).rejects.toThrow("Error en la verificación, por favor recarga la página.");
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error de Turnstile:", errorMessage);
+      expect(log.error).toHaveBeenCalled();
     });
 
     it("should log error and reject when error-callback is called", async () => {
@@ -125,7 +132,7 @@ describe("claudflare.ts", () => {
 
       await expect(promise).rejects.toThrow("Error en la verificación, por favor recarga la página.");
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Error de Turnstile:", errorObject);
+      expect(log.error).toHaveBeenCalledWith("Error de Turnstile:", errorObject);
     });
 
     it("should reject promise when execute throws an error", async () => {

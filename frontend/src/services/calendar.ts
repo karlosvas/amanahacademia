@@ -1,6 +1,7 @@
 import type { Class } from "@/enums/enums";
 import type { PricingApiResponse } from "@/types/types";
 import { getPricingByCountry } from "@/utils/auth";
+import { log } from "./logger";
 
 /**
  * Inicializa y configura el calendario embebido de Cal.com para el namespace dado.
@@ -112,7 +113,7 @@ export async function updatePricing() {
       const amountElement: NodeListOf<HTMLElement> = card.querySelectorAll(".price-amount");
 
       if (!tier) {
-        console.error("Dont find card-pracing-tier");
+        log.error("Did not find card-pricing-tier attribute");
         return;
       }
 
@@ -123,7 +124,7 @@ export async function updatePricing() {
       if (amountElement) amountElement.forEach((el) => (el.textContent = tierPrice.toString()));
     });
   } catch (error) {
-    console.error("Error loading pricing:", error);
+    log.error("Error loading pricing:", error);
   }
 }
 

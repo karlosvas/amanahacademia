@@ -5,8 +5,9 @@ import Stadistics from "@/components/comments/Stadistics.astro";
 import { ApiService } from "@/services/helper";
 import CommentModal from "@/components/comments/CommentModal.astro";
 import { processComments } from "@/services/comments";
-import type { Comment, Result } from "@/types/bakend-types";
+import type { Comment, ResponseAPI } from "@/types/bakend-types";
 import type { CommentI18n } from "@/types/types";
+import { log } from "@/services/logger";
 
 const data = Astro.props.data as CommentI18n;
 
@@ -15,7 +16,7 @@ let comments: Comment[] = [];
 let bestComments: Comment[] = [];
 let mediaStars: number = 0.0;
 try {
-  const response: Result<Comment[]> = await helper.getAllComments();
+  const response: ResponseAPI<Comment[]> = await helper.getAllComments();
   if (response.success) {
     const commentsData = Object.entries(response.data).map(([key, value]) => ({
       id: key,
@@ -31,15 +32,14 @@ try {
     }));
 
     ({ comments, bestComments } = processComments(commentsData));
-    mediaStars = comments.reduce((acc, comment) => acc + (comment.stars ?? 0), 0) / comments.length;
     // Ordenamos por timestamp
+    mediaStars = comments.reduce((acc, comment) => acc + (comment.stars ?? 0), 0) / comments.length;
   } else {
-    console.error("Error al cargar comentarios:", response.error);
-    // En server-side no puedes usar toast, pero puedes hacer logging
+    log.error("Error loading comments", response);
   }
 } catch (error) {
-  console.error("Error de red al cargar comentarios:", error);
-  // Opcional: Dejar tener comentarios por defecto o vacío
+  // Dejar tener comentarios por defecto o vacío
+  log.error("Network error loading comments", error);
   comments = [];
 }
 
@@ -118,6 +118,7 @@ const percentaje = ["90", "70", "95", "80", "89"];
   import toast from "solid-toast";
   import { FrontendErrorCode, getErrorToast } from "@/enums/enums";
   import { openCommentModal } from "@/utils/modals";
+  import { log } from "@/services/logger";
 
   // Espera a que el DOM esté completamente cargado
   document.addEventListener("DOMContentLoaded", async function () {
@@ -161,7 +162,7 @@ const percentaje = ["90", "70", "95", "80", "89"];
           try {
             await submitLike(likeIcon, likeCountSpan);
           } catch (err) {
-            console.error("Error in submitLike:", err);
+            log.error("Error in submitLike:", err);
           }
 
           // Quita la animación "pulse" después de 300ms

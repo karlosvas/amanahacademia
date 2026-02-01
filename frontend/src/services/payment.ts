@@ -19,13 +19,13 @@ export async function handlePayment(
   bookingUid: string,
   status: string,
   slug: string,
-  email: string
+  email: string,
 ): Promise<void> {
   const helper = new ApiService();
 
   // Verificar que Stripe esté inicializado
   if (!stripe || !elements) {
-    log.error("Stripe o Elements no inicializados");
+    log.error("Stripe o Elements dont initialized");
     showError(getErrorFrontStripe(FrontendStripe.STRIPE_NOT_INITIALIZED));
     throw new Error("Stripe o Elements no inicializados");
   }
@@ -35,7 +35,7 @@ export async function handlePayment(
   const buttonText = document.getElementById("button-text") as HTMLButtonElement | null;
 
   if (!submitButton || !buttonText) {
-    log.error("Botones no encontrados en el DOM");
+    log.error("Submit button or button text elements not found in DOM");
     showError(getErrorFrontStripe(FrontendStripe.MISSING_ELEMENTS));
     throw new Error("Botones no encontrados en el DOM");
   }
@@ -60,20 +60,20 @@ export async function handlePayment(
     let errorMessage = error.message || "Error al procesar el pago";
 
     if (error.type === "card_error") {
-      log.error("🔴 Tipo: Error de tarjeta");
+      log.error("🔴 Stripe: Card Error", result);
       errorMessage = `Tarjeta rechazada: ${error.message}`;
     } else if (error.type === "validation_error") {
-      log.error("🔴 Tipo: Error de validación");
+      log.error("🔴 Stripe: Validation Error", result);
       errorMessage = `Validación: ${error.message}`;
     } else if (error.type === "invalid_request_error") {
-      log.error("🔴 Tipo: Error de petición inválida (posible problema de configuración)");
+      log.error("🔴 Stripe: Invalid Request Error (possible configuration issue)", result);
       errorMessage = `Configuración: ${error.message}`;
     } else if (error.type === "api_error") {
-      log.error("🔴 Tipo: Error de API de Stripe");
-      errorMessage = `Error del servidor: ${error.message}`;
+      log.error("🔴 Stripe: Stripe API Error", result);
+      errorMessage = `Error desconocido: ${error.message}`;
     }
 
-    log.error(`💥 Error en el pago: ${errorMessage}`);
+    log.error("💥 Error en el pago", errorMessage);
     submitButton.disabled = false;
 
     throw new Error(`Error en el pago: ${errorMessage}`);
@@ -89,7 +89,7 @@ export async function handlePayment(
     // El pago fue exitoso
     await successPayment(helper, paymentIntent, bookingUid, status, slug, email);
   } else {
-    log.error(`Estado de pago desconocido: ${paymentIntent.status}`);
+    log.error("Estado de pago desconocido: ", paymentIntent.status);
     showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
     throw new Error(`Estado de pago desconocido: ${paymentIntent.status}`);
   }
@@ -114,14 +114,14 @@ export async function successPayment(
   bookingUid: string,
   status: string,
   slug: string,
-  email: string
+  email: string,
 ): Promise<void> {
   if (slug === "group-class") {
     const actualBooking: ResponseAPI<CalBookingPayload> = await helper.getBookingById(bookingUid);
     if (!actualBooking.success) {
-      log.error("Error al obtener booking");
+      log.error("Error to get booking");
       showError(getErrorFrontStripe(FrontendStripe.MISSING_BOOKING));
-      throw new Error("Error al obtener booking");
+      throw new Error("Error to get booking");
     }
 
     let attendees: Attendee[] = actualBooking.data.attendees;
@@ -130,13 +130,13 @@ export async function successPayment(
     let booking: BookingRequest = {
       ...actualBooking.data,
       attendees: attendees,
-      startTime: actualBooking.data.startTime, // Explicitly set required fields
+      startTime: actualBooking.data.startTime,
       endTime: actualBooking.data.endTime,
     } as BookingRequest;
     const response: ResponseAPI<CalBookingPayload> = await helper.createBooking(booking);
     if (!response.success) {
-      log.error("Error al actualizar booking");
-      throw new Error("Error al actualizar booking");
+      log.error("Error to update booking");
+      throw new Error("Error to update booking");
     }
   }
 
@@ -144,9 +144,9 @@ export async function successPayment(
   if (status !== "accepted") {
     const responseBookingConfirm = await helper.confirmBooking(bookingUid);
     if (!responseBookingConfirm.success) {
-      log.error("Error al confirmar booking");
+      log.error("Error to confirm booking");
       showError(getErrorFrontStripe(FrontendStripe.BOOKING_CONFIRM_ERROR));
-      throw new Error("Error al confirmar booking");
+      throw new Error("Error to confirm booking");
     }
   }
 
@@ -160,9 +160,9 @@ export async function successPayment(
   if (errorDiv) errorDiv.textContent = "";
 
   if (!responseSaveRelation.success) {
-    console.error("Error al guardar relación");
+    log.error("Error to save relation");
     showError(getErrorFrontStripe(FrontendStripe.RELATION_SAVE_ERROR));
-    throw new Error("Error al guardar relación");
+    throw new Error("Error to save relation");
   }
 
   // Enviar evento a Google Analytics
@@ -227,7 +227,7 @@ export async function initializePrice(testCountry: string | null, slugType: stri
 // Inicializar Stripe y crear el Payment Element
 export async function initializeStripe(
   STRIPE_PUBLIC_KEY: string,
-  pricing: number
+  pricing: number,
 ): Promise<{ stripe: any; elements: any } | null> {
   try {
     const helper = new ApiService();
@@ -323,7 +323,7 @@ export async function initializeStripe(
     // Retornar stripe y elements inicializados
     return { stripe, elements };
   } catch (error: any) {
-    console.error("Error inicializando Stripe:", error);
+    log.error("Error to initialize Stripe:", error);
     showError(getErrorFrontStripe(FrontendStripe.STRIPE_INITIALIZATION_ERROR));
     return null;
   }

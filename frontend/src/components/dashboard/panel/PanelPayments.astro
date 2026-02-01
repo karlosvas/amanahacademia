@@ -8,12 +8,12 @@ import type { PaymentIntentSimplified } from "@/types/bakend-types";
 const helper = new ApiService();
 
 const token_cookie = Astro.cookies.get("session")?.value ?? "";
-if (!token_cookie) log.error("Deves iniciar sessión primero");
+if (!token_cookie) log.error("No session token found in cookies for PanelPayments component");
 
 let response: ResponseAPI<PaymentIntentSimplified[]> = await helper.getPaidReservations(token_cookie);
 
 if (!response.success) {
-  log.error(`Error al obtener las reservas pagadas: ${response.error}`);
+  log.error("Error to get paid reservations", response.error);
   return;
 }
 

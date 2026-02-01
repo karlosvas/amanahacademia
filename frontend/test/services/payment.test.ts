@@ -230,8 +230,8 @@ describe("payment.ts", () => {
       const paymentIntent = { id: "pi_123" };
 
       await expect(
-        successPayment(mockApiService, paymentIntent, "booking-123", "accepted", "group-class", "new@test.com")
-      ).rejects.toThrow("Error al obtener booking");
+        successPayment(mockApiService, paymentIntent, "booking-123", "accepted", "group-class", "new@test.com"),
+      ).rejects.toThrow("Error to get booking");
     });
 
     it("should throw error if booking creation fails for group-class", async () => {
@@ -250,8 +250,8 @@ describe("payment.ts", () => {
       const paymentIntent = { id: "pi_123" };
 
       await expect(
-        successPayment(mockApiService, paymentIntent, "booking-123", "accepted", "group-class", "new@test.com")
-      ).rejects.toThrow("Error al actualizar booking");
+        successPayment(mockApiService, paymentIntent, "booking-123", "accepted", "group-class", "new@test.com"),
+      ).rejects.toThrow("Error to update booking");
     });
 
     it("should confirm booking if status is not accepted", async () => {
@@ -266,7 +266,7 @@ describe("payment.ts", () => {
         "booking-123",
         "pending",
         "individual-class",
-        "test@test.com"
+        "test@test.com",
       );
 
       expect(mockApiService.confirmBooking).toHaveBeenCalledWith("booking-123");
@@ -283,7 +283,7 @@ describe("payment.ts", () => {
         "booking-123",
         "accepted",
         "individual-class",
-        "test@test.com"
+        "test@test.com",
       );
 
       expect(mockApiService.confirmBooking).not.toHaveBeenCalled();
@@ -295,8 +295,8 @@ describe("payment.ts", () => {
       const paymentIntent = { id: "pi_123" };
 
       await expect(
-        successPayment(mockApiService, paymentIntent, "booking-123", "pending", "individual-class", "test@test.com")
-      ).rejects.toThrow("Error al confirmar booking");
+        successPayment(mockApiService, paymentIntent, "booking-123", "pending", "individual-class", "test@test.com"),
+      ).rejects.toThrow("Error to confirm booking");
     });
 
     it("should save cal-stripe connection", async () => {
@@ -310,7 +310,7 @@ describe("payment.ts", () => {
         "booking-123",
         "accepted",
         "individual-class",
-        "test@test.com"
+        "test@test.com",
       );
 
       expect(mockApiService.saveCalStripeConnection).toHaveBeenCalledWith({
@@ -325,8 +325,8 @@ describe("payment.ts", () => {
       const paymentIntent = { id: "pi_123" };
 
       await expect(
-        successPayment(mockApiService, paymentIntent, "booking-123", "accepted", "individual-class", "test@test.com")
-      ).rejects.toThrow("Error al guardar relación");
+        successPayment(mockApiService, paymentIntent, "booking-123", "accepted", "individual-class", "test@test.com"),
+      ).rejects.toThrow("Error to save relation");
     });
 
     it("should clear error message on success", async () => {
@@ -343,7 +343,7 @@ describe("payment.ts", () => {
         "booking-123",
         "accepted",
         "individual-class",
-        "test@test.com"
+        "test@test.com",
       );
 
       const updatedErrorDiv = document.getElementById("error-message")!;
@@ -361,7 +361,7 @@ describe("payment.ts", () => {
         "booking-123",
         "accepted",
         "individual-class",
-        "test@test.com"
+        "test@test.com",
       );
 
       if (typeof globalThis !== "undefined" && (globalThis as any).gtag) {
@@ -380,7 +380,7 @@ describe("payment.ts", () => {
         "booking-123",
         "accepted",
         "individual-class",
-        "test@test.com"
+        "test@test.com",
       );
 
       expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);

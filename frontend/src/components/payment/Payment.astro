@@ -104,7 +104,7 @@ import Title from "../common/Title.astro";
              * @throws {Error} Si el pago es rechazado o hay un error de red
              */
             submitButton.addEventListener("click", () =>
-              handlePayment(stripe, elements, bookingUid, status, slugType, user.email as string)
+              handlePayment(stripe, elements, bookingUid, status, slugType, user.email as string),
             );
           }, 1000);
         } catch (_) {
@@ -113,7 +113,7 @@ import Title from "../common/Title.astro";
           }, 5000);
         }
       } else {
-        log.error("Debes iniciar sesión para proceder al pago.");
+        log.error("User not authenticated for payment, redirecting to login modal");
 
         // Mostrar modal de autenticación
         const modalAuth = document.getElementById("authModalLogin") as HTMLDialogElement;
