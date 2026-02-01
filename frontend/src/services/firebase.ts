@@ -76,7 +76,7 @@ export function submitFormToRegisterOrLogin(
   isRegister: boolean,
   errorMessage: HTMLElement,
 ): Promise<{ success: boolean; userRequest?: UserRequest; formData?: FormData }> {
-  return new Promise<{ success: boolean; formData?: FormData; userRequest?: UserRequest }>(async (resolve) => {
+  return new Promise<{ success: boolean; formData?: FormData; userRequest?: UserRequest }>((resolve) => {
     const validation = new globalThis.JustValidate(form, {
       errorFieldCssClass: "border-red",
       errorLabelStyle: { color: "#e53e3e", fontSize: "0.875rem" },
