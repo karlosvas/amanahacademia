@@ -116,13 +116,10 @@ pub async fn fetch_and_detect_changes(state: &AppState) -> Result<Vec<BookingCha
         &state.cal_options.client,
         &state.cal_options.api_key,
         "2024-06-11",
-        &state.cal_options.base_url,
+        &format!("{}/bookings", state.cal_options.base_url),
     )
     .await
-    .map_err(|e| {
-        error!(error = %e, "Failed to fetch bookings");
-        format!("Failed to fetch bookings: {}", e)
-    })?;
+    .map_err(|e| format!("Failed to fetch bookings internal: {}", e))?;
 
     // 2. Leer caché actual
     let mut cache: RwLockWriteGuard<HashMap<String, CalBookingPayload>> =

@@ -29,6 +29,19 @@ pub async fn health_check() -> &'static str {
 async fn process_refund(state: &AppState, booking_id: &String) -> Result<RefundResponse, String> {
     tracing::info!("Procesando reembolso para booking: {}", booking_id);
 
+    let is_safe: bool = booking_id
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '-' || c == '_');
+
+    if !is_safe || booking_id.is_empty() {
+        let msg: String = format!(
+            "Intento de seguridad bloqueado: booking_id inválido '{}'",
+            booking_id
+        );
+        tracing::warn!("{}", msg); // Logueamos como advertencia
+        return Err("ID de reserva inválido".to_string());
+    }
+
     let url_firebase_db_relationship: String = format!(
         "{}/relation_cal_stripe/{}.json",
         state.firebase_options.firebase_database_url, booking_id
