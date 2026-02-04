@@ -19,7 +19,7 @@
     "@astrojs/sitemap": "3.5.1",
     "@astrojs/solid-js": "5.1.0",
     "@astrojs/tailwind": "6.0.2",
-    "@astrojs/vercel": "^8.0.4",
+    "@astrojs/vercel": "^8.2.11",
     "@sentry/astro": "^10.38.0",
     "adze": "^2.2.5",
     "astro": "5.16.3",
