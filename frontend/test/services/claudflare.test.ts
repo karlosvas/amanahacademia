@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { executeTurnstileIfPresent, updateTurnstileVisibility } from "@/services/claudflare";
+import {
+  executeTurnstileIfPresent,
+  updateTurnstileVisibility,
+} from "@/services/claudflare";
 import { log } from "@/services/logger";
 
 vi.mock("@/services/logger", () => ({
@@ -111,7 +114,9 @@ describe("claudflare.ts", () => {
 
       const promise = executeTurnstileIfPresent(form);
 
-      await expect(promise).rejects.toThrow("Error en la verificación, por favor recarga la página.");
+      await expect(promise).rejects.toThrow(
+        "Error en la verificación, por favor recarga la página.",
+      );
 
       expect(log.error).toHaveBeenCalled();
     });
@@ -130,9 +135,14 @@ describe("claudflare.ts", () => {
 
       const promise = executeTurnstileIfPresent(form);
 
-      await expect(promise).rejects.toThrow("Error en la verificación, por favor recarga la página.");
+      await expect(promise).rejects.toThrow(
+        "Error en la verificación, por favor recarga la página.",
+      );
 
-      expect(log.error).toHaveBeenCalledWith("Error de Turnstile:", errorObject);
+      expect(log.error).toHaveBeenCalledWith(
+        "Error de Turnstile:",
+        errorObject,
+      );
     });
 
     it("should reject promise when execute throws an error", async () => {
@@ -210,7 +220,10 @@ describe("claudflare.ts", () => {
       const promise = executeTurnstileIfPresent(form);
 
       expect(promise).toBeInstanceOf(Promise);
-      expect(mockTurnstile.execute).toHaveBeenCalledWith(turnstileDiv, expect.any(Object));
+      expect(mockTurnstile.execute).toHaveBeenCalledWith(
+        turnstileDiv,
+        expect.any(Object),
+      );
     });
 
     it("should only select first turnstile div if multiple exist", async () => {
@@ -230,7 +243,10 @@ describe("claudflare.ts", () => {
 
       await executeTurnstileIfPresent(form);
 
-      expect(mockTurnstile.execute).toHaveBeenCalledWith(turnstileDiv1, expect.any(Object));
+      expect(mockTurnstile.execute).toHaveBeenCalledWith(
+        turnstileDiv1,
+        expect.any(Object),
+      );
     });
 
     it("should work with form containing other elements", async () => {
@@ -254,7 +270,10 @@ describe("claudflare.ts", () => {
       const promise = executeTurnstileIfPresent(form);
 
       await expect(promise).resolves.toBeUndefined();
-      expect(mockTurnstile.execute).toHaveBeenCalledWith(turnstileDiv, expect.any(Object));
+      expect(mockTurnstile.execute).toHaveBeenCalledWith(
+        turnstileDiv,
+        expect.any(Object),
+      );
     });
   });
 

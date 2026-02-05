@@ -1,4 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type Mock,
+} from "vitest";
 import { initCalendar, updatePricing, getPrice } from "@/services/calendar";
 import { Class } from "@/enums/enums";
 import type { PricingApiResponse } from "@/types/types";
@@ -55,7 +63,9 @@ describe("calendar.ts", () => {
     it("should load Cal.com embed script", () => {
       initCalendar(Class.Standard);
 
-      const scripts = document.head.querySelectorAll('script[src="https://app.cal.com/embed/embed.js"]');
+      const scripts = document.head.querySelectorAll(
+        'script[src="https://app.cal.com/embed/embed.js"]',
+      );
       expect(scripts.length).toBeGreaterThan(0);
     });
 
@@ -90,11 +100,15 @@ describe("calendar.ts", () => {
     it("should not load script multiple times", () => {
       // First initialization
       initCalendar(Class.Standard);
-      const scriptCount1 = document.head.querySelectorAll('script[src="https://app.cal.com/embed/embed.js"]').length;
+      const scriptCount1 = document.head.querySelectorAll(
+        'script[src="https://app.cal.com/embed/embed.js"]',
+      ).length;
 
       // Second initialization
       initCalendar(Class.Conversacion);
-      const scriptCount2 = document.head.querySelectorAll('script[src="https://app.cal.com/embed/embed.js"]').length;
+      const scriptCount2 = document.head.querySelectorAll(
+        'script[src="https://app.cal.com/embed/embed.js"]',
+      ).length;
 
       // Script should only be loaded once
       expect(scriptCount1).toBeGreaterThan(0);
@@ -457,7 +471,9 @@ describe("calendar.ts", () => {
     });
 
     it("should log error when getPricingByCountry fails", async () => {
-      vi.mocked(getPricingByCountry).mockRejectedValue(new Error("Network error"));
+      vi.mocked(getPricingByCountry).mockRejectedValue(
+        new Error("Network error"),
+      );
 
       const card = document.createElement("div");
       card.setAttribute("card-pricing-tier", "standard-class");

@@ -92,7 +92,7 @@ async fn main() {
 
         let keys: Value = response.json().await?;
 
-        if !keys.is_object() || keys.as_object().map_or(true, |m| m.is_empty()) {
+        if !keys.is_object() || keys.as_object().is_none_or(|m| m.is_empty()) {
             return Err("Firebase public keys are empty".into());
         }
 

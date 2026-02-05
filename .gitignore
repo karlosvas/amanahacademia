@@ -51,7 +51,7 @@ sonar-project.properties.backup
 frontend/coverage/
 frontend/.nyc_output/
 
-# Backend coverage  
+# Backend coverage
 backend/coverage/
 backend/tarpaulin/
 
@@ -86,3 +86,7 @@ develop
 .unlighthouse
 .vercel
 .env*.local
+
+# Secretos locales para act - NUNCA COMMITEAR
+.secrets
+*.secrets

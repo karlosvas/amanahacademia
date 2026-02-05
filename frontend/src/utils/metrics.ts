@@ -1,4 +1,9 @@
-import type { MetricData, ParsedArticleMetrics, ParsedClassMetrics, ParsedMetrics } from "@/types/types";
+import type {
+  MetricData,
+  ParsedArticleMetrics,
+  ParsedClassMetrics,
+  ParsedMetrics,
+} from "@/types/types";
 
 // Helper: parse values safely with defaults
 const safeInt = (v?: string) => Number.parseInt(v ?? "0", 10);
@@ -42,7 +47,11 @@ export function parseClassMetricData(data: MetricData): ParsedClassMetrics {
   };
 }
 
-export const mapToMonths = (dataMap: Map<string, number>, labels: string[], monthLabels: string[]) => {
+export const mapToMonths = (
+  dataMap: Map<string, number>,
+  labels: string[],
+  monthLabels: string[],
+) => {
   return labels.map((label) => {
     const monthIndex = monthLabels.indexOf(label.split(" ")[0]);
     const year = label.split(" ")[1];

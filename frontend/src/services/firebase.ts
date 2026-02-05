@@ -21,7 +21,11 @@ import { executeTurnstileIfPresent } from "@/services/claudflare";
 import { log } from "@/services/logger";
 
 // Tipos
-import type { ResponseAPI, UserMerged, UserRequest } from "@/types/bakend-types";
+import type {
+  ResponseAPI,
+  UserMerged,
+  UserRequest,
+} from "@/types/bakend-types";
 import type { Auth, User } from "firebase/auth";
 
 const firebaseConfig = {
@@ -75,8 +79,16 @@ export function submitFormToRegisterOrLogin(
   form: string,
   isRegister: boolean,
   errorMessage: HTMLElement,
-): Promise<{ success: boolean; userRequest?: UserRequest; formData?: FormData }> {
-  return new Promise<{ success: boolean; formData?: FormData; userRequest?: UserRequest }>((resolve) => {
+): Promise<{
+  success: boolean;
+  userRequest?: UserRequest;
+  formData?: FormData;
+}> {
+  return new Promise<{
+    success: boolean;
+    formData?: FormData;
+    userRequest?: UserRequest;
+  }>((resolve) => {
     const validation = new globalThis.JustValidate(form, {
       errorFieldCssClass: "border-red",
       errorLabelStyle: { color: "#e53e3e", fontSize: "0.875rem" },
@@ -84,24 +96,46 @@ export function submitFormToRegisterOrLogin(
 
     validation
       .addField('[name="email"]', [
-        { rule: "required", errorMessage: getValidationMessage(ValidationCode.EMAIL_REQUIRED) },
-        { rule: "email", errorMessage: getValidationMessage(ValidationCode.EMAIL_INVALID) },
+        {
+          rule: "required",
+          errorMessage: getValidationMessage(ValidationCode.EMAIL_REQUIRED),
+        },
+        {
+          rule: "email",
+          errorMessage: getValidationMessage(ValidationCode.EMAIL_INVALID),
+        },
       ])
       .addField('[name="password"]', [
-        { rule: "required", errorMessage: getValidationMessage(ValidationCode.PASSWORD_REQUIRED) },
-        { rule: "minLength", value: 6, errorMessage: getValidationMessage(ValidationCode.PASSWORD_MIN) },
+        {
+          rule: "required",
+          errorMessage: getValidationMessage(ValidationCode.PASSWORD_REQUIRED),
+        },
+        {
+          rule: "minLength",
+          value: 6,
+          errorMessage: getValidationMessage(ValidationCode.PASSWORD_MIN),
+        },
       ]);
 
     if (isRegister) {
       validation
         .addField('[name="name"]', [
-          { rule: "required", errorMessage: getValidationMessage(ValidationCode.NAME_REQUIRED) },
+          {
+            rule: "required",
+            errorMessage: getValidationMessage(ValidationCode.NAME_REQUIRED),
+          },
         ])
         .addField('[name="privacy"]', [
-          { rule: "required", errorMessage: getValidationMessage(ValidationCode.PRIVACY_REQUIRED) },
+          {
+            rule: "required",
+            errorMessage: getValidationMessage(ValidationCode.PRIVACY_REQUIRED),
+          },
         ])
         .addField('[name="terms"]', [
-          { rule: "required", errorMessage: getValidationMessage(ValidationCode.TERMS_REQUIRED) },
+          {
+            rule: "required",
+            errorMessage: getValidationMessage(ValidationCode.TERMS_REQUIRED),
+          },
         ]);
     }
 
@@ -141,12 +175,20 @@ export function submitFormToRegisterOrLogin(
 
         if (response.success) {
           // Una vez creado el usuario desde el backend lo logeamos desde el frontend
-          await signInWithEmailAndPassword(firebaseAuth, userRequest.email, userRequest.password);
+          await signInWithEmailAndPassword(
+            firebaseAuth,
+            userRequest.email,
+            userRequest.password,
+          );
 
           modal.close();
           setTimeout(() => {
             toast.success(
-              getAuthSuccessMessage(isRegister ? AuthSuccessCode.REGISTER_SUCCESS : AuthSuccessCode.LOGIN_SUCCESS),
+              getAuthSuccessMessage(
+                isRegister
+                  ? AuthSuccessCode.REGISTER_SUCCESS
+                  : AuthSuccessCode.LOGIN_SUCCESS,
+              ),
             );
             formHTML.reset();
             errorMessage.classList.add("hidden");
@@ -154,7 +196,11 @@ export function submitFormToRegisterOrLogin(
           resolve({ success: true, formData, userRequest });
         } else {
           const respError: any = response.error;
-          throw new Error(typeof respError === "string" ? respError : respError?.message || "Error desconocido");
+          throw new Error(
+            typeof respError === "string"
+              ? respError
+              : respError?.message || "Error desconocido",
+          );
         }
       } catch (error: unknown) {
         log.error("Error during authentication", error);
@@ -205,7 +251,11 @@ export function setupAuth(
   } else {
     identificationButton.textContent = headerData.button.login;
     identificationButton.onclick = () => {
-      if (authModalLogin && !authModalLogin.classList.contains("hidden") && formLogin)
+      if (
+        authModalLogin &&
+        !authModalLogin.classList.contains("hidden") &&
+        formLogin
+      )
         showModalAnimation(authModalLogin, formLogin, true);
     };
   }
@@ -217,9 +267,15 @@ export async function handleLogGoogleProvider(
   formHTML: HTMLFormElement,
   isRegister: boolean,
   loginError: HTMLDivElement,
-): Promise<{ success: boolean; userRequest?: UserRequest; formData?: FormData }> {
+): Promise<{
+  success: boolean;
+  userRequest?: UserRequest;
+  formData?: FormData;
+}> {
   try {
-    log.info(`[handleLogGoogleProvider] Iniciando ${isRegister ? "registro" : "login"} con Google`);
+    log.info(
+      `[handleLogGoogleProvider] Iniciando ${isRegister ? "registro" : "login"} con Google`,
+    );
     const googleProvider: GoogleAuthProvider = getGoogleProvider();
     log.info("[handleLogGoogleProvider] Abriendo popup de Google");
     await signInWithPopup(firebaseAuth, googleProvider);
@@ -227,8 +283,11 @@ export async function handleLogGoogleProvider(
 
     // Get the ID token from Firebase
     const idToken = await firebaseAuth.currentUser?.getIdToken();
-    log.info(`[handleLogGoogleProvider] Token obtenido: ${idToken ? "Sí" : "No"}`);
-    if (!idToken) throw new Error("No se pudo obtener el token de autenticación");
+    log.info(
+      `[handleLogGoogleProvider] Token obtenido: ${idToken ? "Sí" : "No"}`,
+    );
+    if (!idToken)
+      throw new Error("No se pudo obtener el token de autenticación");
 
     // Registramos o logeamos al usuario según corresponda
     const helper = new ApiService();
@@ -278,7 +337,9 @@ export async function handleLogGoogleProvider(
     return { success: true, formData, userRequest };
   } catch (error) {
     log.error("Error during Google login/register", error);
-    loginError.textContent = getErrorToast(FrontendErrorCode.GOOGLE_LOGIN_ERROR);
+    loginError.textContent = getErrorToast(
+      FrontendErrorCode.GOOGLE_LOGIN_ERROR,
+    );
     loginError.classList.remove("hidden");
     return { success: false };
   }

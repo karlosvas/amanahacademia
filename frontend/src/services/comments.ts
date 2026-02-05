@@ -7,7 +7,10 @@ import toast from "solid-toast";
 import { log } from "./logger";
 type User = import("firebase/auth").User;
 
-export async function submitLike(likeIcon: Element, likeCountSpan: HTMLSpanElement) {
+export async function submitLike(
+  likeIcon: Element,
+  likeCountSpan: HTMLSpanElement,
+) {
   const helper = new ApiService();
 
   // Obtenemos el commentId del atributo data-id del likeIcon
@@ -77,11 +80,16 @@ export function processComments(comments: Comment[]) {
 
   // Ordenar por fecha (más antiguos primero)
   const sortedComments = normalizedComments.toSorted((a, b) => {
-    return parseSpanishDate(a.timestamp).getTime() - parseSpanishDate(b.timestamp).getTime();
+    return (
+      parseSpanishDate(a.timestamp).getTime() -
+      parseSpanishDate(b.timestamp).getTime()
+    );
   });
 
   // Obtener los 3 mejores comentarios por likes
-  const bestComments = [...normalizedComments].sort((a, b) => (b.like ?? 0) - (a.like ?? 0)).slice(0, 3);
+  const bestComments = [...normalizedComments]
+    .sort((a, b) => (b.like ?? 0) - (a.like ?? 0))
+    .slice(0, 3);
 
   return {
     comments: sortedComments,
@@ -90,7 +98,11 @@ export function processComments(comments: Comment[]) {
 }
 
 // Función para actualizar el estado visual del "like" según el usuario actual
-export function updateLikeState(user: User | null, likeIcon: Element | null, comment: string | null) {
+export function updateLikeState(
+  user: User | null,
+  likeIcon: Element | null,
+  comment: string | null,
+) {
   if (!comment || !likeIcon) return;
   // Si el usuario ha dado like, añade la clase "liked"
   if (user && comment.includes(user.uid)) {
@@ -105,18 +117,30 @@ export function updateLikeState(user: User | null, likeIcon: Element | null, com
   }
 }
 
-export async function verifyAuthorInComment(helper: ApiService, commentId: string) {
+export async function verifyAuthorInComment(
+  helper: ApiService,
+  commentId: string,
+) {
   const comment: ResponseAPI<Comment> = await helper.getCommentById(commentId);
-  if (!comment.success) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+  if (!comment.success)
+    throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
   const auth = getFirebaseAuth();
   if (auth.currentUser?.uid !== comment.data.author_uid)
     throw new FrontendError(getErrorToast(FrontendErrorCode.MUST_BE_OWNER));
 }
 
-export async function verifyAuthorInCommentReply(helper: ApiService, commentId: string, replyId: string) {
-  const comment: ResponseAPI<Comment> = await helper.getCommentReplyById(commentId, replyId);
-  if (!comment.success) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+export async function verifyAuthorInCommentReply(
+  helper: ApiService,
+  commentId: string,
+  replyId: string,
+) {
+  const comment: ResponseAPI<Comment> = await helper.getCommentReplyById(
+    commentId,
+    replyId,
+  );
+  if (!comment.success)
+    throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
   const auth = getFirebaseAuth();
   if (auth.currentUser?.uid !== comment.data.author_uid)
@@ -124,25 +148,38 @@ export async function verifyAuthorInCommentReply(helper: ApiService, commentId: 
 }
 
 // Función para manejar el envío de respuestas
-export async function handleSubmitReply(helper: ApiService, commentEl: HTMLElement, traductions: any) {
+export async function handleSubmitReply(
+  helper: ApiService,
+  commentEl: HTMLElement,
+  traductions: any,
+) {
   try {
     const commentDiv = commentEl.closest("[data-comment-id]") as HTMLElement;
-    if (!commentDiv) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+    if (!commentDiv)
+      throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
     const commentId = commentDiv.dataset.commentId;
-    if (!commentId) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+    if (!commentId)
+      throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
     const replyForm = commentDiv.querySelector<HTMLElement>(".reply-form");
-    if (!replyForm) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+    if (!replyForm)
+      throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
-    const textarea = replyForm.querySelector<HTMLTextAreaElement>(".reply-textarea");
-    if (!textarea) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+    const textarea =
+      replyForm.querySelector<HTMLTextAreaElement>(".reply-textarea");
+    if (!textarea)
+      throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
     const content = textarea.value.trim();
-    if (!content) throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+    if (!content)
+      throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
 
     const auth = getFirebaseAuth();
-    if (!auth.currentUser) throw new FrontendError(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
+    if (!auth.currentUser)
+      throw new FrontendError(
+        getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION),
+      );
 
     const newReply: ReplyComment = {
       id: "", // El backend asignará el ID
@@ -155,7 +192,10 @@ export async function handleSubmitReply(helper: ApiService, commentEl: HTMLEleme
       users_liked: [],
     };
 
-    const res: ResponseAPI<ReplyComment> = await helper.createReply(commentId, newReply);
+    const res: ResponseAPI<ReplyComment> = await helper.createReply(
+      commentId,
+      newReply,
+    );
 
     if (!res.success) {
       log.error("Error creating reply", {
@@ -170,12 +210,17 @@ export async function handleSubmitReply(helper: ApiService, commentEl: HTMLEleme
       location.reload();
     }, 1000);
   } catch (e) {
-    isFrontendError(e) ? toast.error(e.message) : toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
+    isFrontendError(e)
+      ? toast.error(e.message)
+      : toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
   }
 }
 
 // Función para manejar la eliminación de comentarios
-export async function handleDeleteComment(helper: ApiService, commentId: string) {
+export async function handleDeleteComment(
+  helper: ApiService,
+  commentId: string,
+) {
   await verifyAuthorInComment(helper, commentId);
   const res: ResponseAPI<void> = await helper.deleteComment(commentId);
 
@@ -192,9 +237,16 @@ export async function handleEditComment(helper: ApiService, commentId: string) {
 }
 
 // Función para manejar la eliminación de respuestas
-export async function handleDeleteReply(helper: ApiService, commentId: string, replyId: string) {
+export async function handleDeleteReply(
+  helper: ApiService,
+  commentId: string,
+  replyId: string,
+) {
   await verifyAuthorInCommentReply(helper, commentId, replyId);
-  const result: ResponseAPI<void> = await helper.deleteReply(commentId, replyId);
+  const result: ResponseAPI<void> = await helper.deleteReply(
+    commentId,
+    replyId,
+  );
 
   if (!result.success) {
     throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
@@ -216,7 +268,10 @@ export async function handleEditReply(
   }
 
   const auth = getFirebaseAuth();
-  if (!auth.currentUser) throw new FrontendError(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
+  if (!auth.currentUser)
+    throw new FrontendError(
+      getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION),
+    );
 
   const reply: ReplyComment = {
     id: replyId,
@@ -229,7 +284,11 @@ export async function handleEditReply(
     users_liked: [],
   };
 
-  const result: ResponseAPI<ReplyComment> = await helper.editReply(commentId, replyId, reply);
+  const result: ResponseAPI<ReplyComment> = await helper.editReply(
+    commentId,
+    replyId,
+    reply,
+  );
 
   if (!result.success) {
     throw new FrontendError(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));

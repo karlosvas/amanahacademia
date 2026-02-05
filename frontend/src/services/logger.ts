@@ -69,10 +69,14 @@ export const log = {
       // Busca si alguno de los argumentos es un objeto Error real
       const errorObject = args.find((arg) => arg instanceof Error);
       if (errorObject) {
-        Sentry.captureException(errorObject, { extra: { context: args.filter((a) => a !== errorObject) } });
+        Sentry.captureException(errorObject, {
+          extra: { context: args.filter((a) => a !== errorObject) },
+        });
       } else {
         // Si no hay objeto Error, envía el primer argumento como mensaje
-        Sentry.captureMessage(String(args[0]), { extra: { context: args.slice(1) } });
+        Sentry.captureMessage(String(args[0]), {
+          extra: { context: args.slice(1) },
+        });
       }
     }
 

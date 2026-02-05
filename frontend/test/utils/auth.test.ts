@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { syncTokenWithServer, syncLogoutWithServer, getPricingByCountry } from "@/utils/auth";
+import {
+  syncTokenWithServer,
+  syncLogoutWithServer,
+  getPricingByCountry,
+} from "@/utils/auth";
 import * as firebase from "@/services/firebase";
 import type { PricingApiResponse } from "@/types/types";
 
@@ -29,7 +33,9 @@ describe("Auth Utilities", () => {
       const mockToken = "test-firebase-token-12345";
       vi.mocked(firebase.getCurrentUserToken).mockResolvedValue(mockToken);
 
-      fetchMock.mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
+      fetchMock.mockResolvedValue(
+        new Response(JSON.stringify({ success: true }), { status: 200 }),
+      );
 
       await syncTokenWithServer();
 
@@ -78,7 +84,7 @@ describe("Auth Utilities", () => {
         new Response(null, {
           status: 500,
           statusText: "Internal Server Error",
-        })
+        }),
       );
 
       // La función no lanza error pero el fetch se completa
@@ -123,7 +129,7 @@ describe("Auth Utilities", () => {
         new Response(null, {
           status: 500,
           statusText: "Internal Server Error",
-        })
+        }),
       );
 
       // La función no lanza error pero el fetch se completa
@@ -170,7 +176,9 @@ describe("Auth Utilities", () => {
     });
 
     it("should fetch pricing data without test_country parameter", async () => {
-      fetchMock.mockResolvedValue(new Response(JSON.stringify(mockPricingResponse), { status: 200 }));
+      fetchMock.mockResolvedValue(
+        new Response(JSON.stringify(mockPricingResponse), { status: 200 }),
+      );
 
       const result = await getPricingByCountry();
 
@@ -196,8 +204,8 @@ describe("Auth Utilities", () => {
             currency: "USD",
             symbol: "$",
           }),
-          { status: 200 }
-        )
+          { status: 200 },
+        ),
       );
 
       const result = await getPricingByCountry();
@@ -217,7 +225,9 @@ describe("Auth Utilities", () => {
         configurable: true,
       });
 
-      fetchMock.mockResolvedValue(new Response(JSON.stringify(mockPricingResponse), { status: 200 }));
+      fetchMock.mockResolvedValue(
+        new Response(JSON.stringify(mockPricingResponse), { status: 200 }),
+      );
 
       await getPricingByCountry();
 
@@ -225,21 +235,34 @@ describe("Auth Utilities", () => {
     });
 
     it("should throw error when response is not ok", async () => {
-      fetchMock.mockResolvedValue(new Response(null, { status: 404, statusText: "Not Found" }));
+      fetchMock.mockResolvedValue(
+        new Response(null, { status: 404, statusText: "Not Found" }),
+      );
 
-      await expect(getPricingByCountry()).rejects.toThrow("HTTP error! status: 404");
+      await expect(getPricingByCountry()).rejects.toThrow(
+        "HTTP error! status: 404",
+      );
     });
 
     it("should throw error on network failure", async () => {
       fetchMock.mockRejectedValue(new Error("Network request failed"));
 
-      await expect(getPricingByCountry()).rejects.toThrow("Network request failed");
+      await expect(getPricingByCountry()).rejects.toThrow(
+        "Network request failed",
+      );
     });
 
     it("should handle 500 server errors", async () => {
-      fetchMock.mockResolvedValue(new Response(null, { status: 500, statusText: "Internal Server Error" }));
+      fetchMock.mockResolvedValue(
+        new Response(null, {
+          status: 500,
+          statusText: "Internal Server Error",
+        }),
+      );
 
-      await expect(getPricingByCountry()).rejects.toThrow("HTTP error! status: 500");
+      await expect(getPricingByCountry()).rejects.toThrow(
+        "HTTP error! status: 500",
+      );
     });
 
     it("should parse JSON response correctly", async () => {
@@ -257,7 +280,9 @@ describe("Auth Utilities", () => {
         },
       };
 
-      fetchMock.mockResolvedValue(new Response(JSON.stringify(customPricing), { status: 200 }));
+      fetchMock.mockResolvedValue(
+        new Response(JSON.stringify(customPricing), { status: 200 }),
+      );
 
       const result = await getPricingByCountry();
 
@@ -276,7 +301,9 @@ describe("Auth Utilities", () => {
         configurable: true,
       });
 
-      fetchMock.mockResolvedValue(new Response(JSON.stringify(mockPricingResponse), { status: 200 }));
+      fetchMock.mockResolvedValue(
+        new Response(JSON.stringify(mockPricingResponse), { status: 200 }),
+      );
 
       await getPricingByCountry();
 
@@ -302,7 +329,9 @@ describe("Auth Utilities", () => {
         country: "TEST",
       };
 
-      fetchMock.mockResolvedValue(new Response(JSON.stringify(devPricing), { status: 200 }));
+      fetchMock.mockResolvedValue(
+        new Response(JSON.stringify(devPricing), { status: 200 }),
+      );
 
       const result = await getPricingByCountry();
 
@@ -311,7 +340,9 @@ describe("Auth Utilities", () => {
     });
 
     it("should preserve all pricing response properties", async () => {
-      fetchMock.mockResolvedValue(new Response(JSON.stringify(mockPricingResponse), { status: 200 }));
+      fetchMock.mockResolvedValue(
+        new Response(JSON.stringify(mockPricingResponse), { status: 200 }),
+      );
 
       const result = await getPricingByCountry();
 
@@ -337,7 +368,9 @@ describe("Auth Utilities", () => {
         configurable: true,
       });
 
-      fetchMock.mockResolvedValue(new Response(JSON.stringify(mockPricingResponse), { status: 200 }));
+      fetchMock.mockResolvedValue(
+        new Response(JSON.stringify(mockPricingResponse), { status: 200 }),
+      );
 
       await getPricingByCountry();
 

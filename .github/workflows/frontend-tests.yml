@@ -9,20 +9,21 @@ permissions:
 on:
   push:
     branches:
+      - main
       - develop
-      - 'feature/**'
-      - 'fix/**'
-      - 'claude/**'
+      - "feature/**"
+      - "fix/**"
+      - "claude/**"
     paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-tests.yml'
+      - "frontend/**"
+      - ".github/workflows/frontend-tests.yml"
   pull_request:
     branches:
       - main
       - develop
     paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-tests.yml'
+      - "frontend/**"
+      - ".github/workflows/frontend-tests.yml"
 
 jobs:
   test:
@@ -31,7 +32,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [22.x]
 
     steps:
       - name: Checkout code
@@ -41,16 +42,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         working-directory: ./frontend
         run: npm ci --legacy-peer-deps --ignore-scripts
 
-      - name: Run tests
+      - name: Check code formatting
         working-directory: ./frontend
-        run: npm test -- --run
+        run: npx prettier --check .
+
+      - name: Build project
+        working-directory: ./frontend
+        run: npm run build
 
       - name: Generate coverage report
         working-directory: ./frontend

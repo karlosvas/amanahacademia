@@ -97,7 +97,7 @@ pub fn verify_firebase_token(
     let kid: String = header.kid.ok_or(AuthError::MissingKid)?;
 
     // Loguea el kid para trazabilidad
-    tracing::Span::current().record("kid", &kid.as_str());
+    tracing::Span::current().record("kid", kid.as_str());
 
     // Obtén la clave pública correspondiente
     let public_key_pem: &str = firebase_keys
@@ -108,7 +108,7 @@ pub fn verify_firebase_token(
     // Configura la validación del token
     let mut validation: Validation = Validation::new(Algorithm::RS256);
     validation.set_audience(&["amanahacademia"]); // Reemplaza con tu project ID
-    validation.set_issuer(&[&format!("https://securetoken.google.com/amanahacademia")]); // Reemplaza con tu project ID
+    validation.set_issuer(&[&"https://securetoken.google.com/amanahacademia".to_string()]); // Reemplaza con tu project ID
 
     // Verifica el token
     let decoding_key = DecodingKey::from_rsa_pem(public_key_pem.as_bytes())
@@ -164,7 +164,7 @@ async fn fetch_firebase_keys_internal(
 
     let keys: Value = response.json().await?;
 
-    if !keys.is_object() || keys.as_object().map_or(true, |m| m.is_empty()) {
+    if !keys.is_object() || keys.as_object().is_none_or(|m| m.is_empty()) {
         return Err("Empty Firebase keys".into());
     }
 

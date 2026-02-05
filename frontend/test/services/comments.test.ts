@@ -90,7 +90,9 @@ describe("comments.ts", () => {
 
     it("should submit like and update count", async () => {
       const likeIcon = document.querySelector(".like-icon")!;
-      const likeCountSpan = document.querySelector(".like-count") as HTMLSpanElement;
+      const likeCountSpan = document.querySelector(
+        ".like-count",
+      ) as HTMLSpanElement;
 
       (globalThis.fetch as any).mockResolvedValue(
         mockFetchResponse(200, {
@@ -106,16 +108,22 @@ describe("comments.ts", () => {
 
     it("should handle missing commentId", async () => {
       const likeIcon = document.createElement("div");
-      const likeCountSpan = document.querySelector(".like-count") as HTMLSpanElement;
+      const likeCountSpan = document.querySelector(
+        ".like-count",
+      ) as HTMLSpanElement;
 
       await submitLike(likeIcon, likeCountSpan);
 
-      expect(log.error).toHaveBeenCalledWith("No comment ID found on like icon");
+      expect(log.error).toHaveBeenCalledWith(
+        "No comment ID found on like icon",
+      );
     });
 
     it("should handle unsuccessful response", async () => {
       const likeIcon = document.querySelector(".like-icon")!;
-      const likeCountSpan = document.querySelector(".like-count") as HTMLSpanElement;
+      const likeCountSpan = document.querySelector(
+        ".like-count",
+      ) as HTMLSpanElement;
 
       (globalThis.fetch as any).mockResolvedValue(
         mockFetchResponse(200, {
@@ -276,7 +284,9 @@ describe("comments.ts", () => {
         success: false,
       });
 
-      await expect(verifyAuthorInComment(mockApiService, "comment-123")).rejects.toThrow();
+      await expect(
+        verifyAuthorInComment(mockApiService, "comment-123"),
+      ).rejects.toThrow();
     });
 
     it("should show error when user is not the author", async () => {
@@ -285,13 +295,19 @@ describe("comments.ts", () => {
         data: { author_uid: "other-user" },
       });
 
-      await expect(verifyAuthorInComment(mockApiService, "comment-123")).rejects.toThrow();
+      await expect(
+        verifyAuthorInComment(mockApiService, "comment-123"),
+      ).rejects.toThrow();
     });
 
     it("should handle exceptions", async () => {
-      mockApiService.getCommentById.mockRejectedValue(new Error("Network error"));
+      mockApiService.getCommentById.mockRejectedValue(
+        new Error("Network error"),
+      );
 
-      await expect(verifyAuthorInComment(mockApiService, "comment-123")).rejects.toThrow("Network error");
+      await expect(
+        verifyAuthorInComment(mockApiService, "comment-123"),
+      ).rejects.toThrow("Network error");
     });
   });
 
@@ -303,9 +319,16 @@ describe("comments.ts", () => {
         data: { author_uid: "user-123" },
       });
 
-      await verifyAuthorInCommentReply(mockApiService, "comment-123", "reply-456");
+      await verifyAuthorInCommentReply(
+        mockApiService,
+        "comment-123",
+        "reply-456",
+      );
 
-      expect(mockApiService.getCommentReplyById).toHaveBeenCalledWith("comment-123", "reply-456");
+      expect(mockApiService.getCommentReplyById).toHaveBeenCalledWith(
+        "comment-123",
+        "reply-456",
+      );
       expect(toast.error).not.toHaveBeenCalled();
     });
 
@@ -315,7 +338,9 @@ describe("comments.ts", () => {
         data: { author_uid: "other-user" },
       });
 
-      await expect(verifyAuthorInCommentReply(mockApiService, "comment-123", "reply-456")).rejects.toThrow();
+      await expect(
+        verifyAuthorInCommentReply(mockApiService, "comment-123", "reply-456"),
+      ).rejects.toThrow();
     });
   });
 
@@ -351,7 +376,9 @@ describe("comments.ts", () => {
         data: { id: "reply-123" },
       });
 
-      const commentEl = document.querySelector("div[data-comment-id]") as HTMLElement;
+      const commentEl = document.querySelector(
+        "div[data-comment-id]",
+      ) as HTMLElement;
 
       await handleSubmitReply(mockApiService, commentEl, {});
 
@@ -364,7 +391,9 @@ describe("comments.ts", () => {
           url_img: "https://example.com/photo.jpg",
         }),
       );
-      expect(toast.success).toHaveBeenCalledWith("Respuesta añadida correctamente");
+      expect(toast.success).toHaveBeenCalledWith(
+        "Respuesta añadida correctamente",
+      );
       expect(mockLocation.reload).toHaveBeenCalled();
     });
 
@@ -374,7 +403,9 @@ describe("comments.ts", () => {
         error: "Error creating reply",
       });
 
-      const commentEl = document.querySelector("div[data-comment-id]") as HTMLElement;
+      const commentEl = document.querySelector(
+        "div[data-comment-id]",
+      ) as HTMLElement;
 
       await handleSubmitReply(mockApiService, commentEl, {});
 
@@ -387,7 +418,9 @@ describe("comments.ts", () => {
         currentUser: null,
       } as any);
 
-      const commentEl = document.querySelector("div[data-comment-id]") as HTMLElement;
+      const commentEl = document.querySelector(
+        "div[data-comment-id]",
+      ) as HTMLElement;
 
       await handleSubmitReply(mockApiService, commentEl, {});
 
@@ -396,10 +429,14 @@ describe("comments.ts", () => {
     });
 
     it("should show error when textarea is empty", async () => {
-      const textarea = document.querySelector(".reply-textarea") as HTMLTextAreaElement;
+      const textarea = document.querySelector(
+        ".reply-textarea",
+      ) as HTMLTextAreaElement;
       textarea.value = "   ";
 
-      const commentEl = document.querySelector("div[data-comment-id]") as HTMLElement;
+      const commentEl = document.querySelector(
+        "div[data-comment-id]",
+      ) as HTMLElement;
 
       await handleSubmitReply(mockApiService, commentEl, {});
 
@@ -443,7 +480,9 @@ describe("comments.ts", () => {
         error: "Comment not found",
       });
 
-      await expect(handleDeleteComment(mockApiService, "comment-123")).rejects.toThrow();
+      await expect(
+        handleDeleteComment(mockApiService, "comment-123"),
+      ).rejects.toThrow();
     });
 
     it("should throw error when user is not authorized", async () => {
@@ -452,7 +491,9 @@ describe("comments.ts", () => {
         data: { author_uid: "other-user" },
       });
 
-      await expect(handleDeleteComment(mockApiService, "comment-123")).rejects.toThrow();
+      await expect(
+        handleDeleteComment(mockApiService, "comment-123"),
+      ).rejects.toThrow();
     });
   });
 
@@ -476,7 +517,9 @@ describe("comments.ts", () => {
         data: { author_uid: "other-user" },
       });
 
-      await expect(handleEditComment(mockApiService, "comment-123")).rejects.toThrow();
+      await expect(
+        handleEditComment(mockApiService, "comment-123"),
+      ).rejects.toThrow();
     });
   });
 
@@ -491,9 +534,16 @@ describe("comments.ts", () => {
         success: true,
       });
 
-      const result = await handleDeleteReply(mockApiService, "comment-123", "reply-456");
+      const result = await handleDeleteReply(
+        mockApiService,
+        "comment-123",
+        "reply-456",
+      );
 
-      expect(mockApiService.deleteReply).toHaveBeenCalledWith("comment-123", "reply-456");
+      expect(mockApiService.deleteReply).toHaveBeenCalledWith(
+        "comment-123",
+        "reply-456",
+      );
       expect(result.success).toBe(true);
     });
 
@@ -507,7 +557,9 @@ describe("comments.ts", () => {
         error: "Reply not found",
       });
 
-      await expect(handleDeleteReply(mockApiService, "comment-123", "reply-456")).rejects.toThrow();
+      await expect(
+        handleDeleteReply(mockApiService, "comment-123", "reply-456"),
+      ).rejects.toThrow();
     });
   });
 
@@ -540,14 +592,26 @@ describe("comments.ts", () => {
     });
 
     it("should return null when content is empty", async () => {
-      const result = await handleEditReply(mockApiService, "comment-123", "reply-456", "", "Old content");
+      const result = await handleEditReply(
+        mockApiService,
+        "comment-123",
+        "reply-456",
+        "",
+        "Old content",
+      );
 
       expect(result).toBeNull();
       expect(mockApiService.editReply).not.toHaveBeenCalled();
     });
 
     it("should return null when content hasn't changed", async () => {
-      const result = await handleEditReply(mockApiService, "comment-123", "reply-456", "Same content", "Same content");
+      const result = await handleEditReply(
+        mockApiService,
+        "comment-123",
+        "reply-456",
+        "Same content",
+        "Same content",
+      );
 
       expect(result).toBeNull();
       expect(mockApiService.editReply).not.toHaveBeenCalled();
@@ -559,7 +623,13 @@ describe("comments.ts", () => {
       } as any);
 
       await expect(
-        handleEditReply(mockApiService, "comment-123", "reply-456", "New content", "Old content"),
+        handleEditReply(
+          mockApiService,
+          "comment-123",
+          "reply-456",
+          "New content",
+          "Old content",
+        ),
       ).rejects.toThrow();
     });
 
@@ -570,7 +640,13 @@ describe("comments.ts", () => {
       });
 
       await expect(
-        handleEditReply(mockApiService, "comment-123", "reply-456", "New content", "Old content"),
+        handleEditReply(
+          mockApiService,
+          "comment-123",
+          "reply-456",
+          "New content",
+          "Old content",
+        ),
       ).rejects.toThrow();
     });
   });

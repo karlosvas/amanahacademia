@@ -1,10 +1,10 @@
 use {
     async_trait::async_trait,
     axum::{
+        Json,
         extract::{FromRequest, Request},
         http::StatusCode,
         response::{IntoResponse, Response},
-        Json,
     },
     validator::{Validate, ValidationError},
 };

@@ -5,7 +5,7 @@ export class ApiError extends Error {
     public type: ApiErrorType,
     public message: string,
     public statusCode?: number,
-    public originalError?: Error
+    public originalError?: Error,
   ) {
     super(message);
     this.name = "ApiError";

@@ -9,7 +9,11 @@ import type { I18nTranslations, Lang } from "@/types/types";
 import { Languages } from "@/enums/enums";
 
 // Obtener la traduccion correspondiente al idioma selecionado
-export const getI18N = ({ lang = "es" }: { lang: string | undefined }): I18nTranslations => {
+export const getI18N = ({
+  lang = "es",
+}: {
+  lang: string | undefined;
+}): I18nTranslations => {
   if (lang === Languages.ENGLISH) return english as I18nTranslations;
   else if (lang === Languages.SPANISH) return spanish as I18nTranslations;
   else if (lang === Languages.FRENCH) return french as I18nTranslations;
@@ -37,7 +41,8 @@ export const labels_header: Record<
   en: {
     traductor: "Change language",
     identificationButton: "Log in to Amanah Academia",
-    legalLink: "Amanah Academia legal information page: License, Privacy Policy, and Terms and Conditions",
+    legalLink:
+      "Amanah Academia legal information page: License, Privacy Policy, and Terms and Conditions",
   },
   fr: {
     traductor: "Changer de langue",
@@ -54,7 +59,8 @@ export const labels_header: Record<
   ar: {
     traductor: "تغيير اللغة",
     identificationButton: "تسجيل الدخول إلى أكاديمية أمانة",
-    legalLink: "صفحة المعلومات القانونية لأكاديمية أمانة: الترخيص، سياسة الخصوصية والشروط والأحكام",
+    legalLink:
+      "صفحة المعلومات القانونية لأكاديمية أمانة: الترخيص، سياسة الخصوصية والشروط والأحكام",
   },
   it: {
     traductor: "Cambia lingua",
@@ -65,13 +71,22 @@ export const labels_header: Record<
   pt: {
     traductor: "Mudar idioma",
     identificationButton: "Entrar na Amanah Academia",
-    legalLink: "Página de informações legais da Amanah Academia: Licença, Política de Privacidade e Termos e Condições",
+    legalLink:
+      "Página de informações legais da Amanah Academia: Licença, Política de Privacidade e Termos e Condições",
   },
 };
 
 export const buttonsCommentTraductions: Record<
   string,
-  { edit: string; delete: string; reply: string; cancel: string; send: string; response: string; responses: string }
+  {
+    edit: string;
+    delete: string;
+    reply: string;
+    cancel: string;
+    send: string;
+    response: string;
+    responses: string;
+  }
 > = {
   es: {
     edit: "Editar",

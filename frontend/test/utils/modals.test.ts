@@ -111,7 +111,9 @@ describe("Modal Utilities", () => {
       // Setup default querySelector and querySelectorAll mocks
       document.querySelector = vi.fn(() => null) as any;
       document.getElementById = vi.fn(() => null) as any;
-      document.querySelectorAll = vi.fn(() => [] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [] as any as NodeListOf<Element>,
+      ) as any;
     });
 
     it("should set closing attribute on modal", () => {
@@ -235,7 +237,8 @@ describe("Modal Utilities", () => {
       Object.setPrototypeOf(mockFixedElement, HTMLElement.prototype);
 
       document.querySelectorAll = vi.fn((selector) => {
-        if (selector === ".fixed") return [mockFixedElement] as any as NodeListOf<Element>;
+        if (selector === ".fixed")
+          return [mockFixedElement] as any as NodeListOf<Element>;
         return [] as any as NodeListOf<Element>;
       }) as any;
 
@@ -253,7 +256,9 @@ describe("Modal Utilities", () => {
       // Setup default querySelector and querySelectorAll mocks
       document.querySelector = vi.fn(() => null) as any;
       document.getElementById = vi.fn(() => null) as any;
-      document.querySelectorAll = vi.fn(() => [] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [] as any as NodeListOf<Element>,
+      ) as any;
     });
 
     it("should show modal with background when background=true", () => {
@@ -392,7 +397,8 @@ describe("Modal Utilities", () => {
       Object.setPrototypeOf(mockFixedElement, HTMLElement.prototype);
 
       document.querySelectorAll = vi.fn((selector) => {
-        if (selector === ".fixed") return [mockFixedElement] as any as NodeListOf<Element>;
+        if (selector === ".fixed")
+          return [mockFixedElement] as any as NodeListOf<Element>;
         return [] as any as NodeListOf<Element>;
       }) as any;
 
@@ -448,7 +454,9 @@ describe("Modal Utilities", () => {
 
   describe("closeModalsEvents", () => {
     beforeEach(() => {
-      document.querySelectorAll = vi.fn(() => [] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [] as any as NodeListOf<Element>,
+      ) as any;
     });
 
     it("should add mousedown event listener to document", () => {
@@ -456,7 +464,10 @@ describe("Modal Utilities", () => {
 
       closeModalsEvents();
 
-      expect(addEventListenerSpy).toHaveBeenCalledWith("mousedown", expect.any(Function));
+      expect(addEventListenerSpy).toHaveBeenCalledWith(
+        "mousedown",
+        expect.any(Function),
+      );
     });
 
     it("should add cancel event listener to all dialogs", () => {
@@ -465,18 +476,24 @@ describe("Modal Utilities", () => {
       } as any;
 
       document.querySelectorAll = vi.fn((selector) => {
-        if (selector === "dialog") return [mockDialog] as any as NodeListOf<Element>;
+        if (selector === "dialog")
+          return [mockDialog] as any as NodeListOf<Element>;
         return [] as any as NodeListOf<Element>;
       }) as any;
 
       closeModalsEvents();
 
-      expect(mockDialog.addEventListener).toHaveBeenCalledWith("cancel", expect.any(Function));
+      expect(mockDialog.addEventListener).toHaveBeenCalledWith(
+        "cancel",
+        expect.any(Function),
+      );
     });
 
     it("should close modal when clicking on embla__container", async () => {
       const mockForm = { reset: vi.fn() } as any;
-      const mockCarousel = { classList: { contains: vi.fn(() => true) } } as any;
+      const mockCarousel = {
+        classList: { contains: vi.fn(() => true) },
+      } as any;
       Object.setPrototypeOf(mockCarousel, HTMLElement.prototype);
 
       const mockModalLocal = {
@@ -551,7 +568,10 @@ describe("Modal Utilities", () => {
 
       closeModalsEvents();
 
-      expect(addEventListenerSpy).toHaveBeenCalledWith("mousedown", expect.any(Function));
+      expect(addEventListenerSpy).toHaveBeenCalledWith(
+        "mousedown",
+        expect.any(Function),
+      );
     });
 
     it("should close modal when clicking on close button with aria-label", async () => {
@@ -659,7 +679,8 @@ describe("Modal Utilities", () => {
       });
 
       document.querySelectorAll = vi.fn((selector) => {
-        if (selector === "dialog") return [mockDialog] as any as NodeListOf<Element>;
+        if (selector === "dialog")
+          return [mockDialog] as any as NodeListOf<Element>;
         if (selector === ".fixed") return [] as any as NodeListOf<Element>;
         return [] as any as NodeListOf<Element>;
       }) as any;
@@ -684,7 +705,9 @@ describe("Modal Utilities", () => {
 
   describe("startCalScrollManagement", () => {
     beforeEach(async () => {
-      document.querySelectorAll = vi.fn(() => [] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [] as any as NodeListOf<Element>,
+      ) as any;
       // Limpiar estilos del body
       document.body.style.overflow = "";
       document.body.style.position = "";
@@ -722,7 +745,9 @@ describe("Modal Utilities", () => {
 
       // Primer intervalo
       const mockModalBox1 = { style: { visibility: "visible" } } as any;
-      document.querySelectorAll = vi.fn(() => [mockModalBox1] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [mockModalBox1] as any as NodeListOf<Element>,
+      ) as any;
 
       const { startCalScrollManagement } = await import("@/utils/modals");
       startCalScrollManagement();
@@ -741,7 +766,9 @@ describe("Modal Utilities", () => {
     it("should do nothing when no cal-modal-box elements exist", async () => {
       vi.useFakeTimers();
 
-      document.querySelectorAll = vi.fn(() => [] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [] as any as NodeListOf<Element>,
+      ) as any;
 
       const { startCalScrollManagement } = await import("@/utils/modals");
       startCalScrollManagement();
@@ -769,7 +796,9 @@ describe("Modal Utilities", () => {
         style: { visibility: "hidden" }, // Start with modal hidden
       } as any;
 
-      document.querySelectorAll = vi.fn(() => [mockModalBox] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [mockModalBox] as any as NodeListOf<Element>,
+      ) as any;
 
       // Clear any previous intervals
       vi.clearAllTimers();
@@ -810,7 +839,9 @@ describe("Modal Utilities", () => {
       const mockModalBox1 = { style: { visibility: "hidden" } } as any;
       const mockModalBox2 = { style: { visibility: "hidden" } } as any;
 
-      document.querySelectorAll = vi.fn(() => [mockModalBox1, mockModalBox2] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [mockModalBox1, mockModalBox2] as any as NodeListOf<Element>,
+      ) as any;
 
       const { startCalScrollManagement } = await import("@/utils/modals");
       startCalScrollManagement();
@@ -842,7 +873,9 @@ describe("Modal Utilities", () => {
         style: { visibility: "hidden" },
       } as any;
 
-      document.querySelectorAll = vi.fn(() => [mockModalBox] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [mockModalBox] as any as NodeListOf<Element>,
+      ) as any;
 
       const { startCalScrollManagement } = await import("@/utils/modals");
       startCalScrollManagement();
@@ -872,7 +905,9 @@ describe("Modal Utilities", () => {
         style: { visibility: "hidden" },
       } as any;
 
-      document.querySelectorAll = vi.fn(() => [mockModalBox] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [mockModalBox] as any as NodeListOf<Element>,
+      ) as any;
 
       const { startCalScrollManagement } = await import("@/utils/modals");
       startCalScrollManagement();
@@ -898,7 +933,9 @@ describe("Modal Utilities", () => {
         style: { visibility: "hidden" },
       } as any;
 
-      document.querySelectorAll = vi.fn(() => [mockModalBox] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [mockModalBox] as any as NodeListOf<Element>,
+      ) as any;
 
       const { startCalScrollManagement } = await import("@/utils/modals");
       startCalScrollManagement();
@@ -946,7 +983,9 @@ describe("Modal Utilities", () => {
       // Setup default querySelector and querySelectorAll mocks
       document.querySelector = vi.fn(() => null) as any;
       document.getElementById = vi.fn(() => null) as any;
-      document.querySelectorAll = vi.fn(() => [] as any as NodeListOf<Element>) as any;
+      document.querySelectorAll = vi.fn(
+        () => [] as any as NodeListOf<Element>,
+      ) as any;
     });
 
     it("should open modal with form when both exist", () => {
@@ -989,7 +1028,9 @@ describe("Modal Utilities", () => {
 
       openCommentModal("non-existent-modal", false);
 
-      expect(document.getElementById).toHaveBeenCalledWith("non-existent-modal");
+      expect(document.getElementById).toHaveBeenCalledWith(
+        "non-existent-modal",
+      );
     });
 
     it("should not call showModalAnimation if form does not exist", () => {

@@ -11,7 +11,10 @@ export async function GET({ request }: { request: Request }) {
     "ES"; // 4. Valor por defecto
 
   // También puedes detectar si estás en desarrollo
-  const isDevelopment = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname.includes("local");
+  const isDevelopment =
+    url.hostname === "localhost" ||
+    url.hostname === "127.0.0.1" ||
+    url.hostname.includes("local");
 
   // Países con mayor nivel de vida
   const highIncomeCountries = [

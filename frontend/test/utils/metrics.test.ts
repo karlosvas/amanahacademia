@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { parseUsersMetricData, parseArticleMetricData, parseClassMetricData, mapToMonths } from "@/utils/metrics";
+import {
+  parseUsersMetricData,
+  parseArticleMetricData,
+  parseClassMetricData,
+  mapToMonths,
+} from "@/utils/metrics";
 import type { MetricData } from "@/types/types";
 
 describe("Metrics Utilities", () => {

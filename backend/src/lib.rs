@@ -3,7 +3,7 @@ pub mod middleware;
 pub mod models;
 pub mod routes;
 pub mod services;
-pub mod validations;
+pub mod utils;
 
 // Test helpers (fixtures compartidos)
 #[cfg(test)]

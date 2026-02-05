@@ -150,13 +150,25 @@ describe("firebase.ts", () => {
     });
 
     it("should toggle from login to register when isRegister is false", () => {
-      const result = toggleLoginToRegister(authModalLogin, authModalRegister, formLogin, formRegister, false);
+      const result = toggleLoginToRegister(
+        authModalLogin,
+        authModalRegister,
+        formLogin,
+        formRegister,
+        false,
+      );
 
       expect(result).toBe(true);
     });
 
     it("should toggle from register to login when isRegister is true", () => {
-      const result = toggleLoginToRegister(authModalLogin, authModalRegister, formLogin, formRegister, true);
+      const result = toggleLoginToRegister(
+        authModalLogin,
+        authModalRegister,
+        formLogin,
+        formRegister,
+        true,
+      );
 
       expect(result).toBe(false);
     });
@@ -164,13 +176,25 @@ describe("firebase.ts", () => {
     it("should reset the form when toggling", () => {
       const resetSpy = vi.spyOn(formRegister, "reset");
 
-      toggleLoginToRegister(authModalLogin, authModalRegister, formLogin, formRegister, false);
+      toggleLoginToRegister(
+        authModalLogin,
+        authModalRegister,
+        formLogin,
+        formRegister,
+        false,
+      );
 
       expect(resetSpy).toHaveBeenCalled();
     });
 
     it("should close the hide modal", () => {
-      toggleLoginToRegister(authModalLogin, authModalRegister, formLogin, formRegister, false);
+      toggleLoginToRegister(
+        authModalLogin,
+        authModalRegister,
+        formLogin,
+        formRegister,
+        false,
+      );
 
       expect(authModalLogin.close).toHaveBeenCalled();
     });
@@ -178,10 +202,22 @@ describe("firebase.ts", () => {
     it("should handle multiple toggles correctly", () => {
       let isRegister = false;
 
-      isRegister = toggleLoginToRegister(authModalLogin, authModalRegister, formLogin, formRegister, isRegister);
+      isRegister = toggleLoginToRegister(
+        authModalLogin,
+        authModalRegister,
+        formLogin,
+        formRegister,
+        isRegister,
+      );
       expect(isRegister).toBe(true);
 
-      isRegister = toggleLoginToRegister(authModalLogin, authModalRegister, formLogin, formRegister, isRegister);
+      isRegister = toggleLoginToRegister(
+        authModalLogin,
+        authModalRegister,
+        formLogin,
+        formRegister,
+        isRegister,
+      );
       expect(isRegister).toBe(false);
     });
   });
@@ -375,7 +411,11 @@ describe("firebase.ts", () => {
       // Simulate click
       if (identificationButton.onclick) {
         identificationButton.onclick(new PointerEvent("click"));
-        expect(showModalAnimation).toHaveBeenCalledWith(authModalLogin, formLogin, true);
+        expect(showModalAnimation).toHaveBeenCalledWith(
+          authModalLogin,
+          formLogin,
+          true,
+        );
       }
     });
 
@@ -506,7 +546,9 @@ describe("firebase.ts", () => {
     let mockAddField: any;
 
     beforeEach(async () => {
-      const { executeTurnstileIfPresent } = await import("@/services/claudflare");
+      const { executeTurnstileIfPresent } = await import(
+        "@/services/claudflare"
+      );
       const { signInWithEmailAndPassword } = await import("firebase/auth");
 
       vi.mocked(executeTurnstileIfPresent).mockClear();
@@ -575,7 +617,13 @@ describe("firebase.ts", () => {
     });
 
     it("should setup validation with email and password fields for login", () => {
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#test-form",
+        false,
+        errorMessage,
+      );
 
       expect(mockAddField).toHaveBeenCalledWith(
         '[name="email"]',
@@ -594,7 +642,13 @@ describe("firebase.ts", () => {
     });
 
     it("should setup additional validation fields for register", () => {
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", true, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#test-form",
+        true,
+        errorMessage,
+      );
 
       expect(mockAddField).toHaveBeenCalledWith(
         '[name="name"]',
@@ -611,14 +665,26 @@ describe("firebase.ts", () => {
     });
 
     it("should call onSuccess to register success callback", () => {
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#test-form",
+        false,
+        errorMessage,
+      );
 
       expect(mockOnSuccess).toHaveBeenCalled();
       expect(typeof mockOnSuccess.mock.calls[0][0]).toBe("function");
     });
 
     it("should call preventDefault on form submission", async () => {
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#test-form",
+        false,
+        errorMessage,
+      );
 
       const onSuccessCallback = mockOnSuccess.mock.calls[0][0];
       const mockEvent = {
@@ -634,7 +700,13 @@ describe("firebase.ts", () => {
     });
 
     it("should create FormData from event target", async () => {
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#test-form",
+        false,
+        errorMessage,
+      );
 
       const onSuccessCallback = mockOnSuccess.mock.calls[0][0];
       const mockEvent = {
@@ -664,7 +736,13 @@ describe("firebase.ts", () => {
       const firebaseAuthModule = await import("firebase/auth");
       const toastModule = await import("solid-toast");
 
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#test-form",
+        false,
+        errorMessage,
+      );
 
       // Verify onSuccess was called
       expect(mockOnSuccess).toHaveBeenCalled();
@@ -680,12 +758,12 @@ describe("firebase.ts", () => {
       await promise;
       await vi.runAllTimersAsync();
 
-      expect(claudflareModule.executeTurnstileIfPresent).toHaveBeenCalledWith(form);
-      expect(firebaseAuthModule.signInWithEmailAndPassword).toHaveBeenCalledWith(
-        expect.anything(),
-        "test@test.com",
-        "password123",
+      expect(claudflareModule.executeTurnstileIfPresent).toHaveBeenCalledWith(
+        form,
       );
+      expect(
+        firebaseAuthModule.signInWithEmailAndPassword,
+      ).toHaveBeenCalledWith(expect.anything(), "test@test.com", "password123");
       expect(modal.close).toHaveBeenCalled();
       expect(toastModule.default.success).toHaveBeenCalled();
       expect(loading.classList.contains("hidden")).toBe(true);
@@ -700,11 +778,21 @@ describe("firebase.ts", () => {
       const originalApiService = helperModule.ApiService;
 
       (helperModule as any).ApiService = class {
-        loginUser = vi.fn().mockResolvedValue({ success: false, error: "Invalid credentials" });
-        registerUser = vi.fn().mockResolvedValue({ success: false, error: "User exists" });
+        loginUser = vi
+          .fn()
+          .mockResolvedValue({ success: false, error: "Invalid credentials" });
+        registerUser = vi
+          .fn()
+          .mockResolvedValue({ success: false, error: "User exists" });
       };
 
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#test-form",
+        false,
+        errorMessage,
+      );
 
       const onSuccessCallback = mockOnSuccess.mock.calls[0][0];
       const mockEvent = {
@@ -722,7 +810,13 @@ describe("firebase.ts", () => {
     });
 
     it("should handle form not found error", async () => {
-      submitFormToRegisterOrLogin(modal, loading, "#nonexistent", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#nonexistent",
+        false,
+        errorMessage,
+      );
 
       const onSuccessCallback = mockOnSuccess.mock.calls[0][0];
       const mockEvent = {
@@ -738,10 +832,20 @@ describe("firebase.ts", () => {
     });
 
     it("should handle DOMException network errors", async () => {
-      const { executeTurnstileIfPresent } = await import("@/services/claudflare");
-      vi.mocked(executeTurnstileIfPresent).mockRejectedValueOnce(new DOMException("Network error"));
+      const { executeTurnstileIfPresent } = await import(
+        "@/services/claudflare"
+      );
+      vi.mocked(executeTurnstileIfPresent).mockRejectedValueOnce(
+        new DOMException("Network error"),
+      );
 
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#test-form",
+        false,
+        errorMessage,
+      );
 
       const onSuccessCallback = mockOnSuccess.mock.calls[0][0];
       const mockEvent = {
@@ -757,10 +861,20 @@ describe("firebase.ts", () => {
     });
 
     it("should handle generic errors", async () => {
-      const { executeTurnstileIfPresent } = await import("@/services/claudflare");
-      vi.mocked(executeTurnstileIfPresent).mockRejectedValueOnce(new Error("Generic error"));
+      const { executeTurnstileIfPresent } = await import(
+        "@/services/claudflare"
+      );
+      vi.mocked(executeTurnstileIfPresent).mockRejectedValueOnce(
+        new Error("Generic error"),
+      );
 
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#test-form",
+        false,
+        errorMessage,
+      );
 
       const onSuccessCallback = mockOnSuccess.mock.calls[0][0];
       const mockEvent = {
@@ -777,7 +891,13 @@ describe("firebase.ts", () => {
 
     it("should extract form ID correctly with and without # prefix", () => {
       // Test with # prefix
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#test-form",
+        false,
+        errorMessage,
+      );
       let onSuccessCallback = mockOnSuccess.mock.calls[0][0];
 
       expect(onSuccessCallback).toBeDefined();
@@ -787,7 +907,13 @@ describe("firebase.ts", () => {
       vi.clearAllMocks();
 
       // Test without # prefix
-      submitFormToRegisterOrLogin(modal, loading, "test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "test-form",
+        false,
+        errorMessage,
+      );
       onSuccessCallback = mockOnSuccess.mock.calls[0][0];
 
       expect(onSuccessCallback).toBeDefined();
@@ -806,7 +932,13 @@ describe("firebase.ts", () => {
       };
       (globalThis as any).JustValidate = JustValidateSpy;
 
-      submitFormToRegisterOrLogin(modal, loading, "#test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "#test-form",
+        false,
+        errorMessage,
+      );
 
       expect(constructorCalls[0][0]).toBe("#test-form");
       expect(constructorCalls[0][1]).toMatchObject({
@@ -830,7 +962,13 @@ describe("firebase.ts", () => {
       };
       (globalThis as any).JustValidate = JustValidateSpy;
 
-      submitFormToRegisterOrLogin(modal, loading, "test-form", false, errorMessage);
+      submitFormToRegisterOrLogin(
+        modal,
+        loading,
+        "test-form",
+        false,
+        errorMessage,
+      );
 
       expect(constructorCalls[0][0]).toBe("test-form");
       expect(constructorCalls[0][1]).toMatchObject({
@@ -880,7 +1018,12 @@ describe("firebase.ts", () => {
       vi.useFakeTimers();
       const { log } = await import("@/services/logger");
 
-      const promise = handleLogGoogleProvider(modal, formHTML, false, loginError);
+      const promise = handleLogGoogleProvider(
+        modal,
+        formHTML,
+        false,
+        loginError,
+      );
 
       await vi.runAllTimersAsync();
       await promise;
@@ -939,8 +1082,12 @@ describe("firebase.ts", () => {
       const originalApiService = helperModule.ApiService;
 
       (helperModule as any).ApiService = class {
-        loginUser = vi.fn().mockResolvedValue({ success: false, error: "User not found" });
-        registerUser = vi.fn().mockResolvedValue({ success: false, error: "User already exists" });
+        loginUser = vi
+          .fn()
+          .mockResolvedValue({ success: false, error: "User not found" });
+        registerUser = vi
+          .fn()
+          .mockResolvedValue({ success: false, error: "User already exists" });
       };
 
       await handleLogGoogleProvider(modal, formHTML, false, loginError);
@@ -958,7 +1105,10 @@ describe("firebase.ts", () => {
 
       await handleLogGoogleProvider(modal, formHTML, false, loginError);
 
-      expect(log.error).toHaveBeenCalledWith(expect.stringContaining("Error"), expect.any(Error));
+      expect(log.error).toHaveBeenCalledWith(
+        expect.stringContaining("Error"),
+        expect.any(Error),
+      );
       expect(loginError.classList.contains("hidden")).toBe(false);
     });
 
@@ -967,8 +1117,12 @@ describe("firebase.ts", () => {
 
       await handleLogGoogleProvider(modal, formHTML, true, loginError);
 
-      expect(log.info).toHaveBeenCalledWith(expect.stringContaining("Iniciando"));
-      expect(log.info).toHaveBeenCalledWith(expect.stringContaining("Abriendo popup"));
+      expect(log.info).toHaveBeenCalledWith(
+        expect.stringContaining("Iniciando"),
+      );
+      expect(log.info).toHaveBeenCalledWith(
+        expect.stringContaining("Abriendo popup"),
+      );
     });
   });
 });

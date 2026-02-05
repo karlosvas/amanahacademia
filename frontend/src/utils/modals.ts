@@ -1,5 +1,8 @@
 // Cerrar el modal con animación
-export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElement | null = null) {
+export function closeModalAnimation(
+  modal: HTMLDialogElement,
+  form: HTMLFormElement | null = null,
+) {
   modal.setAttribute("closing", "");
 
   modal.addEventListener(
@@ -52,24 +55,32 @@ export function closeModalAnimation(modal: HTMLDialogElement, form: HTMLFormElem
         });
       }
     },
-    { once: true }
+    { once: true },
   );
   form?.reset();
 }
 
 // Abrir el modal
-export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormElement | null, background: boolean) {
+export function showModalAnimation(
+  modal: HTMLDialogElement,
+  form: HTMLFormElement | null,
+  background: boolean,
+) {
   // Guardar la posición actual del scroll antes de bloquear el scroll
   const scrollY = globalThis.scrollY || globalThis.pageYOffset;
   modal.dataset.scrollPosition = scrollY.toString();
 
   // Calcular el ancho de la scrollbar para evitar el salto de contenido
-  const scrollbarWidth = globalThis.innerWidth - document.documentElement.clientWidth;
+  const scrollbarWidth =
+    globalThis.innerWidth - document.documentElement.clientWidth;
 
   // Compensar el ancho de la scrollbar para evitar el salto de contenido
   if (scrollbarWidth > 0 && background) {
     // Guardar y sumar el padding original del body
-    const bodyPaddingRight = Number.parseInt(globalThis.getComputedStyle(document.body).paddingRight) || 0;
+    const bodyPaddingRight =
+      Number.parseInt(
+        globalThis.getComputedStyle(document.body).paddingRight,
+      ) || 0;
     document.body.style.paddingRight = `${bodyPaddingRight + scrollbarWidth}px`;
 
     // Para el header: fijar su ancho ANTES de que el viewport cambie
@@ -93,7 +104,8 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
     const fixedElements = document.querySelectorAll(".fixed");
     fixedElements.forEach((el) => {
       if (el instanceof HTMLElement) {
-        const currentPadding = Number.parseInt(globalThis.getComputedStyle(el).paddingRight) || 0;
+        const currentPadding =
+          Number.parseInt(globalThis.getComputedStyle(el).paddingRight) || 0;
         el.style.paddingRight = `${currentPadding + scrollbarWidth}px`;
         // Guardar el padding original como data attribute
         el.dataset.originalPadding = currentPadding.toString();
@@ -112,7 +124,8 @@ export function showModalAnimation(modal: HTMLDialogElement, form: HTMLFormEleme
     const firstInput = form.querySelector("input, select, textarea, button");
     if (firstInput && firstInput instanceof HTMLElement) firstInput.focus();
   } else {
-    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    if (document.activeElement instanceof HTMLElement)
+      document.activeElement.blur();
   }
 
   // Después de la animación, quitar la clase de apertura
@@ -219,7 +232,10 @@ export function hideBanner() {
 }
 
 // Para abrir el modal
-export function openCommentModal(idCommentShared: string, isEdit: boolean = false) {
+export function openCommentModal(
+  idCommentShared: string,
+  isEdit: boolean = false,
+) {
   const modal = document.getElementById(idCommentShared) as HTMLDialogElement;
   const form = modal?.querySelector("form") as HTMLFormElement;
 

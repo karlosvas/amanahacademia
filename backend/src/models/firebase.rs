@@ -219,7 +219,7 @@ impl FirebaseAdminLookupResponse {
                     custom_auth: auth_user.custom_auth,
                     // Datos de nuestra DB (con defaults si no existe)
                     role: db_user.and_then(|db| db.role.clone()),
-                    first_free_class: db_user.map_or(false, |db| db.first_free_class),
+                    first_free_class: db_user.is_some_and(|db| db.first_free_class),
                     subscription_tier: db_user.and_then(|db| db.subscription_tier.clone()),
                     permissions: db_user
                         .and_then(|db| db.permissions.clone().map(|set| set.into_iter().collect())),

@@ -111,7 +111,9 @@ describe("Cookie Utilities", () => {
     });
 
     it("should return default language when cookie value is invalid", () => {
-      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
       cookieStore["langCookie"] = "invalid_lang";
       const lang = getLangFromCookie();
       expect(lang).toBe("es");
@@ -124,7 +126,9 @@ describe("Cookie Utilities", () => {
     });
 
     it("should handle XSS attempts in cookie value", () => {
-      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
       cookieStore["langCookie"] = "<script>alert('xss')</script>";
       const lang = getLangFromCookie();
       expect(lang).toBe("es");
@@ -133,7 +137,9 @@ describe("Cookie Utilities", () => {
     });
 
     it("should handle path traversal attempts in cookie value", () => {
-      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
       cookieStore["langCookie"] = "../../../etc/passwd";
       const lang = getLangFromCookie();
       expect(lang).toBe("es");
@@ -165,7 +171,9 @@ describe("Cookie Utilities", () => {
     });
 
     it("should reject invalid values with slashes", () => {
-      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
       writeLangCookie("en/test" as Languages);
       expect(consoleWarnSpy).toHaveBeenCalled();
       expect(cookieStore["langCookie"]).toBeUndefined();
@@ -173,7 +181,9 @@ describe("Cookie Utilities", () => {
     });
 
     it("should reject invalid values with dots", () => {
-      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
       writeLangCookie("en.test" as Languages);
       expect(consoleWarnSpy).toHaveBeenCalled();
       consoleWarnSpy.mockRestore();

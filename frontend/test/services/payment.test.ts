@@ -1,5 +1,19 @@
-import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from "vitest";
-import { showError, successPayment, clearMessages, initializePrice, initializeStripe } from "@/services/payment";
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  type Mock,
+} from "vitest";
+import {
+  showError,
+  successPayment,
+  clearMessages,
+  initializePrice,
+  initializeStripe,
+} from "@/services/payment";
 import { ApiService } from "@/services/helper";
 import { FrontendStripe, getErrorFrontStripe } from "@/enums/enums";
 import { getPrice } from "@/services/calendar";
@@ -206,11 +220,20 @@ describe("payment.ts", () => {
 
       mockApiService.getBookingById.mockResolvedValue(mockBooking);
       mockApiService.createBooking.mockResolvedValue({ success: true });
-      mockApiService.saveCalStripeConnection.mockResolvedValue({ success: true });
+      mockApiService.saveCalStripeConnection.mockResolvedValue({
+        success: true,
+      });
 
       const paymentIntent = { id: "pi_123" };
 
-      await successPayment(mockApiService, paymentIntent, "booking-123", "accepted", "group-class", "new@test.com");
+      await successPayment(
+        mockApiService,
+        paymentIntent,
+        "booking-123",
+        "accepted",
+        "group-class",
+        "new@test.com",
+      );
 
       expect(mockApiService.getBookingById).toHaveBeenCalledWith("booking-123");
       expect(mockApiService.createBooking).toHaveBeenCalledWith({
@@ -230,7 +253,14 @@ describe("payment.ts", () => {
       const paymentIntent = { id: "pi_123" };
 
       await expect(
-        successPayment(mockApiService, paymentIntent, "booking-123", "accepted", "group-class", "new@test.com"),
+        successPayment(
+          mockApiService,
+          paymentIntent,
+          "booking-123",
+          "accepted",
+          "group-class",
+          "new@test.com",
+        ),
       ).rejects.toThrow("Error to get booking");
     });
 
@@ -250,13 +280,22 @@ describe("payment.ts", () => {
       const paymentIntent = { id: "pi_123" };
 
       await expect(
-        successPayment(mockApiService, paymentIntent, "booking-123", "accepted", "group-class", "new@test.com"),
+        successPayment(
+          mockApiService,
+          paymentIntent,
+          "booking-123",
+          "accepted",
+          "group-class",
+          "new@test.com",
+        ),
       ).rejects.toThrow("Error to update booking");
     });
 
     it("should confirm booking if status is not accepted", async () => {
       mockApiService.confirmBooking.mockResolvedValue({ success: true });
-      mockApiService.saveCalStripeConnection.mockResolvedValue({ success: true });
+      mockApiService.saveCalStripeConnection.mockResolvedValue({
+        success: true,
+      });
 
       const paymentIntent = { id: "pi_123" };
 
@@ -273,7 +312,9 @@ describe("payment.ts", () => {
     });
 
     it("should not confirm booking if status is accepted", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({ success: true });
+      mockApiService.saveCalStripeConnection.mockResolvedValue({
+        success: true,
+      });
 
       const paymentIntent = { id: "pi_123" };
 
@@ -295,12 +336,21 @@ describe("payment.ts", () => {
       const paymentIntent = { id: "pi_123" };
 
       await expect(
-        successPayment(mockApiService, paymentIntent, "booking-123", "pending", "individual-class", "test@test.com"),
+        successPayment(
+          mockApiService,
+          paymentIntent,
+          "booking-123",
+          "pending",
+          "individual-class",
+          "test@test.com",
+        ),
       ).rejects.toThrow("Error to confirm booking");
     });
 
     it("should save cal-stripe connection", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({ success: true });
+      mockApiService.saveCalStripeConnection.mockResolvedValue({
+        success: true,
+      });
 
       const paymentIntent = { id: "pi_123" };
 
@@ -320,17 +370,28 @@ describe("payment.ts", () => {
     });
 
     it("should throw error if saving connection fails", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({ success: false });
+      mockApiService.saveCalStripeConnection.mockResolvedValue({
+        success: false,
+      });
 
       const paymentIntent = { id: "pi_123" };
 
       await expect(
-        successPayment(mockApiService, paymentIntent, "booking-123", "accepted", "individual-class", "test@test.com"),
+        successPayment(
+          mockApiService,
+          paymentIntent,
+          "booking-123",
+          "accepted",
+          "individual-class",
+          "test@test.com",
+        ),
       ).rejects.toThrow("Error to save relation");
     });
 
     it("should clear error message on success", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({ success: true });
+      mockApiService.saveCalStripeConnection.mockResolvedValue({
+        success: true,
+      });
 
       const errorDiv = document.getElementById("error-message")!;
       errorDiv.textContent = "Some error";
@@ -351,7 +412,9 @@ describe("payment.ts", () => {
     });
 
     it("should send gtag event if gtag is available", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({ success: true });
+      mockApiService.saveCalStripeConnection.mockResolvedValue({
+        success: true,
+      });
 
       const paymentIntent = { id: "pi_123" };
 
@@ -365,12 +428,18 @@ describe("payment.ts", () => {
       );
 
       if (typeof globalThis !== "undefined" && (globalThis as any).gtag) {
-        expect((globalThis as any).gtag).toHaveBeenCalledWith("event", "class_booking", { bookingUid: "booking-123" });
+        expect((globalThis as any).gtag).toHaveBeenCalledWith(
+          "event",
+          "class_booking",
+          { bookingUid: "booking-123" },
+        );
       }
     });
 
     it("should redirect to success page after 2 seconds", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({ success: true });
+      mockApiService.saveCalStripeConnection.mockResolvedValue({
+        success: true,
+      });
 
       const paymentIntent = { id: "pi_123" };
 
@@ -426,7 +495,9 @@ describe("payment.ts", () => {
 
       expect(result).toBeUndefined();
       const errorDiv = document.getElementById("error-message");
-      expect(errorDiv?.textContent).toBe(getErrorFrontStripe(FrontendStripe.MISSING_SLUG));
+      expect(errorDiv?.textContent).toBe(
+        getErrorFrontStripe(FrontendStripe.MISSING_SLUG),
+      );
     });
 
     it("should show error if fetch fails", async () => {
@@ -439,7 +510,9 @@ describe("payment.ts", () => {
 
       expect(result).toBeUndefined();
       const errorDiv = document.getElementById("error-message");
-      expect(errorDiv?.textContent).toBe(getErrorFrontStripe(FrontendStripe.PRICING_FETCH_ERROR));
+      expect(errorDiv?.textContent).toBe(
+        getErrorFrontStripe(FrontendStripe.PRICING_FETCH_ERROR),
+      );
     });
 
     it("should show error if pricing element not found", async () => {
@@ -454,7 +527,9 @@ describe("payment.ts", () => {
 
       expect(result).toBeUndefined();
       const errorDiv = document.getElementById("error-message");
-      expect(errorDiv?.textContent).toBe(getErrorFrontStripe(FrontendStripe.PRICING_ELEMENT_NOT_FOUND));
+      expect(errorDiv?.textContent).toBe(
+        getErrorFrontStripe(FrontendStripe.PRICING_ELEMENT_NOT_FOUND),
+      );
     });
 
     it("should set pricing element text and return pricing", async () => {
@@ -475,7 +550,9 @@ describe("payment.ts", () => {
 
       expect(result).toBeUndefined();
       const errorDiv = document.getElementById("error-message");
-      expect(errorDiv?.textContent).toBe(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
+      expect(errorDiv?.textContent).toBe(
+        getErrorFrontStripe(FrontendStripe.GENERIC_ERROR),
+      );
     });
   });
 
@@ -500,7 +577,9 @@ describe("payment.ts", () => {
       const result = await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
 
       if (typeof globalThis !== "undefined") {
-        expect((globalThis as any).Stripe).toHaveBeenCalledWith(STRIPE_PUBLIC_KEY);
+        expect((globalThis as any).Stripe).toHaveBeenCalledWith(
+          STRIPE_PUBLIC_KEY,
+        );
       }
       expect(mockApiService.checkout).toHaveBeenCalledWith({
         amount: 5000,
@@ -575,12 +654,16 @@ describe("payment.ts", () => {
         data: { client_secret: "cs_test_123" },
       });
 
-      const submitButton = document.getElementById("submit-button") as HTMLButtonElement;
+      const submitButton = document.getElementById(
+        "submit-button",
+      ) as HTMLButtonElement;
       submitButton.disabled = true;
 
       await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
 
-      const updatedSubmitButton = document.getElementById("submit-button") as HTMLButtonElement;
+      const updatedSubmitButton = document.getElementById(
+        "submit-button",
+      ) as HTMLButtonElement;
       expect(updatedSubmitButton.disabled).toBe(false);
     });
 
@@ -592,7 +675,10 @@ describe("payment.ts", () => {
 
       await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
 
-      expect(mockPaymentElement.on).toHaveBeenCalledWith("change", expect.any(Function));
+      expect(mockPaymentElement.on).toHaveBeenCalledWith(
+        "change",
+        expect.any(Function),
+      );
 
       const changeHandler = mockPaymentElement.on.mock.calls[0][1];
 
@@ -631,10 +717,12 @@ describe("payment.ts", () => {
       const fakeLoading = { style: undefined };
 
       const originalQuerySelector = document.querySelector.bind(document);
-      vi.spyOn(document, "querySelector").mockImplementation((selector: string) => {
-        if (selector === ".loading") return fakeLoading as any;
-        return originalQuerySelector(selector);
-      });
+      vi.spyOn(document, "querySelector").mockImplementation(
+        (selector: string) => {
+          if (selector === ".loading") return fakeLoading as any;
+          return originalQuerySelector(selector);
+        },
+      );
 
       const result = await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
 

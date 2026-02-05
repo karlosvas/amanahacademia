@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use {
-        crate::validations::validations::{ValidatedJson, validate_non_whitespace},
+        crate::utils::validations::{ValidatedJson, validate_non_whitespace},
         axum::{
             Json, Router,
             body::Body,

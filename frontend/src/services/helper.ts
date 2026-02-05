@@ -28,7 +28,8 @@ export class ApiService {
   private readonly RETRY_DELAY = 500;
 
   constructor() {
-    this.baseUrl = import.meta.env.PUBLIC_BACKEND_URL ?? "http://localhost:3000";
+    this.baseUrl =
+      import.meta.env.PUBLIC_BACKEND_URL ?? "http://localhost:3000";
   }
 
   //////////////////// COMENTARIOS /////////////////////
@@ -75,7 +76,10 @@ export class ApiService {
   }
 
   // Editar un comentario (PUT)
-  async editComment(commentId: string, comment: UpdateComment): Promise<ResponseAPI<Comment>> {
+  async editComment(
+    commentId: string,
+    comment: UpdateComment,
+  ): Promise<ResponseAPI<Comment>> {
     const token = await getCurrentUserToken();
     return this.fetchApi<Comment>(`/comments/edit/${commentId}`, {
       method: "PUT",
@@ -100,7 +104,10 @@ export class ApiService {
   }
 
   // Crear una respuesta a un comentario (POST)
-  async createReply(parentCommentId: string, content: ReplyComment): Promise<ResponseAPI<ReplyComment>> {
+  async createReply(
+    parentCommentId: string,
+    content: ReplyComment,
+  ): Promise<ResponseAPI<ReplyComment>> {
     const token = await getCurrentUserToken();
     return this.fetchApi<ReplyComment>(`/comments/reply/${parentCommentId}`, {
       method: "POST",
@@ -113,32 +120,48 @@ export class ApiService {
   }
 
   // Editar una respuesta específica (PUT)
-  async editReply(commentId: string, replyIndex: string, content: ReplyComment): Promise<ResponseAPI<ReplyComment>> {
+  async editReply(
+    commentId: string,
+    replyIndex: string,
+    content: ReplyComment,
+  ): Promise<ResponseAPI<ReplyComment>> {
     const token = await getCurrentUserToken();
-    return this.fetchApi<ReplyComment>(`/comments/reply/${commentId}/${replyIndex}/edit`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    return this.fetchApi<ReplyComment>(
+      `/comments/reply/${commentId}/${replyIndex}/edit`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(content),
       },
-      body: JSON.stringify(content),
-    });
+    );
   }
 
   // Eliminar una respuesta específica (DELETE)
-  async deleteReply(parentCommentId: string, replyId: string): Promise<ResponseAPI<void>> {
+  async deleteReply(
+    parentCommentId: string,
+    replyId: string,
+  ): Promise<ResponseAPI<void>> {
     const token = await getCurrentUserToken();
-    return this.fetchApi<void>(`/comments/del/${parentCommentId}/reply/${replyId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    return this.fetchApi<void>(
+      `/comments/del/${parentCommentId}/reply/${replyId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
   }
 
   // Obtener un reply con una id especifica (GET)
-  async getCommentReplyById(commentId: string, replyId: string): Promise<ResponseAPI<Comment>> {
+  async getCommentReplyById(
+    commentId: string,
+    replyId: string,
+  ): Promise<ResponseAPI<Comment>> {
     const token = await getCurrentUserToken();
     return this.fetchApi<Comment>(`/comments/${commentId}/reply/${replyId}`, {
       method: "GET",
@@ -192,7 +215,9 @@ export class ApiService {
 
   //////////////////// RESEND /////////////////////
   // Enviar email de contacto (Resend) (POST)
-  async sendContact(resendEmail: EmailResend): Promise<ResponseAPI<Record<string, string>>> {
+  async sendContact(
+    resendEmail: EmailResend,
+  ): Promise<ResponseAPI<Record<string, string>>> {
     return this.fetchApi<Record<string, string>>("/email/contact", {
       method: "POST",
       headers: {
@@ -251,7 +276,9 @@ export class ApiService {
 
   //////////////////// MAILCHIMP /////////////////////
   // Añadir usuarios a la newsletter
-  async addContactToNewsletter(contactMailchimp: ContactMailchimp): Promise<ResponseAPI<AddContactResponse>> {
+  async addContactToNewsletter(
+    contactMailchimp: ContactMailchimp,
+  ): Promise<ResponseAPI<AddContactResponse>> {
     return this.fetchApi<AddContactResponse>("/mailchimp/add_contact", {
       method: "POST",
       headers: {
@@ -263,7 +290,9 @@ export class ApiService {
 
   //////////////////// STRIPE /////////////////////
   // Payment intent para la sesion de firebase
-  async checkout(payload: CheckoutPaymentIntentRequest): Promise<ResponseAPI<CheckoutPaymentIntentResponse>> {
+  async checkout(
+    payload: CheckoutPaymentIntentRequest,
+  ): Promise<ResponseAPI<CheckoutPaymentIntentResponse>> {
     const token = await getCurrentUserToken();
     return this.fetchApi<CheckoutPaymentIntentResponse>("/payment/intent", {
       method: "POST",
@@ -276,7 +305,9 @@ export class ApiService {
   }
 
   // Guardar la relacion entre cal.com y stripe en firebase
-  async saveCalStripeConnection(payload: RelationalCalStripe): Promise<ResponseAPI<void>> {
+  async saveCalStripeConnection(
+    payload: RelationalCalStripe,
+  ): Promise<ResponseAPI<void>> {
     const token = await getCurrentUserToken();
     return this.fetchApi<void>("/payment/cal/connection", {
       method: "POST",
@@ -289,7 +320,9 @@ export class ApiService {
   }
 
   // Obtener el historial de reservas pagadas
-  async getPaidReservations(token_cookie: string): Promise<ResponseAPI<PaymentIntentSimplified[]>> {
+  async getPaidReservations(
+    token_cookie: string,
+  ): Promise<ResponseAPI<PaymentIntentSimplified[]>> {
     const token = token_cookie || (await getCurrentUserToken());
     return this.fetchApi<PaymentIntentSimplified[]>("/payment/history", {
       method: "GET",
@@ -300,7 +333,9 @@ export class ApiService {
   }
 
   // Obtener conexiones cal.com - stripe
-  async getAllConnections(token_cookie: string): Promise<ResponseAPI<StripeRelation[]>> {
+  async getAllConnections(
+    token_cookie: string,
+  ): Promise<ResponseAPI<StripeRelation[]>> {
     const token = token_cookie || (await getCurrentUserToken());
     return this.fetchApi<StripeRelation[]>("/payment/cal/connection/all", {
       method: "GET",
@@ -324,7 +359,10 @@ export class ApiService {
   }
 
   // Obtener booking por id
-  async getBookingById(bookingUid: string, tooken_cookie?: string): Promise<ResponseAPI<CalBookingPayload>> {
+  async getBookingById(
+    bookingUid: string,
+    tooken_cookie?: string,
+  ): Promise<ResponseAPI<CalBookingPayload>> {
     const token = tooken_cookie || (await getCurrentUserToken());
     return this.fetchApi<CalBookingPayload>(`/cal/bookings/${bookingUid}`, {
       method: "GET",
@@ -335,7 +373,10 @@ export class ApiService {
   }
 
   // Crear un booking
-  async createBooking(booking: BookingRequest, token_cookie?: string): Promise<ResponseAPI<CalBookingPayload>> {
+  async createBooking(
+    booking: BookingRequest,
+    token_cookie?: string,
+  ): Promise<ResponseAPI<CalBookingPayload>> {
     const token = token_cookie || (await getCurrentUserToken());
     const data = await fetch(`${this.baseUrl}/cal/bookings`, {
       method: "POST",
@@ -352,7 +393,9 @@ export class ApiService {
   }
 
   // Obtener todos los bookings
-  async getGroupBookings(token_cookie?: string): Promise<ResponseAPI<CalBookingPayload[]>> {
+  async getGroupBookings(
+    token_cookie?: string,
+  ): Promise<ResponseAPI<CalBookingPayload[]>> {
     const token = token_cookie || (await getCurrentUserToken());
     return this.fetchApi<CalBookingPayload[]>("/cal/bookings/all", {
       method: "GET",
@@ -363,7 +406,9 @@ export class ApiService {
   }
 
   ///////////// Google Analytics ////////////////
-  async getUserMetrics(cookie_token?: string): Promise<ResponseAPI<MetricsResponse>> {
+  async getUserMetrics(
+    cookie_token?: string,
+  ): Promise<ResponseAPI<MetricsResponse>> {
     const token = cookie_token || (await getCurrentUserToken());
     return this.fetchApi<MetricsResponse>("/metrics/users", {
       method: "GET",
@@ -374,7 +419,9 @@ export class ApiService {
     });
   }
 
-  async getArticlesMetrics(cookie_token?: string): Promise<ResponseAPI<MetricsResponse>> {
+  async getArticlesMetrics(
+    cookie_token?: string,
+  ): Promise<ResponseAPI<MetricsResponse>> {
     const token = cookie_token || (await getCurrentUserToken());
     return this.fetchApi<MetricsResponse>("/metrics/articles", {
       method: "GET",
@@ -385,7 +432,9 @@ export class ApiService {
     });
   }
 
-  async getClassMetrics(cookie_token?: string): Promise<ResponseAPI<MetricsResponse>> {
+  async getClassMetrics(
+    cookie_token?: string,
+  ): Promise<ResponseAPI<MetricsResponse>> {
     const token = cookie_token || (await getCurrentUserToken());
     return this.fetchApi<MetricsResponse>("/metrics/class", {
       method: "GET",
@@ -401,7 +450,10 @@ export class ApiService {
    * Método privado para hacer fetch y retornar la respuesta del backend sin transformaciones.
    * Mantiene exactamente la estructura { success: boolean, data?: T, error?: string }
    */
-  private async fetchApi<T>(endpoint: string, options: RequestInit): Promise<ResponseAPI<T>> {
+  private async fetchApi<T>(
+    endpoint: string,
+    options: RequestInit,
+  ): Promise<ResponseAPI<T>> {
     let lastError: Error | null = null;
 
     for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
@@ -425,16 +477,23 @@ export class ApiService {
         if (result) {
           // Solo loggear en info si hubo reintentos, sino debug
           if (attempt > 1) {
-            log.info(`[ApiService] ${endpoint} succeeded on attempt ${attempt}`);
+            log.info(
+              `[ApiService] ${endpoint} succeeded on attempt ${attempt}`,
+            );
           } else {
-            log.debug(`[ApiService] ${endpoint} succeeded on attempt ${attempt}`);
+            log.debug(
+              `[ApiService] ${endpoint} succeeded on attempt ${attempt}`,
+            );
           }
           return result;
         }
       } catch (error) {
         lastError = error instanceof Error ? error : new Error("Unknown error");
 
-        log.warn(`[ApiService] ${endpoint} failed on attempt ${attempt}:`, lastError);
+        log.warn(
+          `[ApiService] ${endpoint} failed on attempt ${attempt}:`,
+          lastError,
+        );
         // Si no es el último intento, reintentar
         if (attempt < this.MAX_RETRIES) {
           this.logRetry(endpoint, attempt, lastError);
@@ -444,7 +503,10 @@ export class ApiService {
     }
 
     // Si llegamos aquí, todos los intentos fallaron
-    log.error(`[ApiService] All ${this.MAX_RETRIES} attempts failed for ${endpoint}:`, lastError);
+    log.error(
+      `[ApiService] All ${this.MAX_RETRIES} attempts failed for ${endpoint}:`,
+      lastError,
+    );
 
     // Mejorar el manejo del mensaje de error
     let errorMessage = "Unknown network error";
@@ -465,7 +527,9 @@ export class ApiService {
   /**
    * Parsea la respuesta del fetch como JSON
    */
-  private async parseResponse<T>(response: Response): Promise<ResponseAPI<T> | null> {
+  private async parseResponse<T>(
+    response: Response,
+  ): Promise<ResponseAPI<T> | null> {
     const text = await response.text();
 
     try {
@@ -484,7 +548,10 @@ export class ApiService {
    * Registra un intento fallido y el próximo reintento
    */
   private logRetry(endpoint: string, attempt: number, error: Error): void {
-    console.warn(`[ApiService] Attempt ${attempt}/${this.MAX_RETRIES} failed for ${endpoint}:`, error.message);
+    console.warn(
+      `[ApiService] Attempt ${attempt}/${this.MAX_RETRIES} failed for ${endpoint}:`,
+      error.message,
+    );
     console.log(`[ApiService] Retrying in ${this.RETRY_DELAY}ms...`);
   }
 
@@ -498,11 +565,20 @@ export class ApiService {
   /**
    * Maneja el caso donde todos los intentos fallaron
    */
-  private handleAllAttemptsFailed<T>(endpoint: string, lastError: Error | null): ResponseAPI<T> {
-    log.error(`[ApiService] All ${this.MAX_RETRIES} attempts failed for ${endpoint}:`, lastError);
+  private handleAllAttemptsFailed<T>(
+    endpoint: string,
+    lastError: Error | null,
+  ): ResponseAPI<T> {
+    log.error(
+      `[ApiService] All ${this.MAX_RETRIES} attempts failed for ${endpoint}:`,
+      lastError,
+    );
     return {
       success: false,
-      error: lastError instanceof Error ? `Network error: ${lastError.message}` : "Unknown network error",
+      error:
+        lastError instanceof Error
+          ? `Network error: ${lastError.message}`
+          : "Unknown network error",
     };
   }
 }

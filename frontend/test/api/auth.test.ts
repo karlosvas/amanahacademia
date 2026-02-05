@@ -85,7 +85,9 @@ describe("API Routes - Auth", () => {
     });
 
     it("should return 500 on request.json() error", async () => {
-      mockRequest.json = vi.fn().mockRejectedValue(new Error("JSON parse error"));
+      mockRequest.json = vi
+        .fn()
+        .mockRejectedValue(new Error("JSON parse error"));
 
       const response = await POST({
         request: mockRequest,

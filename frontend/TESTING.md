@@ -202,7 +202,7 @@ global.fetch = vi.fn(() =>
   Promise.resolve({
     ok: true,
     json: async () => ({ success: true, data: mockData }),
-  })
+  }),
 ) as any;
 ```
 

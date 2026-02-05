@@ -526,10 +526,7 @@ async fn get_comment_data(
         .send()
         .await
     {
-        Ok(response) => match handle_firebase_response::<Comment>(response).await {
-            Ok(comment) => Some(comment),
-            Err(_) => None,
-        },
+        Ok(response) => (handle_firebase_response::<Comment>(response).await).ok(),
         Err(_) => None,
     }
 }

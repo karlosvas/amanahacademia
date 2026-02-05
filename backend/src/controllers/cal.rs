@@ -443,20 +443,20 @@ pub async fn add_booking(
     if let Some(user) = &payload.user {
         body["username"] = json!(user.username);
     }
-    if state.cal_options.enable_teams {
-        if let Some(team_slug) = &payload.team_slug {
-            body["teamSlug"] = json!(team_slug);
-        }
+    if state.cal_options.enable_teams
+        && let Some(team_slug) = &payload.team_slug
+    {
+        body["teamSlug"] = json!(team_slug);
     }
     if let Some(organization_slug) = &payload.organization_slug {
         body["organizationSlug"] = json!(organization_slug);
     }
     // Añadir invitados si están presentes
-    if let Some(guests) = &payload.guests {
-        if !guests.is_empty() {
-            body["guests"] = json!(guests);
-            info!("Adding {} guest(s) to booking: {:?}", guests.len(), guests);
-        }
+    if let Some(guests) = &payload.guests
+        && !guests.is_empty()
+    {
+        body["guests"] = json!(guests);
+        info!("Adding {} guest(s) to booking: {:?}", guests.len(), guests);
     }
 
     info!(
@@ -467,7 +467,7 @@ pub async fn add_booking(
     let response = state
         .cal_options
         .client
-        .post(&format!("{}/bookings", state.cal_options.base_url))
+        .post(format!("{}/bookings", state.cal_options.base_url))
         .header("Content-Type", "application/json")
         .header("cal-api-version", "2024-08-13")
         .header("Authorization", &state.cal_options.api_key)
@@ -670,10 +670,10 @@ pub async fn get_all_bookings(
         if let Some(name) = params.attendee_name {
             query.append_pair("attendeeName", &name);
         }
-        if state.cal_options.enable_teams {
-            if let Some(team_id) = params.team_id {
-                query.append_pair("teamId", &team_id);
-            }
+        if state.cal_options.enable_teams
+            && let Some(team_id) = params.team_id
+        {
+            query.append_pair("teamId", &team_id);
         }
         if let Some(after) = params.after_start {
             query.append_pair("afterStart", &after);

@@ -54,8 +54,12 @@ export function initCalendar(namespaceId: Class): boolean {
 
           // Si es un namespace válido, lo registra
           if (typeof calendarNamespace === "string") {
-            calInstance.ns[calendarNamespace] = calInstance.ns[calendarNamespace] || namespaceApi;
-            enqueueCommand(calInstance.ns[calendarNamespace], functionArguments);
+            calInstance.ns[calendarNamespace] =
+              calInstance.ns[calendarNamespace] || namespaceApi;
+            enqueueCommand(
+              calInstance.ns[calendarNamespace],
+              functionArguments,
+            );
             enqueueCommand(calInstance, ["initNamespace", calendarNamespace]);
           } else {
             enqueueCommand(calInstance, functionArguments);
@@ -109,8 +113,10 @@ export async function updatePricing() {
 
     document.querySelectorAll("[card-pricing-tier]").forEach((card) => {
       const tier: string | null = card.getAttribute("card-pricing-tier");
-      const symbolElement: NodeListOf<HTMLElement> = card.querySelectorAll(".currency-symbol");
-      const amountElement: NodeListOf<HTMLElement> = card.querySelectorAll(".price-amount");
+      const symbolElement: NodeListOf<HTMLElement> =
+        card.querySelectorAll(".currency-symbol");
+      const amountElement: NodeListOf<HTMLElement> =
+        card.querySelectorAll(".price-amount");
 
       if (!tier) {
         log.error("Did not find card-pricing-tier attribute");
@@ -121,7 +127,8 @@ export async function updatePricing() {
 
       if (symbolElement && symbolElement.length > 0)
         symbolElement.forEach((el) => (el.textContent = pricingData.symbol));
-      if (amountElement) amountElement.forEach((el) => (el.textContent = tierPrice.toString()));
+      if (amountElement)
+        amountElement.forEach((el) => (el.textContent = tierPrice.toString()));
     });
   } catch (error) {
     log.error("Error loading pricing:", error);
@@ -129,7 +136,10 @@ export async function updatePricing() {
 }
 
 // Obtener el precio según el tier
-export function getPrice(tier: string, pricingData: PricingApiResponse): number {
+export function getPrice(
+  tier: string,
+  pricingData: PricingApiResponse,
+): number {
   switch (tier) {
     case "standard-class":
       return pricingData.prices.individual_standard;

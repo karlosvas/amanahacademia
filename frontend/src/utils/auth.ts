@@ -21,14 +21,19 @@ export async function syncLogoutWithServer(): Promise<void> {
 // Obtener los datos de precios según el país
 export async function getPricingByCountry(): Promise<PricingApiResponse> {
   // Obtener el país de la URL si existe
-  const urlParams: URLSearchParams = new URLSearchParams(globalThis.location.search);
+  const urlParams: URLSearchParams = new URLSearchParams(
+    globalThis.location.search,
+  );
   const testCountry: string | null = urlParams.get("test_country");
-  const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
+  const apiUrl: string = testCountry
+    ? `/api/pricing?test_country=${testCountry}`
+    : "/api/pricing";
   const response: Response = await fetch(apiUrl);
 
   if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-  const pricingData: PricingApiResponse = (await response.json()) as PricingApiResponse;
+  const pricingData: PricingApiResponse =
+    (await response.json()) as PricingApiResponse;
 
   return pricingData;
 }

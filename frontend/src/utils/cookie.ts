@@ -67,7 +67,10 @@ export function rejectCookies() {
   localStorage.setItem("cookieConsent", "rejected");
 
   // Debug log (solo en desarrollo)
-  if (globalThis.location.hostname === "localhost" || globalThis.location.hostname === "127.0.0.1") {
+  if (
+    globalThis.location.hostname === "localhost" ||
+    globalThis.location.hostname === "127.0.0.1"
+  ) {
     log.debug("[GA Debug] Cookies REJECTED - Analytics will remain disabled");
   }
 
@@ -105,16 +108,26 @@ export function initializeCookieConsent() {
         globalThis.gtag("event", "page_view");
 
         if (isDebug) {
-          log.debug("[GA Debug] Initializing with ACCEPTED consent:", consentUpdate);
+          log.debug(
+            "[GA Debug] Initializing with ACCEPTED consent:",
+            consentUpdate,
+          );
           log.debug("[GA Debug] Event sent: cookie_consent_restored");
           log.debug("[GA Debug] Event sent: page_view");
           log.debug("[GA Debug] DataLayer after init:", globalThis.dataLayer);
         }
-      } else if (isDebug) log.debug("[GA Debug] gtag not ready yet, waiting...");
+      } else if (isDebug)
+        log.debug("[GA Debug] gtag not ready yet, waiting...");
     } else if (consent === "rejected") {
-      if (isDebug) log.info("[GA Debug] User previously REJECTED cookies - Analytics disabled");
+      if (isDebug)
+        log.info(
+          "[GA Debug] User previously REJECTED cookies - Analytics disabled",
+        );
     } else {
-      if (isDebug) log.debug("[GA Debug] No consent decision found - Banner will show in 5s");
+      if (isDebug)
+        log.debug(
+          "[GA Debug] No consent decision found - Banner will show in 5s",
+        );
     }
   };
 
@@ -164,10 +177,13 @@ export function getLangFromCookie(): Languages {
   const cookieValue = match[1];
 
   // Validar que el valor sea un idioma válido del enum Languages
-  if (Object.values(Languages).includes(cookieValue as Languages)) return cookieValue as Languages;
+  if (Object.values(Languages).includes(cookieValue as Languages))
+    return cookieValue as Languages;
 
   // Si el valor es inválido, registrar advertencia y devolver español por defecto
-  log.warn(`[Lang Cookie] Valor inválido detectado: "${cookieValue}". Usando idioma por defecto.`);
+  log.warn(
+    `[Lang Cookie] Valor inválido detectado: "${cookieValue}". Usando idioma por defecto.`,
+  );
 
   // Opcionalmente, limpiar la cookie corrupta
   writeLangCookie(Languages.SPANISH);
@@ -199,7 +215,9 @@ export function getThemeFromCookie(): Theme {
 
   if (!match) {
     // No existe cookie, usar preferencia del sistema
-    const prefersDark = globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = globalThis.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
     const systemTheme = prefersDark ? Theme.DARK : Theme.LIGHT;
     writeThemeCookie(systemTheme);
     return systemTheme;
@@ -213,7 +231,9 @@ export function getThemeFromCookie(): Theme {
   }
 
   // Si el valor es inválido, registrar advertencia y usar tema por defecto
-  log.warn(`[Theme Cookie] Valor inválido detectado: "${cookieValue}". Usando tema por defecto.`);
+  log.warn(
+    `[Theme Cookie] Valor inválido detectado: "${cookieValue}". Usando tema por defecto.`,
+  );
 
   // Limpiar la cookie corrupta y establecer tema por defecto
   const defaultTheme = Theme.LIGHT;
@@ -241,6 +261,9 @@ export function applyTheme(newTheme: Theme) {
   // Actualizar logo si existe
   const logo = document.getElementById("logo_amanah");
   if (logo && logo instanceof HTMLImageElement) {
-    logo.src = newTheme === Theme.DARK ? "/img/logo_amanah_dark.webp" : "/img/logo_amanah.webp";
+    logo.src =
+      newTheme === Theme.DARK
+        ? "/img/logo_amanah_dark.webp"
+        : "/img/logo_amanah.webp";
   }
 }

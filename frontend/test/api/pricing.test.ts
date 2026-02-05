@@ -178,7 +178,9 @@ describe("API Routes - Pricing", () => {
       const { GET } = await import("@/pages/api/pricing");
       const response = await GET({ request });
 
-      expect(response.headers.get("Cache-Control")).toBe("public, max-age=3600");
+      expect(response.headers.get("Cache-Control")).toBe(
+        "public, max-age=3600",
+      );
     });
 
     it("should return correct Content-Type header", async () => {
@@ -193,7 +195,20 @@ describe("API Routes - Pricing", () => {
     });
 
     it("should return high income pricing for all European Union countries", async () => {
-      const euCountries = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR"];
+      const euCountries = [
+        "AT",
+        "BE",
+        "BG",
+        "HR",
+        "CY",
+        "CZ",
+        "DK",
+        "EE",
+        "FI",
+        "FR",
+        "DE",
+        "GR",
+      ];
 
       for (const country of euCountries) {
         const request = createMockRequest({
@@ -320,11 +335,16 @@ describe("API Routes - Pricing", () => {
       const highIncomeResponse = await GET({ request: highIncomeRequest });
       const lowIncomeResponse = await GET({ request: lowIncomeRequest });
 
-      const highIncomeData: PricingApiResponse = await highIncomeResponse.json();
+      const highIncomeData: PricingApiResponse =
+        await highIncomeResponse.json();
       const lowIncomeData: PricingApiResponse = await lowIncomeResponse.json();
 
-      expect(Object.keys(highIncomeData).sort()).toEqual(Object.keys(lowIncomeData).sort());
-      expect(Object.keys(highIncomeData.prices).sort()).toEqual(Object.keys(lowIncomeData.prices).sort());
+      expect(Object.keys(highIncomeData).sort()).toEqual(
+        Object.keys(lowIncomeData).sort(),
+      );
+      expect(Object.keys(highIncomeData.prices).sort()).toEqual(
+        Object.keys(lowIncomeData.prices).sort(),
+      );
     });
   });
 });

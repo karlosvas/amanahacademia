@@ -7,7 +7,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     if (!token || typeof token !== "string") {
       log.error("Invalid token received in /api/auth");
-      return new Response(JSON.stringify({ error: "Invalid token" }), { status: 400 });
+      return new Response(JSON.stringify({ error: "Invalid token" }), {
+        status: 400,
+      });
     }
 
     // Guardar en cookie httpOnly
@@ -25,7 +27,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
   } catch (error) {
     log.error("Error en POST /api/auth:", error);
-    return new Response(JSON.stringify({ error: "Error interno del servidor" }), { status: 500 });
+    return new Response(
+      JSON.stringify({ error: "Error interno del servidor" }),
+      { status: 500 },
+    );
   }
 };
 

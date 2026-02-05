@@ -51,7 +51,7 @@ pub async fn register_user(
         }
     };
 
-    tracing::Span::current().record("email", &user.email.as_str());
+    tracing::Span::current().record("email", user.email.as_str());
     // Comprobamos si quiere hacer cosas que solo podria hacer un admin como tener un rol, o asiganr permisos o tier de subscripción
     if matches!(user.role.as_ref(), Some(Role::Admin)) {
         return (
@@ -720,10 +720,7 @@ pub async fn get_user_data_db(
     {
         Ok(response) => {
             println!("Firebase DB response status: {}", response.status());
-            match handle_firebase_response::<UserDB>(response).await {
-                Ok(user) => Some(user),
-                Err((_, _)) => None,
-            }
+            (handle_firebase_response::<UserDB>(response).await).ok()
         }
         Err(_) => None,
     }

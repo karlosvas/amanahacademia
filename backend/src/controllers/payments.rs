@@ -255,10 +255,7 @@ pub async fn create_product(
         },
         unit_amount: Some(price.unit_amount),
         // Si es recurrente
-        recurring: match price.recurring {
-            Some(recurring) => Some(recurring),
-            None => None, // Si no es recurrente no pasa nada
-        },
+        recurring: price.recurring,
         // Opcionales
         currency_options: Some(currency_opts),
         tax_behavior: None,
@@ -374,7 +371,7 @@ pub async fn archive_product(
     if let Some(price_id) = product
         .default_price
         .as_ref()
-        .and_then(|p: &Expandable<Price>| Some(p.id()))
+        .map(|p: &Expandable<Price>| p.id())
     {
         // Primero, elimina el default_price del producto actualizando el producto
         // Construye UpdateProduct y elimina el default_price

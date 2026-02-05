@@ -28,13 +28,12 @@ where
         let error_msg = match serde_json::from_str::<Value>(&error_text) {
             Ok(json) => {
                 // Busca el campo "title" en el JSON raíz
-                let res = json
-                    .get("title")
+
+                // Si no es JSON válido, devuelve el texto raw
+                json.get("title")
                     .and_then(|title| title.as_str())
                     .map(|s| s.to_string())
-                    .unwrap_or(error_text);
-                // Si no es JSON válido, devuelve el texto raw
-                res
+                    .unwrap_or(error_text)
             }
             Err(_) => error_text,
         };

@@ -56,250 +56,386 @@ export enum FrontendStripe {
 }
 
 // Manejar en todos los idiomas erroes de los toast
-export const FrontendErrorMessages: Record<string, Record<FrontendErrorCode, string>> = {
+export const FrontendErrorMessages: Record<
+  string,
+  Record<FrontendErrorCode, string>
+> = {
   ar: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "يجب عليك تسجيل الدخول للمتابعة",
-    [FrontendErrorCode.MUST_BE_OWNER]: "يجب أن تكون مالك العنصر لتنفيذ هذا الإجراء",
+    [FrontendErrorCode.MUST_BE_OWNER]:
+      "يجب أن تكون مالك العنصر لتنفيذ هذا الإجراء",
     [FrontendErrorCode.NOT_FOUND]: "العنصر غير موجود",
     [FrontendErrorCode.FORBIDDEN]: "ليس لديك إذن للوصول",
     [FrontendErrorCode.UNKNOWN_ERROR]: "حدث خطأ غير معروف",
-    [FrontendErrorCode.NEWSLETTER_ERROR]: "حدث خطأ في الاشتراك في النشرة الإخبارية",
-    [FrontendErrorCode.USER_NOT_EXISTS]: "المستخدم غير موجود. يرجى التسجيل أولاً",
-    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "خطأ في تسجيل الدخول باستخدام Google. يرجى المحاولة مرة أخرى",
-    [FrontendErrorCode.NETWORK_ERROR]: "خطأ في الشبكة. يرجى المحاولة مرة أخرى لاحقًا",
-    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "لقد استخدمت بالفعل فصلك المجاني",
-    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "يرجى إدخال عنوان بريدك الإلكتروني لإعادة تعيين كلمة المرور",
-    [FrontendErrorCode.OAUTH_USER_RESET]: "لقد سجلت الدخول باستخدام Google. لا يمكنك إعادة تعيين كلمة المرور",
-    [FrontendErrorCode.MANTENIANCE]: "الفصول غير متوفرة في الوقت الحالي بسبب مشاكل فنية.",
+    [FrontendErrorCode.NEWSLETTER_ERROR]:
+      "حدث خطأ في الاشتراك في النشرة الإخبارية",
+    [FrontendErrorCode.USER_NOT_EXISTS]:
+      "المستخدم غير موجود. يرجى التسجيل أولاً",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]:
+      "خطأ في تسجيل الدخول باستخدام Google. يرجى المحاولة مرة أخرى",
+    [FrontendErrorCode.NETWORK_ERROR]:
+      "خطأ في الشبكة. يرجى المحاولة مرة أخرى لاحقًا",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]:
+      "لقد استخدمت بالفعل فصلك المجاني",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]:
+      "يرجى إدخال عنوان بريدك الإلكتروني لإعادة تعيين كلمة المرور",
+    [FrontendErrorCode.OAUTH_USER_RESET]:
+      "لقد سجلت الدخول باستخدام Google. لا يمكنك إعادة تعيين كلمة المرور",
+    [FrontendErrorCode.MANTENIANCE]:
+      "الفصول غير متوفرة في الوقت الحالي بسبب مشاكل فنية.",
   },
   de: {
-    [FrontendErrorCode.NEED_AUTHENTICATION]: "Sie müssen sich anmelden, um fortzufahren",
-    [FrontendErrorCode.MUST_BE_OWNER]: "Sie müssen Eigentümer sein, um diese Aktion auszuführen",
+    [FrontendErrorCode.NEED_AUTHENTICATION]:
+      "Sie müssen sich anmelden, um fortzufahren",
+    [FrontendErrorCode.MUST_BE_OWNER]:
+      "Sie müssen Eigentümer sein, um diese Aktion auszuführen",
     [FrontendErrorCode.NOT_FOUND]: "Element nicht gefunden",
     [FrontendErrorCode.FORBIDDEN]: "Keine Berechtigung zum Zugriff",
     [FrontendErrorCode.UNKNOWN_ERROR]: "Unbekannter Fehler ist aufgetreten",
-    [FrontendErrorCode.NEWSLETTER_ERROR]: "Fehler beim Abonnieren des Newsletters",
-    [FrontendErrorCode.USER_NOT_EXISTS]: "Benutzer existiert nicht. Bitte registrieren Sie sich zuerst",
-    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Fehler bei der Google-Anmeldung. Bitte versuchen Sie es erneut",
-    [FrontendErrorCode.NETWORK_ERROR]: "Netzwerkfehler. Bitte versuchen Sie es später erneut",
-    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Sie haben Ihre kostenlose Klasse bereits genutzt",
-    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Bitte geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen",
+    [FrontendErrorCode.NEWSLETTER_ERROR]:
+      "Fehler beim Abonnieren des Newsletters",
+    [FrontendErrorCode.USER_NOT_EXISTS]:
+      "Benutzer existiert nicht. Bitte registrieren Sie sich zuerst",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]:
+      "Fehler bei der Google-Anmeldung. Bitte versuchen Sie es erneut",
+    [FrontendErrorCode.NETWORK_ERROR]:
+      "Netzwerkfehler. Bitte versuchen Sie es später erneut",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]:
+      "Sie haben Ihre kostenlose Klasse bereits genutzt",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]:
+      "Bitte geben Sie Ihre E-Mail-Adresse ein, um Ihr Passwort zurückzusetzen",
     [FrontendErrorCode.OAUTH_USER_RESET]:
       "Sie haben sich mit Google angemeldet. Sie können Ihr Passwort nicht zurücksetzen",
-    [FrontendErrorCode.MANTENIANCE]: "Kurse derzeit aufgrund technischer Probleme nicht verfügbar.",
+    [FrontendErrorCode.MANTENIANCE]:
+      "Kurse derzeit aufgrund technischer Probleme nicht verfügbar.",
   },
   en: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "You must log in to continue",
-    [FrontendErrorCode.MUST_BE_OWNER]: "You must be the owner to perform this action",
+    [FrontendErrorCode.MUST_BE_OWNER]:
+      "You must be the owner to perform this action",
     [FrontendErrorCode.NOT_FOUND]: "Item not found",
     [FrontendErrorCode.FORBIDDEN]: "You do not have permission to access",
     [FrontendErrorCode.UNKNOWN_ERROR]: "An unknown error occurred",
     [FrontendErrorCode.NEWSLETTER_ERROR]: "Error subscribing to the newsletter",
-    [FrontendErrorCode.USER_NOT_EXISTS]: "User does not exist. Please register first",
-    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Error logging in with Google. Please try again",
+    [FrontendErrorCode.USER_NOT_EXISTS]:
+      "User does not exist. Please register first",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]:
+      "Error logging in with Google. Please try again",
     [FrontendErrorCode.NETWORK_ERROR]: "Network error. Please try again later",
-    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "You have already used your free class",
-    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Please enter your email address to reset your password",
-    [FrontendErrorCode.OAUTH_USER_RESET]: "You signed in with Google. You cannot reset your password",
-    [FrontendErrorCode.MANTENIANCE]: "Classes not available at the moment, due to technical issues.",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]:
+      "You have already used your free class",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]:
+      "Please enter your email address to reset your password",
+    [FrontendErrorCode.OAUTH_USER_RESET]:
+      "You signed in with Google. You cannot reset your password",
+    [FrontendErrorCode.MANTENIANCE]:
+      "Classes not available at the moment, due to technical issues.",
   },
   es: {
-    [FrontendErrorCode.NEED_AUTHENTICATION]: "Debes iniciar sesión para continuar",
-    [FrontendErrorCode.MUST_BE_OWNER]: "Debes de ser dueño para realizar esta acción",
+    [FrontendErrorCode.NEED_AUTHENTICATION]:
+      "Debes iniciar sesión para continuar",
+    [FrontendErrorCode.MUST_BE_OWNER]:
+      "Debes de ser dueño para realizar esta acción",
     [FrontendErrorCode.NOT_FOUND]: "Elemento no encontrado",
     [FrontendErrorCode.FORBIDDEN]: "No tienes permiso para acceder",
     [FrontendErrorCode.UNKNOWN_ERROR]: "Ha ocurrido un error desconocido",
     [FrontendErrorCode.NEWSLETTER_ERROR]: "Error al suscribirse al newsletter",
-    [FrontendErrorCode.USER_NOT_EXISTS]: "El usuario no existe. Por favor, regístrate primero",
-    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo",
-    [FrontendErrorCode.NETWORK_ERROR]: "Error de red. Por favor, inténtalo de nuevo más tarde",
-    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Ya has utilizado tu clase gratuita",
+    [FrontendErrorCode.USER_NOT_EXISTS]:
+      "El usuario no existe. Por favor, regístrate primero",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]:
+      "Error al iniciar sesión con Google. Por favor, inténtalo de nuevo",
+    [FrontendErrorCode.NETWORK_ERROR]:
+      "Error de red. Por favor, inténtalo de nuevo más tarde",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]:
+      "Ya has utilizado tu clase gratuita",
     [FrontendErrorCode.EMAIL_REQUIRED_RESET]:
       "Por favor, introduce tu correo electrónico para restablecer tu contraseña",
-    [FrontendErrorCode.OAUTH_USER_RESET]: "Has iniciado sesión con Google. No puedes restablecer tu contraseña",
-    [FrontendErrorCode.MANTENIANCE]: "Clases no disponibles por el momento, debido a problemas técnicos.",
+    [FrontendErrorCode.OAUTH_USER_RESET]:
+      "Has iniciado sesión con Google. No puedes restablecer tu contraseña",
+    [FrontendErrorCode.MANTENIANCE]:
+      "Clases no disponibles por el momento, debido a problemas técnicos.",
   },
   fr: {
-    [FrontendErrorCode.NEED_AUTHENTICATION]: "Vous devez vous connecter pour continuer",
-    [FrontendErrorCode.MUST_BE_OWNER]: "Vous devez être le propriétaire pour effectuer cette action",
+    [FrontendErrorCode.NEED_AUTHENTICATION]:
+      "Vous devez vous connecter pour continuer",
+    [FrontendErrorCode.MUST_BE_OWNER]:
+      "Vous devez être le propriétaire pour effectuer cette action",
     [FrontendErrorCode.NOT_FOUND]: "Élément introuvable",
     [FrontendErrorCode.FORBIDDEN]: "Vous n'avez pas la permission d'accéder",
     [FrontendErrorCode.UNKNOWN_ERROR]: "Une erreur inconnue s'est produite",
-    [FrontendErrorCode.NEWSLETTER_ERROR]: "Erreur lors de l'abonnement à la newsletter",
-    [FrontendErrorCode.USER_NOT_EXISTS]: "L'utilisateur n'existe pas. Veuillez vous inscrire d'abord",
-    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Erreur lors de la connexion avec Google. Veuillez réessayer",
-    [FrontendErrorCode.NETWORK_ERROR]: "Erreur réseau. Veuillez réessayer plus tard",
-    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Vous avez déjà utilisé votre cours gratuit",
+    [FrontendErrorCode.NEWSLETTER_ERROR]:
+      "Erreur lors de l'abonnement à la newsletter",
+    [FrontendErrorCode.USER_NOT_EXISTS]:
+      "L'utilisateur n'existe pas. Veuillez vous inscrire d'abord",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]:
+      "Erreur lors de la connexion avec Google. Veuillez réessayer",
+    [FrontendErrorCode.NETWORK_ERROR]:
+      "Erreur réseau. Veuillez réessayer plus tard",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]:
+      "Vous avez déjà utilisé votre cours gratuit",
     [FrontendErrorCode.EMAIL_REQUIRED_RESET]:
       "Veuillez saisir votre adresse e-mail pour réinitialiser votre mot de passe",
     [FrontendErrorCode.OAUTH_USER_RESET]:
       "Vous vous êtes connecté avec Google. Vous ne pouvez pas réinitialiser votre mot de passe",
-    [FrontendErrorCode.MANTENIANCE]: "Cours non disponibles pour le moment en raison de problèmes techniques.",
+    [FrontendErrorCode.MANTENIANCE]:
+      "Cours non disponibles pour le moment en raison de problèmes techniques.",
   },
   it: {
     [FrontendErrorCode.NEED_AUTHENTICATION]: "Devi accedere per continuare",
-    [FrontendErrorCode.MUST_BE_OWNER]: "Devi essere il proprietario per eseguire questa azione",
+    [FrontendErrorCode.MUST_BE_OWNER]:
+      "Devi essere il proprietario per eseguire questa azione",
     [FrontendErrorCode.NOT_FOUND]: "Elemento non trovato",
     [FrontendErrorCode.FORBIDDEN]: "Non hai il permesso di accedere",
     [FrontendErrorCode.UNKNOWN_ERROR]: "Si è verificato un errore sconosciuto",
-    [FrontendErrorCode.NEWSLETTER_ERROR]: "Errore durante l'iscrizione alla newsletter",
-    [FrontendErrorCode.USER_NOT_EXISTS]: "L'utente non esiste. Per favore, registrati prima",
-    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Errore durante l'accesso con Google. Per favore, riprova",
-    [FrontendErrorCode.NETWORK_ERROR]: "Errore di rete. Per favore, riprova più tardi",
-    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Hai già utilizzato la tua lezione gratuita",
+    [FrontendErrorCode.NEWSLETTER_ERROR]:
+      "Errore durante l'iscrizione alla newsletter",
+    [FrontendErrorCode.USER_NOT_EXISTS]:
+      "L'utente non esiste. Per favore, registrati prima",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]:
+      "Errore durante l'accesso con Google. Per favore, riprova",
+    [FrontendErrorCode.NETWORK_ERROR]:
+      "Errore di rete. Per favore, riprova più tardi",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]:
+      "Hai già utilizzato la tua lezione gratuita",
     [FrontendErrorCode.EMAIL_REQUIRED_RESET]:
       "Per favore, inserisci il tuo indirizzo email per reimpostare la password",
-    [FrontendErrorCode.OAUTH_USER_RESET]: "Hai effettuato l'accesso con Google. Non puoi reimpostare la password",
-    [FrontendErrorCode.MANTENIANCE]: "Le lezioni non sono disponibili al momento a causa di problemi tecnici.",
+    [FrontendErrorCode.OAUTH_USER_RESET]:
+      "Hai effettuato l'accesso con Google. Non puoi reimpostare la password",
+    [FrontendErrorCode.MANTENIANCE]:
+      "Le lezioni non sono disponibili al momento a causa di problemi tecnici.",
   },
   pt: {
-    [FrontendErrorCode.NEED_AUTHENTICATION]: "Você deve fazer login para continuar",
-    [FrontendErrorCode.MUST_BE_OWNER]: "Você deve ser o dono para realizar esta ação",
+    [FrontendErrorCode.NEED_AUTHENTICATION]:
+      "Você deve fazer login para continuar",
+    [FrontendErrorCode.MUST_BE_OWNER]:
+      "Você deve ser o dono para realizar esta ação",
     [FrontendErrorCode.NOT_FOUND]: "Item não encontrado",
     [FrontendErrorCode.FORBIDDEN]: "Você não tem permissão para acessar",
     [FrontendErrorCode.UNKNOWN_ERROR]: "Ocorreu um erro desconhecido",
     [FrontendErrorCode.NEWSLETTER_ERROR]: "Erro ao se inscrever na newsletter",
-    [FrontendErrorCode.USER_NOT_EXISTS]: "O usuário não existe. Por favor, cadastre-se primeiro",
-    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]: "Erro ao fazer login com Google. Por favor, tente novamente",
-    [FrontendErrorCode.NETWORK_ERROR]: "Erro de rede. Por favor, tente novamente mais tarde",
-    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]: "Você já utilizou sua aula gratuita",
-    [FrontendErrorCode.EMAIL_REQUIRED_RESET]: "Por favor, insira seu endereço de e-mail para redefinir sua senha",
-    [FrontendErrorCode.OAUTH_USER_RESET]: "Você fez login com Google. Você não pode redefinir sua senha",
-    [FrontendErrorCode.MANTENIANCE]: "Aulas não disponíveis no momento, devido a problemas técnicos.",
+    [FrontendErrorCode.USER_NOT_EXISTS]:
+      "O usuário não existe. Por favor, cadastre-se primeiro",
+    [FrontendErrorCode.GOOGLE_LOGIN_ERROR]:
+      "Erro ao fazer login com Google. Por favor, tente novamente",
+    [FrontendErrorCode.NETWORK_ERROR]:
+      "Erro de rede. Por favor, tente novamente mais tarde",
+    [FrontendErrorCode.FREE_CLASS_ALREADY_USED]:
+      "Você já utilizou sua aula gratuita",
+    [FrontendErrorCode.EMAIL_REQUIRED_RESET]:
+      "Por favor, insira seu endereço de e-mail para redefinir sua senha",
+    [FrontendErrorCode.OAUTH_USER_RESET]:
+      "Você fez login com Google. Você não pode redefinir sua senha",
+    [FrontendErrorCode.MANTENIANCE]:
+      "Aulas não disponíveis no momento, devido a problemas técnicos.",
   },
 };
 export function getErrorToast(code: FrontendErrorCode, lang: string = "es") {
-  return FrontendErrorMessages[lang]?.[code] || FrontendErrorMessages["es"][code];
+  return (
+    FrontendErrorMessages[lang]?.[code] || FrontendErrorMessages["es"][code]
+  );
 }
 
 // Manejar en todos los idiomas errores de stripe
-export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, string>> = {
+export const FrontendStripeTranslations: Record<
+  string,
+  Record<FrontendStripe, string>
+> = {
   es: {
-    [FrontendStripe.STRIPE_NOT_INITIALIZED]: "No se pudo inicializar el sistema de pago",
+    [FrontendStripe.STRIPE_NOT_INITIALIZED]:
+      "No se pudo inicializar el sistema de pago",
     [FrontendStripe.MISSING_ELEMENTS]: "Error con los elementos de pago",
     [FrontendStripe.UNKNOWN_PAYMENT_STATUS]: "No se pudo completar el pago",
     [FrontendStripe.MISSING_BOOKING]: "No se encontró la reserva",
-    [FrontendStripe.BOOKING_CONFIRM_ERROR]: "Hubo un problema confirmando la reserva",
-    [FrontendStripe.RELATION_SAVE_ERROR]: "Hubo un problema guardando la relación de pago",
-    [FrontendStripe.UNCERTAIN_PAYMENT]: "Estado del pago incierto. Por favor, revisa tu cuenta",
+    [FrontendStripe.BOOKING_CONFIRM_ERROR]:
+      "Hubo un problema confirmando la reserva",
+    [FrontendStripe.RELATION_SAVE_ERROR]:
+      "Hubo un problema guardando la relación de pago",
+    [FrontendStripe.UNCERTAIN_PAYMENT]:
+      "Estado del pago incierto. Por favor, revisa tu cuenta",
     [FrontendStripe.CONNECTION_ERROR]: "Error de conexión. Inténtalo de nuevo",
-    [FrontendStripe.GENERIC_ERROR]: "Ocurrió un error inesperado. Inténtalo de nuevo",
-    [FrontendStripe.MISSING_CONFIG]: "Configuración incompleta. Por favor, contacta al soporte",
+    [FrontendStripe.GENERIC_ERROR]:
+      "Ocurrió un error inesperado. Inténtalo de nuevo",
+    [FrontendStripe.MISSING_CONFIG]:
+      "Configuración incompleta. Por favor, contacta al soporte",
     [FrontendStripe.MISSING_SLUG]: "No se proporcionó el tipo de clase",
-    [FrontendStripe.MISSING_URL_PARAMS]: "Faltan parámetros requeridos en la URL",
+    [FrontendStripe.MISSING_URL_PARAMS]:
+      "Faltan parámetros requeridos en la URL",
     [FrontendStripe.PRICING_FETCH_ERROR]: "No se pudo obtener el precio",
     [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "No se pudo mostrar el precio",
-    [FrontendStripe.MISSING_PRICING]: "No se pudo obtener el precio para inicializar el pago",
-    [FrontendStripe.PAYMENT_FORM_ERROR]: "No se pudo inicializar el formulario de pago",
-    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Error de inicialización de Stripe",
+    [FrontendStripe.MISSING_PRICING]:
+      "No se pudo obtener el precio para inicializar el pago",
+    [FrontendStripe.PAYMENT_FORM_ERROR]:
+      "No se pudo inicializar el formulario de pago",
+    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]:
+      "Error de inicialización de Stripe",
     [FrontendStripe.SERVER_ERROR]: "Error del servidor",
-    [FrontendStripe.MISSING_USER_EMAIL]: "Se requiere un correo electrónico válido para procesar el pago",
+    [FrontendStripe.MISSING_USER_EMAIL]:
+      "Se requiere un correo electrónico válido para procesar el pago",
   },
   en: {
-    [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Payment system could not be initialized",
+    [FrontendStripe.STRIPE_NOT_INITIALIZED]:
+      "Payment system could not be initialized",
     [FrontendStripe.MISSING_ELEMENTS]: "Payment elements error",
     [FrontendStripe.UNKNOWN_PAYMENT_STATUS]: "Payment could not be completed",
     [FrontendStripe.MISSING_BOOKING]: "Booking ID not found",
-    [FrontendStripe.BOOKING_CONFIRM_ERROR]: "There was a problem confirming the booking",
-    [FrontendStripe.RELATION_SAVE_ERROR]: "There was a problem saving the payment relation",
-    [FrontendStripe.UNCERTAIN_PAYMENT]: "Payment status uncertain. Please check your account",
+    [FrontendStripe.BOOKING_CONFIRM_ERROR]:
+      "There was a problem confirming the booking",
+    [FrontendStripe.RELATION_SAVE_ERROR]:
+      "There was a problem saving the payment relation",
+    [FrontendStripe.UNCERTAIN_PAYMENT]:
+      "Payment status uncertain. Please check your account",
     [FrontendStripe.CONNECTION_ERROR]: "Connection error. Please try again",
-    [FrontendStripe.GENERIC_ERROR]: "An unexpected error occurred. Please try again",
-    [FrontendStripe.MISSING_CONFIG]: "Incomplete configuration. Please contact support",
+    [FrontendStripe.GENERIC_ERROR]:
+      "An unexpected error occurred. Please try again",
+    [FrontendStripe.MISSING_CONFIG]:
+      "Incomplete configuration. Please contact support",
     [FrontendStripe.MISSING_SLUG]: "Class type not provided",
     [FrontendStripe.MISSING_URL_PARAMS]: "Missing required URL parameters",
     [FrontendStripe.PRICING_FETCH_ERROR]: "Could not fetch pricing",
     [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Could not display pricing",
-    [FrontendStripe.MISSING_PRICING]: "Could not get pricing to initialize payment",
+    [FrontendStripe.MISSING_PRICING]:
+      "Could not get pricing to initialize payment",
     [FrontendStripe.PAYMENT_FORM_ERROR]: "Could not initialize payment form",
     [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Stripe initialization error",
     [FrontendStripe.SERVER_ERROR]: "Server error",
-    [FrontendStripe.MISSING_USER_EMAIL]: "A valid email is required to process the payment",
+    [FrontendStripe.MISSING_USER_EMAIL]:
+      "A valid email is required to process the payment",
   },
   pt: {
-    [FrontendStripe.STRIPE_NOT_INITIALIZED]: "O sistema de pagamento não pôde ser inicializado",
+    [FrontendStripe.STRIPE_NOT_INITIALIZED]:
+      "O sistema de pagamento não pôde ser inicializado",
     [FrontendStripe.MISSING_ELEMENTS]: "Erro nos elementos de pagamento",
-    [FrontendStripe.UNKNOWN_PAYMENT_STATUS]: "O pagamento não pôde ser concluído",
+    [FrontendStripe.UNKNOWN_PAYMENT_STATUS]:
+      "O pagamento não pôde ser concluído",
     [FrontendStripe.MISSING_BOOKING]: "ID da reserva não encontrado",
-    [FrontendStripe.BOOKING_CONFIRM_ERROR]: "Houve um problema ao confirmar a reserva",
-    [FrontendStripe.RELATION_SAVE_ERROR]: "Houve um problema ao salvar a relação de pagamento",
-    [FrontendStripe.UNCERTAIN_PAYMENT]: "Status do pagamento incerto. Por favor, verifique sua conta",
-    [FrontendStripe.CONNECTION_ERROR]: "Erro de conexão. Por favor, tente novamente",
-    [FrontendStripe.GENERIC_ERROR]: "Ocorreu um erro inesperado. Por favor, tente novamente",
-    [FrontendStripe.MISSING_CONFIG]: "Configuração incompleta. Por favor, entre em contato com o suporte",
+    [FrontendStripe.BOOKING_CONFIRM_ERROR]:
+      "Houve um problema ao confirmar a reserva",
+    [FrontendStripe.RELATION_SAVE_ERROR]:
+      "Houve um problema ao salvar a relação de pagamento",
+    [FrontendStripe.UNCERTAIN_PAYMENT]:
+      "Status do pagamento incerto. Por favor, verifique sua conta",
+    [FrontendStripe.CONNECTION_ERROR]:
+      "Erro de conexão. Por favor, tente novamente",
+    [FrontendStripe.GENERIC_ERROR]:
+      "Ocorreu um erro inesperado. Por favor, tente novamente",
+    [FrontendStripe.MISSING_CONFIG]:
+      "Configuração incompleta. Por favor, entre em contato com o suporte",
     [FrontendStripe.MISSING_SLUG]: "Tipo de aula não fornecido",
-    [FrontendStripe.MISSING_URL_PARAMS]: "Faltam parâmetros obrigatórios na URL",
+    [FrontendStripe.MISSING_URL_PARAMS]:
+      "Faltam parâmetros obrigatórios na URL",
     [FrontendStripe.PRICING_FETCH_ERROR]: "Não foi possível obter o preço",
-    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Não foi possível exibir o preço",
-    [FrontendStripe.MISSING_PRICING]: "Não foi possível obter o preço para inicializar o pagamento",
-    [FrontendStripe.PAYMENT_FORM_ERROR]: "Não foi possível inicializar o formulário de pagamento",
+    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]:
+      "Não foi possível exibir o preço",
+    [FrontendStripe.MISSING_PRICING]:
+      "Não foi possível obter o preço para inicializar o pagamento",
+    [FrontendStripe.PAYMENT_FORM_ERROR]:
+      "Não foi possível inicializar o formulário de pagamento",
     [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Erro ao inicializar Stripe",
     [FrontendStripe.SERVER_ERROR]: "Erro do servidor",
-    [FrontendStripe.MISSING_USER_EMAIL]: "Um e-mail válido é necessário para processar o pagamento",
+    [FrontendStripe.MISSING_USER_EMAIL]:
+      "Um e-mail válido é necessário para processar o pagamento",
   },
   it: {
-    [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Il sistema di pagamento non è stato inizializzato",
+    [FrontendStripe.STRIPE_NOT_INITIALIZED]:
+      "Il sistema di pagamento non è stato inizializzato",
     [FrontendStripe.MISSING_ELEMENTS]: "Errore negli elementi di pagamento",
-    [FrontendStripe.UNKNOWN_PAYMENT_STATUS]: "Il pagamento non è stato completato",
+    [FrontendStripe.UNKNOWN_PAYMENT_STATUS]:
+      "Il pagamento non è stato completato",
     [FrontendStripe.MISSING_BOOKING]: "ID della prenotazione non trovato",
-    [FrontendStripe.BOOKING_CONFIRM_ERROR]: "Si è verificato un problema durante la conferma della prenotazione",
+    [FrontendStripe.BOOKING_CONFIRM_ERROR]:
+      "Si è verificato un problema durante la conferma della prenotazione",
     [FrontendStripe.RELATION_SAVE_ERROR]:
       "Si è verificato un problema durante il salvataggio della relazione di pagamento",
-    [FrontendStripe.UNCERTAIN_PAYMENT]: "Stato del pagamento incerto. Si prega di controllare il proprio account",
-    [FrontendStripe.CONNECTION_ERROR]: "Errore di connessione. Si prega di riprovare",
-    [FrontendStripe.GENERIC_ERROR]: "Si è verificato un errore imprevisto. Si prega di riprovare",
-    [FrontendStripe.MISSING_CONFIG]: "Configurazione incompleta. Si prega di contattare il supporto",
+    [FrontendStripe.UNCERTAIN_PAYMENT]:
+      "Stato del pagamento incerto. Si prega di controllare il proprio account",
+    [FrontendStripe.CONNECTION_ERROR]:
+      "Errore di connessione. Si prega di riprovare",
+    [FrontendStripe.GENERIC_ERROR]:
+      "Si è verificato un errore imprevisto. Si prega di riprovare",
+    [FrontendStripe.MISSING_CONFIG]:
+      "Configurazione incompleta. Si prega di contattare il supporto",
     [FrontendStripe.MISSING_SLUG]: "Tipo di classe non fornito",
-    [FrontendStripe.MISSING_URL_PARAMS]: "Mancano parametri obbligatori nell'URL",
+    [FrontendStripe.MISSING_URL_PARAMS]:
+      "Mancano parametri obbligatori nell'URL",
     [FrontendStripe.PRICING_FETCH_ERROR]: "Impossibile ottenere il prezzo",
-    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Impossibile visualizzare il prezzo",
-    [FrontendStripe.MISSING_PRICING]: "Impossibile ottenere il prezzo per inizializzare il pagamento",
-    [FrontendStripe.PAYMENT_FORM_ERROR]: "Impossibile inizializzare il modulo di pagamento",
-    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Errore di inizializzazione Stripe",
+    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]:
+      "Impossibile visualizzare il prezzo",
+    [FrontendStripe.MISSING_PRICING]:
+      "Impossibile ottenere il prezzo per inizializzare il pagamento",
+    [FrontendStripe.PAYMENT_FORM_ERROR]:
+      "Impossibile inizializzare il modulo di pagamento",
+    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]:
+      "Errore di inizializzazione Stripe",
     [FrontendStripe.SERVER_ERROR]: "Errore del server",
-    [FrontendStripe.MISSING_USER_EMAIL]: "È richiesta un'email valida per elaborare il pagamento",
+    [FrontendStripe.MISSING_USER_EMAIL]:
+      "È richiesta un'email valida per elaborare il pagamento",
   },
   fr: {
-    [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Le système de paiement n'a pas pu être initialisé",
+    [FrontendStripe.STRIPE_NOT_INITIALIZED]:
+      "Le système de paiement n'a pas pu être initialisé",
     [FrontendStripe.MISSING_ELEMENTS]: "Erreur des éléments de paiement",
-    [FrontendStripe.UNKNOWN_PAYMENT_STATUS]: "Le paiement n'a pas pu être complété",
+    [FrontendStripe.UNKNOWN_PAYMENT_STATUS]:
+      "Le paiement n'a pas pu être complété",
     [FrontendStripe.MISSING_BOOKING]: "ID de réservation introuvable",
-    [FrontendStripe.BOOKING_CONFIRM_ERROR]: "Un problème est survenu lors de la confirmation de la réservation",
-    [FrontendStripe.RELATION_SAVE_ERROR]: "Un problème est survenu lors de l'enregistrement de la relation de paiement",
-    [FrontendStripe.UNCERTAIN_PAYMENT]: "Statut de paiement incertain. Veuillez vérifier votre compte",
-    [FrontendStripe.CONNECTION_ERROR]: "Erreur de connexion. Veuillez réessayer",
-    [FrontendStripe.GENERIC_ERROR]: "Une erreur inattendue s'est produite. Veuillez réessayer",
-    [FrontendStripe.MISSING_CONFIG]: "Configuration incomplète. Veuillez contacter le support",
+    [FrontendStripe.BOOKING_CONFIRM_ERROR]:
+      "Un problème est survenu lors de la confirmation de la réservation",
+    [FrontendStripe.RELATION_SAVE_ERROR]:
+      "Un problème est survenu lors de l'enregistrement de la relation de paiement",
+    [FrontendStripe.UNCERTAIN_PAYMENT]:
+      "Statut de paiement incertain. Veuillez vérifier votre compte",
+    [FrontendStripe.CONNECTION_ERROR]:
+      "Erreur de connexion. Veuillez réessayer",
+    [FrontendStripe.GENERIC_ERROR]:
+      "Une erreur inattendue s'est produite. Veuillez réessayer",
+    [FrontendStripe.MISSING_CONFIG]:
+      "Configuration incomplète. Veuillez contacter le support",
     [FrontendStripe.MISSING_SLUG]: "Type de cours non fourni",
     [FrontendStripe.MISSING_URL_PARAMS]: "Paramètres d'URL requis manquants",
     [FrontendStripe.PRICING_FETCH_ERROR]: "Impossible de récupérer le prix",
     [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Impossible d'afficher le prix",
-    [FrontendStripe.MISSING_PRICING]: "Impossible d'obtenir le prix pour initialiser le paiement",
-    [FrontendStripe.PAYMENT_FORM_ERROR]: "Impossible d'initialiser le formulaire de paiement",
-    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Erreur d'initialisation Stripe",
+    [FrontendStripe.MISSING_PRICING]:
+      "Impossible d'obtenir le prix pour initialiser le paiement",
+    [FrontendStripe.PAYMENT_FORM_ERROR]:
+      "Impossible d'initialiser le formulaire de paiement",
+    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]:
+      "Erreur d'initialisation Stripe",
     [FrontendStripe.SERVER_ERROR]: "Erreur du serveur",
-    [FrontendStripe.MISSING_USER_EMAIL]: "Une adresse e-mail valide est requise pour traiter le paiement",
+    [FrontendStripe.MISSING_USER_EMAIL]:
+      "Une adresse e-mail valide est requise pour traiter le paiement",
   },
   de: {
-    [FrontendStripe.STRIPE_NOT_INITIALIZED]: "Das Zahlungssystem konnte nicht initialisiert werden",
+    [FrontendStripe.STRIPE_NOT_INITIALIZED]:
+      "Das Zahlungssystem konnte nicht initialisiert werden",
     [FrontendStripe.MISSING_ELEMENTS]: "Fehler bei den Zahlungselementen",
-    [FrontendStripe.UNKNOWN_PAYMENT_STATUS]: "Die Zahlung konnte nicht abgeschlossen werden",
+    [FrontendStripe.UNKNOWN_PAYMENT_STATUS]:
+      "Die Zahlung konnte nicht abgeschlossen werden",
     [FrontendStripe.MISSING_BOOKING]: "Buchungs-ID nicht gefunden",
-    [FrontendStripe.BOOKING_CONFIRM_ERROR]: "Es gab ein Problem bei der Bestätigung der Buchung",
-    [FrontendStripe.RELATION_SAVE_ERROR]: "Es gab ein Problem beim Speichern der Zahlungsbeziehung",
-    [FrontendStripe.UNCERTAIN_PAYMENT]: "Zahlungsstatus ungewiss. Bitte überprüfen Sie Ihr Konto",
-    [FrontendStripe.CONNECTION_ERROR]: "Verbindungsfehler. Bitte versuchen Sie es erneut",
-    [FrontendStripe.GENERIC_ERROR]: "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut",
-    [FrontendStripe.MISSING_CONFIG]: "Unvollständige Konfiguration. Bitte kontaktieren Sie den Support",
+    [FrontendStripe.BOOKING_CONFIRM_ERROR]:
+      "Es gab ein Problem bei der Bestätigung der Buchung",
+    [FrontendStripe.RELATION_SAVE_ERROR]:
+      "Es gab ein Problem beim Speichern der Zahlungsbeziehung",
+    [FrontendStripe.UNCERTAIN_PAYMENT]:
+      "Zahlungsstatus ungewiss. Bitte überprüfen Sie Ihr Konto",
+    [FrontendStripe.CONNECTION_ERROR]:
+      "Verbindungsfehler. Bitte versuchen Sie es erneut",
+    [FrontendStripe.GENERIC_ERROR]:
+      "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut",
+    [FrontendStripe.MISSING_CONFIG]:
+      "Unvollständige Konfiguration. Bitte kontaktieren Sie den Support",
     [FrontendStripe.MISSING_SLUG]: "Klassentyp nicht angegeben",
     [FrontendStripe.MISSING_URL_PARAMS]: "Erforderliche URL-Parameter fehlen",
     [FrontendStripe.PRICING_FETCH_ERROR]: "Preis konnte nicht abgerufen werden",
-    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]: "Preis konnte nicht angezeigt werden",
-    [FrontendStripe.MISSING_PRICING]: "Preis konnte nicht abgerufen werden, um Zahlung zu initialisieren",
-    [FrontendStripe.PAYMENT_FORM_ERROR]: "Zahlungsformular konnte nicht initialisiert werden",
-    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "Stripe-Initialisierungsfehler",
+    [FrontendStripe.PRICING_ELEMENT_NOT_FOUND]:
+      "Preis konnte nicht angezeigt werden",
+    [FrontendStripe.MISSING_PRICING]:
+      "Preis konnte nicht abgerufen werden, um Zahlung zu initialisieren",
+    [FrontendStripe.PAYMENT_FORM_ERROR]:
+      "Zahlungsformular konnte nicht initialisiert werden",
+    [FrontendStripe.STRIPE_INITIALIZATION_ERROR]:
+      "Stripe-Initialisierungsfehler",
     [FrontendStripe.SERVER_ERROR]: "Serverfehler",
-    [FrontendStripe.MISSING_USER_EMAIL]: "Eine gültige E-Mail-Adresse ist erforderlich, um die Zahlung zu verarbeiten",
+    [FrontendStripe.MISSING_USER_EMAIL]:
+      "Eine gültige E-Mail-Adresse ist erforderlich, um die Zahlung zu verarbeiten",
   },
   ar: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "تعذر تهيئة نظام الدفع",
@@ -308,7 +444,8 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.MISSING_BOOKING]: "لم يتم العثور على معرف الحجز",
     [FrontendStripe.BOOKING_CONFIRM_ERROR]: "حدثت مشكلة أثناء تأكيد الحجز",
     [FrontendStripe.RELATION_SAVE_ERROR]: "حدثت مشكلة أثناء حفظ علاقة الدفع",
-    [FrontendStripe.UNCERTAIN_PAYMENT]: "حالة الدفع غير مؤكدة. يرجى التحقق من حسابك",
+    [FrontendStripe.UNCERTAIN_PAYMENT]:
+      "حالة الدفع غير مؤكدة. يرجى التحقق من حسابك",
     [FrontendStripe.CONNECTION_ERROR]: "خطأ في الاتصال. يرجى المحاولة مرة أخرى",
     [FrontendStripe.GENERIC_ERROR]: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى",
     [FrontendStripe.MISSING_CONFIG]: "إعداد غير مكتمل. يرجى الاتصال بالدعم",
@@ -320,11 +457,18 @@ export const FrontendStripeTranslations: Record<string, Record<FrontendStripe, s
     [FrontendStripe.PAYMENT_FORM_ERROR]: "تعذر تهيئة نموذج الدفع",
     [FrontendStripe.STRIPE_INITIALIZATION_ERROR]: "خطأ في تهيئة Stripe",
     [FrontendStripe.SERVER_ERROR]: "خطأ في الخادم",
-    [FrontendStripe.MISSING_USER_EMAIL]: "يجب توفير بريد إلكتروني صالح لمعالجة الدفع",
+    [FrontendStripe.MISSING_USER_EMAIL]:
+      "يجب توفير بريد إلكتروني صالح لمعالجة الدفع",
   },
 };
-export function getErrorFrontStripe(code: FrontendStripe, lang: string = "es"): string {
-  return FrontendStripeTranslations[lang]?.[code] || FrontendStripeTranslations["es"][code];
+export function getErrorFrontStripe(
+  code: FrontendStripe,
+  lang: string = "es",
+): string {
+  return (
+    FrontendStripeTranslations[lang]?.[code] ||
+    FrontendStripeTranslations["es"][code]
+  );
 }
 
 // Auth success messages
@@ -333,44 +477,63 @@ export enum AuthSuccessCode {
   LOGIN_SUCCESS = "LOGIN_SUCCESS",
   RESET_SUCCESS = "RESET_SUCCESS",
 }
-export const AuthSuccessMessages: Record<string, Record<AuthSuccessCode, string>> = {
+export const AuthSuccessMessages: Record<
+  string,
+  Record<AuthSuccessCode, string>
+> = {
   es: {
-    [AuthSuccessCode.REGISTER_SUCCESS]: "¡Registro exitoso! Vamos a empezar con tu primer curso.",
+    [AuthSuccessCode.REGISTER_SUCCESS]:
+      "¡Registro exitoso! Vamos a empezar con tu primer curso.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "¡Bienvenido de vuelta!",
-    [AuthSuccessCode.RESET_SUCCESS]: "Se ha enviado un correo de restablecimiento de contraseña",
+    [AuthSuccessCode.RESET_SUCCESS]:
+      "Se ha enviado un correo de restablecimiento de contraseña",
   },
   en: {
-    [AuthSuccessCode.REGISTER_SUCCESS]: "Registration successful! Let's start with your first course.",
+    [AuthSuccessCode.REGISTER_SUCCESS]:
+      "Registration successful! Let's start with your first course.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Welcome back!",
     [AuthSuccessCode.RESET_SUCCESS]: "A password reset email has been sent",
   },
   pt: {
-    [AuthSuccessCode.REGISTER_SUCCESS]: "Registro bem-sucedido! Vamos começar com seu primeiro curso.",
+    [AuthSuccessCode.REGISTER_SUCCESS]:
+      "Registro bem-sucedido! Vamos começar com seu primeiro curso.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Bem-vindo de volta!",
-    [AuthSuccessCode.RESET_SUCCESS]: "Um e-mail de redefinição de senha foi enviado",
+    [AuthSuccessCode.RESET_SUCCESS]:
+      "Um e-mail de redefinição de senha foi enviado",
   },
   it: {
-    [AuthSuccessCode.REGISTER_SUCCESS]: "Registrazione riuscita! Iniziamo con il tuo primo corso.",
+    [AuthSuccessCode.REGISTER_SUCCESS]:
+      "Registrazione riuscita! Iniziamo con il tuo primo corso.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Bentornato!",
-    [AuthSuccessCode.RESET_SUCCESS]: "È stata inviata un'email di reimpostazione della password",
+    [AuthSuccessCode.RESET_SUCCESS]:
+      "È stata inviata un'email di reimpostazione della password",
   },
   fr: {
-    [AuthSuccessCode.REGISTER_SUCCESS]: "Inscription réussie ! Commençons par votre premier cours.",
+    [AuthSuccessCode.REGISTER_SUCCESS]:
+      "Inscription réussie ! Commençons par votre premier cours.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Bon retour !",
-    [AuthSuccessCode.RESET_SUCCESS]: "Un email de réinitialisation du mot de passe a été envoyé",
+    [AuthSuccessCode.RESET_SUCCESS]:
+      "Un email de réinitialisation du mot de passe a été envoyé",
   },
   de: {
-    [AuthSuccessCode.REGISTER_SUCCESS]: "Registrierung erfolgreich! Beginnen wir mit Ihrem ersten Kurs.",
+    [AuthSuccessCode.REGISTER_SUCCESS]:
+      "Registrierung erfolgreich! Beginnen wir mit Ihrem ersten Kurs.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "Willkommen zurück!",
-    [AuthSuccessCode.RESET_SUCCESS]: "Eine E-Mail zum Zurücksetzen des Passworts wurde gesendet",
+    [AuthSuccessCode.RESET_SUCCESS]:
+      "Eine E-Mail zum Zurücksetzen des Passworts wurde gesendet",
   },
   ar: {
-    [AuthSuccessCode.REGISTER_SUCCESS]: "تم التسجيل بنجاح! لنبدأ مع دورتك الأولى.",
+    [AuthSuccessCode.REGISTER_SUCCESS]:
+      "تم التسجيل بنجاح! لنبدأ مع دورتك الأولى.",
     [AuthSuccessCode.LOGIN_SUCCESS]: "مرحباً بعودتك!",
-    [AuthSuccessCode.RESET_SUCCESS]: "تم إرسال بريد إلكتروني لإعادة تعيين كلمة المرور",
+    [AuthSuccessCode.RESET_SUCCESS]:
+      "تم إرسال بريد إلكتروني لإعادة تعيين كلمة المرور",
   },
 };
-export function getAuthSuccessMessage(code: AuthSuccessCode, lang: string = "es"): string {
+export function getAuthSuccessMessage(
+  code: AuthSuccessCode,
+  lang: string = "es",
+): string {
   return AuthSuccessMessages[lang]?.[code] || AuthSuccessMessages["es"][code];
 }
 
@@ -385,14 +548,18 @@ export enum ValidationCode {
   TERMS_REQUIRED = "TERMS_REQUIRED",
 }
 
-export const ValidationMessages: Record<string, Record<ValidationCode, string>> = {
+export const ValidationMessages: Record<
+  string,
+  Record<ValidationCode, string>
+> = {
   es: {
     [ValidationCode.EMAIL_REQUIRED]: "El email es obligatorio",
     [ValidationCode.EMAIL_INVALID]: "Introduce un email válido",
     [ValidationCode.PASSWORD_REQUIRED]: "La contraseña es obligatoria",
     [ValidationCode.PASSWORD_MIN]: "Mínimo 6 caracteres",
     [ValidationCode.NAME_REQUIRED]: "El nombre es obligatorio",
-    [ValidationCode.PRIVACY_REQUIRED]: "Debes aceptar la política de privacidad",
+    [ValidationCode.PRIVACY_REQUIRED]:
+      "Debes aceptar la política de privacidad",
     [ValidationCode.TERMS_REQUIRED]: "Debes aceptar los términos y condiciones",
   },
   en: {
@@ -410,7 +577,8 @@ export const ValidationMessages: Record<string, Record<ValidationCode, string>> 
     [ValidationCode.PASSWORD_REQUIRED]: "A senha é obrigatória",
     [ValidationCode.PASSWORD_MIN]: "Mínimo 6 caracteres",
     [ValidationCode.NAME_REQUIRED]: "O nome é obrigatório",
-    [ValidationCode.PRIVACY_REQUIRED]: "Você deve aceitar a política de privacidade",
+    [ValidationCode.PRIVACY_REQUIRED]:
+      "Você deve aceitar a política de privacidade",
     [ValidationCode.TERMS_REQUIRED]: "Você deve aceitar os termos e condições",
   },
   it: {
@@ -419,7 +587,8 @@ export const ValidationMessages: Record<string, Record<ValidationCode, string>> 
     [ValidationCode.PASSWORD_REQUIRED]: "La password è obbligatoria",
     [ValidationCode.PASSWORD_MIN]: "Minimo 6 caratteri",
     [ValidationCode.NAME_REQUIRED]: "Il nome è obbligatorio",
-    [ValidationCode.PRIVACY_REQUIRED]: "Devi accettare la politica sulla privacy",
+    [ValidationCode.PRIVACY_REQUIRED]:
+      "Devi accettare la politica sulla privacy",
     [ValidationCode.TERMS_REQUIRED]: "Devi accettare i termini e le condizioni",
   },
   fr: {
@@ -428,8 +597,10 @@ export const ValidationMessages: Record<string, Record<ValidationCode, string>> 
     [ValidationCode.PASSWORD_REQUIRED]: "Le mot de passe est obligatoire",
     [ValidationCode.PASSWORD_MIN]: "Minimum 6 caractères",
     [ValidationCode.NAME_REQUIRED]: "Le nom est obligatoire",
-    [ValidationCode.PRIVACY_REQUIRED]: "Vous devez accepter la politique de confidentialité",
-    [ValidationCode.TERMS_REQUIRED]: "Vous devez accepter les termes et conditions",
+    [ValidationCode.PRIVACY_REQUIRED]:
+      "Vous devez accepter la politique de confidentialité",
+    [ValidationCode.TERMS_REQUIRED]:
+      "Vous devez accepter les termes et conditions",
   },
   de: {
     [ValidationCode.EMAIL_REQUIRED]: "E-Mail ist erforderlich",
@@ -437,8 +608,10 @@ export const ValidationMessages: Record<string, Record<ValidationCode, string>> 
     [ValidationCode.PASSWORD_REQUIRED]: "Passwort ist erforderlich",
     [ValidationCode.PASSWORD_MIN]: "Mindestens 6 Zeichen",
     [ValidationCode.NAME_REQUIRED]: "Name ist erforderlich",
-    [ValidationCode.PRIVACY_REQUIRED]: "Sie müssen die Datenschutzrichtlinie akzeptieren",
-    [ValidationCode.TERMS_REQUIRED]: "Sie müssen die Allgemeinen Geschäftsbedingungen akzeptieren",
+    [ValidationCode.PRIVACY_REQUIRED]:
+      "Sie müssen die Datenschutzrichtlinie akzeptieren",
+    [ValidationCode.TERMS_REQUIRED]:
+      "Sie müssen die Allgemeinen Geschäftsbedingungen akzeptieren",
   },
   ar: {
     [ValidationCode.EMAIL_REQUIRED]: "البريد الإلكتروني مطلوب",
@@ -451,7 +624,10 @@ export const ValidationMessages: Record<string, Record<ValidationCode, string>> 
   },
 };
 
-export function getValidationMessage(code: ValidationCode, lang: string = "es"): string {
+export function getValidationMessage(
+  code: ValidationCode,
+  lang: string = "es",
+): string {
   return ValidationMessages[lang]?.[code] || ValidationMessages["es"][code];
 }
 

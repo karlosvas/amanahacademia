@@ -35,10 +35,7 @@ pub async fn get_teacher(
         .send()
         .await
     {
-        Ok(response) => match handle_firebase_response::<Teacher>(response).await {
-            Ok(user) => Some(user),
-            Err(_) => None,
-        },
+        Ok(response) => (handle_firebase_response::<Teacher>(response).await).ok(),
         Err(_) => None,
     };
 

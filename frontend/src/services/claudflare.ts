@@ -1,7 +1,9 @@
 import { log } from "./logger";
 
 // Servicio para manejar Cloudflare Turnstile
-export function executeTurnstileIfPresent(formHTML: HTMLFormElement): Promise<void> | void {
+export function executeTurnstileIfPresent(
+  formHTML: HTMLFormElement,
+): Promise<void> | void {
   const turnstileDiv = formHTML.querySelector(".cf-turnstile");
   if (!globalThis.turnstile || !turnstileDiv) return;
   return new Promise((resolve, reject) => {
@@ -10,7 +12,9 @@ export function executeTurnstileIfPresent(formHTML: HTMLFormElement): Promise<vo
         callback: () => resolve(),
         "error-callback": (error: unknown) => {
           log.error("Error de Turnstile:", error);
-          reject(new Error("Error en la verificación, por favor recarga la página."));
+          reject(
+            new Error("Error en la verificación, por favor recarga la página."),
+          );
         },
       });
     } catch (e) {

@@ -15,6 +15,7 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Frontend coverage
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -22,13 +23,13 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Frontend - install & test
+      - name: Generate frontend coverage
         working-directory: ./frontend
         run: |
-          npm ci
-          npm install @esbuild/linux-x64 @rollup/rollup-linux-x64-gnu --no-save
+          npm ci --legacy-peer-deps --ignore-scripts
           npm run test:coverage
 
+      # Backend coverage
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -45,17 +46,16 @@ jobs:
             backend/target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('backend/Cargo.lock') }}
 
-      # Instalación mucho más rápida mediante binario precompilado
       - name: Install llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
 
-      - name: Backend - test & coverage
+      - name: Generate backend coverage
         working-directory: ./backend
-        # Corregido: se usa --ignore-filename-regex en lugar de --exclude-files
         run: |
           mkdir -p coverage
           cargo llvm-cov --cobertura --output-path coverage/cobertura.xml --ignore-filename-regex "src/test.rs"
 
+      # SonarCloud
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v3.1.0
         with:

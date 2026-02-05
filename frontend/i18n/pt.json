@@ -135,7 +135,12 @@
             "amount": 20,
             "time": "/aula"
           },
-          "content": ["Aulas em grupo ilimitadas", "Acesso a conteúdo premium", "Certificação oficial", "Suporte 24/7"],
+          "content": [
+            "Aulas em grupo ilimitadas",
+            "Acesso a conteúdo premium",
+            "Certificação oficial",
+            "Suporte 24/7"
+          ],
           "button": "Reservar Aula"
         },
         "group": {
@@ -146,7 +151,12 @@
             "amount": 10,
             "time": "/aula"
           },
-          "content": ["Aulas em grupo ilimitadas", "Acesso a conteúdo premium", "Certificação oficial", "Suporte 24/7"],
+          "content": [
+            "Aulas em grupo ilimitadas",
+            "Acesso a conteúdo premium",
+            "Certificação oficial",
+            "Suporte 24/7"
+          ],
           "time": "/aula",
           "button": "Reservar Aula"
         }

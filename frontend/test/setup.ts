@@ -1,7 +1,7 @@
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 // Mock de window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
     matches: false,
@@ -16,26 +16,26 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock de import.meta.env
-vi.mock('import.meta', () => ({
+vi.mock("import.meta", () => ({
   env: {
-    PUBLIC_FIREBASE_API_KEY: 'test-api-key',
-    PUBLIC_FIREBASE_AUTH_DOMAIN: 'test.firebaseapp.com',
-    PUBLIC_FIREBASE_PROJECT_ID: 'test-project',
-    PUBLIC_FIREBASE_STORAGE_BUCKET: 'test.appspot.com',
-    PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '123456789',
-    PUBLIC_FIREBASE_APP_ID: 'test-app-id',
-    PUBLIC_FIREBASE_MEASUREMENT_ID: 'G-TEST',
-    PUBLIC_BACKEND_URL: 'http://localhost:3000',
-    PUBLIC_STRIPE_PUBLIC_KEY: 'pk_test_123',
+    PUBLIC_FIREBASE_API_KEY: "test-api-key",
+    PUBLIC_FIREBASE_AUTH_DOMAIN: "test.firebaseapp.com",
+    PUBLIC_FIREBASE_PROJECT_ID: "test-project",
+    PUBLIC_FIREBASE_STORAGE_BUCKET: "test.appspot.com",
+    PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "123456789",
+    PUBLIC_FIREBASE_APP_ID: "test-app-id",
+    PUBLIC_FIREBASE_MEASUREMENT_ID: "G-TEST",
+    PUBLIC_BACKEND_URL: "http://localhost:3000",
+    PUBLIC_STRIPE_PUBLIC_KEY: "pk_test_123",
   },
 }));
 
 // Mock de Firebase Auth
-vi.mock('firebase/app', () => ({
+vi.mock("firebase/app", () => ({
   initializeApp: vi.fn(() => ({})),
 }));
 
-vi.mock('firebase/auth', () => ({
+vi.mock("firebase/auth", () => ({
   getAuth: vi.fn(() => ({
     currentUser: null,
     signOut: vi.fn(),
@@ -50,7 +50,7 @@ vi.mock('firebase/auth', () => ({
 }));
 
 // Mock de solid-toast
-vi.mock('solid-toast', () => ({
+vi.mock("solid-toast", () => ({
   default: {
     success: vi.fn(),
     error: vi.fn(),
@@ -69,17 +69,17 @@ global.window = global.window || {};
 global.fetch = vi.fn();
 
 // Mock de location
-Object.defineProperty(window, 'location', {
+Object.defineProperty(window, "location", {
   writable: true,
   value: {
     reload: vi.fn(),
-    href: '',
-    pathname: '/',
+    href: "",
+    pathname: "/",
   },
 });
 
 // Mock de document methods comunes
-Object.defineProperty(document, 'getElementById', {
+Object.defineProperty(document, "getElementById", {
   writable: true,
   value: vi.fn(),
 });
@@ -92,13 +92,13 @@ const localStorageMock = {
   clear: vi.fn(),
 };
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
 
 // Mock de Cloudflare Turnstile
 (global.window as any).turnstile = {
   render: vi.fn(),
-  getResponse: vi.fn(() => 'test-token'),
+  getResponse: vi.fn(() => "test-token"),
   reset: vi.fn(),
 };
