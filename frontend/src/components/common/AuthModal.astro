@@ -48,9 +48,12 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
       <!-- Email Input -->
       <div class="relative">
         <input
+          id="login-email"
           type="email"
           placeholder={data.utils.labels.email}
           name="email"
+          autocomplete="username"
+          inputmode="email"
           class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown font-normal"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -60,9 +63,11 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
       <!-- Password Input -->
       <div class="relative">
         <input
+          id="login-password"
           type="password"
           placeholder={data.utils.labels.password}
           name="password"
+          autocomplete="current-password"
           class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -151,9 +156,11 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
       <!-- Nombre Input -->
       <div class="relative">
         <input
+          id="register-name"
           type="text"
           placeholder={data.utils.labels.name}
           name="name"
+          autocomplete="name"
           class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"></div>
@@ -161,9 +168,12 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
       <!-- Email Input -->
       <div class="relative">
         <input
+          id="register-email"
           type="email"
           placeholder={data.utils.labels.email}
           name="email"
+          autocomplete="email"
+          inputmode="email"
           class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -173,9 +183,11 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
       <!-- Password Input -->
       <div class="relative">
         <input
+          id="register-password"
           type="password"
           placeholder={data.utils.labels.password}
           name="password"
+          autocomplete="new-password"
           class="w-full px-4 py-2 bg-smoothBrown border border-lightSalmon rounded-xl focus:outline-none focus:ring-2 focus:ring-salmon focus:border-transparent transition-all duration-200 text-black placeholder-lightBrown"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -188,7 +200,7 @@ export const TERMNS = ["terms", "privacy", "newsletter"];
           data.register.info?.map((item: string, index: number) => (
             <li>
               <label class="flex items-center">
-                <input type="checkbox" name={TERMNS[index]} class="mr-2" />
+                <input type="checkbox" name={TERMNS[index]} autocomplete="off" class="mr-2" />
                 <a
                   href="/legal"
                   title={label}
