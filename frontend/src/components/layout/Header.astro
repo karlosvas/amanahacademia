@@ -7,7 +7,7 @@ import AuthModal from "@/components/common/AuthModal.astro";
 import PasswordResetModal from "@/components/common/PasswordResetModal.astro";
 import type { Lang } from "@/types/types";
 import { labels_header } from "@/../i18n/index";
-import { Theme } from "@/enums/enums";
+import { Theme, Languages } from "@/enums/enums";
 
 // Obtener las traduccciones
 const data = Astro.props.data as HeaderI18n;
@@ -19,8 +19,11 @@ const theme: Theme = themeCookie === Theme.DARK ? Theme.DARK : Theme.LIGHT;
 
 if (!lang) lang = "es";
 
+// Validar que lang sea un idioma válido antes de guardar en cookie (evitar contaminación por rutas dinámicas)
+const validLang = Object.values(Languages).includes(lang as Languages) ? lang : Languages.SPANISH;
+
 // Guardamos el idioma en las cookies (consistente con el nombre usado en el cliente)
-Astro.cookies.set("langCookie", lang, { path: "/", maxAge: 31536000, sameSite: "lax", httpOnly: false });
+Astro.cookies.set("langCookie", validLang, { path: "/", maxAge: 31536000, sameSite: "lax", httpOnly: false });
 ---
 
 <header

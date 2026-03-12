@@ -8,10 +8,10 @@ import { cookiesTranslation } from "@/../i18n/index";
 import { Languages } from "@/enums/enums";
 import ArrowIcon from "@/assets/arrow.svg";
 
-// Obtener el idioma de la cookie o usar español por defecto
+// Obtain the language from cookies (default to Spanish if not set)
 const langCookies = Astro.cookies.get("langCookie")?.value || Languages.SPANISH;
 
-// Solo establecer la cookie si no existe (evitar establecerla en cada request)
+// Only set the cookie if it doesn't exist (avoid setting it on every request)
 if (!Astro.cookies.get("langCookie")) {
   Astro.cookies.set("langCookie", Languages.SPANISH, {
     path: "/",
