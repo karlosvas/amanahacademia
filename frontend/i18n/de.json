@@ -2,7 +2,7 @@
   "header": {
     "about_us": "Über uns",
     "articles": "Artikel",
-    "pricing": "Preise",
+    "pricing": "Kurse",
     "courses": "Kurse",
     "comments": "Kommentare",
     "contact": "Kontakt",
@@ -107,7 +107,7 @@
       ]
     },
     "pricing": {
-      "title": "Preise",
+      "title": "Kurse",
       "type": {
         "standard": {
           "title": "Standard Einzel",

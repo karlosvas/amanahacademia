@@ -2,7 +2,7 @@
 import { log } from "@/services/logger";
 import UserInfoPanel from "../UserInfoPanel.astro";
 import { ApiService } from "@/services/helper";
-import type { ResponseAPI, CalBookingPayload, StripeRelation } from "@/types/bakend-types";
+import type { ResponseAPI, CalBookingPayload, StripeRelation, BookingRequest } from "@/types/bakend-types";
 
 const helper = new ApiService();
 
@@ -64,7 +64,7 @@ const classesByOrganizer = listOfClass.reduce(
     Object.entries(classesByOrganizer).map(([organizerName, bookings]) => (
       <div class="mb-6 border border-gray-200 rounded-lg overflow-hidden">
         <h2
-          class="text-white text-2xl font-semibold p-4 bg-brown hover:bg-salmon duration-300 cursor-pointer flex items-center justify-between transition-colors"
+          class="text-2xl font-semibold p-4 bg-brown hover:bg-salmon duration-300 cursor-pointer flex items-center justify-between transition-colors text-white dark:text-emerald-50"
           onclick={`this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')`}
         >
           <span>{organizerName}</span>

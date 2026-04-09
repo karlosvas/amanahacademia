@@ -61,20 +61,20 @@ const statusLabels: Record<string, string> = {
 ---
 
 <div
-  class="flex flex-row items-center bg-[#fff4e1] rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-[#fee8d6] w-full"
+  class="flex flex-col sm:flex-row items-start sm:items-center bg-[#fff4e1] rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 sm:p-6 border border-[#fee8d6] w-full gap-4 sm:gap-0"
 >
   <!-- Icono y Badge de Monto -->
-  <div class="items-center justify-between mb-4 align-middle p-2 flex flex-col">
+  <div class="flex flex-row sm:flex-col items-center gap-3 sm:gap-0 sm:justify-between sm:mb-0 align-middle p-2">
     <div class={`w-12 h-12 rounded-lg flex items-center justify-center ${iconColors[iconType]}`}>
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={icons[iconType]} />
     </div>
-    <div class="my-2 bg-[#8a4141] text-white px-3 py-1 rounded-md text-sm font-bold">
+    <div class="sm:my-2 bg-[#8a4141] text-white px-3 py-1 rounded-md text-sm font-bold">
       {formatAmount(paymentIntent.amount, paymentIntent.currency)}
     </div>
   </div>
 
   <!-- Información Principal -->
-  <div class="m-4 flex-grow">
+  <div class="sm:m-4 flex-grow w-full sm:w-auto">
     <span class="flex items-center gap-2 my-2">
       <span class="font-bold text-[#131313]">Estado:</span>
       <span
@@ -85,7 +85,7 @@ const statusLabels: Record<string, string> = {
     </span>
 
     <p class="text-md font-semibold text-[#131313] mt-2">
-      ID: <span class="font-mono text-sm">{paymentIntent.id}</span>
+      ID: <span class="font-mono text-sm break-all">{paymentIntent.id}</span>
     </p>
 
     {paymentIntent.description && <p class="text-sm text-[#131313] mt-1">{paymentIntent.description}</p>}
@@ -98,7 +98,7 @@ const statusLabels: Record<string, string> = {
   </div>
 
   <!-- Fecha y Hora -->
-  <div class="text-right">
+  <div class="text-left sm:text-right w-full sm:w-auto shrink-0">
     <p class="text-sm font-bold text-[#131313]">
       Fecha: {formatDate(paymentIntent.created)}
     </p>

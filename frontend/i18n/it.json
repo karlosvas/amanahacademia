@@ -2,7 +2,7 @@
   "header": {
     "about_us": "Chi siamo",
     "articles": "Articoli",
-    "pricing": "Prezzi",
+    "pricing": "Lezioni",
     "courses": "Corsi",
     "comments": "Commenti",
     "contact": "Contatti",
@@ -107,7 +107,7 @@
       ]
     },
     "pricing": {
-      "title": "Prezzi",
+      "title": "Lezioni",
       "type": {
         "standard": {
           "title": "Individuali standard",

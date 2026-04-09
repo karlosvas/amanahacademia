@@ -1,9 +1,9 @@
 ---
-import type { Booking } from "@/types/bakend-types";
+import type { CalBookingPayload } from "@/types/bakend-types";
 import { icons, iconColors } from "@/utils/pannel";
 
 interface Props {
-  booking: Booking;
+  booking: CalBookingPayload;
   iconType: "users" | "active" | "new" | "conversion";
 }
 
@@ -32,21 +32,25 @@ const status = booking.status.toLowerCase();
 const statusStyle = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
 ---
 
-<div class={`bg-[#fff4e1] group flex flex-row items-center  rounded-xl   p-6 w-full `}>
-  <div class="items-center justify-between align-middle p-2 flex flex-col gap-3">
-    <div class={`w-14 h-14 rounded-xl flex items-center justify-center ${iconColors[iconType]}  `}>
+<div
+  class={`bg-[#fff4e1] group flex flex-col sm:flex-row items-start sm:items-center rounded-xl p-4 sm:p-6 w-full gap-4 sm:gap-0`}
+>
+  <div
+    class="flex flex-row sm:flex-col items-center justify-start sm:justify-between sm:align-middle p-2 gap-3 sm:gap-3"
+  >
+    <div class={`w-14 h-14 rounded-xl flex items-center justify-center ${iconColors[iconType]}`}>
       <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={icons[iconType]} />
     </div>
-    <div class=`bg-red text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide `>
+    <div class="bg-red text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide">
       {booking.uid}
     </div>
   </div>
 
-  <div class="mx-6 flex-grow">
+  <div class="sm:mx-6 flex-grow w-full sm:w-auto">
     <div class="flex items-center gap-2 mb-3">
       <span class="text-sm font-semibold text-gray-600">Estado:</span>
       <span
-        class={`${statusStyle.text} ${statusStyle.bg} px-3 py-1 rounded-full text-sm font-bold capitalize border  shadow-sm`}
+        class={`${statusStyle.text} ${statusStyle.bg} px-3 py-1 rounded-full text-sm font-bold capitalize border shadow-sm`}
       >
         {booking.status}
       </span>
@@ -55,41 +59,43 @@ const statusStyle = statusConfig[status as keyof typeof statusConfig] || statusC
     <p class="text-sm text-gray-600 leading-relaxed">{booking.description}</p>
   </div>
 
-  <div class="flex flex-col gap-2 min-w-[140px] bg-white/50 p-4 rounded-lg border border-gray-200/50 shadow-sm">
+  <div
+    class="flex flex-row sm:flex-col gap-3 sm:gap-2 w-full sm:min-w-[140px] bg-white/50 p-0 md:p-4 rounded-lg border border-gray-200/50 shadow-sm text-sm justify-center"
+  >
     <div class="flex items-center gap-2">
-      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="2"
           d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
       </svg>
-      <p class="text-sm font-bold text-gray-700">
+      <p class="font-bold text-gray-700">
         {booking.startTime?.split("T")[0].split("-").reverse().join("/")}
       </p>
     </div>
     <div class="flex items-center gap-2">
-      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="2"
           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
-      <p class="text-sm font-semibold text-gray-700">
-        {booking.startTime?.split("T")[1].split(".")[0]}
+      <p class="font-semibold text-gray-700">
+        {booking.startTime?.split("T")[1].split(":").slice(0, 2).join(":")}
       </p>
     </div>
     <div class="flex items-center gap-2">
-      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="2"
           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
-      <p class="text-sm font-semibold text-gray-700">
-        {booking.endTime?.split("T")[1].split(".")[0]}
+      <p class="font-semibold text-gray-700">
+        {booking.endTime?.split("T")[1].split(":").slice(0, 2).join(":")}
       </p>
     </div>
   </div>

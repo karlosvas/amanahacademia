@@ -2,7 +2,7 @@
   "header": {
     "about_us": "Sobre nós",
     "articles": "Artigos",
-    "pricing": "Preços",
+    "pricing": "Aulas",
     "courses": "Cursos",
     "comments": "Comentários",
     "contact": "Contato",
@@ -107,7 +107,7 @@
       ]
     },
     "pricing": {
-      "title": "Preços",
+      "title": "Aulas",
       "type": {
         "standard": {
           "title": "Individuais padrão",
@@ -135,12 +135,7 @@
             "amount": 20,
             "time": "/aula"
           },
-          "content": [
-            "Aulas em grupo ilimitadas",
-            "Acesso a conteúdo premium",
-            "Certificação oficial",
-            "Suporte 24/7"
-          ],
+          "content": ["Aulas em grupo ilimitadas", "Acesso a conteúdo premium", "Certificação oficial", "Suporte 24/7"],
           "button": "Reservar Aula"
         },
         "group": {
@@ -151,12 +146,7 @@
             "amount": 10,
             "time": "/aula"
           },
-          "content": [
-            "Aulas em grupo ilimitadas",
-            "Acesso a conteúdo premium",
-            "Certificação oficial",
-            "Suporte 24/7"
-          ],
+          "content": ["Aulas em grupo ilimitadas", "Acesso a conteúdo premium", "Certificação oficial", "Suporte 24/7"],
           "time": "/aula",
           "button": "Reservar Aula"
         }

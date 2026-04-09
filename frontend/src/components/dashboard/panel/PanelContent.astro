@@ -63,6 +63,10 @@ import StatsCard from "../StatsCard.astro";
       // Mapear a los labels del chart
       const articleClicksData = mapToMonths(articleClicksMap, labels, monthLabels);
 
+      const gradient = ctx.getContext("2d")!.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, "#b2443a");
+      gradient.addColorStop(1, "#fa8072");
+
       new Chart(ctx, {
         type: "bar",
         data: {
@@ -71,7 +75,7 @@ import StatsCard from "../StatsCard.astro";
             {
               label: "Clics por Artículo",
               data: articleClicksData,
-              backgroundColor: "#b2443a",
+              backgroundColor: gradient,
               borderColor: "#6d0006",
               borderWidth: 2,
               borderRadius: 8,
