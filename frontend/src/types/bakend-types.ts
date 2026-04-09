@@ -213,7 +213,12 @@ export type Availability = {
  * Representa el estado de una reserva en Cal.com.
  * El API utiliza mayúsculas separadas por guiones bajos (SNAKE_CASE).
  */
-export type BookingStatus = "ACCEPTED" | "CANCELLED" | "PENDING" | "REJECTED" | "UNKNOWN";
+export type BookingStatus =
+  | "ACCEPTED"
+  | "CANCELLED"
+  | "PENDING"
+  | "REJECTED"
+  | "UNKNOWN";
 
 /**
  * Representa a un asistente de la reserva (estudiante o huésped).
@@ -339,4 +344,6 @@ export interface CalBookingPayload {
 }
 
 // API implementacion
-export type ResponseAPI<T> = { success: true; data: T } | { success: false; error: string };
+export type ResponseAPI<T> =
+  | { success: true; data: T }
+  | { success: false; error: string };
