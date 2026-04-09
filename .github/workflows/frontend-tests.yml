@@ -1,6 +1,6 @@
 name: Frontend Tests
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 # Este workflow proporciona feedback rápido en branches de desarrollo.
@@ -49,9 +49,15 @@ jobs:
         working-directory: ./frontend
         run: npm ci --legacy-peer-deps --ignore-scripts
 
-      - name: Check code formatting
+      - name: Auto-fix formatting
         working-directory: ./frontend
-        run: npx prettier --check .
+        run: npx prettier --write .
+
+      - name: Commit formatting fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: auto-format with prettier"
+          file_pattern: "frontend/**"
 
       - name: Build project
         working-directory: ./frontend
