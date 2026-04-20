@@ -9,7 +9,10 @@ export async function GET({ request }: { request: Request }) {
     request.headers.get("x-vercel-ip-country") || // Encabezado OFICIAL de Vercel (Máxima fiabilidad)
     "ES"; // Valor por defecto
 
-  const isDevelopment = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname.includes("local");
+  const isDevelopment =
+    url.hostname === "localhost" ||
+    url.hostname === "127.0.0.1" ||
+    url.hostname.includes("local");
 
   // Países con mayor nivel de vida
   const highIncomeCountries = [
