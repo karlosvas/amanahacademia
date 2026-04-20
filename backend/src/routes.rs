@@ -4,6 +4,7 @@ pub mod email;
 pub mod mailchimp;
 pub mod metrics;
 pub mod payments;
+pub mod sourvey;
 pub mod teachers;
 pub mod users;
 pub mod webhooks;

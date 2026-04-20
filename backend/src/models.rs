@@ -6,6 +6,7 @@ pub mod firebase;
 pub mod mailchimp;
 pub mod metrics;
 pub mod response;
+pub mod sourvey;
 pub mod state;
 pub mod stripe;
 pub mod teacher;

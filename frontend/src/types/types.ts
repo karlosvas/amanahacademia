@@ -448,6 +448,7 @@ export enum DashboardAdminTypes {
   CLASSES = "crear clases",
   PAYMENTS = "pagos",
   CONTENT = "contenido",
+  SURVEYS = "encuestas",
 }
 
 export interface MetricData {

@@ -1,20 +1,15 @@
 import type { PricingApiResponse } from "@/types/types";
 
 export async function GET({ request }: { request: Request }) {
-  // Para testing en desarrollo y producción
   const url = new URL(request.url);
-  // En desarrollo usa el parámetro, en producción usa CF header
-  const country =
-    url.searchParams.get("test_country") || // 1. Para pruebas
-    request.headers.get("CF-IPCountry") || // 2. Encabezado común (Probablemente funciona)
-    request.headers.get("x-vercel-ip-country") || // 3. Encabezado OFICIAL de Vercel (Máxima fiabilidad)
-    "ES"; // 4. Valor por defecto
 
-  // También puedes detectar si estás en desarrollo
-  const isDevelopment =
-    url.hostname === "localhost" ||
-    url.hostname === "127.0.0.1" ||
-    url.hostname.includes("local");
+  const country =
+    url.searchParams.get("test_country") || // Para pruebas
+    request.headers.get("CF-IPCountry") || // Encabezado común (Probablemente funciona)
+    request.headers.get("x-vercel-ip-country") || // Encabezado OFICIAL de Vercel (Máxima fiabilidad)
+    "ES"; // Valor por defecto
+
+  const isDevelopment = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname.includes("local");
 
   // Países con mayor nivel de vida
   const highIncomeCountries = [

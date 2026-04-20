@@ -91,19 +91,17 @@ Astro.cookies.set("langCookie", validLang, { path: "/", maxAge: 31536000, sameSi
     onAuthStateChanged((user) => {
       setupAuth(user, authModalLogin, formLogin, headerData);
 
-      const isAdmin =
-        !!user?.email &&
-        (user.email.endsWith("@amanahacademia.com") ||
-          user.email === "carlosvassan@gmail.com" ||
-          user.email === "anaortgut2025@gmail.com");
+      user?.getIdTokenResult(true).then((tokenResult) => {
+        const isAdminOrTeacher = tokenResult?.claims.role === "admin" || tokenResult?.claims.role === "teacher";
 
-      if (panelAnalitics) {
-        // Mostrar/ocultar de forma consistente
-        panelAnalitics.hidden = !isAdmin;
-        panelAnalitics.classList.toggle("hidden", !isAdmin);
-        panelAnalitics.classList.toggle("block", isAdmin);
-        panelAnalitics.setAttribute("aria-hidden", String(!isAdmin));
-      }
+        if (panelAnalitics) {
+          // Mostrar/ocultar de forma consistente
+          panelAnalitics.hidden = !isAdminOrTeacher;
+          panelAnalitics.classList.toggle("hidden", !isAdminOrTeacher);
+          panelAnalitics.classList.toggle("block", isAdminOrTeacher);
+          panelAnalitics.setAttribute("aria-hidden", String(!isAdminOrTeacher));
+        }
+      });
     });
   });
 </script>

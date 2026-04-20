@@ -9,6 +9,7 @@ import PanelUser from "@/components/dashboard/panel/PanelUser.astro";
 import PanelPayments from "@/components/dashboard/panel/PanelPayments.astro";
 import PanelContent from "@/components/dashboard/panel/PanelContent.astro";
 import PanelDashboard from "@/components/dashboard/panel/PanelDashboard.astro";
+import PanelSurveys from "@/components/dashboard/panel/PanelSurveys.astro";
 import type { ResponseAPI } from "@/types/bakend-types";
 
 const helper = new ApiService();
@@ -63,6 +64,8 @@ if (!section || !validSections.includes(section as DashboardAdminTypes)) {
           <PanelPayments />
         ) : section === DashboardAdminTypes.CONTENT ? (
           <PanelContent />
+        ) : section === DashboardAdminTypes.SURVEYS ? (
+          <PanelSurveys />
         ) : null
       }
     </div>

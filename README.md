@@ -65,12 +65,17 @@ Cal.com - Sistema de gestión de calendario y reservas integrado
 
 ### DevOps & Infraestructura
 
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Fly.io](https://img.shields.io/badge/Fly.io-8B5CF6?style=for-the-badge)
 ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=Cloudflare&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
+![SonarCloud](https://img.shields.io/badge/SonarCloud-000000?style=for-the-badge)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 
-Docker - Contenedores para empaquetado y despliegue consistente  
+Firebase Auth - Gestión de autenticación y usuarios  
+Firebase Realtime DB - Base de datos en tiempo real para sincronización instantánea
+SonarCloud - Análisis de calidad de código y cobertura de pruebas  
+Vercel - Plataforma de despliegue para frontend con optimización global  
 Fly.io - Plataforma de despliegue global para aplicaciones edge  
 Cloudflare - CDN, DNS y servicios de seguridad para optimización  
 GitHub Actions - CI/CD automatizado para integración y despliegue continuo

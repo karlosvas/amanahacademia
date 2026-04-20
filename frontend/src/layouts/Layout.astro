@@ -303,7 +303,7 @@ const cookieMessage =
     }
 
     if (user) {
-      await syncTokenWithServer(); // Sync inicial
+      await syncTokenWithServer();
       tokenRefreshInterval = setInterval(
         async () => {
           await syncTokenWithServer();
@@ -320,15 +320,11 @@ const cookieMessage =
 
   // Aceptar las cookies
   const acceptCookiesElement = document.getElementById("acceptCookies");
-  if (acceptCookiesElement) {
-    acceptCookiesElement.addEventListener("click", () => acceptCookies());
-  }
+  if (acceptCookiesElement) acceptCookiesElement.addEventListener("click", () => acceptCookies());
 
   // Rechazar las cookies
   const rejectCookiesElement = document.getElementById("rejectCookies");
-  if (rejectCookiesElement) {
-    rejectCookiesElement.addEventListener("click", () => rejectCookies());
-  }
+  if (rejectCookiesElement) rejectCookiesElement.addEventListener("click", () => rejectCookies());
 
   // Botón para volver al inicio - usando MutationObserver para detectar cambios de scroll
   const backToTopButton = document.getElementById("backToTop");

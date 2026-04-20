@@ -4,14 +4,25 @@ import type { DashboardAdminTypes } from "@/types/types";
 interface Props {
   title: DashboardAdminTypes;
   subtitle: String;
+  role: String;
 }
 
-const { title, subtitle } = Astro.props;
+const { title, subtitle, role } = Astro.props;
 ---
 
 <a
+  data-required-role={role}
   href={`/panel-admin?section=${title}`}
-  class="flex items-center gap-3 p-3 rounded-xl hover:bg-[#ff9090] transition-colors group/item"
+  class="flex
+  items-center
+  gap-3
+  p-3
+  rounded-xl
+  hover:bg-[#ff9090]
+  transition-colors
+  group
+  item
+  hidden"
 >
   <div class="w-10 h-10 rounded-lg flex items-center justify-center transition-color">
     <!-- Obtenemos el svg del padre -->

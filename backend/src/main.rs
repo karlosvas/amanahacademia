@@ -196,6 +196,7 @@ async fn main() {
         .nest("/comments", routes::comments::router(state.clone()))
         .nest("/payment", routes::payments::router(state.clone()))
         .nest("/teachers", routes::teachers::router(state.clone()))
+        .nest("/surveys", routes::sourvey::router(state.clone()))
         .nest("/email", routes::email::router(state.clone()))
         .nest("/mailchimp", routes::mailchimp::router(state.clone()))
         .nest("/cal", routes::cal::router(state.clone()))

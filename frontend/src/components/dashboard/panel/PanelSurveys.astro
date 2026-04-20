@@ -1,0 +1,89 @@
+---
+import { ApiService } from "@/services/helper";
+import { log } from "@/services/logger";
+import SurveyCard from "@/components/dashboard/card/SurveyCard.astro";
+import type { ResponseAPI } from "@/types/bakend-types";
+import type { Survey } from "@/types/bakend-types";
+
+const helper = new ApiService();
+
+const token_cookie = Astro.cookies.get("session")?.value ?? "";
+if (!token_cookie) log.error("No session token found in cookies for PanelPayments component");
+
+let response: ResponseAPI<Survey[]> = await helper.getSurveyResults(token_cookie);
+if (!response.success) {
+  log.error("Failed to fetch survey results for PanelSurveys component", { error: response.error });
+}
+
+const surveys: Survey[] = response.success ? (response.data ?? []) : [];
+const hasSurveys: boolean = surveys.length > 0;
+---
+
+<section>
+  <h1 class="text-red text-4xl font-bold my-10">Encuestas</h1>
+  {
+    hasSurveys ? (
+      surveys.map((survey: Survey) => <SurveyCard survey={survey} iconType="conversion" />)
+    ) : response.success ? (
+      <div class="max-w-2xl rounded-2xl border border-[#f4d9a8] bg-gradient-to-br from-[#fff7e8] to-[#ffeed4] p-6 shadow-sm">
+        <div class="flex items-start gap-4">
+          <div class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#ffe3b8] text-[#8a4141]">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z"
+              />
+            </svg>
+          </div>
+
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-[#6d0006]">No hay encuestas disponibles</h3>
+            <p class="mt-1 text-sm text-[#8a4141]">
+              En este momento no se encontraron encuestas para mostrar. Cuando haya nuevas, aparecerán aquí.
+            </p>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div class="max-w-2xl rounded-2xl border border-[#f4cfc6] bg-gradient-to-br from-[#fff4e1] to-[#ffe8d6] p-6 shadow-sm">
+        <div class="flex items-start gap-4">
+          <div class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#ffd9cf] text-[#8a4141]">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M4.93 19h14.14c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.2 16c-.77 1.33.19 3 1.73 3z"
+              />
+            </svg>
+          </div>
+
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-[#6d0006]">No pudimos cargar las encuestas</h3>
+            <p class="mt-1 text-sm text-[#8a4141]">
+              Puede ser un problema temporal de conexión o del servidor. Inténtalo de nuevo en unos segundos.
+            </p>
+
+            <div class="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                class="rounded-lg bg-[#8a4141] px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#6d3333]"
+                onclick="window.location.reload()"
+              >
+                Reintentar
+              </button>
+              <a
+                href="/contact"
+                class="rounded-lg border border-[#8a4141] px-4 py-2 text-sm font-semibold text-[#8a4141] transition-colors duration-200 hover:bg-[#8a4141] hover:text-white"
+              >
+                Contactar soporte
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+</section>
