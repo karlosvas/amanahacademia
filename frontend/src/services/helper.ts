@@ -228,8 +228,8 @@ export class ApiService {
   }
 
   // Obtener el usuario actual (GET)
-  async getUser(): Promise<ResponseAPI<UserMerged>> {
-    const token = await getCurrentUserToken();
+  async getUser(token_cookie: string): Promise<ResponseAPI<UserMerged>> {
+    const token = token_cookie || (await getCurrentUserToken());
 
     return this.fetchApi<UserMerged>("/users/me", {
       method: "GET",
