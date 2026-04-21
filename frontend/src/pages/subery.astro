@@ -198,6 +198,8 @@ const user = await helper.getUser(token);
 
   <script>
     import confetti from "@hiseb/confetti";
+    import { ApiService } from "@/services/helper";
+    import type { QuestionCreate, SurveyCreate } from "@/types/bakend-types";
 
     const setupRadioOther = (triggerSelector: string, targetSelector: string, groupName: string) => {
       const trigger = document.querySelector(triggerSelector);
@@ -254,14 +256,101 @@ const user = await helper.getUser(token);
     setupCheckboxOther('[data-other-toggle="languages"]', "#languages-other");
     setupRadioOther('[data-other-toggle="focus"]', "#focus-other", "focus");
 
-    const submmitButton = document.querySelector(".submit-btn");
+    const helper = new ApiService();
+    const submitButton = document.querySelector(".submit-btn");
     const form = document.querySelector(".survey-form");
-    form?.addEventListener("submit", (e) => {
+    form?.addEventListener("submit", async (e) => {
       e.preventDefault();
-      submmitButton?.setAttribute("disabled", "true");
-      submmitButton?.classList.add("cursor-not-allowed", "opacity-70");
-      submmitButton?.classList.remove("hover:brightness-105", "hover:translate-y-[-1px]");
-      confetti({});
+      if (!(e.currentTarget instanceof HTMLFormElement)) {
+        return;
+      }
+
+      submitButton?.setAttribute("disabled", "true");
+      submitButton?.classList.add("cursor-not-allowed", "opacity-70");
+      submitButton?.classList.remove("hover:brightness-105", "hover:translate-y-[-1px]");
+
+      const formData = new FormData(e.currentTarget);
+      const readString = (key: string) => String(formData.get(key) ?? "").trim();
+
+      const spanishLevelBase = readString("spanish-level");
+      const spanishLevel = spanishLevelBase === "other" ? readString("spanish-level-other") : spanishLevelBase;
+
+      const focusBase = readString("focus");
+      const focus = focusBase === "other" ? readString("focus-other") : focusBase;
+
+      const selectedLanguages = formData
+        .getAll("other-languages")
+        .map((item) => String(item))
+        .filter((item) => item !== "other");
+      const languageOther = readString("languages-other");
+      const languages = languageOther ? [...selectedLanguages, languageOther] : selectedLanguages;
+
+      const spanishLevelOptions = ["beginner", "A1", "A2", "B1", "B2", "C1", "Other"];
+      const otherLanguagesOptions = ["English", "Italian", "French", "Portuguese", "German", "Other"];
+      const focusOptions = ["listening", "grammar", "speaking", "Other"];
+
+      const createQuestion = (
+        id: string,
+        label: string,
+        type: QuestionCreate["type"],
+        value: string,
+        options?: string[],
+      ): QuestionCreate => ({
+        id,
+        label,
+        type,
+        required: true,
+        answer: value,
+        options,
+      });
+
+      const newSurvey: SurveyCreate = {
+        id: "",
+        title: "Group Class Survey",
+        description: "Student placement answers",
+        userEmail: document.querySelector(".change-account")?.textContent?.trim() || "Anonymous",
+        questions: [
+          createQuestion("name", "What is your name?", "text", readString("name")),
+          createQuestion("age", "How old are you?", "number", readString("age")),
+          createQuestion("native-language", "What is your native language?", "text", readString("native-language")),
+          createQuestion(
+            "spanish-level",
+            "What is your current Spanish level?",
+            "radio",
+            spanishLevel,
+            spanishLevelOptions,
+          ),
+          createQuestion(
+            "other-languages",
+            "Do you speak any other languages beside your native language?",
+            "checkbox",
+            languages.join(", "),
+            otherLanguagesOptions,
+          ),
+          createQuestion(
+            "focus",
+            "What would you like to focus on the most during the class?",
+            "radio",
+            focus,
+            focusOptions,
+          ),
+          {
+            id: "extra-notes",
+            label: "Is there anything else you would like to add?",
+            type: "textarea",
+            required: false,
+            answer: readString("extra-notes"),
+          },
+        ],
+      };
+
+      const response = await helper.createSurvey(newSurvey);
+      if (response.success) {
+        confetti({});
+      } else {
+        submitButton?.removeAttribute("disabled");
+        submitButton?.classList.remove("cursor-not-allowed", "opacity-70");
+      }
     });
   </script>
 </Layout>

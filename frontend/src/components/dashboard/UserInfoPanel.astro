@@ -1,10 +1,11 @@
 ---
 import type { CalBookingPayload } from "@/types/bakend-types";
-import { icons, iconColors } from "@/utils/pannel";
+import { icons, iconColors } from "@/utils/panel";
+import type { IconType } from "@/utils/panel";
 
 interface Props {
   booking: CalBookingPayload;
-  iconType: "users" | "active" | "new" | "conversion";
+  iconType: IconType;
 }
 
 const { booking, iconType } = Astro.props;

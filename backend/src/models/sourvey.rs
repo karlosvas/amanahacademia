@@ -35,5 +35,6 @@ pub struct Survey {
     pub title: String,
     pub description: String,
     pub user_email: String,
+    pub submitted_at: Option<String>,
     pub questions: Vec<Question>,
 }

@@ -3,9 +3,11 @@ export const icons = {
   active: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>`,
   new: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>`,
   conversion: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>`,
-};
+} as const;
 
-export const iconColors = {
+export type IconType = keyof typeof icons;
+
+export const iconColors: Record<IconType, string> = {
   users: "bg-[#b2443a]/20 text-[#6d0006]",
   active: "bg-[#fa8072]/20 text-[#6d0006]",
   new: "bg-[#d89c8d]/30 text-[#8a4141]",

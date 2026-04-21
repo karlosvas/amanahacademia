@@ -9,6 +9,7 @@ use {
         http::StatusCode,
         response::IntoResponse,
     },
+    chrono::Utc,
     std::{collections::HashMap, sync::Arc},
     tracing::instrument,
     uuid::Uuid,
@@ -26,6 +27,9 @@ pub async fn create_survey(
     if survey.id.trim().is_empty() {
         survey.id = Uuid::new_v4().to_string();
     }
+
+    // Backend is the source of truth for submission timestamp.
+    survey.submitted_at = Some(Utc::now().to_rfc3339());
 
     let url_firebase_db: String = format!(
         "{}/surveys/{}.json?auth={}",

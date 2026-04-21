@@ -23,7 +23,7 @@ const hasSurveys: boolean = surveys.length > 0;
   <h1 class="text-red text-4xl font-bold my-10">Encuestas</h1>
   {
     hasSurveys ? (
-      surveys.map((survey: Survey) => <SurveyCard survey={survey} iconType="conversion" />)
+      surveys.map((survey: Survey) => <SurveyCard survey={survey} iconType="active" />)
     ) : response.success ? (
       <div class="max-w-2xl rounded-2xl border border-[#f4d9a8] bg-gradient-to-br from-[#fff7e8] to-[#ffeed4] p-6 shadow-sm">
         <div class="flex items-start gap-4">

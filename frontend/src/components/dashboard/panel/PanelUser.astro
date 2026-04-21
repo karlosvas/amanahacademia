@@ -65,14 +65,14 @@ const classesByOrganizer = listOfClass.reduce(
       <div class="mb-6 border border-gray-200 rounded-lg overflow-hidden">
         <h2
           class="text-2xl font-semibold p-4 bg-brown hover:bg-salmon duration-300 cursor-pointer flex items-center justify-between transition-colors text-white dark:text-emerald-50"
-          onclick={`this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')`}
+          onclick={`const panel = this.nextElementSibling; panel.classList.toggle('max-h-0'); panel.classList.toggle('opacity-0'); panel.classList.toggle('max-h-[3200px]'); panel.classList.toggle('opacity-100'); this.querySelector('svg').classList.toggle('rotate-180')`}
         >
           <span>{organizerName}</span>
           <svg class="w-6 h-6 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </h2>
-        <div class="hidden p-4 space-y-4">
+        <div class="max-h-0 overflow-hidden opacity-0 transition-all duration-300 ease-in-out p-4 space-y-4">
           {bookings.map((booking) => (
             <UserInfoPanel booking={booking} iconType="users" />
           ))}

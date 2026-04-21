@@ -1,21 +1,9 @@
 /// Sorvey
-export type SpanishLevel =
-  | "BEGINNER"
-  | "A1"
-  | "A2"
-  | "B1"
-  | "B2"
-  | "C1"
-  | string;
+export type SpanishLevel = "BEGINNER" | "A1" | "A2" | "B1" | "B2" | "C1" | string;
 
 export type FocusArea = "LISTENING" | "GRAMMAR" | "SPEAKING" | string;
 
-export type QuestionType =
-  | "text"
-  | "number"
-  | "radio"
-  | "checkbox"
-  | "textarea";
+export type QuestionType = "text" | "number" | "radio" | "checkbox" | "textarea";
 
 export interface Question {
   id: string;
@@ -26,12 +14,30 @@ export interface Question {
   placeholder?: string;
 }
 
+export interface QuestionCreate {
+  id: string;
+  label: string;
+  type: QuestionType;
+  options?: string[];
+  required: boolean;
+  answer: string;
+}
+
 export type Survey = {
   id: string;
   title: string;
   description: string;
   userEmail: string;
+  submittedAt?: string;
   questions: Question[];
+};
+
+export type SurveyCreate = {
+  id?: string;
+  title: string;
+  description: string;
+  userEmail: string;
+  questions: QuestionCreate[];
 };
 
 /// Teachers
@@ -249,12 +255,7 @@ export type Availability = {
  * Representa el estado de una reserva en Cal.com.
  * El API utiliza mayúsculas separadas por guiones bajos (SNAKE_CASE).
  */
-export type BookingStatus =
-  | "ACCEPTED"
-  | "CANCELLED"
-  | "PENDING"
-  | "REJECTED"
-  | "UNKNOWN";
+export type BookingStatus = "ACCEPTED" | "CANCELLED" | "PENDING" | "REJECTED" | "UNKNOWN";
 
 /**
  * Representa a un asistente de la reserva (estudiante o huésped).
@@ -380,6 +381,4 @@ export interface CalBookingPayload {
 }
 
 // API implementacion
-export type ResponseAPI<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+export type ResponseAPI<T> = { success: true; data: T } | { success: false; error: string };
