@@ -158,7 +158,16 @@
             "Supporto 24/7"
           ],
           "time": "/lezione",
-          "button": "Prenota lezione"
+          "button": "Prenota lezione",
+          "selectionMonths": {
+            "title": "Piano di pagamento",
+            "subtitle": "Seleziona i mesi per rateizzare",
+            "unit_singular": "Mese",
+            "unit_plural": "Mesi",
+            "total_weeks": "Totale settimane",
+            "btn_accept": "Conferma piano",
+            "alert_confirm": "Hai scelto di pagare in {n} mesi."
+          }
         }
       },
       "info": [

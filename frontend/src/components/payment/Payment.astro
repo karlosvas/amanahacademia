@@ -25,8 +25,8 @@ import Title from "../common/Title.astro";
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-  import { showError, handlePayment } from "@/services/payment";
-  import { initializePrice, initializeStripe } from "@/services/payment";
+  import { showError, handlePayment, handleCustomPayment } from "@/services/payment";
+  import { initializePrice, initializeStripe, getWeeks } from "@/services/payment";
   import { getErrorFrontStripe, FrontendStripe } from "@/enums/enums";
   import { getCurrentUserToken, onAuthStateChanged } from "@/services/firebase";
   import { log } from "@/services/logger";
@@ -48,13 +48,15 @@ import Title from "../common/Title.astro";
   const bookingUid: string | null = params.get("uid");
   const status: string | null = params.get("status");
   const testCountry: string | null = params.get("test_country");
+  const weeks: string | null = params.get("weeks");
+  const isCustomWeeksFlow = Boolean(weeks);
 
   // Inicializar cuando el DOM esté listo
   document.addEventListener("DOMContentLoaded", async () => {
     onAuthStateChanged((user) => {
       if (user) {
         try {
-          if (!slugType || !bookingUid || !status) {
+          if (!slugType || (!isCustomWeeksFlow && (!bookingUid || !status))) {
             log.error("Missing URL parameters, redirecting to home page.");
             showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
             throw new Error("Missing URL parameters");
@@ -62,11 +64,21 @@ import Title from "../common/Title.astro";
 
           // Esperamos a que cargue firebase antes de inicializar Stripe
           setTimeout(async () => {
-            const price = await initializePrice(testCountry, slugType);
+            let price = await initializePrice(testCountry, slugType);
             if (!price) {
               log.error("Missing pricing information");
               showError(getErrorFrontStripe(FrontendStripe.MISSING_PRICING));
               throw new Error("Missing pricing information");
+            }
+
+            // If the user select weeks to pay we need to calculate the price based on the number of weeks and the base price per week
+            if (weeks) {
+              const classesPerWeek = 2;
+              price = price * getWeeks(weeks) * classesPerWeek;
+              log.info(`User selected to pay in ${weeks} weeks, adjusted price: ${price}`);
+
+              const pricingElement = document.getElementById("pricing");
+              if (pricingElement) pricingElement.textContent = ` ${price} €`;
             }
 
             const result = await initializeStripe(STRIPE_PUBLIC_KEY, price);
@@ -81,31 +93,43 @@ import Title from "../common/Title.astro";
             stripe = result.stripe;
             elements = result.elements;
 
-            const submitButton = document.getElementById("submit-button");
-            if (!submitButton || !bookingUid) {
-              log.error("Submit button not found or missing bookingUid");
-              showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
-              throw new Error("Submit button not found or missing bookingUid");
-            }
+            if (weeks) {
+              const submitButton = document.getElementById("submit-button");
+              if (!submitButton) {
+                log.error("Submit button not found");
+                showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
+                throw new Error("Submit button not found");
+              }
 
-            if (!user.email) {
-              log.error("User email is required for payment processing");
-              showError(getErrorFrontStripe(FrontendStripe.MISSING_USER_EMAIL));
-              throw new Error("User email is required for payment processing");
+              submitButton.addEventListener("click", () => handleCustomPayment(stripe, elements), { once: true });
+            } else {
+              const submitButton = document.getElementById("submit-button");
+              if (!submitButton || !bookingUid || !status || !slugType) {
+                log.error("Submit button not found or missing booking parameters");
+                showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
+                throw new Error("Submit button not found or missing booking parameters");
+              }
+
+              if (!user.email) {
+                log.error("User email is required for payment processing");
+                showError(getErrorFrontStripe(FrontendStripe.MISSING_USER_EMAIL));
+                throw new Error("User email is required for payment processing");
+              }
+
+              /**
+               * Procesa el pago mediante Stripe cuando el usuario hace click en el botón de pagar
+               * @param stripe - Instancia de Stripe inicializada
+               * @param elements - Elementos de Stripe que contienen los datos del formulario de pago
+               * @param bookingUid - Identificador único de la reserva
+               * @param status - Estado actual de la reserva
+               * @param slug - Tipo de clase seleccionada
+               * @returns Promise que se resuelve cuando el pago se completa o rechaza si falla
+               * @throws {Error} Si el pago es rechazado o hay un error de red
+               */
+              submitButton.addEventListener("click", () =>
+                handlePayment(stripe, elements, bookingUid!, status!, slugType!, user.email as string),
+              );
             }
-            /**
-             * Procesa el pago mediante Stripe cuando el usuario hace click en el botón de pagar
-             * @param stripe - Instancia de Stripe inicializada
-             * @param elements - Elementos de Stripe que contienen los datos del formulario de pago
-             * @param bookingUid - Identificador único de la reserva
-             * @param status - Estado actual de la reserva
-             * @param slug - Tipo de clase seleccionada
-             * @returns Promise que se resuelve cuando el pago se completa o rechaza si falla
-             * @throws {Error} Si el pago es rechazado o hay un error de red
-             */
-            submitButton.addEventListener("click", () =>
-              handlePayment(stripe, elements, bookingUid, status, slugType, user.email as string),
-            );
           }, 1000);
         } catch (_) {
           setTimeout(() => {
@@ -116,18 +140,52 @@ import Title from "../common/Title.astro";
         log.error("User not authenticated for payment, redirecting to login modal");
 
         // Mostrar modal de autenticación
-        const modalAuth = document.getElementById("authModalLogin") as HTMLDialogElement;
-        const form = document.getElementById("loginForm") as HTMLFormElement;
+        const modalAuth = document.getElementById("authModalLogin");
+        const form = document.getElementById("loginForm");
 
-        setTimeout(() => {
-          showModalAnimation(modalAuth, form, true);
-          // Si cierra el modal volber a abrirlo hasta que inicie sesión
+        if (!(modalAuth instanceof HTMLDialogElement)) {
+          log.error("Auth login modal not found in DOM");
+          showError(getErrorFrontStripe(FrontendStripe.MISSING_ELEMENTS));
+          return;
+        }
+
+        const loginForm = form instanceof HTMLFormElement ? form : null;
+
+        const openLoginModal = () => {
+          if (modalAuth.open) return;
+
+          try {
+            showModalAnimation(modalAuth, loginForm, true);
+          } catch (error) {
+            log.error("Failed to open auth modal with animation", error);
+            modalAuth.showModal();
+          }
+        };
+
+        openLoginModal();
+
+        // Si no hay sesión, no permitir cerrar el modal de login.
+        const reopenIfUnauthenticated = async () => {
+          const token = await getCurrentUserToken();
+          if (!token) {
+            setTimeout(() => {
+              openLoginModal();
+            }, 0);
+          }
+        };
+
+        if (modalAuth.dataset.paymentAuthLock !== "true") {
+          modalAuth.dataset.paymentAuthLock = "true";
+
           modalAuth.addEventListener("close", () => {
-            if ((!modalAuth.returnValue || modalAuth.returnValue === "closed") && getCurrentUserToken() == null) {
-              showModalAnimation(modalAuth, form, true);
-            }
+            void reopenIfUnauthenticated();
           });
-        }, 2000);
+
+          modalAuth.addEventListener("cancel", (event) => {
+            event.preventDefault();
+            void reopenIfUnauthenticated();
+          });
+        }
       }
     });
   });

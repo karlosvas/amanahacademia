@@ -12,17 +12,7 @@ import type { PricingApiResponse } from "@/types/types";
 import { getPrice } from "./calendar";
 import { log } from "./logger";
 
-// Función para procesar el pago
-export async function handlePayment(
-  stripe: any,
-  elements: any,
-  bookingUid: string,
-  status: string,
-  slug: string,
-  email: string,
-): Promise<void> {
-  const helper = new ApiService();
-
+export async function handleCustomPayment(stripe: any, elements: any) {
   // Verificar que Stripe esté inicializado
   if (!stripe || !elements) {
     log.error("Stripe o Elements dont initialized");
@@ -31,12 +21,8 @@ export async function handlePayment(
   }
 
   // Verificar elementos del DOM
-  const submitButton = document.getElementById(
-    "submit-button",
-  ) as HTMLButtonElement | null;
-  const buttonText = document.getElementById(
-    "button-text",
-  ) as HTMLButtonElement | null;
+  const submitButton = document.getElementById("submit-button") as HTMLButtonElement | null;
+  const buttonText = document.getElementById("button-text") as HTMLButtonElement | null;
 
   if (!submitButton || !buttonText) {
     log.error("Submit button or button text elements not found in DOM");
@@ -70,10 +56,7 @@ export async function handlePayment(
       log.error("🔴 Stripe: Validation Error", result);
       errorMessage = `Validación: ${error.message}`;
     } else if (error.type === "invalid_request_error") {
-      log.error(
-        "🔴 Stripe: Invalid Request Error (possible configuration issue)",
-        result,
-      );
+      log.error("🔴 Stripe: Invalid Request Error (possible configuration issue)", result);
       errorMessage = `Configuración: ${error.message}`;
     } else if (error.type === "api_error") {
       log.error("🔴 Stripe: Stripe API Error", result);
@@ -94,14 +77,98 @@ export async function handlePayment(
 
   if (paymentIntent.status === "succeeded") {
     // El pago fue exitoso
-    await successPayment(
-      helper,
-      paymentIntent,
-      bookingUid,
-      status,
-      slug,
-      email,
-    );
+    setTimeout(() => {
+      globalThis.location.href = "/payments/payment-success";
+    }, 2000);
+  } else {
+    log.error("Estado de pago desconocido: ", paymentIntent.status);
+    showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
+    throw new Error(`Estado de pago desconocido: ${paymentIntent.status}`);
+  }
+}
+
+// Función para procesar el pago
+export async function handlePayment(
+  stripe: any,
+  elements: any,
+  bookingUid: string,
+  status: string,
+  slug: string,
+  email: string,
+): Promise<void> {
+  const helper = new ApiService();
+
+  if (!email) {
+    log.error("User email is required for payment processing");
+    showError(getErrorFrontStripe(FrontendStripe.MISSING_USER_EMAIL));
+    throw new Error("User email is required for payment processing");
+  }
+
+  // Verificar que Stripe esté inicializado
+  if (!stripe || !elements) {
+    log.error("Stripe o Elements dont initialized");
+    showError(getErrorFrontStripe(FrontendStripe.STRIPE_NOT_INITIALIZED));
+    throw new Error("Stripe o Elements no inicializados");
+  }
+
+  // Verificar elementos del DOM
+  const submitButton = document.getElementById("submit-button") as HTMLButtonElement | null;
+  const buttonText = document.getElementById("button-text") as HTMLButtonElement | null;
+
+  if (!submitButton || !buttonText) {
+    log.error("Submit button or button text elements not found in DOM");
+    showError(getErrorFrontStripe(FrontendStripe.MISSING_ELEMENTS));
+    throw new Error("Botones no encontrados en el DOM");
+  }
+
+  // Deshabilitar botón y mostrar loading
+  submitButton.disabled = true;
+  buttonText.textContent = "Procesando...";
+  clearMessages();
+
+  const result = await stripe.confirmPayment({
+    elements,
+    confirmParams: {
+      return_url: location.origin + "/payments/payment-success",
+    },
+    redirect: "if_required",
+  });
+
+  const { error, paymentIntent } = result;
+
+  if (error) {
+    // Mensaje específico según el tipo de error
+    let errorMessage = error.message || "Error al procesar el pago";
+
+    if (error.type === "card_error") {
+      log.error("🔴 Stripe: Card Error", result);
+      errorMessage = `Tarjeta rechazada: ${error.message}`;
+    } else if (error.type === "validation_error") {
+      log.error("🔴 Stripe: Validation Error", result);
+      errorMessage = `Validación: ${error.message}`;
+    } else if (error.type === "invalid_request_error") {
+      log.error("🔴 Stripe: Invalid Request Error (possible configuration issue)", result);
+      errorMessage = `Configuración: ${error.message}`;
+    } else if (error.type === "api_error") {
+      log.error("🔴 Stripe: Stripe API Error", result);
+      errorMessage = `Error desconocido: ${error.message}`;
+    }
+
+    log.error("💥 Error en el pago", errorMessage);
+    submitButton.disabled = false;
+
+    throw new Error(`Error en el pago: ${errorMessage}`);
+  }
+
+  if (!paymentIntent) {
+    showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
+    submitButton.disabled = false;
+    throw new Error("PaymentIntent no disponible después de la confirmación");
+  }
+
+  if (paymentIntent.status === "succeeded") {
+    // El pago fue exitoso
+    await successPayment(helper, paymentIntent, bookingUid, status, slug, email);
   } else {
     log.error("Estado de pago desconocido: ", paymentIntent.status);
     showError(getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS));
@@ -131,8 +198,7 @@ export async function successPayment(
   email: string,
 ): Promise<void> {
   if (slug === "group-class") {
-    const actualBooking: ResponseAPI<CalBookingPayload> =
-      await helper.getBookingById(bookingUid);
+    const actualBooking: ResponseAPI<CalBookingPayload> = await helper.getBookingById(bookingUid);
     if (!actualBooking.success) {
       log.error("Error to get booking");
       showError(getErrorFrontStripe(FrontendStripe.MISSING_BOOKING));
@@ -148,8 +214,7 @@ export async function successPayment(
       startTime: actualBooking.data.startTime,
       endTime: actualBooking.data.endTime,
     } as BookingRequest;
-    const response: ResponseAPI<CalBookingPayload> =
-      await helper.createBooking(booking);
+    const response: ResponseAPI<CalBookingPayload> = await helper.createBooking(booking);
     if (!response.success) {
       log.error("Error to update booking");
       throw new Error("Error to update booking");
@@ -204,10 +269,24 @@ export function clearMessages() {
   }
 }
 
+export function getWeeks(weeks: string) {
+  try {
+    const parsedWeeks = Number.parseInt(weeks, 10);
+    if (Number.isNaN(parsedWeeks) || parsedWeeks < 1) {
+      log.warn(`Invalid weeks parameter: ${weeks}, defaulting to 1`);
+      return 1;
+    }
+    return parsedWeeks;
+  } catch (error) {
+    log.error("Error parsing weeks parameter", error);
+    return 1;
+  }
+}
+
 // Inicializar el precio basado en el país de prueba y el tipo de clase
 export async function initializePrice(
   testCountry: string | null,
-  slugType: string,
+  slugType: string | null,
 ): Promise<number | undefined> {
   // Validar que el tipo de clase esté definido
   if (!slugType) {
@@ -217,12 +296,9 @@ export async function initializePrice(
 
   try {
     // Obtenemos la lista de precios desde el backend
-    const apiUrl: string = testCountry
-      ? `/api/pricing?test_country=${testCountry}`
-      : "/api/pricing";
+    const apiUrl: string = testCountry ? `/api/pricing?test_country=${testCountry}` : "/api/pricing";
     const response: Response = await fetch(apiUrl);
-    const pricingData: PricingApiResponse =
-      (await response.json()) as PricingApiResponse;
+    const pricingData: PricingApiResponse = (await response.json()) as PricingApiResponse;
     if (!response.ok) {
       showError(getErrorFrontStripe(FrontendStripe.PRICING_FETCH_ERROR));
       return;
@@ -265,16 +341,13 @@ export async function initializeStripe(
       currency: "EUR",
     };
 
-    if (!carry)
-      throw new Error(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
+    if (!carry) throw new Error(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
 
     // Obtenemos el clinet secreat para elements
-    let response: ResponseAPI<CheckoutPaymentIntentResponse> =
-      await helper.checkout(carry);
+    let response: ResponseAPI<CheckoutPaymentIntentResponse> = await helper.checkout(carry);
 
     // Comprobamos que la respuesta sea válida
-    if (!response.success)
-      throw new Error(getErrorFrontStripe(FrontendStripe.SERVER_ERROR));
+    if (!response.success) throw new Error(getErrorFrontStripe(FrontendStripe.SERVER_ERROR));
 
     // Obtenemos el secreto de cliente
     const data = response.data;
@@ -335,9 +408,7 @@ export async function initializeStripe(
     await paymentElement.mount("#payment-element");
 
     // Habilitar el botón de pago
-    const submitButton = document.getElementById(
-      "submit-button",
-    ) as HTMLButtonElement | null;
+    const submitButton = document.getElementById("submit-button") as HTMLButtonElement | null;
     if (!submitButton) return null;
     submitButton.disabled = false;
 

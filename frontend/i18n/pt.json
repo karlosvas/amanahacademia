@@ -135,12 +135,7 @@
             "amount": 20,
             "time": "/aula"
           },
-          "content": [
-            "Aulas em grupo ilimitadas",
-            "Acesso a conteúdo premium",
-            "Certificação oficial",
-            "Suporte 24/7"
-          ],
+          "content": ["Aulas em grupo ilimitadas", "Acesso a conteúdo premium", "Certificação oficial", "Suporte 24/7"],
           "button": "Reservar Aula"
         },
         "group": {
@@ -151,14 +146,18 @@
             "amount": 10,
             "time": "/aula"
           },
-          "content": [
-            "Aulas em grupo ilimitadas",
-            "Acesso a conteúdo premium",
-            "Certificação oficial",
-            "Suporte 24/7"
-          ],
+          "content": ["Aulas em grupo ilimitadas", "Acesso a conteúdo premium", "Certificação oficial", "Suporte 24/7"],
           "time": "/aula",
-          "button": "Reservar Aula"
+          "button": "Reservar Aula",
+          "selectionMonths": {
+            "title": "Plano de Pagamento",
+            "subtitle": "Selecione os meses para parcelar",
+            "unit_singular": "Mês",
+            "unit_plural": "Meses",
+            "total_weeks": "Total de semanas",
+            "btn_accept": "Confirmar Plano",
+            "alert_confirm": "Você selecionou pagar em {n} meses."
+          }
         }
       },
       "info": [

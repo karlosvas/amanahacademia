@@ -1,0 +1,144 @@
+---
+interface Props {
+  weeks: number;
+  selectionMonths: {
+    title: string;
+    subtitle: string;
+    unit_singular: string;
+    unit_plural: string;
+    total_weeks: string;
+    btn_accept: string;
+    alert_confirm: string;
+  };
+}
+
+const { weeks, selectionMonths } = Astro.props as Props;
+
+// Creamos el array basado en el número de semanas directamente para que llegue a 12
+const monthsArray = Array.from({ length: weeks }, (_, i) => i + 1);
+---
+
+<div class="payment-selector-container w-full max-w-lg mx-auto p-6 bg-[var(--color-background)]">
+  <div class="mb-6">
+    <h3 class="text-2xl font-black text-[var(--color-red)] tracking-tight">{selectionMonths.title}</h3>
+    <p class="text-sm font-medium text-[var(--color-brown)] opacity-80">
+      {selectionMonths.subtitle}
+    </p>
+  </div>
+
+  <div class="flex gap-4 overflow-x-auto pb-6 pt-2 snap-x hide-scrollbar" id="month-slider">
+    {
+      monthsArray.map((month) => (
+        <button
+          type="button"
+          data-month={month}
+          class="month-card snap-center flex-shrink-0 w-28 h-32 flex flex-col items-center justify-center rounded-2xl border-2 transition-all duration-300 bg-[var(--color-white)] border-[var(--color-light-brown)]/20 hover:border-[var(--color-salmon)] group"
+        >
+          <span class="text-3xl font-black text-[var(--color-black)] group-hover:scale-110 transition-transform">
+            {month}
+          </span>
+          <span class="text-xs font-bold uppercase tracking-tighter text-[var(--color-brown)] mt-1">
+            {month === 1 ? selectionMonths.unit_singular : selectionMonths.unit_plural}
+          </span>
+
+          <div class="mt-2 w-1.5 h-1.5 rounded-full bg-[var(--color-red)] scale-0 transition-transform dot-indicator" />
+        </button>
+      ))
+    }
+  </div>
+
+  <div
+    class="mt-4 flex justify-between items-center px-2 py-4 bg-[var(--color-smooth-brown)]/10 rounded-2xl border border-[var(--color-light-brown)]/10"
+  >
+    <div class="flex flex-col">
+      <span class="text-[10px] uppercase font-bold text-[var(--color-light-brown)] tracking-widest"
+        >{selectionMonths.total_weeks}</span
+      >
+      <span class="text-lg font-bold text-[var(--color-black)]">{weeks} {selectionMonths.unit_plural}</span>
+    </div>
+    <div class="text-right">
+      <span class="text-[10px] uppercase font-bold text-[var(--color-light-brown)] tracking-widest">Seleccionado</span>
+      <p
+        class="text-lg font-bold text-[var(--color-red)]"
+        id="selected-label"
+        data-unit-singular={selectionMonths.unit_singular}
+        data-unit-plural={selectionMonths.unit_plural}
+      >
+        1 {selectionMonths.unit_singular}
+      </p>
+    </div>
+  </div>
+
+  <button
+    id="confirm-payment"
+    class="w-full py-4 rounded-2xl bg-[var(--color-red)] hover:bg-[var(--color-light-red)] text-[var(--color-white)] font-black text-lg tracking-wide shadow-lg shadow-[var(--color-red)]/30 transform active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+  >
+    {selectionMonths.btn_accept}
+  </button>
+</div>
+
+<style>
+  /* Ocultar scrollbar pero mantener funcionalidad */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Estado Activo */
+  .month-card.active {
+    background-color: var(--color-light-salmon);
+    border-color: var(--color-red);
+    box-shadow: 0 10px 20px -10px var(--color-red);
+    transform: translateY(-5px);
+  }
+
+  .month-card.active span {
+    color: var(--color-red) !important;
+  }
+
+  .month-card.active .dot-indicator {
+    scale: 1;
+  }
+</style>
+
+<script>
+  const cards = document.querySelectorAll(".month-card");
+  const label = document.getElementById("selected-label");
+  const unitSingular = label?.getAttribute("data-unit-singular") ?? "Month";
+  const unitPlural = label?.getAttribute("data-unit-plural") ?? "Months";
+
+  cards.forEach((card) => {
+    card.addEventListener("click", () => {
+      // Limpiar estados
+      cards.forEach((c) => c.classList.remove("active"));
+
+      // Activar actual
+      card.classList.add("active");
+
+      // Actualizar texto inferior
+      const val = card.getAttribute("data-month");
+      if (label) label.innerText = `${val} ${val === "1" ? unitSingular : unitPlural}`;
+
+      // Centrar el elemento al hacer click
+      card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    });
+  });
+
+  // Obtenemos un listener del botón de confirmación para mostrar el alert con la selección
+  const confirmButton = document.getElementById("confirm-payment");
+  confirmButton?.addEventListener("click", () => {
+    const activeCard = document.querySelector(".month-card.active");
+    if (activeCard) {
+      const selectedMonths = activeCard.getAttribute("data-month");
+      window.location.href = `/subery?type=group-class&weeks=${selectedMonths}`;
+    } else {
+      alert("Please select a payment plan before confirming.");
+    }
+  });
+
+  // Activar el primero por defecto
+  if (cards.length > 0) (cards[0] as HTMLElement).click();
+</script>

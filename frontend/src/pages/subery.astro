@@ -347,8 +347,11 @@ const user = await helper.getUser(token);
 
       if (response.success) {
         confetti({});
+        const params = new URLSearchParams(window.location.search);
+        const slugType = params.get("type");
+        const weeks = params.get("weeks");
         setTimeout(() => {
-          window.location.href = "/";
+          window.location.href = `/payment?type=${slugType}&weeks=${weeks}`;
         }, 3000);
       } else {
         submitButton?.removeAttribute("disabled");

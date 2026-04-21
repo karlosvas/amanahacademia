@@ -1,10 +1,13 @@
 ---
 import IconCheck from "@/assets/check.svg";
-import type { CardPricingType } from "@/types/types";
+import type { CardPricingType, PriceStructure } from "@/types/types";
 import type { Class } from "@/enums/enums";
+import type { number } from "astro:schema";
 
 const data = Astro.props.data as CardPricingType;
 const id = Astro.props.id as Class;
+const price = Astro.props.pricing as number;
+const old_price = Astro.props.old_price as number | undefined;
 ---
 
 <div
@@ -23,12 +26,36 @@ const id = Astro.props.id as Class;
         ))
       }
     </ul>
-    <div class="font-semibold text-red mb-4 sm:mb-5 text-base sm:text-lg flex justify-center items-center gap-x-1">
-      <div class="price-container">
-        <span class="price-amount">{data.price?.amount || 30}</span>
-        <span class="currency-symbol"></span>
-      </div>
-      <span class="text-xs">{data.price?.time || ""}</span>
+    <div class="mb-4 sm:mb-5 flex flex-col items-center justify-center">
+      {
+        price !== old_price ? (
+          <div class="flex flex-col items-center">
+            <span class="mb-1 bg-red text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+              Ahorras {Math.round(100 - (price * 100) / (old_price || 0))}%
+            </span>
+
+            <div class="flex items-center gap-x-3">
+              <div class="text-gray-400 line-through text-sm sm:text-base decoration-red/30">
+                <span>{old_price}</span>
+                <span class="text-xs">€</span>
+              </div>
+
+              <div class="flex items-baseline text-red font-bold">
+                <span class="text-2xl sm:text-3xl tracking-tighter">{price}</span>
+                <span class="text-lg ml-0.5">€</span>
+                <span class="ml-1 text-xs font-medium opacity-80">{data?.price?.time || ""}</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* ESTADO: PRECIO NORMAL */
+          <div class="flex items-baseline text-red font-semibold">
+            <span class="text-xl sm:text-2xl">{price}</span>
+            <span class="text-lg ml-0.5">€</span>
+            <span class="ml-1 text-xs font-normal opacity-80">{data?.price?.time || ""}</span>
+          </div>
+        )
+      }
     </div>
   </div>
   <button

@@ -160,7 +160,16 @@
             "E-Mail-Support"
           ],
           "time": "/Stunde",
-          "button": "Unterricht buchen"
+          "button": "Unterricht buchen",
+          "selectionMonths": {
+            "title": "Zahlungsplan",
+            "subtitle": "Wähle die Monate zur Ratenzahlung",
+            "unit_singular": "Monat",
+            "unit_plural": "Monate",
+            "total_weeks": "Gesamtwochen",
+            "btn_accept": "Plan bestätigen",
+            "alert_confirm": "Du hast die Zahlung in {n} Monaten gewählt."
+          }
         }
       },
 

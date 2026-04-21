@@ -1,11 +1,10 @@
 ---
-import App from "@/layouts/App.astro";
 import { getI18N } from "@/../i18n/index";
 import Layout from "@/layouts/Layout.astro";
 import { getSEOData } from "i18n/seo";
 import type { I18nTranslations, PropsSEO } from "@/types/types";
 import PaymentPage from "@/components/payment/Payment.astro";
-import { log } from "@/services/logger";
+import AuthModal from "@/components/common/AuthModal.astro";
 
 // Obtenemos el idioma obtenido mediante la ruta
 const { lang } = Astro.params;
@@ -14,14 +13,6 @@ const data = getI18N({ lang }) as I18nTranslations;
 // SEO data usando el helper
 const currentLang = lang || "es";
 const seoData = getSEOData("pricing", currentLang) as PropsSEO;
-
-// Obtener bookingUid de la URL
-const bookingUid = Astro.url.searchParams.get("uid") || Astro.url.searchParams.get("bookingUid");
-
-if (!bookingUid) {
-  log.info("No bookingUid provided, redirecting to home page.");
-  return Astro.redirect("/");
-}
 ---
 
 <Layout
@@ -35,7 +26,6 @@ if (!bookingUid) {
   structuredDataType={seoData.structuredDataType}
   structuredData={seoData.structuredData}
 >
-  <App data={data}>
-    <PaymentPage bookingUid={bookingUid} />
-  </App>
+  <AuthModal data={data.header.identification.modal} />
+  <PaymentPage />
 </Layout>

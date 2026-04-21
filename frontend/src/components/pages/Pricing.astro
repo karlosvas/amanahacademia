@@ -4,7 +4,7 @@ import CardPricing from "@/components/pricing/CardPricing.astro";
 import Title from "@/components/common/Title.astro";
 import { ApiService } from "@/services/helper";
 import { log } from "@/services/logger";
-import type { PricingI18n } from "@/types/types";
+import type { PricingApiResponse, PricingI18n } from "@/types/types";
 import toast from "solid-toast";
 import Carrousel from "../pricing/Carrousel.astro";
 import type { CalBookingPayload, ResponseAPI, Schedule, Teacher } from "@/types/bakend-types";
@@ -73,6 +73,23 @@ try {
 } catch (e) {
   log.error("Error fetching teachers:", e);
 }
+
+let responsePricingData: PricingApiResponse | undefined;
+
+try {
+  const pricingUrl = new URL("/api/pricing", Astro.url);
+  const pricesResponse: Response = await fetch(pricingUrl);
+
+  if (!pricesResponse.ok) {
+    log.error(`Error fetching pricing data: ${pricesResponse.status}`);
+    return;
+  }
+
+  responsePricingData = await pricesResponse.json();
+  console.log("Fetched pricing data:", responsePricingData);
+} catch (e) {
+  log.error("Error fetching pricing data:", e);
+}
 ---
 
 <main class="relative text-black">
@@ -81,13 +98,28 @@ try {
     <div
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center items-stretch h-auto gap-6 sm:gap-8 md:gap-6 lg:gap-4 w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-4"
     >
-      <CardPricing data={data.type.standard} id={Class.Standard}>
+      <CardPricing
+        data={data.type.standard}
+        id={Class.Standard}
+        pricing={responsePricingData?.prices.individual_standard}
+        old_price={responsePricingData?.old_prices?.individual_standard}
+      >
         <Carrousel id={Class.Standard} teachers={teachers} data={data} />
       </CardPricing>
-      <CardPricing data={data.type.conversation} id={Class.Conversacion}>
+      <CardPricing
+        data={data.type.conversation}
+        id={Class.Conversacion}
+        pricing={responsePricingData?.prices.individual_conversation}
+        old_price={responsePricingData?.old_prices?.individual_conversation}
+      >
         <Carrousel id={Class.Conversacion} teachers={teachers} data={data} />
       </CardPricing>
-      <CardPricing data={data.type.group} id={Class.Grupales}>
+      <CardPricing
+        data={data.type.group}
+        id={Class.Grupales}
+        pricing={responsePricingData?.prices.group}
+        old_price={responsePricingData?.old_prices?.group}
+      >
         <Carrousel id={Class.Grupales} bookings={bookings} data={data} />
       </CardPricing>
     </div>

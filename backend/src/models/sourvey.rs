@@ -25,7 +25,7 @@ pub struct Question {
     pub question_type: QuestionType,
     pub options: Option<Vec<String>>,
     pub required: bool,
-    pub placeholder: Option<String>,
+    pub answer: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

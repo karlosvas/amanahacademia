@@ -9,10 +9,7 @@ export async function GET({ request }: { request: Request }) {
     request.headers.get("x-vercel-ip-country") || // Encabezado OFICIAL de Vercel (Máxima fiabilidad)
     "ES"; // Valor por defecto
 
-  const isDevelopment =
-    url.hostname === "localhost" ||
-    url.hostname === "127.0.0.1" ||
-    url.hostname.includes("local");
+  const isDevelopment = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname.includes("local");
 
   // Países con mayor nivel de vida
   const highIncomeCountries = [
@@ -87,10 +84,15 @@ export async function GET({ request }: { request: Request }) {
     countryGroup: isHighIncome ? "Mayor nivel de vida" : "Menor nivel de vida",
     isDevelopment,
     country,
-    prices: {
+    old_prices: {
       individual_standard: isHighIncome ? 30 : 15,
       individual_conversation: isHighIncome ? 20 : 10,
       group: isHighIncome ? 10 : 4.5,
+    },
+    prices: {
+      individual_standard: isHighIncome ? 20 : 10,
+      individual_conversation: isHighIncome ? 20 : 10,
+      group: isHighIncome ? 8 : 3,
     },
   };
 

@@ -135,12 +135,7 @@
             "amount": 20,
             "time": "/class"
           },
-          "content": [
-            "Unlimited group classes",
-            "Access to premium content",
-            "Official certification",
-            "24/7 support"
-          ],
+          "content": ["Unlimited group classes", "Access to premium content", "Official certification", "24/7 support"],
           "button": "Book Class"
         },
         "group": {
@@ -151,14 +146,18 @@
             "amount": 10,
             "time": "/class"
           },
-          "content": [
-            "Unlimited group classes",
-            "Access to premium content",
-            "Official certification",
-            "24/7 support"
-          ],
+          "content": ["Unlimited group classes", "Access to premium content", "Official certification", "24/7 support"],
           "time": "/class",
-          "button": "Book Class"
+          "button": "Book Class",
+          "selectionMonths": {
+            "title": "Payment Plan",
+            "subtitle": "Select the months to split the payment",
+            "unit_singular": "Month",
+            "unit_plural": "Months",
+            "total_weeks": "Total weeks",
+            "btn_accept": "Accept Plan",
+            "alert_confirm": "You selected payment in {n} months."
+          }
         }
       },
       "info": [

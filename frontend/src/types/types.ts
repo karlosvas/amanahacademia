@@ -135,6 +135,15 @@ export type CardPricingType = {
   };
   content: string[];
   button: string;
+  selectionMonths?: {
+    title: string;
+    subtitle: string;
+    unit_singular: string;
+    unit_plural: string;
+    total_weeks: string;
+    btn_accept: string;
+    alert_confirm: string;
+  };
   disabled?: boolean;
 };
 
@@ -374,19 +383,18 @@ export type PricingApiResponse = {
   level: "high" | "low";
   countryGroup: string;
   isDevelopment: boolean;
-  prices: {
-    individual_standard: number;
-    individual_conversation: number;
-    group: number;
-  };
+  old_prices?: PriceStructure;
+  prices: PriceStructure;
 };
 
+export interface PriceStructure {
+  individual_standard: number;
+  individual_conversation: number;
+  group: number;
+}
+
 export interface CalPricingResponse {
-  prices: {
-    individual_standard: number;
-    individual_conversation: number;
-    group: number;
-  };
+  prices: PriceStructure;
   symbol: string;
   country?: string;
   // Añadir precios para Cal.com (en centavos)

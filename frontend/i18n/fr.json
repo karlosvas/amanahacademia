@@ -158,7 +158,16 @@
             "Support 24/7"
           ],
           "time": "/cours",
-          "button": "Réserver un cours"
+          "button": "Réserver un cours",
+          "selectionMonths": {
+            "title": "Plan de paiement",
+            "subtitle": "Sélectionnez les mois d'échelonnement",
+            "unit_singular": "Mois",
+            "unit_plural": "Mois",
+            "total_weeks": "Total des semaines",
+            "btn_accept": "Valider le plan",
+            "alert_confirm": "Vous avez choisi de payer en {n} mois."
+          }
         }
       },
       "info": [
