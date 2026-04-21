@@ -29,9 +29,13 @@ const questionTypeStyle: Record<QuestionType, string> = {
 const SUBMITTED_AT_QUESTION_ID = "__submitted_at";
 
 const displayQuestions = survey.questions.filter((question) => question.id !== SUBMITTED_AT_QUESTION_ID);
+const displayValidQuestions = survey.questions.filter((question) => {
+  const length = question.answer?.trim().length ?? 0;
+  return (!question.required && length > 0) || question.required;
+});
 
 const resolveAnswer = (question: Survey["questions"][number]): string => {
-  const candidate = question.placeholder?.trim();
+  const candidate = question.answer?.trim();
   return candidate && candidate.length > 0 ? candidate : "Sin respuesta";
 };
 
@@ -126,7 +130,7 @@ const isSelectedOption = (question: Survey["questions"][number], option: string)
 
 const surveyOwnerEmail = survey.userEmail?.trim() || "anonymous@amanahacademia.com";
 const submittedAtRaw =
-  survey.submittedAt ?? survey.questions.find((question) => question.id === SUBMITTED_AT_QUESTION_ID)?.placeholder;
+  survey.submittedAt ?? survey.questions.find((question) => question.id === SUBMITTED_AT_QUESTION_ID)?.answer;
 
 const submittedAtText = (() => {
   if (!submittedAtRaw) return "Fecha no disponible";
@@ -158,7 +162,7 @@ const submittedAtText = (() => {
 
     <div class="flex items-center gap-2">
       <span class="px-3 py-1 rounded-full bg-[#ffbba8]/30 text-[#8a4141] text-xs font-semibold">
-        {displayQuestions.length} preguntas contestadas
+        {displayValidQuestions.length} preguntas contestadas
       </span>
       <svg
         data-chevron

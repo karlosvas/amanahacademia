@@ -11,16 +11,7 @@ export interface Question {
   type: QuestionType;
   options?: string[];
   required: boolean;
-  placeholder?: string;
-}
-
-export interface QuestionCreate {
-  id: string;
-  label: string;
-  type: QuestionType;
-  options?: string[];
-  required: boolean;
-  answer: string;
+  answer?: string;
 }
 
 export type Survey = {
@@ -39,6 +30,15 @@ export type SurveyCreate = {
   userEmail: string;
   questions: QuestionCreate[];
 };
+
+export interface QuestionCreate {
+  id: string;
+  label: string;
+  type: QuestionType;
+  options?: string[];
+  required: boolean;
+  answer?: string;
+}
 
 /// Teachers
 export type Teacher = {

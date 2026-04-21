@@ -229,7 +229,7 @@ export class ApiService {
   }
 
   // Obtener el usuario actual (GET)
-  async getUser(token_cookie: string): Promise<ResponseAPI<UserMerged>> {
+  async getUser(token_cookie?: string): Promise<ResponseAPI<UserMerged>> {
     const token = token_cookie || (await getCurrentUserToken());
 
     return this.fetchApi<UserMerged>("/users/me", {
@@ -241,7 +241,7 @@ export class ApiService {
   }
 
   // Comprobar si el usuario es admin (GET)
-  async isAdminUser(token_cookie: string): Promise<ResponseAPI<boolean>> {
+  async isAdminUser(token_cookie?: string): Promise<ResponseAPI<boolean>> {
     const token = (await getCurrentUserToken()) || token_cookie;
     return this.fetchApi<boolean>("/users/admin_check", {
       method: "GET",
@@ -401,29 +401,13 @@ export class ApiService {
   ///////////// Surveys ////////////////
   async createSurvey(surveyData: SurveyCreate, token_cookie?: string): Promise<ResponseAPI<void>> {
     const token = token_cookie || (await getCurrentUserToken());
-
-    const normalizedSurvey: Survey = {
-      id: surveyData.id ?? "",
-      title: surveyData.title,
-      description: surveyData.description,
-      userEmail: surveyData.userEmail,
-      questions: surveyData.questions.map((question) => ({
-        id: question.id,
-        label: question.label,
-        type: question.type,
-        options: question.options,
-        required: question.required,
-        placeholder: question.answer,
-      })),
-    };
-
     return this.fetchApi<void>("/surveys", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(normalizedSurvey),
+      body: JSON.stringify(surveyData),
     });
   }
 
@@ -432,6 +416,7 @@ export class ApiService {
     return this.fetchApi<Survey[]>(`/surveys/results`, {
       method: "GET",
       headers: {
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });

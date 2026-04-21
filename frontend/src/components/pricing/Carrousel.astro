@@ -41,6 +41,7 @@ const bookings = Astro.props.bookings as CalBookingPayload[];
           bookings.map((booking: CalBookingPayload, i: number) => <BookingCard booking={booking} i={i} data={data} />)
         ) : (
           <BookingCard data={data} />
+          <button id="test" hidden class="bg-salmon">Test Button</button>
         )
       }
     </div>
@@ -94,6 +95,9 @@ const bookings = Astro.props.bookings as CalBookingPayload[];
 </section>
 
 <script>
+import { getCurrentUserToken, onAuthStateChanged } from "@/services/firebase";
+import { boolean } from "astro:schema";
+
   document.addEventListener("DOMContentLoaded", () => {
     // Inicializar todos los carruseles presentes en la página
     const allCarousels = document.querySelectorAll('[id^="carousel-track-"]');
@@ -183,6 +187,20 @@ const bookings = Astro.props.bookings as CalBookingPayload[];
           dots[0].style.backgroundColor = "#ef4444";
           dots[0].style.transform = "scale(1.3)";
           dots[0].style.boxShadow = "0 0 10px rgba(239, 68, 68, 0.5)";
+        }
+      }
+    });
+
+    const test = document.getElementById("test");
+    onAuthStateChanged(async (user) => {
+      if (user) {
+        const tokenResult = await user.getIdTokenResult(true);
+        const isAdminOrTeacher = tokenResult?.claims.role === "admin" || tokenResult?.claims.role === "teacher";
+        if (isAdminOrTeacher && test) {
+          test.hidden = false;
+          test.addEventListener("click", () => {
+            window.location.href = "/subery";
+          });
         }
       }
     });

@@ -7,7 +7,6 @@ const title = "Group Class Survey";
 const description =
   "Complete our survey to understand your profile as a student and help us place you in the Spanish group that best suits your level and needs.";
 
-// Obtenemos el user de firebase auth
 const token = Astro.cookies.get("session")?.value ?? "";
 
 if (!token) {
@@ -15,7 +14,6 @@ if (!token) {
   return Astro.redirect("/");
 }
 
-// Obtenemos el helper
 const helper = new ApiService();
 const user = await helper.getUser(token);
 ---
@@ -49,8 +47,8 @@ const user = await helper.getUser(token);
           <input id="native-language" name="native-language" type="text" placeholder="Example: Arabic" required />
         </label>
 
-        <fieldset class="question-block">
-          <legend class="question-title">What is your current Spanish level?</legend>
+        <div class="question-block" role="group" aria-labelledby="label-spanish-level">
+          <span class="question-title" id="label-spanish-level">What is your current Spanish level?</span>
 
           <label class="option-row">
             <input type="radio" name="spanish-level" value="beginner" required />
@@ -107,10 +105,12 @@ const user = await helper.getUser(token);
             placeholder="Write your level"
             disabled
           />
-        </fieldset>
+        </div>
 
-        <fieldset class="question-block">
-          <legend class="question-title">Do you speak any other languages beside your native language?</legend>
+        <div class="question-block" role="group" aria-labelledby="label-other-languages">
+          <span class="question-title" id="label-other-languages"
+            >Do you speak any other languages beside your native language?</span
+          >
 
           <label class="option-row">
             <input type="checkbox" name="other-languages" value="English" />
@@ -149,10 +149,11 @@ const user = await helper.getUser(token);
             placeholder="Write another language"
             disabled
           />
-        </fieldset>
+        </div>
 
-        <fieldset class="question-block">
-          <legend class="question-title">What would you like to focus on the most during the class?</legend>
+        <div class="question-block" role="group" aria-labelledby="label-focus">
+          <span class="question-title" id="label-focus">What would you like to focus on the most during the class?</span
+          >
 
           <label class="option-row">
             <input type="radio" name="focus" value="listening" required />
@@ -181,7 +182,7 @@ const user = await helper.getUser(token);
             placeholder="Tell us your focus"
             disabled
           />
-        </fieldset>
+        </div>
 
         <label class="question-block" for="extra-notes">
           <span class="question-title">Is there anything else you would like to add?</span>
@@ -205,25 +206,18 @@ const user = await helper.getUser(token);
       const trigger = document.querySelector(triggerSelector);
       const target = document.querySelector(targetSelector);
 
-      if (!(trigger instanceof HTMLInputElement) || !(target instanceof HTMLInputElement)) {
-        return;
-      }
+      if (!(trigger instanceof HTMLInputElement) || !(target instanceof HTMLInputElement)) return;
 
       const updateState = () => {
         const isChecked = trigger.checked;
         target.disabled = !isChecked;
+        target.required = isChecked;
 
-        if (isChecked) {
-          target.focus();
-        } else {
-          target.value = "";
-        }
+        isChecked ? target.focus() : (target.value = "");
       };
 
       document.querySelectorAll(`input[name="${groupName}"]`).forEach((item) => {
-        if (item instanceof HTMLInputElement) {
-          item.addEventListener("change", updateState);
-        }
+        if (item instanceof HTMLInputElement) item.addEventListener("change", updateState);
       });
 
       updateState();
@@ -233,19 +227,13 @@ const user = await helper.getUser(token);
       const trigger = document.querySelector(triggerSelector);
       const target = document.querySelector(targetSelector);
 
-      if (!(trigger instanceof HTMLInputElement) || !(target instanceof HTMLInputElement)) {
-        return;
-      }
+      if (!(trigger instanceof HTMLInputElement) || !(target instanceof HTMLInputElement)) return;
 
       const updateState = () => {
         const isChecked = trigger.checked;
         target.disabled = !isChecked;
-
-        if (isChecked) {
-          target.focus();
-        } else {
-          target.value = "";
-        }
+        target.required = isChecked;
+        isChecked ? target.focus() : (target.value = "");
       };
 
       trigger.addEventListener("change", updateState);
@@ -261,9 +249,7 @@ const user = await helper.getUser(token);
     const form = document.querySelector(".survey-form");
     form?.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!(e.currentTarget instanceof HTMLFormElement)) {
-        return;
-      }
+      if (!(e.currentTarget instanceof HTMLFormElement)) return;
 
       submitButton?.setAttribute("disabled", "true");
       submitButton?.classList.add("cursor-not-allowed", "opacity-70");
@@ -290,17 +276,18 @@ const user = await helper.getUser(token);
       const focusOptions = ["listening", "grammar", "speaking", "Other"];
 
       const createQuestion = (
+        answer: string,
         id: string,
         label: string,
         type: QuestionCreate["type"],
-        value: string,
         options?: string[],
+        required: boolean = true,
       ): QuestionCreate => ({
+        answer,
         id,
         label,
         type,
-        required: true,
-        answer: value,
+        required,
         options,
       });
 
@@ -310,472 +297,480 @@ const user = await helper.getUser(token);
         description: "Student placement answers",
         userEmail: document.querySelector(".change-account")?.textContent?.trim() || "Anonymous",
         questions: [
-          createQuestion("name", "What is your name?", "text", readString("name")),
-          createQuestion("age", "How old are you?", "number", readString("age")),
-          createQuestion("native-language", "What is your native language?", "text", readString("native-language")),
+          createQuestion(readString("name"), "name", "What is your name?", "text", undefined, true),
+          createQuestion(readString("age"), "age", "How old are you?", "number", undefined, true),
           createQuestion(
+            readString("native-language"),
+            "native-language",
+            "What is your native language?",
+            "text",
+            undefined,
+            true,
+          ),
+          createQuestion(
+            spanishLevel,
             "spanish-level",
             "What is your current Spanish level?",
             "radio",
-            spanishLevel,
             spanishLevelOptions,
+            true,
           ),
           createQuestion(
+            languages.join(", "),
             "other-languages",
             "Do you speak any other languages beside your native language?",
             "checkbox",
-            languages.join(", "),
             otherLanguagesOptions,
+            false,
           ),
           createQuestion(
+            focus,
             "focus",
             "What would you like to focus on the most during the class?",
             "radio",
-            focus,
             focusOptions,
+            true,
           ),
-          {
-            id: "extra-notes",
-            label: "Is there anything else you would like to add?",
-            type: "textarea",
-            required: false,
-            answer: readString("extra-notes"),
-          },
+          createQuestion(
+            readString("extra-notes"),
+            "extra-notes",
+            "Is there anything else you would like to add?",
+            "textarea",
+            undefined,
+            false,
+          ),
         ],
       };
 
+      console.log("Submitting survey with data:", newSurvey);
       const response = await helper.createSurvey(newSurvey);
+
       if (response.success) {
         confetti({});
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 3000);
       } else {
         submitButton?.removeAttribute("disabled");
         submitButton?.classList.remove("cursor-not-allowed", "opacity-70");
       }
     });
   </script>
-</Layout>
 
-<style>
-  /* Light Mode */
-  .light,
-  :root:not(.dark) {
-    --bg-1: var(--color-background, #fff4e1);
-    --bg-2: var(--color-smooth-brown, #fee8d6);
-    --ink: var(--color-black, #131313);
-    --muted: var(--color-brown, #8a4141);
-    --surface: var(--color-white, #fff4e1);
-    --line: var(--color-light-brown, #d89c8d);
-    --accent: var(--color-red, #6d0006);
-    --accent-2: var(--color-salmon, #fa8072);
-    --focus: var(--color-light-red, #b2443a);
-    --shadow-color: #000;
-  }
+  <style>
+    /* Light Mode */
+    .light,
+    :root:not(.dark) {
+      --bg-1: var(--color-background, #fff4e1);
+      --bg-2: var(--color-smooth-brown, #fee8d6);
+      --ink: var(--color-black, #131313);
+      --muted: var(--color-brown, #8a4141);
+      --surface: var(--color-white, #fff4e1);
+      --line: var(--color-light-brown, #d89c8d);
+      --accent: var(--color-red, #6d0006);
+      --accent-2: var(--color-salmon, #fa8072);
+      --focus: var(--color-light-red, #b2443a);
+      --shadow-color: #000;
+    }
 
-  /* Dark Mode */
-  .dark {
-    --bg-1: var(--color-smooth-brown, #3a2b2b);
-    --bg-2: var(--color-brown, #5f4949);
-    --ink: var(--color-black, #f3f3f3);
-    --muted: var(--color-custom-gray, #4b5563);
-    --surface: var(--color-white, #131313);
-    --line: var(--color-light-brown, #6b5555);
-    --accent: var(--color-red, #eb5e61);
-    --accent-2: var(--color-salmon, #ff8c7a);
-    --focus: var(--color-light-red, #fe9090);
-    --shadow-color: #000;
-  }
+    /* Dark Mode */
+    .dark {
+      --bg-1: var(--color-smooth-brown, #3a2b2b);
+      --bg-2: var(--color-brown, #5f4949);
+      --ink: var(--color-black, #f3f3f3);
+      --muted: var(--color-custom-gray, #4b5563);
+      --surface: var(--color-white, #131313);
+      --line: var(--color-light-brown, #6b5555);
+      --accent: var(--color-red, #eb5e61);
+      --accent-2: var(--color-salmon, #ff8c7a);
+      --focus: var(--color-light-red, #fe9090);
+      --shadow-color: #000;
+    }
 
-  * {
-    box-sizing: border-box;
-  }
+    * {
+      box-sizing: border-box;
+    }
 
-  body {
-    margin: 0;
-    font-family: "Inter", system-ui, sans-serif;
-    color: var(--ink);
-    transition:
-      background 0.3s ease,
-      color 0.3s ease;
-  }
-
-  :global(.light) body,
-  :global(:root:not(.dark)) body {
-    background:
-      radial-gradient(
-        circle at 10% 10%,
-        color-mix(in srgb, var(--color-light-salmon, #ffbba8) 45%, transparent) 0,
-        transparent 35%
-      ),
-      radial-gradient(
-        circle at 90% 0%,
-        color-mix(in srgb, var(--color-light-brown, #d89c8d) 40%, transparent) 0,
-        transparent 30%
-      ),
-      linear-gradient(135deg, var(--bg-1), var(--bg-2));
-  }
-
-  :global(.dark) body {
-    background: var(--color-smooth-brown, #3a2b2b);
-  }
-
-  body {
-    min-height: 100vh;
-    padding: 2rem 1rem;
-  }
-
-  .survey-shell {
-    margin: 0 auto;
-    max-width: 820px;
-    animation: rise-in 0.55s ease-out;
-  }
-
-  .survey-card {
-    border-radius: 24px;
-    border: 1px solid var(--line);
-    box-shadow: 0 20px 40px color-mix(in srgb, var(--shadow-color) 12%, transparent);
-    overflow: hidden;
-    transition:
-      background 0.3s ease,
-      border-color 0.3s ease,
-      box-shadow 0.3s ease;
-  }
-
-  :global(.light) .survey-card,
-  :global(:root:not(.dark)) .survey-card {
-    background: var(--surface);
-  }
-
-  :global(.dark) .survey-card {
-    background: var(--color-brown, #5f4949);
-  }
-
-  .survey-header {
-    padding: 2rem;
-    border-bottom: 1px solid var(--line);
-    transition:
-      background 0.3s ease,
-      border-color 0.3s ease;
-  }
-
-  :global(.light) .survey-header,
-  :global(:root:not(.dark)) .survey-header {
-    background: linear-gradient(
-      140deg,
-      color-mix(in srgb, var(--color-white, #fff4e1) 80%, var(--color-light-salmon, #ffbba8) 20%) 0%,
-      color-mix(in srgb, var(--color-background, #fff4e1) 70%, var(--color-smooth-brown, #fee8d6) 30%) 100%
-    );
-  }
-
-  :global(.dark) .survey-header {
-    background: linear-gradient(140deg, var(--color-brown, #5f4949) 0%, var(--color-smooth-brown, #3a2b2b) 100%);
-  }
-
-  .eyebrow {
-    margin: 0;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-    font-weight: 800;
-  }
-
-  h1 {
-    margin: 0.45rem 0 0.8rem;
-    font-family: "Fraunces", serif;
-    font-size: clamp(1.7rem, 2.4vw, 2.35rem);
-    line-height: 1.2;
-    transition: color 0.3s ease;
-  }
-
-  :global(.light) h1,
-  :global(:root:not(.dark)) h1 {
-    color: inherit;
-  }
-
-  :global(.dark) h1 {
-    color: #ffffff;
-  }
-
-  .description {
-    margin: 0;
-    max-width: 64ch;
-    line-height: 1.55;
-    transition: color 0.3s ease;
-  }
-
-  :global(.light) .description,
-  :global(:root:not(.dark)) .description {
-    color: var(--muted);
-  }
-
-  :global(.dark) .description {
-    color: #e0e0e0;
-  }
-
-  .account-row {
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    margin-top: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .email {
-    font-weight: 700;
-    font-size: 0.95rem;
-  }
-
-  .change-account {
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 0.45rem 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  :global(.light) .change-account,
-  :global(:root:not(.dark)) .change-account {
-    background: color-mix(in srgb, var(--color-light-salmon, #ffbba8) 25%, var(--surface) 75%);
-    color: var(--accent);
-  }
-
-  :global(.dark) .change-account {
-    background: linear-gradient(120deg, var(--color-red, #eb5e61) 0%, var(--color-light-red, #fe9090) 100%);
-    color: var(--color-black, #f3f3f3);
-    border-color: var(--color-red, #eb5e61);
-  }
-
-  .change-account:hover {
-    filter: brightness(1.1);
-  }
-
-  .privacy {
-    margin: 0.7rem 0 0;
-    font-size: 0.9rem;
-    color: var(--muted);
-  }
-
-  .survey-form {
-    display: grid;
-    gap: 1rem;
-    padding: 1.2rem;
-  }
-
-  .question-block {
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.7rem;
-    margin: 0;
-    min-width: 0;
-    min-inline-size: 0;
-    overflow: hidden;
-    min-width: 0;
-    transition:
-      background 0.3s ease,
-      border-color 0.3s ease;
-    overflow: hidden;
-  }
-
-  :global(.light) .question-block,
-  :global(:root:not(.dark)) .question-block {
-    background: color-mix(in srgb, var(--surface) 88%, transparent);
-  }
-
-  :global(.dark) .question-block {
-    background: color-mix(in srgb, var(--color-smooth-brown, #3a2b2b) 40%, var(--color-brown, #5f4949) 60%);
-  }
-
-  .question-title {
-    font-weight: 700;
-    font-size: 1rem;
-    line-height: 1.4;
-    padding: 0.6rem 1rem;
-    margin: -1rem -1rem 0.5rem -1rem;
-    border-radius: 12px 12px 0 0;
-    transition:
-      background 0.3s ease,
-      color 0.3s ease;
-  }
-
-  :global(.light) .question-title,
-  :global(:root:not(.dark)) .question-title {
-    background: color-mix(in srgb, var(--accent-2) 15%, transparent);
-    color: var(--accent);
-  }
-
-  :global(.dark) .question-title {
-    background: linear-gradient(120deg, var(--color-red, #eb5e61) 0%, var(--color-light-red, #fe9090) 100%);
-    color: var(--color-black, #f3f3f3);
-  }
-
-  input[type="text"],
-  input[type="number"],
-  textarea {
-    width: 100%;
-    border: 1px solid var(--line);
-    border-radius: 11px;
-    padding: 0.7rem 0.8rem;
-    font-family: inherit;
-    font-size: 0.95rem;
-    color: var(--ink);
-    transition:
-      border-color 0.2s ease,
-      background 0.3s ease,
-      color 0.3s ease;
-  }
-
-  :global(.light) input[type="text"],
-  :global(.light) input[type="number"],
-  :global(.light) textarea,
-  :global(:root:not(.dark)) input[type="text"],
-  :global(:root:not(.dark)) input[type="number"],
-  :global(:root:not(.dark)) textarea {
-    background: color-mix(in srgb, var(--surface) 92%, var(--bg-2) 8%);
-  }
-
-  :global(.dark) input[type="text"],
-  :global(.dark) input[type="number"],
-  :global(.dark) textarea {
-    background: color-mix(in srgb, var(--color-smooth-brown, #3a2b2b) 60%, var(--color-brown, #5f4949) 40%);
-    color: var(--color-black, #f3f3f3);
-  }
-
-  input[type="text"]:focus,
-  input[type="number"]:focus,
-  textarea:focus {
-    outline: 2px solid color-mix(in srgb, var(--focus) 18%, transparent);
-    border-color: var(--focus);
-  }
-
-  input[type="radio"],
-  input[type="checkbox"] {
-    width: 1rem;
-    height: 1rem;
-    accent-color: var(--accent-2);
-    margin-top: 0.2rem;
-  }
-
-  .option-row {
-    display: grid;
-    grid-template-columns: 20px 1fr;
-    align-items: start;
-    gap: 0.8rem;
-    line-height: 1.45;
-    word-break: break-word;
-    transition: color 0.3s ease;
-    width: 100%;
-  }
-
-  :global(.light) .option-row,
-  :global(:root:not(.dark)) .option-row {
-    color: var(--ink);
-  }
-
-  :global(.dark) .option-row {
-    color: #f3f3f3;
-  }
-
-  .other-input {
-    width: calc(100% - 2rem);
-    max-width: 100%;
-  }
-
-  .other-input:disabled {
-    opacity: 0.55;
-  }
-
-  .actions {
-    padding: 0.4rem 0.2rem 0.7rem;
-  }
-
-  .submit-btn {
-    border: 0;
-    border-radius: 12px;
-    padding: 0.8rem 1.35rem;
-    font-weight: 800;
-    font-family: inherit;
-    cursor: pointer;
-    box-shadow: 0 7px 16px color-mix(in srgb, var(--shadow-color) 20%, transparent);
-    transition: all 0.3s ease;
-  }
-
-  :global(.light) .submit-btn,
-  :global(:root:not(.dark)) .submit-btn {
-    background: linear-gradient(
-      120deg,
-      var(--color-red, #6d0006),
-      color-mix(in srgb, var(--color-salmon, #fa8072) 75%, var(--color-red, #6d0006) 25%)
-    );
-    color: var(--color-white, #fff4e1);
-  }
-
-  :global(.dark) .submit-btn {
-    background: linear-gradient(120deg, var(--color-red, #eb5e61), var(--color-salmon, #ff8c7a));
-    color: var(--color-black, #f3f3f3);
-  }
-
-  .submit-btn:hover {
-    filter: brightness(1.05);
-    transform: translateY(-1px);
-  }
-
-  @media (max-width: 640px) {
     body {
-      padding: 1rem 0.75rem;
+      margin: 0;
+      font-family: "Inter", system-ui, sans-serif;
+      color: var(--ink);
+      transition:
+        background 0.3s ease,
+        color 0.3s ease;
+    }
+
+    :global(.light) body,
+    :global(:root:not(.dark)) body {
+      background:
+        radial-gradient(
+          circle at 10% 10%,
+          color-mix(in srgb, var(--color-light-salmon, #ffbba8) 45%, transparent) 0,
+          transparent 35%
+        ),
+        radial-gradient(
+          circle at 90% 0%,
+          color-mix(in srgb, var(--color-light-brown, #d89c8d) 40%, transparent) 0,
+          transparent 30%
+        ),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2));
+    }
+
+    :global(.dark) body {
+      background: var(--color-smooth-brown, #3a2b2b);
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .survey-shell {
+      margin: 0 auto;
+      max-width: 820px;
+      animation: rise-in 0.55s ease-out;
+    }
+
+    .survey-card {
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      box-shadow: 0 20px 40px color-mix(in srgb, var(--shadow-color) 12%, transparent);
+      overflow: hidden;
+      transition:
+        background 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+    }
+
+    :global(.light) .survey-card,
+    :global(:root:not(.dark)) .survey-card {
+      background: var(--surface);
+    }
+
+    :global(.dark) .survey-card {
+      background: var(--color-brown, #5f4949);
     }
 
     .survey-header {
-      padding: 1.4rem;
+      padding: 2rem;
+      border-bottom: 1px solid var(--line);
+      transition:
+        background 0.3s ease,
+        border-color 0.3s ease;
+    }
+
+    :global(.light) .survey-header,
+    :global(:root:not(.dark)) .survey-header {
+      background: linear-gradient(
+        140deg,
+        color-mix(in srgb, var(--color-white, #fff4e1) 80%, var(--color-light-salmon, #ffbba8) 20%) 0%,
+        color-mix(in srgb, var(--color-background, #fff4e1) 70%, var(--color-smooth-brown, #fee8d6) 30%) 100%
+      );
+    }
+
+    :global(.dark) .survey-header {
+      background: linear-gradient(140deg, var(--color-brown, #5f4949) 0%, var(--color-smooth-brown, #3a2b2b) 100%);
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0.45rem 0 0.8rem;
+      font-family: "Fraunces", serif;
+      font-size: clamp(1.7rem, 2.4vw, 2.35rem);
+      line-height: 1.2;
+      transition: color 0.3s ease;
+    }
+
+    :global(.light) h1,
+    :global(:root:not(.dark)) h1 {
+      color: inherit;
+    }
+
+    :global(.dark) h1 {
+      color: #ffffff;
+    }
+
+    .description {
+      margin: 0;
+      max-width: 64ch;
+      line-height: 1.55;
+      transition: color 0.3s ease;
+    }
+
+    :global(.light) .description,
+    :global(:root:not(.dark)) .description {
+      color: var(--muted);
+    }
+
+    :global(.dark) .description {
+      color: #e0e0e0;
+    }
+
+    .account-row {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .email {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .change-account {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    :global(.light) .change-account,
+    :global(:root:not(.dark)) .change-account {
+      background: color-mix(in srgb, var(--color-light-salmon, #ffbba8) 25%, var(--surface) 75%);
+      color: var(--accent);
+    }
+
+    :global(.dark) .change-account {
+      background: linear-gradient(120deg, var(--color-red, #eb5e61) 0%, var(--color-light-red, #fe9090) 100%);
+      color: var(--color-black, #f3f3f3);
+      border-color: var(--color-red, #eb5e61);
+    }
+
+    .change-account:hover {
+      filter: brightness(1.1);
+    }
+
+    .privacy {
+      margin: 0.7rem 0 0;
+      font-size: 0.9rem;
+      color: var(--muted);
     }
 
     .survey-form {
-      padding: 0.8rem;
+      display: grid;
+      gap: 1rem;
+      padding: 1.2rem;
     }
 
     .question-block {
-      padding: 0.85rem;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      margin: 0;
+      min-width: 0;
+      min-inline-size: 0;
+      overflow: hidden;
+      min-width: 0;
+      transition:
+        background 0.3s ease,
+        border-color 0.3s ease;
+      overflow: hidden;
     }
 
-    .other-input {
-      margin-left: 0;
+    :global(.light) .question-block,
+    :global(:root:not(.dark)) .question-block {
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+    }
+
+    :global(.dark) .question-block {
+      background: color-mix(in srgb, var(--color-smooth-brown, #3a2b2b) 40%, var(--color-brown, #5f4949) 60%);
+    }
+
+    .question-title {
+      font-weight: 700;
+      font-size: 1rem;
+      line-height: 1.4;
+      padding: 0.6rem 1rem;
+      margin: -1rem -1rem 0.5rem -1rem;
+      border-radius: 12px 12px 0 0;
+      transition:
+        background 0.3s ease,
+        color 0.3s ease;
+    }
+
+    :global(.light) .question-title,
+    :global(:root:not(.dark)) .question-title {
+      background: color-mix(in srgb, var(--accent-2) 15%, transparent);
+      color: var(--accent);
+    }
+
+    :global(.dark) .question-title {
+      background: linear-gradient(120deg, var(--color-red, #eb5e61) 0%, var(--color-light-red, #fe9090) 100%);
+      color: var(--color-black, #f3f3f3);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
       width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      padding: 0.7rem 0.8rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--ink);
+      transition:
+        border-color 0.2s ease,
+        background 0.3s ease,
+        color 0.3s ease;
+    }
+
+    :global(.light) input[type="text"],
+    :global(.light) input[type="number"],
+    :global(.light) textarea,
+    :global(:root:not(.dark)) input[type="text"],
+    :global(:root:not(.dark)) input[type="number"],
+    :global(:root:not(.dark)) textarea {
+      background: color-mix(in srgb, var(--surface) 92%, var(--bg-2) 8%);
+    }
+
+    :global(.dark) input[type="text"],
+    :global(.dark) input[type="number"],
+    :global(.dark) textarea {
+      background: color-mix(in srgb, var(--color-smooth-brown, #3a2b2b) 60%, var(--color-brown, #5f4949) 40%);
+      color: var(--color-black, #f3f3f3);
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus {
+      outline: 2px solid color-mix(in srgb, var(--focus) 18%, transparent);
+      border-color: var(--focus);
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      width: 1rem;
+      height: 1rem;
+      accent-color: var(--accent-2);
+      margin-top: 0.2rem;
     }
 
     .option-row {
-      grid-template-columns: 24px 1fr;
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      align-items: start;
+      gap: 0.8rem;
+      line-height: 1.45;
+      word-break: break-word;
+      transition: color 0.3s ease;
+      width: 100%;
     }
-  }
 
-  @keyframes rise-in {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
+    :global(.light) .option-row,
+    :global(:root:not(.dark)) .option-row {
+      color: var(--ink);
     }
 
-    to {
-      opacity: 1;
-      transform: translateY(0);
+    :global(.dark) .option-row {
+      color: #f3f3f3;
     }
-  }
 
-  input[type="text"],
-  input[type="number"],
-  textarea {
-    width: 100%;
-    max-width: 100%;
-    display: block;
-    box-sizing: border-box;
-  }
+    .other-input {
+      width: 100%;
+      max-width: 100%;
+    }
 
-  fieldset.question-block {
-    display: flex;
-    flex-direction: column;
-    min-inline-size: 0;
-    margin-inline: 0;
-    padding-inline: 1rem;
-  }
-</style>
+    .other-input:disabled {
+      opacity: 0.55;
+    }
+
+    .actions {
+      padding: 0.4rem 0.2rem 0.7rem;
+    }
+
+    .submit-btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 0.8rem 1.35rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 7px 16px color-mix(in srgb, var(--shadow-color) 20%, transparent);
+      transition: all 0.3s ease;
+    }
+
+    :global(.light) .submit-btn,
+    :global(:root:not(.dark)) .submit-btn {
+      background: linear-gradient(
+        120deg,
+        var(--color-red, #6d0006),
+        color-mix(in srgb, var(--color-salmon, #fa8072) 75%, var(--color-red, #6d0006) 25%)
+      );
+      color: var(--color-white, #fff4e1);
+    }
+
+    :global(.dark) .submit-btn {
+      background: linear-gradient(120deg, var(--color-red, #eb5e61), var(--color-salmon, #ff8c7a));
+      color: var(--color-black, #f3f3f3);
+    }
+
+    .submit-btn:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1rem 0.75rem;
+      }
+
+      .survey-header {
+        padding: 1.4rem;
+      }
+
+      .survey-form {
+        padding: 0.8rem;
+      }
+
+      .question-block {
+        padding: 0.85rem;
+      }
+
+      .other-input {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .option-row {
+        grid-template-columns: 24px 1fr;
+      }
+    }
+
+    @keyframes rise-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      max-width: 100%;
+      display: block;
+      box-sizing: border-box;
+    }
+  </style>
+</Layout>

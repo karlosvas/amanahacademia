@@ -16,6 +16,7 @@ if (!response.success) {
 }
 
 const surveys: Survey[] = response.success ? (response.data ?? []) : [];
+
 const hasSurveys: boolean = surveys.length > 0;
 ---
 
