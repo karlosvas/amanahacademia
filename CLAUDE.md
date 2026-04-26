@@ -24,14 +24,14 @@ Amanah Academia es una plataforma educativa online especializada en la enseñanz
 
 ### DevOps & Infraestructura
 
-- **Cloudflare**: Hosting del frontend con CDN y seguridad.
+- **Vercel**: Hosting del frontend con CDN y seguridad.
 - **Fly.io**: Hosting del backend con despliegue en contenedores.
 - **GitHub Actions**: CI/CD para automatizar pruebas y despliegues.
 - **Docker**: Contenerización de la aplicación backend.
 
-## Despliegue en Cloudflare y Fly.io
+## Despliegue en Vercel y Fly.io
 
-El frontend se despliega en Cloudflare utilizando el adapter oficial de Astro (`@astrojs/cloudflare`). El archivo de configuración principal es [`frontend/astro.config.mjs`](frontend/astro.config.mjs).
+El frontend se despliega en Vercel utilizando el adapter oficial de Astro (`@astrojs/vercel`). El archivo de configuración principal es [`frontend/astro.config.mjs`](frontend/astro.config.mjs).
 
 El backend se despliega en Fly.io usando Docker, con configuración en [`backend/Dockerfile`](backend/Dockerfile) y [`backend/fly.toml`](backend/fly.toml).
 

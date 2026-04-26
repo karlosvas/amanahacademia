@@ -342,7 +342,6 @@ const user = await helper.getUser(token);
         ],
       };
 
-      console.log("Submitting survey with data:", newSurvey);
       const response = await helper.createSurvey(newSurvey);
 
       if (response.success) {

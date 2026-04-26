@@ -26,8 +26,6 @@ try {
     throw new Error();
   }
 
-  log.info(timeSlots);
-
   let token_cookie = Astro.cookies.get("session")?.value ?? "";
   const bookingsListResponse: ResponseAPI<CalBookingPayload[]> = await helper.getGroupBookings(token_cookie);
   if (bookingsListResponse.success) bookingsList = bookingsListResponse.data;
@@ -214,9 +212,9 @@ try {
                 <div>
                   <p class="text-sm text-gray-600 font-medium">Horario disponible</p>
                   <p class="text-2xl font-bold text-[#8a4141]">
-                    {(slot as any).startTime ?? slot.start_time ?? "–"}
+                    {(slot as any).startTime ?? "–"}
                     {" – "}
-                    {(slot as any).endTime ?? slot.end_time ?? "–"}
+                    {(slot as any).endTime ?? "–"}
                   </p>
                   {slot.days && slot.days.length > 0 && (
                     <div class="flex flex-wrap gap-2 mt-3">
@@ -302,8 +300,8 @@ try {
       timeSelect.innerHTML = `<option value="">Selecciona una hora</option>`;
 
       for (const slot of slots) {
-        const [minH, minM] = (slot.startTime ?? slot.start_time ?? "00:00").split(":").map(Number);
-        const [maxH, maxM] = (slot.endTime ?? slot.end_time ?? "23:59").split(":").map(Number);
+        const [minH, minM] = (slot.startTime ?? "00:00").split(":").map(Number);
+        const [maxH, maxM] = (slot.endTime ?? "23:59").split(":").map(Number);
         const startMinutes = minH * 60 + minM;
         const endMinutes = maxH * 60 + maxM;
 
@@ -396,8 +394,8 @@ try {
 
       const timeInMinutes = hours * 60 + minutes;
       const isValid = availableSlots.some((slot: any) => {
-        const [minH, minM] = (slot.startTime ?? slot.start_time ?? "00:00").split(":").map(Number);
-        const [maxH, maxM] = (slot.endTime ?? slot.end_time ?? "23:59").split(":").map(Number);
+        const [minH, minM] = (slot.startTime ?? "00:00").split(":").map(Number);
+        const [maxH, maxM] = (slot.endTime ?? "23:59").split(":").map(Number);
         return timeInMinutes >= minH * 60 + minM && timeInMinutes <= maxH * 60 + maxM;
       });
 
@@ -453,15 +451,6 @@ try {
 
         const date = formData.get("class-date") as string;
         const time = formData.get("class-time") as string;
-
-        // Validación adicional del horario permitido
-        const [hours] = time.split(":").map(Number);
-        if (hours < 15 || hours > 20) {
-          showMessage("La hora debe estar entre 15:00 y 20:00", true);
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Crear Clase";
-          return;
-        }
 
         // Calcular start y end en ISO 8601
         const startISO = toISO8601(date, time);
