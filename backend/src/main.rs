@@ -141,13 +141,9 @@ async fn main() {
         client: cal_client,
         base_url: env::var("CAL_BASE_URL").expect("CAL_BASE_URL must be set"),
         api_key: env::var("CAL_API_KEY").expect("CAL_API_KEY must be set"),
-        team_id: env::var("TEAM_ID").expect("TEAM_ID must be set"),
+        team_id: env::var("TEAM_ID").ok(),
         booking_cache: Arc::new(tokio::sync::RwLock::new(HashMap::new())),
         recent_changes: Arc::new(tokio::sync::RwLock::new(Vec::new())),
-        enable_teams: env::var("CAL_ENABLE_TEAMS")
-            .expect("CAL_ENABLE_TEAMS must be set")
-            .parse()
-            .expect("CAL_ENABLE_TEAMS value is not a bolean"),
     };
 
     // Configurar cliente HTTP para Google Analytics

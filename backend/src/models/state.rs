@@ -30,10 +30,9 @@ pub struct CalOptions {
     pub client: HttpClient,
     pub base_url: String,
     pub api_key: String,
-    pub team_id: String,
+    pub team_id: Option<String>,
     pub booking_cache: Arc<RwLock<HashMap<String, CalBookingPayload>>>,
     pub recent_changes: Arc<RwLock<Vec<BookingChange>>>,
-    pub enable_teams: bool,
 }
 
 /// Configuración personalizada para Firebase

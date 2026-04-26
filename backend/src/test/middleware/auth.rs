@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod tests {
+    use rsa::{RsaPrivateKey, RsaPublicKey, pkcs8::EncodePrivateKey, pkcs8::EncodePublicKey};
+
     use {
         crate::{
             middleware::auth::{fetch_firebase_keys_internal, get_ga_token, verify_firebase_token},
@@ -13,6 +15,7 @@ mod tests {
         axum::http::StatusCode,
         jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, encode},
         reqwest::Client as HttpClient,
+        rsa::rand_core::OsRng,
         serde_json::{Value, json},
         std::{
             sync::Arc,
@@ -20,6 +23,13 @@ mod tests {
         },
         tokio::sync::RwLock,
     };
+
+    struct TestRsaKeys {
+        encoding_key: EncodingKey,
+        decoding_key: DecodingKey,
+        kid: String,
+        public_pem: String,
+    }
 
     // ========== FIXTURES Y HELPERS ==========
     /// Crea un token JWT válido para testing
@@ -29,12 +39,12 @@ mod tests {
         encoding_key: &EncodingKey,
         kid: &str,
     ) -> String {
-        let now = SystemTime::now()
+        let now: i64 = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_secs() as i64;
 
-        let claims = UserAuthentication {
+        let claims: UserAuthentication = UserAuthentication {
             sub: user_id.to_string(),
             iss: format!("https://securetoken.google.com/{}", project_id),
             aud: project_id.to_string(),
@@ -58,77 +68,33 @@ mod tests {
     }
 
     /// Crea un par de claves RSA para testing
-    fn create_test_rsa_keys() -> (EncodingKey, DecodingKey, String) {
-        let private_key = r#"-----BEGIN PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDNPyPzvh7i+WMs
-0S5Px8ip6Mxjag6Xxf1SZ979q+L/nPDvuOADnzUnSbeBNYzAwz79zYoqra64zK1H
-cFrxCcVfMqu8Wrko7Wevshoo5fbxzTE8i+/J3cd6lRE0+pwrN0+k5gUiPj1KziJ9
-r4cOexfmWgRRpjTOEEpxrOSohlDpj04zmPn7B3fTlAtxlsJRzw/c+su/PY0aopWp
-Xo/lLC//IxqeYgkad8g8GcEpk0UPaXmQodmaDpk7BXz4R6Wln+d9ABUx8a9sME6y
-x0+0PANP7DyWmoPRsrVzA7msjAQ/HnO3cblWzkiY8Mikgo5xJTQS6aMO3zIYmOmw
-b0xS5mHlAgMBAAECggEAG4k7kRFyQmBUAmjEDlcO4GDHvxS1BX6+GEawP5dGeqW7
-G2ZRw5qh/nXg5ThifGAVfOaNAWHQ3aE0JC/6O3lknfuF19zSF6AWN5es88y6f0FY
-uDdMAei7wQHrz5BJ0HB4wnZLvQbdoUIblYItm+8+yxxLlQq37ed4nVylRsjSZSsj
-wBeJuEM1ZAQJ2QldBq2QAcXFzdK+Q2YV21Wpc0C0xFUM5O9I4hbFcojrVl1l/UbG
-Bnit8x73X4OJ0H8ByXzeuMppfd3akInIOJLezL+3arABadHIKhc8oEyZlgnKHzKR
-T8z2Tq7FK6R5Y3JSOXnAuM6kzS+AZRBry5CradJVJwKBgQDnFDNa5ph2sfehl006
-pFyEf1l7BCXtSsnLbeywz2xi17Kx3kLBLkaPsnf9m1qZ0/NScDA+io2ZC6DySo82
-WIcdQyd4I0NDwekDvfI78swfwR9jbsjVJHuGR+IWSTZvTnMG7aCxFQuQRe/kaHIL
-1z74P6JOdViftaOqFhFIYl3CzwKBgQDjYb5IxaYHV0mzHsab/Arx/Sle83k3uBQI
-dHA0GviP2YuYv4jf2iaMg1UMNKAbUp2NXAXsamuSXHdp6GiMK2fGWVD792wgRevK
-Acz8lzCOsDK8XXz8M3Eh/hjr4dTIoq16MzFjOYh+Kwm2c9Rd3PBf8Q2p4nde/tHg
-fzQLsv2NCwKBgQCwT4Vvkgo6ZkefD6ZpXAcLQW+woNWfXDTj9pdlwJ3ePN2nQQKG
-CxzjfzR2WBak0EcTW240CdtILss6kxD6UkmlVhvDWoR0Knvz0vYEL5j3kY61e03Y
-8uEc77PddTcHbj/txVmaQ4hzKCmFiPubdTwihcr9OiPIl/qsR/If3I3VmQKBgApQ
-m843USHSHuDGS6I129VAc8j/6IbTje0YQyLJ+m6kIsYKIk5tWgRTzN7h4EV9CPKp
-swcXiMu58BzY0y1QpsODt73GapxIL7sZO9BVl3lRmuuanhnex4oQOdcxhnKXlqEN
-g3cJ3BxFHYquVHrxk+H2UHVddabUjnbNrnG9a+0jAoGBAJwGaIVaTizRuQ5eBnYz
-tS2ExUnejCeo9sWEbBIA+oqnO+XGoepn6MJBgAF8VaZTqMIPuyY4/GHCQqsU1QDV
-bi+aXQnjxeU9u61V7erNTVaVqMnwQYjQzoq/1Fpuf14HeV2qV/YEGFrU7baBodRg
-XrivCALoN8O9Gvb+bMTIf4Ut
------END PRIVATE KEY-----"#;
+    fn create_test_rsa_keys() -> TestRsaKeys {
+        let private_key =
+            RsaPrivateKey::new(&mut OsRng, 2048).expect("falló al crear clave privada");
+        let public_key = RsaPublicKey::from(&private_key);
 
-        let public_key = r#"-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzT8j874e4vljLNEuT8fI
-qejMY2oOl8X9Umfe/avi/5zw77jgA581J0m3gTWMwMM+/c2KKq2uuMytR3Ba8QnF
-XzKrvFq5KO1nr7IaKOX28c0xPIvvyd3HepURNPqcKzdPpOYFIj49Ss4ifa+HDnsX
-5loEUaY0zhBKcazkqIZQ6Y9OM5j5+wd305QLcZbCUc8P3PrLvz2NGqKVqV6P5Swv
-/yManmIJGnfIPBnBKZNFD2l5kKHZmg6ZOwV8+EelpZ/nfQAVMfGvbDBOssdPtDwD
-T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
-5QIDAQAB
------END PUBLIC KEY-----"#;
+        let private_pem = private_key.to_pkcs8_pem(Default::default()).unwrap();
+        let public_pem = public_key.to_public_key_pem(Default::default()).unwrap();
 
-        let kid = "test-key-id-123".to_string();
-
-        (
-            EncodingKey::from_rsa_pem(private_key.as_bytes()).unwrap(),
-            DecodingKey::from_rsa_pem(public_key.as_bytes()).unwrap(),
-            kid,
-        )
+        TestRsaKeys {
+            encoding_key: EncodingKey::from_rsa_pem(private_pem.as_bytes()).unwrap(),
+            decoding_key: DecodingKey::from_rsa_pem(public_pem.as_bytes()).unwrap(),
+            kid: "test-key-id".to_string(),
+            public_pem: public_pem,
+        }
     }
 
     // ========== TESTS DE verify_firebase_token ==========
     #[test]
     fn test_verify_firebase_token_success() {
-        let (encoding_key, _, kid) = create_test_rsa_keys();
+        let test_rsa: TestRsaKeys = create_test_rsa_keys();
         let project_id: &str = "amanahacademia";
         let user_id: &str = "test-user-123";
 
-        let token: String = create_valid_test_token(project_id, user_id, &encoding_key, &kid);
+        let token: String =
+            create_valid_test_token(project_id, user_id, &test_rsa.encoding_key, &test_rsa.kid);
 
-        let public_key: &str = r#"-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzT8j874e4vljLNEuT8fI
-qejMY2oOl8X9Umfe/avi/5zw77jgA581J0m3gTWMwMM+/c2KKq2uuMytR3Ba8QnF
-XzKrvFq5KO1nr7IaKOX28c0xPIvvyd3HepURNPqcKzdPpOYFIj49Ss4ifa+HDnsX
-5loEUaY0zhBKcazkqIZQ6Y9OM5j5+wd305QLcZbCUc8P3PrLvz2NGqKVqV6P5Swv
-/yManmIJGnfIPBnBKZNFD2l5kKHZmg6ZOwV8+EelpZ/nfQAVMfGvbDBOssdPtDwD
-T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
-5QIDAQAB
------END PUBLIC KEY-----"#;
-
-        let firebase_keys = json!({
-            kid: public_key
-        });
+        let firebase_keys: Value = json!({ test_rsa.kid: test_rsa.public_pem });
 
         let result = verify_firebase_token(&token, &firebase_keys, project_id);
         assert!(result.is_ok());
@@ -153,24 +119,24 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
 
     #[test]
     fn test_verify_firebase_token_no_matching_key() {
-        let (encoding_key, _, kid) = create_test_rsa_keys();
+        let token_rsa: TestRsaKeys = create_test_rsa_keys();
         let project_id: &str = "amanahacademia";
         let user_id: &str = "test-user-123";
 
-        let token: String = create_valid_test_token(project_id, user_id, &encoding_key, &kid);
-        // Firebase keys con kid diferente
-        let firebase_keys = json!({
-            "different-kid": "some-public-key"
-        });
+        let token: String =
+            create_valid_test_token(project_id, user_id, &token_rsa.encoding_key, &token_rsa.kid);
+
+        let firebase_keys = json!({ "wrong-kid": token_rsa.public_pem });
 
         let result = verify_firebase_token(&token, &firebase_keys, project_id);
+
         assert!(result.is_err());
         assert!(matches!(result.unwrap_err(), AuthError::NoMatchingKey));
     }
 
     #[test]
     fn test_verify_firebase_token_expired() {
-        let (encoding_key, _, kid) = create_test_rsa_keys();
+        let token_rsa: TestRsaKeys = create_test_rsa_keys();
         let project_id: &str = "amanahacademia";
         let user_id: &str = "test-user-123";
 
@@ -198,23 +164,11 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
         };
 
         let mut header: Header = Header::new(Algorithm::RS256);
-        header.kid = Some(kid.clone());
+        header.kid = Some(token_rsa.kid.clone());
 
-        let token: String = encode(&header, &claims, &encoding_key).unwrap();
+        let token: String = encode(&header, &claims, &token_rsa.encoding_key).unwrap();
 
-        let public_key = r#"-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzT8j874e4vljLNEuT8fI
-qejMY2oOl8X9Umfe/avi/5zw77jgA581J0m3gTWMwMM+/c2KKq2uuMytR3Ba8QnF
-XzKrvFq5KO1nr7IaKOX28c0xPIvvyd3HepURNPqcKzdPpOYFIj49Ss4ifa+HDnsX
-5loEUaY0zhBKcazkqIZQ6Y9OM5j5+wd305QLcZbCUc8P3PrLvz2NGqKVqV6P5Swv
-/yManmIJGnfIPBnBKZNFD2l5kKHZmg6ZOwV8+EelpZ/nfQAVMfGvbDBOssdPtDwD
-T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
-5QIDAQAB
------END PUBLIC KEY-----"#;
-
-        let firebase_keys: Value = json!({
-            kid: public_key
-        });
+        let firebase_keys = json!({ token_rsa.kid: token_rsa.public_pem });
 
         let result = verify_firebase_token(&token, &firebase_keys, project_id);
         assert!(result.is_err());
@@ -226,26 +180,14 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
 
     #[test]
     fn test_verify_firebase_token_invalid_audience() {
-        let (encoding_key, _, kid) = create_test_rsa_keys();
+        let token_rsa: TestRsaKeys = create_test_rsa_keys();
         let project_id: &str = "wrong-project-id";
         let user_id: &str = "test-user-123";
 
-        let token: String = create_valid_test_token(project_id, user_id, &encoding_key, &kid);
-        let public_key = r#"-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzT8j874e4vljLNEuT8fI
-qejMY2oOl8X9Umfe/avi/5zw77jgA581J0m3gTWMwMM+/c2KKq2uuMytR3Ba8QnF
-XzKrvFq5KO1nr7IaKOX28c0xPIvvyd3HepURNPqcKzdPpOYFIj49Ss4ifa+HDnsX
-5loEUaY0zhBKcazkqIZQ6Y9OM5j5+wd305QLcZbCUc8P3PrLvz2NGqKVqV6P5Swv
-/yManmIJGnfIPBnBKZNFD2l5kKHZmg6ZOwV8+EelpZ/nfQAVMfGvbDBOssdPtDwD
-T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
-5QIDAQAB
------END PUBLIC KEY-----"#;
+        let token: String =
+            create_valid_test_token(project_id, user_id, &token_rsa.encoding_key, &token_rsa.kid);
+        let firebase_keys = json!({ token_rsa.kid: token_rsa.public_pem });
 
-        let firebase_keys: Value = json!({
-            kid: public_key
-        });
-
-        // Verificar con proyecto diferente
         let result = verify_firebase_token(&token, &firebase_keys, "amanahacademia");
         assert!(result.is_err());
         assert!(matches!(
@@ -256,9 +198,9 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
 
     #[test]
     fn test_verify_firebase_token_invalid_issuer() {
-        let (encoding_key, _, kid) = create_test_rsa_keys();
-        let project_id = "amanahacademia";
-        let user_id = "test-user-123";
+        let token_rsa: TestRsaKeys = create_test_rsa_keys();
+        let project_id: &str = "amanahacademia";
+        let user_id: &str = "test-user-123";
 
         // Crear token con issuer inválido
         let now = SystemTime::now()
@@ -284,23 +226,11 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
         };
 
         let mut header: Header = Header::new(Algorithm::RS256);
-        header.kid = Some(kid.clone());
+        header.kid = Some(token_rsa.kid.clone());
 
-        let token: String = encode(&header, &claims, &encoding_key).unwrap();
+        let token: String = encode(&header, &claims, &token_rsa.encoding_key).unwrap();
 
-        let public_key: &str = r#"-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzT8j874e4vljLNEuT8fI
-qejMY2oOl8X9Umfe/avi/5zw77jgA581J0m3gTWMwMM+/c2KKq2uuMytR3Ba8QnF
-XzKrvFq5KO1nr7IaKOX28c0xPIvvyd3HepURNPqcKzdPpOYFIj49Ss4ifa+HDnsX
-5loEUaY0zhBKcazkqIZQ6Y9OM5j5+wd305QLcZbCUc8P3PrLvz2NGqKVqV6P5Swv
-/yManmIJGnfIPBnBKZNFD2l5kKHZmg6ZOwV8+EelpZ/nfQAVMfGvbDBOssdPtDwD
-T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
-5QIDAQAB
------END PUBLIC KEY-----"#;
-
-        let firebase_keys = json!({
-            kid: public_key
-        });
+        let firebase_keys: Value = json!({ token_rsa.kid: token_rsa.public_pem });
 
         let result = verify_firebase_token(&token, &firebase_keys, project_id);
         assert!(result.is_err());
@@ -397,80 +327,54 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
     /// Helper para crear un AppState mock para testing
     /// NOTA: Esta clave privada es SOLO para testing y NO es una clave real de producción
     #[allow(clippy::too_many_lines)]
-    fn create_mock_app_state() -> Arc<AppState> {
-        // Clave privada de TEST (misma usada en create_test_rsa_keys)
-        let private_key = r#"-----BEGIN PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDNPyPzvh7i+WMs
-0S5Px8ip6Mxjag6Xxf1SZ979q+L/nPDvuOADnzUnSbeBNYzAwz79zYoqra64zK1H
-cFrxCcVfMqu8Wrko7Wevshoo5fbxzTE8i+/J3cd6lRE0+pwrN0+k5gUiPj1KziJ9
-r4cOexfmWgRRpjTOEEpxrOSohlDpj04zmPn7B3fTlAtxlsJRzw/c+su/PY0aopWp
-Xo/lLC//IxqeYgkad8g8GcEpk0UPaXmQodmaDpk7BXz4R6Wln+d9ABUx8a9sME6y
-x0+0PANP7DyWmoPRsrVzA7msjAQ/HnO3cblWzkiY8Mikgo5xJTQS6aMO3zIYmOmw
-b0xS5mHlAgMBAAECggEAG4k7kRFyQmBUAmjEDlcO4GDHvxS1BX6+GEawP5dGeqW7
-G2ZRw5qh/nXg5ThifGAVfOaNAWHQ3aE0JC/6O3lknfuF19zSF6AWN5es88y6f0FY
-uDdMAei7wQHrz5BJ0HB4wnZLvQbdoUIblYItm+8+yxxLlQq37ed4nVylRsjSZSsj
-wBeJuEM1ZAQJ2QldBq2QAcXFzdK+Q2YV21Wpc0C0xFUM5O9I4hbFcojrVl1l/UbG
-Bnit8x73X4OJ0H8ByXzeuMppfd3akInIOJLezL+3arABadHIKhc8oEyZlgnKHzKR
-T8z2Tq7FK6R5Y3JSOXnAuM6kzS+AZRBry5CradJVJwKBgQDnFDNa5ph2sfehl006
-pFyEf1l7BCXtSsnLbeywz2xi17Kx3kLBLkaPsnf9m1qZ0/NScDA+io2ZC6DySo82
-WIcdQyd4I0NDwekDvfI78swfwR9jbsjVJHuGR+IWSTZvTnMG7aCxFQuQRe/kaHIL
-1z74P6JOdViftaOqFhFIYl3CzwKBgQDjYb5IxaYHV0mzHsab/Arx/Sle83k3uBQI
-dHA0GviP2YuYv4jf2iaMg1UMNKAbUp2NXAXsamuSXHdp6GiMK2fGWVD792wgRevK
-Acz8lzCOsDK8XXz8M3Eh/hjr4dTIoq16MzFjOYh+Kwm2c9Rd3PBf8Q2p4nde/tHg
-fzQLsv2NCwKBgQCwT4Vvkgo6ZkefD6ZpXAcLQW+woNWfXDTj9pdlwJ3ePN2nQQKG
-CxzjfzR2WBak0EcTW240CdtILss6kxD6UkmlVhvDWoR0Knvz0vYEL5j3kY61e03Y
-8uEc77PddTcHbj/txVmaQ4hzKCmFiPubdTwihcr9OiPIl/qsR/If3I3VmQKBgApQ
-m843USHSHuDGS6I129VAc8j/6IbTje0YQyLJ+m6kIsYKIk5tWgRTzN7h4EV9CPKp
-swcXiMu58BzY0y1QpsODt73GapxIL7sZO9BVl3lRmuuanhnex4oQOdcxhnKXlqEN
-g3cJ3BxFHYquVHrxk+H2UHVddabUjnbNrnG9a+0jAoGBAJwGaIVaTizRuQ5eBnYz
-tS2ExUnejCeo9sWEbBIA+oqnO+XGoepn6MJBgAF8VaZTqMIPuyY4/GHCQqsU1QDV
-bi+aXQnjxeU9u61V7erNTVaVqMnwQYjQzoq/1Fpuf14HeV2qV/YEGFrU7baBodRg
-XrivCALoN8O9Gvb+bMTIf4Ut
------END PRIVATE KEY-----"#;
+    fn create_mock_app_state() -> (Arc<AppState>, TestRsaKeys) {
+        let token_rsa: TestRsaKeys = create_test_rsa_keys();
 
-        Arc::new(AppState {
-            firebase_options: crate::models::state::CustomFirebase {
-                firebase_keys: Arc::new(RwLock::new(KeyCache {
-                    keys: json!({"test-kid": "test-key"}),
-                    fetched_at: SystemTime::now(),
-                })),
-                firebase_project_id: "amanahacademia".to_string(),
-                firebase_api_key: "test-api-key".to_string(),
-                firebase_database_url: "https://test.firebaseio.com".to_string(),
-                firebase_database_secret: "test-secret".to_string(),
-                firebase_client: HttpClient::new(),
-            },
-            ga_options: crate::models::state::GAOptions {
-                client: HttpClient::new(),
-                service_account: ServiceAccount {
-                    client_email: "test@test-project.iam.gserviceaccount.com".to_string(),
-                    private_key: private_key.to_string(),
+        (
+            Arc::new(AppState {
+                firebase_options: crate::models::state::CustomFirebase {
+                    firebase_keys: Arc::new(RwLock::new(KeyCache {
+                        keys: json!({"test-kid": "test-key"}),
+                        fetched_at: SystemTime::now(),
+                    })),
+                    firebase_project_id: "amanahacademia".to_string(),
+                    firebase_api_key: "test-api-key".to_string(),
+                    firebase_database_url: "https://test.firebaseio.com".to_string(),
+                    firebase_database_secret: "test-secret".to_string(),
+                    firebase_client: HttpClient::new(),
                 },
-                base_url: "https://www.google-analytics.com/".to_string(),
-                property_id: "properties/123456".to_string(),
-            },
-            stripe_client: stripe::Client::new("sk_test_fake"),
-            resend_client: resend_rs::Resend::new("re_test_fake"),
-            mailchimp_client: crate::models::state::MailchimpOptions::new(
-                "test-api-key".to_string(),
-                "us1".to_string(),
-                "test-list-id".to_string(),
-            ),
-            cal_options: crate::models::state::CalOptions {
-                client: HttpClient::new(),
-                base_url: "https://api.cal.com".to_string(),
-                api_key: "test-cal-api-key".to_string(),
-                booking_cache: Arc::new(RwLock::new(std::collections::HashMap::new())),
-                recent_changes: Arc::new(RwLock::new(Vec::new())),
-                team_id: "1234".to_string(),
-                enable_teams: false,
-            },
-        })
+                ga_options: crate::models::state::GAOptions {
+                    client: HttpClient::new(),
+                    service_account: ServiceAccount {
+                        client_email: "test@test-project.iam.gserviceaccount.com".to_string(),
+                        private_key: token_rsa.public_pem.clone(),
+                    },
+                    base_url: "https://www.google-analytics.com/".to_string(),
+                    property_id: "properties/123456".to_string(),
+                },
+                stripe_client: stripe::Client::new("sk_test_fake"),
+                resend_client: resend_rs::Resend::new("re_test_fake"),
+                mailchimp_client: crate::models::state::MailchimpOptions::new(
+                    "test-api-key".to_string(),
+                    "us1".to_string(),
+                    "test-list-id".to_string(),
+                ),
+                cal_options: crate::models::state::CalOptions {
+                    client: HttpClient::new(),
+                    base_url: "https://api.cal.com".to_string(),
+                    api_key: "test-cal-api-key".to_string(),
+                    booking_cache: Arc::new(RwLock::new(std::collections::HashMap::new())),
+                    recent_changes: Arc::new(RwLock::new(Vec::new())),
+                    team_id: Some("1234".to_string()),
+                },
+            }),
+            token_rsa,
+        )
     }
 
     #[tokio::test]
     async fn test_get_ga_token_executes_jwt_generation() {
-        let state = create_mock_app_state();
+        let (state, _) = create_mock_app_state();
 
         // Este test ejecuta el código de generación de JWT y claims.
         // Fallará en la llamada HTTP a Google OAuth, pero cubre las líneas críticas:
@@ -503,7 +407,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
 
     #[tokio::test]
     async fn test_key_cache_fresh_not_expired() {
-        let state = create_mock_app_state();
+        let (state, _) = create_mock_app_state();
 
         // Las keys están frescas (recién creadas)
         let cache = state.firebase_options.firebase_keys.read().await;
@@ -512,7 +416,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
 
     #[tokio::test]
     async fn test_key_cache_update() {
-        let state = create_mock_app_state();
+        let (state, _) = create_mock_app_state();
 
         // Actualizar el cache manualmente
         {
@@ -538,7 +442,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
     /// Este test cubre las líneas 175-192 en auth.rs
     #[tokio::test]
     async fn test_public_ga_auth_middleware_executes_token_generation() {
-        let state = create_mock_app_state();
+        let (state, _) = create_mock_app_state();
 
         // Crear una app simple con el middleware
         let app = Router::new()
@@ -567,8 +471,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
     async fn test_public_ga_auth_middleware_error_path() {
         // Este test cubre específicamente el bloque de error en líneas 181-184
         // donde get_ga_token falla y se retorna INTERNAL_SERVER_ERROR
-
-        let state = create_mock_app_state();
+        let (state, _) = create_mock_app_state();
 
         // Crear handler que verifica si el GAToken está presente
         async fn test_handler(req: Request<Body>) -> &'static str {
@@ -602,8 +505,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
     async fn test_public_ga_auth_middleware_covers_token_insertion() {
         // Este test cubre las líneas 187-189 donde se inserta el token GA
         // en las extensiones del request
-
-        let state = create_mock_app_state();
+        let (state, _) = create_mock_app_state();
 
         // Handler que simplemente responde
         async fn handler() -> &'static str {
@@ -635,7 +537,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
     /// Test: firebase_auth_middleware con token faltante
     #[tokio::test]
     async fn test_firebase_auth_middleware_missing_token() {
-        let state = create_mock_app_state();
+        let (state, _) = create_mock_app_state();
 
         // Handler simple
         async fn handler() -> &'static str {
@@ -665,7 +567,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
     /// Test: firebase_auth_middleware con header inválido
     #[tokio::test]
     async fn test_firebase_auth_middleware_invalid_header() {
-        let state = create_mock_app_state();
+        let (state, _) = create_mock_app_state();
 
         async fn handler() -> &'static str {
             "ok"
@@ -695,7 +597,7 @@ XrivCALoN8O9Gvb+bMTIf4Ut
     /// Test: firebase_auth_middleware con token inválido
     #[tokio::test]
     async fn test_firebase_auth_middleware_invalid_token() {
-        let state = create_mock_app_state();
+        let (state, _) = create_mock_app_state();
 
         async fn handler() -> &'static str {
             "ok"
@@ -727,25 +629,20 @@ XrivCALoN8O9Gvb+bMTIf4Ut
     async fn test_firebase_auth_middleware_valid_token() {
         use crate::models::firebase::UserAuthentication;
 
-        let state = create_mock_app_state();
-        let (encoding_key, _, kid) = create_test_rsa_keys();
+        let (state, test_rsa) = create_mock_app_state();
 
         // Crear un token válido
-        let token = create_valid_test_token("amanahacademia", "test-user-123", &encoding_key, &kid);
+        let token: String = create_valid_test_token(
+            "amanahacademia",
+            "test-user-123",
+            &test_rsa.encoding_key,
+            &test_rsa.kid,
+        );
 
         // Actualizar el cache con la clave pública correcta
         {
             let mut cache = state.firebase_options.firebase_keys.write().await;
-            let public_key = r#"-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzT8j874e4vljLNEuT8fI
-qejMY2oOl8X9Umfe/avi/5zw77jgA581J0m3gTWMwMM+/c2KKq2uuMytR3Ba8QnF
-XzKrvFq5KO1nr7IaKOX28c0xPIvvyd3HepURNPqcKzdPpOYFIj49Ss4ifa+HDnsX
-5loEUaY0zhBKcazkqIZQ6Y9OM5j5+wd305QLcZbCUc8P3PrLvz2NGqKVqV6P5Swv
-/yManmIJGnfIPBnBKZNFD2l5kKHZmg6ZOwV8+EelpZ/nfQAVMfGvbDBOssdPtDwD
-T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
-5QIDAQAB
------END PUBLIC KEY-----"#;
-            cache.keys = json!({ kid: public_key });
+            cache.keys = json!({ test_rsa.kid: test_rsa.public_pem });
         }
 
         // Handler que verifica los claims
@@ -785,15 +682,13 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
     async fn test_get_or_refresh_keys_cache_fresh() {
         use crate::middleware::auth::get_or_refresh_keys;
 
-        let state = create_mock_app_state();
-
-        // El cache está fresco (recién creado)
+        let (state, _test_rsa) = create_mock_app_state();
         let result = get_or_refresh_keys(&state).await;
 
-        // Debe devolver las keys del cache sin error
         assert!(result.is_ok());
         let keys = result.unwrap();
-        assert!(keys.get("test-kid").is_some());
+
+        assert_eq!(keys.get("test-kid").unwrap(), "test-key");
     }
 
     /// Test: get_or_refresh_keys con cache expirado
@@ -801,7 +696,7 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
     async fn test_get_or_refresh_keys_cache_expired() {
         use crate::middleware::auth::get_or_refresh_keys;
 
-        let state = create_mock_app_state();
+        let (state, _) = create_mock_app_state();
 
         // Expirar el cache manualmente
         {
@@ -823,7 +718,7 @@ T+w8lpqD0bK1cwO5rIwEPx5zt3G5Vs5ImPDIpIKOcSU0EumjDt8yGJjpsG9MUuZh
     async fn test_get_or_refresh_keys_refresh_updates_cache() {
         use crate::middleware::auth::get_or_refresh_keys;
 
-        let state = create_mock_app_state();
+        let (state, _) = create_mock_app_state();
 
         // Obtener keys iniciales
         let initial_keys = {

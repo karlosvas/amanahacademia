@@ -54,8 +54,7 @@ pub mod fixtures {
                 base_url: "https://api.cal.com/v2".to_string(),
                 booking_cache: Arc::new(RwLock::new(initial_cache)),
                 recent_changes: Arc::new(RwLock::new(vec![])),
-                team_id: "1234".to_string(),
-                enable_teams: false,
+                team_id: Some("1234".to_string()),
             },
             firebase_options: CustomFirebase {
                 firebase_keys: Arc::new(RwLock::new(KeyCache {

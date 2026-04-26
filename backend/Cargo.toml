@@ -29,6 +29,8 @@ uuid = { version = "1.4", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 validator = { version = "0.16", features = ["derive"] }
 async-trait = "0.1"
+rsa = "0.9.10"
+rand = "0.10.1"
 
 [dev-dependencies]
 mockito = "1.5"    # Mock de HTTP servers para testing

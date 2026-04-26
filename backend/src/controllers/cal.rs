@@ -386,13 +386,7 @@ pub async fn add_booking(
         .map(|u| !u.username.is_empty())
         .unwrap_or(false);
 
-    // Aquí está la clave: El equipo solo cuenta si tienes la flag activada
-    let has_team = state.cal_options.enable_teams
-        && payload
-            .team_slug
-            .as_ref()
-            .map(|t| !t.is_empty())
-            .unwrap_or(false);
+    let has_team: bool = state.cal_options.team_id.is_some();
 
     // 3. COMBINACIÓN VÁLIDA
     // A: Tienes el ID numérico (eso basta)
@@ -411,7 +405,7 @@ pub async fn add_booking(
     }
 
     // Construir el body dinámicamente según los campos disponibles
-    let mut body = json!({
+    let mut body: Value = json!({
         "start": start_time,
         "attendee": {
             "name": attendee.name,
@@ -443,9 +437,7 @@ pub async fn add_booking(
     if let Some(user) = &payload.user {
         body["username"] = json!(user.username);
     }
-    if state.cal_options.enable_teams
-        && let Some(team_slug) = &payload.team_slug
-    {
+    if has_team && let Some(team_slug) = &payload.team_slug {
         body["teamSlug"] = json!(team_slug);
     }
     if let Some(organization_slug) = &payload.organization_slug {
@@ -532,10 +524,11 @@ pub async fn get_all_schedules(
     State(state): State<Arc<AppState>>,
     Query(params): Query<SchedulesQuery>,
 ) -> impl IntoResponse {
-    let url: String = if params.team && state.cal_options.enable_teams {
+    let url: String = if params.team && state.cal_options.team_id.is_some() {
         format!(
             "{}/teams/{}/schedules",
-            state.cal_options.base_url, state.cal_options.team_id
+            state.cal_options.base_url,
+            state.cal_options.team_id.as_deref().unwrap()
         )
     } else {
         format!("{}/schedules", state.cal_options.base_url)
@@ -670,7 +663,7 @@ pub async fn get_all_bookings(
         if let Some(name) = params.attendee_name {
             query.append_pair("attendeeName", &name);
         }
-        if state.cal_options.enable_teams
+        if state.cal_options.team_id.is_some()
             && let Some(team_id) = params.team_id
         {
             query.append_pair("teamId", &team_id);
