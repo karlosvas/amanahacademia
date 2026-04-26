@@ -161,12 +161,12 @@
           "button": "Prenota lezione",
           "selectionMonths": {
             "title": "Piano di pagamento",
-            "subtitle": "Seleziona i mesi per rateizzare",
-            "unit_singular": "Mese",
-            "unit_plural": "Mesi",
+            "subtitle": "Seleziona le settimane per rateizzare",
+            "unit_singular": "Settimana",
+            "unit_plural": "Settimane",
             "total_weeks": "Totale settimane",
             "btn_accept": "Conferma piano",
-            "alert_confirm": "Hai scelto di pagare in {n} mesi."
+            "alert_confirm": "Hai scelto di pagare in {n} settimane."
           }
         }
       },

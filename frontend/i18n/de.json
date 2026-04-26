@@ -163,12 +163,12 @@
           "button": "Unterricht buchen",
           "selectionMonths": {
             "title": "Zahlungsplan",
-            "subtitle": "Wähle die Monate zur Ratenzahlung",
-            "unit_singular": "Monat",
-            "unit_plural": "Monate",
+            "subtitle": "Wähle die Wochen zur Ratenzahlung",
+            "unit_singular": "Woche",
+            "unit_plural": "Wochen",
             "total_weeks": "Gesamtwochen",
             "btn_accept": "Plan bestätigen",
-            "alert_confirm": "Du hast die Zahlung in {n} Monaten gewählt."
+            "alert_confirm": "Du hast die Zahlung in {n} Wochen gewählt."
           }
         }
       },

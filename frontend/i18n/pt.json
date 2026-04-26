@@ -151,12 +151,12 @@
           "button": "Reservar Aula",
           "selectionMonths": {
             "title": "Plano de Pagamento",
-            "subtitle": "Selecione os meses para parcelar",
-            "unit_singular": "Mês",
-            "unit_plural": "Meses",
+            "subtitle": "Selecione as semanas para parcelar",
+            "unit_singular": "Semana",
+            "unit_plural": "Semanas",
             "total_weeks": "Total de semanas",
             "btn_accept": "Confirmar Plano",
-            "alert_confirm": "Você selecionou pagar em {n} meses."
+            "alert_confirm": "Você selecionou pagar em {n} semanas."
           }
         }
       },

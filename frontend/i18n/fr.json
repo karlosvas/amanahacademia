@@ -161,12 +161,12 @@
           "button": "Réserver un cours",
           "selectionMonths": {
             "title": "Plan de paiement",
-            "subtitle": "Sélectionnez les mois d'échelonnement",
-            "unit_singular": "Mois",
-            "unit_plural": "Mois",
+            "subtitle": "Sélectionnez les semaines d'échelonnement",
+            "unit_singular": "Semaine",
+            "unit_plural": "Semaines",
             "total_weeks": "Total des semaines",
             "btn_accept": "Valider le plan",
-            "alert_confirm": "Vous avez choisi de payer en {n} mois."
+            "alert_confirm": "Vous avez choisi de payer en {n} semaines."
           }
         }
       },

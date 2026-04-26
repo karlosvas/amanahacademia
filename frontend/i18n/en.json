@@ -151,12 +151,12 @@
           "button": "Book Class",
           "selectionMonths": {
             "title": "Payment Plan",
-            "subtitle": "Select the months to split the payment",
-            "unit_singular": "Month",
-            "unit_plural": "Months",
+            "subtitle": "Select the weeks to split the payment",
+            "unit_singular": "Week",
+            "unit_plural": "Weeks",
             "total_weeks": "Total weeks",
             "btn_accept": "Accept Plan",
-            "alert_confirm": "You selected payment in {n} months."
+            "alert_confirm": "You selected payment in {n} weeks."
           }
         }
       },

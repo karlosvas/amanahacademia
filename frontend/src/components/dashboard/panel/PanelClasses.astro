@@ -8,7 +8,7 @@ const helper = new ApiService();
 
 // Obtener lista de profesores para el selector
 let teachers: Teacher[] = [];
-let timeSlots: Availability | null = null;
+let timeSlots: Availability[] | null = null;
 let bookingsList: CalBookingPayload[] | null = null;
 try {
   const teachersResponse: ResponseAPI<Teacher[]> = await helper.getTeachers();
@@ -20,7 +20,7 @@ try {
 
   const timeSlotsResponse: ResponseAPI<Schedule> = await helper.getAvailableTimeSchedule("1081935");
 
-  if (timeSlotsResponse.success) timeSlots = timeSlotsResponse.data.availability[0];
+  if (timeSlotsResponse.success) timeSlots = timeSlotsResponse.data.availability;
   else {
     log.error("Error to get time slots", timeSlotsResponse);
     throw new Error();
@@ -58,23 +58,17 @@ try {
           />
           <p class="text-xs text-gray-600 mt-1">La clase debe ser programada para una fecha futura</p>
         </div>
-
         <div>
           <label for="class-time" class="block text-sm font-bold text-[#131313] mb-2"> Hora de inicio * </label>
-          <input
-            type="time"
+          <select
             id="class-time"
             name="class-time"
-            min={timeSlots?.start_time?.toString() ?? "15:00"}
-            max={timeSlots?.end_time?.toString() ?? "20:00"}
             required
-            class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141]"
-          />
-          <p class="text-xs text-gray-600 mt-1">
-            Horario disponible: {timeSlots?.start_time?.toString() ?? "15:00"} - {
-              timeSlots?.end_time?.toString() ?? "20:00"
-            }
-          </p>
+            disabled
+            class="w-full px-4 py-2 border border-[#fee8d6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8a4141] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value="">Selecciona primero una fecha</option>
+          </select>
         </div>
       </div>
 
@@ -193,48 +187,68 @@ try {
   <!-- Horarios disponibles para reservar -->
   <div class="my-20">
     <h2 class="text-red text-3xl font-bold mb-6">Horarios Disponibles para Reservar</h2>
-    <div class="bg-gradient-to-r from-[#fff4e1] to-[#ffe8cc] rounded-xl shadow-lg p-8 border border-[#fee8d6] max-w-4xl">
-      {timeSlots && (
-        <div class="space-y-6">
-          <!-- Horario -->
-          <div class="flex items-center gap-4 pb-4 border-b border-[#fee8d6]">
-            <div class="bg-[#8a4141] text-white p-3 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-sm text-gray-600 font-medium">Horario disponible</p>
-              <p class="text-2xl font-bold text-[#8a4141]">
-                {(timeSlots as any).startTime || timeSlots.start_time} - {(timeSlots as any).endTime || timeSlots.end_time }
-              </p>
-            </div>
+    <div
+      class="bg-gradient-to-r from-[#fff4e1] to-[#ffe8cc] rounded-xl shadow-lg p-8 border border-[#fee8d6] max-w-4xl"
+    >
+      {
+        timeSlots && timeSlots.length > 0 ? (
+          <div class="space-y-6">
+            {timeSlots.map((slot) => (
+              <div class="flex items-center gap-4 pb-4 border-b border-[#fee8d6]">
+                <div class="bg-[#8a4141] text-white p-3 rounded-lg shrink-0">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600 font-medium">Horario disponible</p>
+                  <p class="text-2xl font-bold text-[#8a4141]">
+                    {(slot as any).startTime ?? slot.start_time ?? "–"}
+                    {" – "}
+                    {(slot as any).endTime ?? slot.end_time ?? "–"}
+                  </p>
+                  {slot.days && slot.days.length > 0 && (
+                    <div class="flex flex-wrap gap-2 mt-3">
+                      {slot.days.map((day: string) => (
+                        <span class="px-3 py-1 bg-white text-[#8a4141] text-sm font-semibold rounded-full border-2 border-[#8a4141] shadow-sm">
+                          {day === "Monday"
+                            ? "Lunes"
+                            : day === "Tuesday"
+                              ? "Martes"
+                              : day === "Wednesday"
+                                ? "Miércoles"
+                                : day === "Thursday"
+                                  ? "Jueves"
+                                  : day === "Friday"
+                                    ? "Viernes"
+                                    : day === "Saturday"
+                                      ? "Sábado"
+                                      : day === "Sunday"
+                                        ? "Domingo"
+                                        : day}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-
-          <!-- Días disponibles -->
-          <div>
-            <div class="flex items-center gap-2 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#8a4141]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p class="text-sm text-gray-600 font-medium">Días disponibles</p>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              {timeSlots.days.map((day: string) => (
-                <span class="px-4 py-2 bg-white text-[#8a4141] font-semibold rounded-full border-2 border-[#8a4141] shadow-sm">
-                  {day === 'Monday' ? 'Lunes' :
-                   day === 'Tuesday' ? 'Martes' :
-                   day === 'Wednesday' ? 'Miércoles' :
-                   day === 'Thursday' ? 'Jueves' :
-                   day === 'Friday' ? 'Viernes' :
-                   day === 'Saturday' ? 'Sábado' :
-                   day === 'Sunday' ? 'Domingo' : day}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+        ) : (
+          <p class="text-gray-600">No hay horarios disponibles</p>
+        )
+      }
     </div>
   </div>
 
@@ -254,6 +268,10 @@ try {
   </div>
 </section>
 
+<script define:vars={{ timeSlots }}>
+  window.__timeSlots = timeSlots;
+</script>
+
 <script>
   import { ApiService } from "@/services/helper";
   import { log } from "@/services/logger";
@@ -267,6 +285,43 @@ try {
     const maxStudentsInput = document.getElementById("max-students") as HTMLInputElement;
     const dateInput = document.getElementById("class-date") as HTMLInputElement;
     const timeInput = document.getElementById("class-time") as HTMLInputElement;
+
+    const timeSelect = document.getElementById("class-time") as HTMLSelectElement;
+
+    const populateTimeOptions = () => {
+      const slots = getSlotsForSelectedDate();
+      timeSelect.innerHTML = "";
+
+      if (slots.length === 0) {
+        timeSelect.disabled = true;
+        timeSelect.innerHTML = `<option value="">No hay horario para este día</option>`;
+        return;
+      }
+
+      timeSelect.disabled = false;
+      timeSelect.innerHTML = `<option value="">Selecciona una hora</option>`;
+
+      for (const slot of slots) {
+        const [minH, minM] = (slot.startTime ?? slot.start_time ?? "00:00").split(":").map(Number);
+        const [maxH, maxM] = (slot.endTime ?? slot.end_time ?? "23:59").split(":").map(Number);
+        const startMinutes = minH * 60 + minM;
+        const endMinutes = maxH * 60 + maxM;
+
+        for (let t = startMinutes; t <= endMinutes; t += 30) {
+          const h = String(Math.floor(t / 60)).padStart(2, "0");
+          const m = String(t % 60).padStart(2, "0");
+          const option = document.createElement("option");
+          option.value = `${h}:${m}`;
+          option.textContent = `${h}:${m}`;
+          timeSelect.appendChild(option);
+        }
+      }
+    };
+
+    dateInput.addEventListener("input", () => {
+      validateDate();
+      if (timeInput.value) validateTime();
+    });
 
     // Configurar fecha mínima (hoy)
     const today = new Date().toISOString().split("T")[0];
@@ -284,37 +339,69 @@ try {
       }
     };
 
-    // Validar que la hora esté en el rango permitido (15:00 - 20:00)
-    const validateTime = () => {
-      const time = timeInput.value;
-      if (time) {
-        const [hours, minutes] = time.split(":").map(Number);
-        const timeInMinutes = hours * 60 + minutes;
-        const minTime = 15 * 60; // 15:00
-        const maxTime = 20 * 60; // 20:00
+    // Validar que la hora esté en el rango permitido
+    const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-        if (timeInMinutes < minTime || timeInMinutes > maxTime) {
-          timeInput.setCustomValidity("La hora debe estar entre 15:00 y 20:00");
-        } else {
-          timeInput.setCustomValidity("");
-        }
-      }
+    // Devuelve los slots que cubren el día seleccionado, o [] si no hay fecha
+    const getSlotsForSelectedDate = (): any[] => {
+      const slots: any[] = (window as any).__timeSlots ?? [];
+      const dateVal = dateInput.value;
+      if (!dateVal || slots.length === 0) return [];
+
+      const dayName = DAY_NAMES[new Date(dateVal + "T00:00:00").getDay()];
+      return slots.filter((slot: any) => slot.days?.includes(dayName));
     };
 
     // Validar que la fecha sea futura
     const validateDate = () => {
       const selectedDate = dateInput.value;
-      if (selectedDate) {
-        const selected = new Date(selectedDate + "T00:00:00");
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
+      if (!selectedDate) return;
 
-        if (selected < now) {
-          dateInput.setCustomValidity("La fecha debe ser hoy o posterior");
-        } else {
-          dateInput.setCustomValidity("");
-        }
+      const selected = new Date(selectedDate + "T00:00:00");
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+
+      if (selected < now) {
+        dateInput.setCustomValidity("La fecha debe ser hoy o posterior");
+        return;
       }
+
+      const availableSlots = getSlotsForSelectedDate();
+      if (availableSlots.length === 0) {
+        dateInput.setCustomValidity("No hay horario disponible para este día");
+      } else {
+        dateInput.setCustomValidity("");
+      }
+
+      populateTimeOptions();
+    };
+
+    const validateTime = () => {
+      const time = timeInput.value;
+      if (!time) return;
+
+      const [hours, minutes] = time.split(":").map(Number);
+
+      // Solo :00 o :30
+      if (minutes !== 0 && minutes !== 30) {
+        timeInput.setCustomValidity("La hora debe ser en punto (:00) o y media (:30)");
+        return;
+      }
+
+      const availableSlots = getSlotsForSelectedDate();
+      if (availableSlots.length === 0) {
+        timeInput.setCustomValidity("Selecciona primero una fecha con horario disponible");
+        return;
+      }
+
+      const timeInMinutes = hours * 60 + minutes;
+      const isValid = availableSlots.some((slot: any) => {
+        const [minH, minM] = (slot.startTime ?? slot.start_time ?? "00:00").split(":").map(Number);
+        const [maxH, maxM] = (slot.endTime ?? slot.end_time ?? "23:59").split(":").map(Number);
+        return timeInMinutes >= minH * 60 + minM && timeInMinutes <= maxH * 60 + maxM;
+      });
+
+      timeInput.setCustomValidity(isValid ? "" : "La hora no está dentro del horario disponible para este día");
     };
 
     minStudentsInput.addEventListener("input", validateStudentCounts);
@@ -429,12 +516,12 @@ try {
           if (errorMsg.includes("can't be booked at")) {
             showMessage(
               "Error: El horario seleccionado no está disponible en Cal.com. Verifica que el tipo de evento 'group-class' existe y permite reservas para esta fecha/hora.",
-              true
+              true,
             );
           } else if (errorMsg.includes("eventTypeId or eventTypeSlug")) {
             showMessage(
               "Error de configuración: Falta información del tipo de evento. Contacta al administrador.",
-              true
+              true,
             );
           } else {
             showMessage(errorMsg, true);

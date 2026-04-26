@@ -151,12 +151,12 @@
           "button": "حجز درس",
           "selectionMonths": {
             "title": "خطة الدفع",
-            "subtitle": "اختر الأشهر للتقسيط",
-            "unit_singular": "شهر",
-            "unit_plural": "أشهر",
+            "subtitle": "اختر الأسابيع للتقسيط",
+            "unit_singular": "أسبوع",
+            "unit_plural": "أسابيع",
             "total_weeks": "إجمالي الأسابيع",
             "btn_accept": "تأكيد الخطة",
-            "alert_confirm": "لقد اخترت الدفع على {n} أشهر."
+            "alert_confirm": "لقد اخترت الدفع على {n} أسابيع."
           }
         }
       },

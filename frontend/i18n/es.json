@@ -162,12 +162,12 @@
           "button": "Reservar Clase",
           "selectionMonths": {
             "title": "Plan de Pago",
-            "subtitle": "Selecciona los meses a diferir",
-            "unit_singular": "Mes",
-            "unit_plural": "Meses",
+            "subtitle": "Selecciona las semanas a diferir",
+            "unit_singular": "Semana",
+            "unit_plural": "Semanas",
             "total_weeks": "Total semanas",
             "btn_accept": "Aceptar Plan",
-            "alert_confirm": "Has seleccionado pagar en {n} meses."
+            "alert_confirm": "Has seleccionado pagar en {n} semanas."
           }
         }
       },
