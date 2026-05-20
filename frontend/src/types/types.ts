@@ -149,6 +149,7 @@ export type CardPricingType = {
 
 export type PricingI18n = {
   title: string;
+  select_teacher: string;
   type: {
     standard: CardPricingType;
     conversation: CardPricingType;

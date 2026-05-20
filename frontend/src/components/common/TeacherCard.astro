@@ -26,7 +26,7 @@ const { teacher, i, id } = Astro.props;
       <img
         src={teacher.url_image}
         alt={`Fotografía de ${teacher.name}, profesor nativo de ${teacher.native_lang}`}
-        class="carousel-img relative w-40 h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 rounded-3xl object-cover shadow-xl hover:shadow-2xl hover:shadow-red-500/30 hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
+        class="carousel-img relative w-52 h-52 md:w-56 md:h-56 lg:w-64 lg:h-64 rounded-3xl object-cover shadow-xl hover:shadow-2xl hover:shadow-red-500/30 hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
         data-index={i}
         data-cal-teacher={teacher.name}
         data-cal-namespace={id}
