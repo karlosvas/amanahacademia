@@ -23,7 +23,7 @@
     "@hiseb/confetti": "^2.1.0",
     "@sentry/astro": "^10.58.0",
     "adze": "^2.2.5",
-    "astro": "6.1.10",
+    "astro": "6.4.6",
     "chart.js": "^4.5.1",
     "firebase": "12.1.0",
     "i18next": "25.3.4",
