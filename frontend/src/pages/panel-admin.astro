@@ -38,6 +38,9 @@ if (!section || !validSections.includes(section as DashboardAdminTypes)) {
   log.warn("Sección no válida o no proporcionada, redirigiendo al dashboard por defecto.");
   return Astro.redirect("/");
 }
+
+const langCookie = Astro.cookies.get("langCookie")?.value;
+const lang: string = langCookie && langCookie !== "es" ? langCookie : "";
 ---
 
 <Layout
@@ -73,7 +76,7 @@ if (!section || !validSections.includes(section as DashboardAdminTypes)) {
     <!-- Botón de volver mejorado -->
     <div class="max-w-7xl mx-auto mt-8 flex justify-end">
       <a
-        href={`/${Astro.cookies.get("langCookie")?.value}`}
+        href={`/${lang}`}
         class="inline-flex items-center gap-2 px-6 py-3 bg-[#8a4141] text-white font-semibold rounded-lg hover:bg-[#6d3333] transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
