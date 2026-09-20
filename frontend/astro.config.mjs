@@ -47,7 +47,7 @@ export default defineConfig({
     sentry({
       project: "amanahacademia",
       org: "karlosvas",
-      authToken: process.env.SENTRY_AUTH_TOKEN,
+      authToken: SENTRY_AUTH_TOKEN,
     }),
   ],
   devToolbar: {
