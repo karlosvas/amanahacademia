@@ -38,20 +38,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm ci --legacy-peer-deps --ignore-scripts
+        run: pnpm install --frozen-lockfile
 
       - name: Auto-fix formatting
         working-directory: ./frontend
-        run: npx prettier --write .
+        run: pnpm exec prettier --write .
 
       - name: Commit formatting fixes
         uses: stefanzweifel/git-auto-commit-action@v5
@@ -61,11 +66,11 @@ jobs:
 
       - name: Build project
         working-directory: ./frontend
-        run: npm run build
+        run: pnpm run build
 
       - name: Generate coverage report
         working-directory: ./frontend
-        run: npm run test:coverage
+        run: pnpm run test:coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

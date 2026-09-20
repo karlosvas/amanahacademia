@@ -17,18 +17,23 @@ jobs:
           fetch-depth: 0
 
       # Frontend coverage
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Generate frontend coverage
         working-directory: ./frontend
         run: |
-          npm ci --legacy-peer-deps --ignore-scripts
-          npm run test:coverage
+          pnpm install --frozen-lockfile
+          pnpm run test:coverage
 
       # Backend coverage
       - name: Setup Rust

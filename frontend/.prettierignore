@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+package-lock.json
+.astro/
+dist/
+coverage/
+.vercel/

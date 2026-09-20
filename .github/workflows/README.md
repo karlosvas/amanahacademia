@@ -88,9 +88,9 @@ Ejecuta:
 
 ### Frontend
 ```bash
-npm ci --legacy-peer-deps --ignore-scripts
+pnpm install --frozen-lockfile
 ```
-**Nota**: `--ignore-scripts` es necesario por el paquete `skia-canvas` que falla en CI.
+**Nota**: el gestor es pnpm, igual que en Vercel, para que CI y el deploy resuelvan el mismo arbol de dependencias. El `ignore-scripts=true` de `frontend/.npmrc` se aplica solo; `sharp`, `esbuild` y `@sentry/cli` traen binarios precompilados y no necesitan postinstall.
 
 ### Backend
 ```bash
