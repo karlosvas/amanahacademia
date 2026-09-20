@@ -13,7 +13,6 @@ import type { PricingApiResponse } from "@/types/types";
 import { getPricingByCountry } from "@/utils/auth";
 import { log } from "@/services/logger";
 
-// Mocks
 vi.mock("@/utils/auth", () => ({
   getPricingByCountry: vi.fn(),
 }));
@@ -142,6 +141,7 @@ describe("calendar.ts", () => {
       level: "high" as const,
       countryGroup: "EU",
       isDevelopment: false,
+      offers_enabled: false,
       prices: {
         individual_standard: 25,
         individual_conversation: 30,
@@ -187,6 +187,7 @@ describe("calendar.ts", () => {
         level: "high" as const,
         countryGroup: "NA",
         isDevelopment: false,
+        offers_enabled: false,
         prices: {
           individual_standard: 50,
           individual_conversation: 60,
@@ -207,6 +208,7 @@ describe("calendar.ts", () => {
         level: "low" as const,
         countryGroup: "TEST",
         isDevelopment: true,
+        offers_enabled: false,
         prices: {
           individual_standard: 0,
           individual_conversation: 0,
@@ -229,6 +231,7 @@ describe("calendar.ts", () => {
       level: "high" as const,
       countryGroup: "EU",
       isDevelopment: false,
+      offers_enabled: false,
       prices: {
         individual_standard: 25,
         individual_conversation: 30,
@@ -501,6 +504,7 @@ describe("calendar.ts", () => {
         level: "high" as const,
         countryGroup: "NA",
         isDevelopment: false,
+        offers_enabled: false,
         prices: {
           individual_standard: 50,
           individual_conversation: 60,

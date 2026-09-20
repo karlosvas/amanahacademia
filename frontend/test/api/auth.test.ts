@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { POST, DELETE } from "../../src/pages/api/auth";
 import { log } from "@/services/logger";
 
-// Mock de las rutas
 const createMockRequest = (body: any) => ({
   json: vi.fn().mockResolvedValue(body),
 });
@@ -102,7 +101,6 @@ describe("API Routes - Auth", () => {
       const token = "prod-token";
       mockRequest = createMockRequest({ token });
 
-      // Mock import.meta.env.PROD usando vi.stubEnv
       vi.stubEnv("PROD", true);
 
       const response = await POST({

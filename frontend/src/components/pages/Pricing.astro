@@ -89,6 +89,9 @@ try {
 } catch (e) {
   log.error("Error fetching pricing data:", e);
 }
+
+// Solo se pintan las ofertas si el flag está activo y la API ha devuelto precios antiguos
+const showOffers: boolean = Boolean(responsePricingData?.offers_enabled && responsePricingData?.old_prices);
 ---
 
 <main class="relative text-black">
@@ -101,7 +104,7 @@ try {
         data={data.type.standard}
         id={Class.Standard}
         pricing={responsePricingData?.prices.individual_standard}
-        old_price={responsePricingData?.old_prices?.individual_standard}
+        old_price={showOffers ? responsePricingData?.old_prices?.individual_standard : undefined}
       >
         <Carrousel id={Class.Standard} teachers={teachers} data={data} />
       </CardPricing>
@@ -109,7 +112,7 @@ try {
         data={data.type.conversation}
         id={Class.Conversacion}
         pricing={responsePricingData?.prices.individual_conversation}
-        old_price={responsePricingData?.old_prices?.individual_conversation}
+        old_price={showOffers ? responsePricingData?.old_prices?.individual_conversation : undefined}
       >
         <Carrousel id={Class.Conversacion} teachers={teachers} data={data} />
       </CardPricing>
@@ -117,7 +120,7 @@ try {
         data={data.type.group}
         id={Class.Grupales}
         pricing={responsePricingData?.prices.group}
-        old_price={responsePricingData?.old_prices?.group}
+        old_price={showOffers ? responsePricingData?.old_prices?.group : undefined}
       >
         <Carrousel id={Class.Grupales} bookings={bookings} data={data} />
       </CardPricing>

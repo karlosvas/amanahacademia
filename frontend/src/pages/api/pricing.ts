@@ -1,3 +1,13 @@
+import {
+  COUNTRY_GROUP_LABELS,
+  CURRENCY,
+  CURRENCY_SYMBOL,
+  DEFAULT_COUNTRY,
+  getActivePrices,
+  getOldPrices,
+  getPriceLevel,
+  OFFERS_ENABLED,
+} from "@/config/pricing";
 import type { PricingApiResponse } from "@/types/types";
 
 export async function GET({ request }: { request: Request }) {
@@ -7,96 +17,25 @@ export async function GET({ request }: { request: Request }) {
     url.searchParams.get("test_country") || // Para pruebas
     request.headers.get("CF-IPCountry") || // Encabezado común (Probablemente funciona)
     request.headers.get("x-vercel-ip-country") || // Encabezado OFICIAL de Vercel (Máxima fiabilidad)
-    "ES"; // Valor por defecto
+    DEFAULT_COUNTRY; // Valor por defecto
 
   const isDevelopment =
     url.hostname === "localhost" ||
     url.hostname === "127.0.0.1" ||
     url.hostname.includes("local");
 
-  // Países con mayor nivel de vida
-  const highIncomeCountries = [
-    // Europa
-    "AT", // Austria
-    "BE", // Bélgica
-    "BG", // Bulgaria
-    "HR", // Croacia
-    "CY", // Chipre
-    "CZ", // Chequia
-    "DK", // Dinamarca
-    "EE", // Estonia
-    "FI", // Finlandia
-    "FR", // Francia
-    "DE", // Alemania
-    "GR", // Grecia
-    "HU", // Hungría
-    "IE", // Irlanda
-    "IT", // Italia
-    "LV", // Letonia
-    "LT", // Lituania
-    "LU", // Luxemburgo
-    "MT", // Malta
-    "NL", // Países Bajos
-    "PL", // Polonia
-    "PT", // Portugal
-    "RO", // Rumania
-    "SK", // Eslovaquia
-    "SI", // Eslovenia
-    "ES", // España
-    "SE", // Suecia
-    "GB", // Reino Unido
-    "NO", // Noruega
-    "CH", // Suiza
-    "IS", // Islandia
-    "LI", // Liechtenstein
-    "MC", // Mónaco
-    "SM", // San Marino
-    "VA", // Ciudad del Vaticano
-    "AD", // Andorra
-
-    // Otros países desarrollados
-    "RU", // Rusia
-    "JP", // Japón
-    "CN", // China
-    "AE", // Emiratos Árabes Unidos
-    "KW", // Kuwait
-    "BH", // Bahréin
-    "QA", // Catar
-    "SA", // Arabia Saudita
-    "OM", // Omán
-    "US", // Estados Unidos
-    "CA", // Canadá
-    "AU", // Australia
-    "NZ", // Nueva Zelanda
-    "SG", // Singapur
-    "AG", // Antigua y Barbuda
-    "AW", // Aruba
-    "BB", // Barbados
-    "BN", // Brunei
-    "CW", // Curazao
-    "IL", // Israel
-    "SC", // Seychelles
-  ];
-
-  const isHighIncome = highIncomeCountries.includes(country);
+  const level = getPriceLevel(country);
 
   const pricing: PricingApiResponse = {
-    currency: "EUR",
-    symbol: "€",
-    level: isHighIncome ? "high" : "low",
-    countryGroup: isHighIncome ? "Mayor nivel de vida" : "Menor nivel de vida",
+    currency: CURRENCY,
+    symbol: CURRENCY_SYMBOL,
+    level,
+    countryGroup: COUNTRY_GROUP_LABELS[level],
     isDevelopment,
     country,
-    old_prices: {
-      individual_standard: isHighIncome ? 30 : 15,
-      individual_conversation: isHighIncome ? 20 : 10,
-      group: isHighIncome ? 10 : 4.5,
-    },
-    prices: {
-      individual_standard: isHighIncome ? 20 : 10,
-      individual_conversation: isHighIncome ? 20 : 10,
-      group: isHighIncome ? 8 : 3,
-    },
+    offers_enabled: OFFERS_ENABLED,
+    old_prices: getOldPrices(level),
+    prices: getActivePrices(level),
   };
 
   return new Response(JSON.stringify(pricing), {

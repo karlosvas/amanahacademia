@@ -1,5 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import {
+  COUNTRY_GROUP_LABELS,
+  getActivePrices,
+  getOldPrices,
+  OFFERS_ENABLED,
+} from "@/config/pricing";
 import type { PricingApiResponse } from "@/types/types";
+
+const highPrices = getActivePrices("high");
+const lowPrices = getActivePrices("low");
 
 describe("API Routes - Pricing", () => {
   describe("GET /api/pricing", () => {
@@ -29,9 +38,7 @@ describe("API Routes - Pricing", () => {
       expect(data.symbol).toBe("€");
       expect(data.level).toBe("high");
       expect(data.isDevelopment).toBe(true);
-      expect(data.prices.individual_standard).toBe(30);
-      expect(data.prices.individual_conversation).toBe(20);
-      expect(data.prices.group).toBe(10);
+      expect(data.prices).toEqual(highPrices);
     });
 
     it("should return pricing for US with test_country parameter", async () => {
@@ -46,9 +53,7 @@ describe("API Routes - Pricing", () => {
 
       expect(data.country).toBe("US");
       expect(data.level).toBe("high");
-      expect(data.prices.individual_standard).toBe(30);
-      expect(data.prices.individual_conversation).toBe(20);
-      expect(data.prices.group).toBe(10);
+      expect(data.prices).toEqual(highPrices);
     });
 
     it("should return low income pricing for non-listed country", async () => {
@@ -63,10 +68,8 @@ describe("API Routes - Pricing", () => {
 
       expect(data.country).toBe("MX");
       expect(data.level).toBe("low");
-      expect(data.countryGroup).toBe("Menor nivel de vida");
-      expect(data.prices.individual_standard).toBe(15);
-      expect(data.prices.individual_conversation).toBe(10);
-      expect(data.prices.group).toBe(4.5);
+      expect(data.countryGroup).toBe(COUNTRY_GROUP_LABELS.low);
+      expect(data.prices).toEqual(lowPrices);
     });
 
     it("should use CF-IPCountry header when available", async () => {
@@ -220,7 +223,7 @@ describe("API Routes - Pricing", () => {
         const data: PricingApiResponse = await response.json();
 
         expect(data.level).toBe("high");
-        expect(data.prices.individual_standard).toBe(30);
+        expect(data.prices).toEqual(highPrices);
       }
     });
 
@@ -237,7 +240,7 @@ describe("API Routes - Pricing", () => {
         const data: PricingApiResponse = await response.json();
 
         expect(data.level).toBe("high");
-        expect(data.prices.individual_standard).toBe(30);
+        expect(data.prices).toEqual(highPrices);
       }
     });
 
@@ -254,7 +257,7 @@ describe("API Routes - Pricing", () => {
         const data: PricingApiResponse = await response.json();
 
         expect(data.level).toBe("high");
-        expect(data.prices.individual_standard).toBe(30);
+        expect(data.prices).toEqual(highPrices);
       }
     });
 
@@ -271,7 +274,7 @@ describe("API Routes - Pricing", () => {
         const data: PricingApiResponse = await response.json();
 
         expect(data.level).toBe("low");
-        expect(data.prices.individual_standard).toBe(15);
+        expect(data.prices).toEqual(lowPrices);
       }
     });
 
@@ -345,6 +348,109 @@ describe("API Routes - Pricing", () => {
       expect(Object.keys(highIncomeData.prices).sort()).toEqual(
         Object.keys(lowIncomeData.prices).sort(),
       );
+    });
+  });
+});
+
+describe("Config - src/config/pricing.ts", () => {
+  describe("Flag de ofertas", () => {
+    it("expone en la respuesta si las ofertas están activas", async () => {
+      const request = {
+        url: "http://localhost/api/pricing",
+        headers: new Headers(),
+      } as Request;
+
+      const { GET } = await import("@/pages/api/pricing");
+      const data: PricingApiResponse = await (await GET({ request })).json();
+
+      expect(data.offers_enabled).toBe(OFFERS_ENABLED);
+    });
+
+    it("solo envía old_prices (precio tachado) cuando hay oferta", async () => {
+      const request = {
+        url: "http://localhost/api/pricing",
+        headers: new Headers(),
+      } as Request;
+
+      const { GET } = await import("@/pages/api/pricing");
+      const data: PricingApiResponse = await (await GET({ request })).json();
+
+      if (OFFERS_ENABLED) {
+        expect(data.old_prices).toEqual(getOldPrices("high"));
+      } else {
+        expect(data.old_prices).toBeUndefined();
+      }
+    });
+
+    it("con el flag activo cobra la oferta y tacha el precio base", async () => {
+      vi.resetModules();
+      vi.stubEnv("PUBLIC_OFFERS_ENABLED", "true");
+
+      const {
+        OFFERS_ENABLED: enabled,
+        BASE_PRICES,
+        OFFER_PRICES,
+        getActivePrices: active,
+        getOldPrices: old,
+      } = await import("@/config/pricing");
+
+      expect(enabled).toBe(true);
+      expect(active("high")).toEqual(OFFER_PRICES.high);
+      expect(old("high")).toEqual(BASE_PRICES.high);
+
+      vi.unstubAllEnvs();
+      vi.resetModules();
+    });
+
+    it("con el flag apagado cobra el precio base y no tacha nada", async () => {
+      vi.resetModules();
+      vi.stubEnv("PUBLIC_OFFERS_ENABLED", "false");
+
+      const {
+        OFFERS_ENABLED: enabled,
+        BASE_PRICES,
+        getActivePrices: active,
+        getOldPrices: old,
+      } = await import("@/config/pricing");
+
+      expect(enabled).toBe(false);
+      expect(active("low")).toEqual(BASE_PRICES.low);
+      expect(old("low")).toBeUndefined();
+
+      vi.unstubAllEnvs();
+      vi.resetModules();
+    });
+  });
+
+  describe("Coherencia de la tabla de precios", () => {
+    it("los dos grupos definen las tres modalidades con importes positivos", async () => {
+      const { BASE_PRICES, OFFER_PRICES } = await import("@/config/pricing");
+
+      for (const table of [BASE_PRICES, OFFER_PRICES]) {
+        for (const level of ["high", "low"] as const) {
+          const prices = table[level];
+          expect(Object.keys(prices).sort()).toEqual([
+            "group",
+            "individual_conversation",
+            "individual_standard",
+          ]);
+          for (const amount of Object.values(prices)) {
+            expect(amount).toBeGreaterThan(0);
+          }
+        }
+      }
+    });
+
+    it("el primer grupo de países nunca paga menos que el segundo", async () => {
+      const { BASE_PRICES } = await import("@/config/pricing");
+
+      for (const key of Object.keys(BASE_PRICES.high) as Array<
+        keyof typeof BASE_PRICES.high
+      >) {
+        expect(BASE_PRICES.high[key]).toBeGreaterThanOrEqual(
+          BASE_PRICES.low[key],
+        );
+      }
     });
   });
 });

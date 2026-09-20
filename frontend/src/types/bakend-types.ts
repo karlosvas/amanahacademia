@@ -277,7 +277,7 @@ export type BookingStatus =
 /**
  * Representa a un asistente de la reserva (estudiante o huésped).
  */
-export interface Attendee {
+export interface BookingAttendee {
   /** Nombre completo del asistente. */
   name: string;
   /** Dirección de correo electrónico. */
@@ -370,7 +370,7 @@ export interface CalBookingPayload {
   duration?: number;
 
   /** Lista de asistentes a la reserva. */
-  attendees: Attendee[];
+  attendees: BookingAttendee[];
 
   /** Información del organizador (anfitrión). */
   organizer?: Organizer;

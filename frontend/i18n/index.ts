@@ -8,7 +8,6 @@ import arabic from "./ar.json" with { type: "json" };
 import type { I18nTranslations, Lang } from "@/types/types";
 import { Languages } from "@/enums/enums";
 
-// Obtener la traduccion correspondiente al idioma selecionado
 export const getI18N = ({
   lang = "es",
 }: {

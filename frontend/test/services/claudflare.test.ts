@@ -65,7 +65,6 @@ describe("claudflare.ts", () => {
       turnstileDiv.className = "cf-turnstile";
       form.appendChild(turnstileDiv);
 
-      // Mock execute to call callback immediately
       mockTurnstile.execute.mockImplementation((element: any, options: any) => {
         options.callback();
       });

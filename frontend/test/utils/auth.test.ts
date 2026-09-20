@@ -156,6 +156,7 @@ describe("Auth Utilities", () => {
       level: "high",
       countryGroup: "Europe",
       isDevelopment: false,
+      offers_enabled: false,
       prices: {
         individual_standard: 25,
         individual_conversation: 30,
@@ -273,6 +274,7 @@ describe("Auth Utilities", () => {
         level: "low",
         countryGroup: "Latin America",
         isDevelopment: false,
+        offers_enabled: false,
         prices: {
           individual_standard: 400,
           individual_conversation: 500,

@@ -384,6 +384,9 @@ export type PricingApiResponse = {
   level: "high" | "low";
   countryGroup: string;
   isDevelopment: boolean;
+  // Indica si el flag de ofertas está activo (ver src/config/pricing.ts)
+  offers_enabled: boolean;
+  // Precio tachado: solo viene definido cuando offers_enabled es true
   old_prices?: PriceStructure;
   prices: PriceStructure;
 };
@@ -462,7 +465,7 @@ export enum DashboardAdminTypes {
 
 export interface MetricData {
   dimensionValues: Array<{ value: string }>;
-  metricValues: Array<{ value: string }>;
+  metricValues: Array<{ value?: string }>;
 }
 
 export interface MetricsResponse {

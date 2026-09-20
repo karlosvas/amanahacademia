@@ -13,7 +13,6 @@ import {
 import type { User } from "firebase/auth";
 import { log } from "@/services/logger";
 
-// Mocks
 vi.mock("solid-toast", () => ({
   default: {
     success: vi.fn(),
@@ -120,7 +119,6 @@ describe("firebase.ts", () => {
       const provider1 = getGoogleProvider();
       const provider2 = getGoogleProvider();
 
-      // Each call should create a new instance
       expect(provider1).toBeDefined();
       expect(provider2).toBeDefined();
     });
@@ -139,7 +137,6 @@ describe("firebase.ts", () => {
       formLogin = document.createElement("form");
       formRegister = document.createElement("form");
 
-      // Add close method to dialogs
       authModalLogin.close = vi.fn();
       authModalRegister.close = vi.fn();
 
@@ -325,10 +322,8 @@ describe("firebase.ts", () => {
     });
 
     it("should handle mobile menu button", () => {
-      // Remove desktop button
       document.body.innerHTML = "";
 
-      // Add mobile button
       const mobileButton = document.createElement("button");
       mobileButton.id = "identification-menu";
       document.body.appendChild(mobileButton);
@@ -338,7 +333,6 @@ describe("firebase.ts", () => {
       document.body.appendChild(authModalLogin);
       document.body.appendChild(formLogin);
 
-      // Mock matchMedia for mobile view
       Object.defineProperty(globalThis, "matchMedia", {
         writable: true,
         value: vi.fn().mockImplementation((query) => ({
@@ -369,7 +363,6 @@ describe("firebase.ts", () => {
     it("should set button text to logout when user is logged in", () => {
       const mockUser = { uid: "123", email: "test@test.com" } as User;
 
-      // Mock getElementById to return our button (workaround for JSDOM issue)
       const originalGetElementById = document.getElementById;
       document.getElementById = vi.fn((id: string) => {
         if (id === "identification") return identificationButton;
@@ -381,12 +374,10 @@ describe("firebase.ts", () => {
       expect(identificationButton.textContent).toBe(headerData.button.logout);
       expect(identificationButton.onclick).toBe(handleLogout);
 
-      // Restore original
       document.getElementById = originalGetElementById;
     });
 
     it("should set button text to login when user is not logged in", () => {
-      // Mock getElementById to return our button (workaround for JSDOM issue)
       const originalGetElementById = document.getElementById;
       document.getElementById = vi.fn((id: string) => {
         if (id === "identification") return identificationButton;
@@ -399,7 +390,6 @@ describe("firebase.ts", () => {
       expect(identificationButton.onclick).toBeDefined();
       expect(identificationButton.onclick).not.toBe(handleLogout);
 
-      // Restore original
       document.getElementById = originalGetElementById;
     });
 
@@ -408,7 +398,6 @@ describe("firebase.ts", () => {
 
       setupAuth(null, authModalLogin, formLogin, headerData);
 
-      // Simulate click
       if (identificationButton.onclick) {
         identificationButton.onclick(new PointerEvent("click"));
         expect(showModalAnimation).toHaveBeenCalledWith(
@@ -425,7 +414,6 @@ describe("firebase.ts", () => {
 
       setupAuth(null, authModalLogin, formLogin, headerData);
 
-      // Simulate click
       if (identificationButton.onclick) {
         identificationButton.onclick(new PointerEvent("click"));
         expect(showModalAnimation).not.toHaveBeenCalled();
@@ -714,24 +702,20 @@ describe("firebase.ts", () => {
         target: form,
       };
 
-      // The callback should accept an event with a target
       expect(() => onSuccessCallback(mockEvent)).not.toThrow();
 
-      // Clean up the promise
       await onSuccessCallback(mockEvent).catch(() => {});
     });
 
     it("should execute successful login flow", async () => {
       vi.useFakeTimers();
 
-      // Mock getElementById to return our form
       const originalGetElementById = document.getElementById;
       document.getElementById = vi.fn((id: string) => {
         if (id === "test-form") return form;
         return originalGetElementById.call(document, id);
       }) as any;
 
-      // Import modules to get the mocked functions
       const claudflareModule = await import("@/services/claudflare");
       const firebaseAuthModule = await import("firebase/auth");
       const toastModule = await import("solid-toast");
@@ -744,7 +728,6 @@ describe("firebase.ts", () => {
         errorMessage,
       );
 
-      // Verify onSuccess was called
       expect(mockOnSuccess).toHaveBeenCalled();
 
       const onSuccessCallback = mockOnSuccess.mock.calls[0][0];
@@ -753,7 +736,6 @@ describe("firebase.ts", () => {
         target: form,
       };
 
-      // Execute the callback
       const promise = onSuccessCallback(mockEvent);
       await promise;
       await vi.runAllTimersAsync();
@@ -768,7 +750,6 @@ describe("firebase.ts", () => {
       expect(toastModule.default.success).toHaveBeenCalled();
       expect(loading.classList.contains("hidden")).toBe(true);
 
-      // Restore original
       document.getElementById = originalGetElementById;
       vi.useRealTimers();
     });
@@ -903,10 +884,8 @@ describe("firebase.ts", () => {
       expect(onSuccessCallback).toBeDefined();
       expect(typeof onSuccessCallback).toBe("function");
 
-      // Clear mocks for next test
       vi.clearAllMocks();
 
-      // Test without # prefix
       submitFormToRegisterOrLogin(
         modal,
         loading,

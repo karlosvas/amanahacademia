@@ -132,7 +132,7 @@
           "description": "Konzipiert für Lernende mit mittlerem bis hohem Niveau (B1+/B2), die sich auf das Sprechen konzentrieren möchten. Wir nutzen dynamische Übungen, Spiele und abwechslungsreiche Themen, die den Gesprächsfluss fördern. Obwohl wir nicht tief in die Grammatik eintauchen, korrigieren und klären wir Fragen unmittelbar.",
           "price": {
             "currency": "€",
-            "amount": 20,
+            "amount": 25,
             "time": "/Stunde"
           },
           "content": [
@@ -172,7 +172,6 @@
           }
         }
       },
-
       "info": [
         {
           "title": "Unsicher, welchen Plan Sie wählen sollen?",

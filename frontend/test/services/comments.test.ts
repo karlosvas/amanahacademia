@@ -16,7 +16,6 @@ import type { Comment } from "@/types/bakend-types";
 import toast from "solid-toast";
 import { log } from "@/services/logger";
 
-// Mocks
 vi.mock("@/services/firebase", () => ({
   getFirebaseAuth: vi.fn(),
   getCurrentUserToken: vi.fn(() => Promise.resolve("mock-token")),
@@ -63,7 +62,6 @@ describe("comments.ts", () => {
       },
     } as any);
 
-    // Create mock ApiService for functions that accept it as parameter
     mockApiService = {
       setLike: vi.fn(),
       getCommentById: vi.fn(),

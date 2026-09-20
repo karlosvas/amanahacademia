@@ -18,7 +18,6 @@ import { ApiService } from "@/services/helper";
 import { FrontendStripe, getErrorFrontStripe } from "@/enums/enums";
 import { getPrice } from "@/services/calendar";
 
-// Mocks
 vi.mock("@/services/helper");
 vi.mock("@/services/calendar", () => ({
   getPrice: vi.fn(),
@@ -44,13 +43,11 @@ describe("payment.ts", () => {
     vi.clearAllMocks();
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    // Override global mock and use real getElementById
     Object.defineProperty(document, "getElementById", {
       writable: true,
       value: Document.prototype.getElementById.bind(document),
     });
 
-    // Setup DOM elements with proper structure
     const errorDiv = document.createElement("div");
     errorDiv.id = "error-message";
     errorDiv.textContent = "";
@@ -89,7 +86,6 @@ describe("payment.ts", () => {
     document.body.appendChild(paymentElement);
     document.body.appendChild(loadingDiv);
 
-    // Mock ApiService
     mockApiService = {
       getBookingById: vi.fn(),
       createBooking: vi.fn(),
@@ -102,7 +98,6 @@ describe("payment.ts", () => {
       return mockApiService;
     });
 
-    // Mock Stripe
     mockPaymentElement = {
       mount: vi.fn().mockResolvedValue(undefined),
       on: vi.fn(),
@@ -117,7 +112,6 @@ describe("payment.ts", () => {
       elements: vi.fn().mockReturnValue(mockElements),
     };
 
-    // Mock globalThis and globalThis properly
     if (typeof globalThis !== "undefined") {
       (globalThis as any).Stripe = vi.fn().mockReturnValue(mockStripe);
       (globalThis as any).gtag = vi.fn();
@@ -132,11 +126,9 @@ describe("payment.ts", () => {
       configurable: true,
     });
 
-    // Mock fetch
     globalThis.fetch = vi.fn() as any;
     mockedFetch = globalThis.fetch as unknown as Mock;
 
-    // Mock setTimeout
     vi.spyOn(globalThis, "setTimeout").mockImplementation((fn: any) => {
       fn();
       return 0 as any;
@@ -682,12 +674,10 @@ describe("payment.ts", () => {
 
       const changeHandler = mockPaymentElement.on.mock.calls[0][1];
 
-      // Test error scenario
       changeHandler({ error: { message: "Card error" } });
       let errorDiv = document.getElementById("error-message");
       expect(errorDiv?.textContent).toBe("Card error");
 
-      // Test success scenario
       changeHandler({ error: null });
       errorDiv = document.getElementById("error-message");
       expect(errorDiv?.textContent).toBe("");
@@ -713,7 +703,6 @@ describe("payment.ts", () => {
         data: { client_secret: "cs_test_123" },
       });
 
-      // Crear un objeto que simule un elemento sin style
       const fakeLoading = { style: undefined };
 
       const originalQuerySelector = document.querySelector.bind(document);

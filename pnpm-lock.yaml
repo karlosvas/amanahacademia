@@ -1,0 +1,22 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@hiseb/confetti':
+        specifier: ^2.1.0
+        version: 2.2.0
+
+packages:
+
+  '@hiseb/confetti@2.2.0':
+    resolution: {integrity: sha512-iCcTe2AS2Mnj7f2BGPnOetjnX+Qs1jgnKU0GSYyQHFB42psio0EpgxmPXOXf2wcCGBH/W+1G2Ecl4hcbsin1Kg==}
+
+snapshots:
+
+  '@hiseb/confetti@2.2.0': {}
