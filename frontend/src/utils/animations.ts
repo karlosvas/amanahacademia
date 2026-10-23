@@ -8,7 +8,10 @@ function findFadeIn(line: HTMLElement): HTMLElement | null {
   if (ancestor) return ancestor;
 
   const previous = line.previousElementSibling;
-  return previous instanceof HTMLElement && previous.classList.contains("scroll-fade-in") ? previous : null;
+  return previous instanceof HTMLElement &&
+    previous.classList.contains("scroll-fade-in")
+    ? previous
+    : null;
 }
 
 function waitForFadeIn(element: HTMLElement): Promise<void> {
