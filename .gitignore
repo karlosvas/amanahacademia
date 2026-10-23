@@ -90,3 +90,4 @@ develop
 # Secretos locales para act - NUNCA COMMITEAR
 .secrets
 *.secrets
+.env*
