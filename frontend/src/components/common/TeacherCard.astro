@@ -36,7 +36,7 @@ const { teacher, i, id } = Astro.props;
       />
     </div>
     <figcaption class="text-black text-center space-y-1.5 px-2 md:px-3 pt-5">
-      <h3 class="text-lg lg:text-xl font-semibold">{teacher.name}</h3>
+      <h3 class="font-display text-lg lg:text-xl font-semibold">{teacher.name}</h3>
       <div class="bg-opacity-70 bg-lightBrown rounded-xl py-1.5 w-fit px-4 m-auto">
         <p class="text-xs sm:text-sm flex items-center justify-center align-middle">
           <span class="font-medium" lang="es">
@@ -44,7 +44,7 @@ const { teacher, i, id } = Astro.props;
           </span>
         </p>
       </div>
-      <p class="text-xs sm:text-sm leading-snug bg-opacity-70 px-1 md:px-2 rounded-lg max-w-xs sm:max-w-sm mx-auto">
+      <p class="text-sm sm:text-base leading-snug bg-opacity-70 px-1 md:px-2 rounded-lg max-w-xs sm:max-w-sm mx-auto">
         {
           teacher.description.map((line) => (
             <>

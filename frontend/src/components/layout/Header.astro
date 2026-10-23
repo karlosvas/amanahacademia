@@ -45,7 +45,7 @@ Astro.cookies.set("langCookie", validLang, { path: "/", maxAge: 31536000, sameSi
     />
   </a>
   <nav id="select-page" class="hidden lg:block absolute left-1/2 top-8 h-full flex items-center z-10 -translate-x-1/2">
-    <ul class="flex flex-row gap-6 items-center color-red text-red font-jomolhari justify-center whitespace-nowrap">
+    <ul class="flex flex-row gap-6 items-center color-red text-red font-medium justify-center whitespace-nowrap">
       <li><a href={Astro.params.lang ? `/${Astro.params.lang}/` : "/"}>{data.about_us}</a></li>
       <li><a href={Astro.params.lang ? `/${Astro.params.lang}/articles` : "/articles"}>{data.articles}</a></li>
       <li><a href={Astro.params.lang ? `/${Astro.params.lang}/pricing` : "/pricing"}>{data.pricing}</a></li>
@@ -57,7 +57,7 @@ Astro.cookies.set("langCookie", validLang, { path: "/", maxAge: 31536000, sameSi
   <div class="flex z-10">
     <button
       id="identification"
-      class="bg-lightRed hover:bg-salmon transition-colors rounded-lg text-gray-50 font-semibold py-2 mr-3 shadow-lg hover:shadow-xl transition-all duration-200 text-xs px-3 hidden lg:block"
+      class="bg-lightRed hover:bg-salmon transition-colors rounded-lg text-gray-50 font-semibold py-2 mr-3 shadow-lg hover:shadow-xl transition-all duration-200 text-sm px-4 hidden lg:block"
       data-header={JSON.stringify(data.identification)}
       aria-label={labels_header[lang]?.identificationButton || "Iniciar sesión en Amanah Academia"}
     >

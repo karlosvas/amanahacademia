@@ -30,7 +30,7 @@ const data = Astro.props.data as ContactI18n;
 />
 
 <main class="scroll-fade-in mt-0 pb-20 md:pb-32 flex flex-col items-center relative">
-  <Title customStyleText="mt-10 text-center px-4  text-red font-bold text-2xl relative" customStyleLine="w-20 mb-10"
+  <Title customStyleText="text-2xl sm:text-3xl mt-10" customStyleLine="w-20 mb-10"
     >{data.title}</Title
   >
   <div class="w-full flex flex-col md:flex-row items-center md:items-start justify-center gap-10 relative">
@@ -77,20 +77,20 @@ const data = Astro.props.data as ContactI18n;
             <EtsyIcon
               style="width:25px; height:25px;"
             />
-            <h1 class="px-3 text-red font-semibold">{data.etsy.title}</h1>
+            <h3 class="px-3 text-red font-semibold">{data.etsy.title}</h3>
           </div>
           <p class="text-xs md:hidden lg:block text-black">{data.etsy.description}</p>
         </div> -->
       <div class="flex items-center gap-3">
         <SpotifyIcon style="width:25px; height:25px;" />
-        <h1 class="text-red font-semibold">{data.podcast.title}</h1>
+        <h3 class="text-red font-semibold">{data.podcast.title}</h3>
       </div>
-      <p class="text-xs text-black">{data.podcast.description}</p>
+      <p class="text-sm text-black">{data.podcast.description}</p>
       <div class="flex items-center gap-3">
         <PhoneIcon style="width:25px; height:25px;" />
-        <h1 class="text-red font-semibold">{data.call.title}</h1>
+        <h3 class="text-red font-semibold">{data.call.title}</h3>
       </div>
-      <p class="text-xs text-black">{data.call.description}</p>
+      <p class="text-sm text-black">{data.call.description}</p>
     </div>
   </div>
 </main>

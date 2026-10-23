@@ -10,7 +10,8 @@ export const darkMode = "class";
 export const theme = {
   extend: {
     fontFamily: {
-      inter: ['"Inter"', "sans-serif"],
+      sans: ['"Inter Variable"', '"Noto Sans Arabic Variable"', "system-ui", "sans-serif"],
+      display: ['"Fraunces Variable"', '"Noto Sans Arabic Variable"', "Georgia", "serif"],
     },
     colors: {
       background: "var(--color-background)",

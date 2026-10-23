@@ -1,4 +1,7 @@
 ---
+import "@fontsource-variable/inter";
+import "@fontsource-variable/fraunces";
+import "@fontsource-variable/noto-sans-arabic";
 import "@/styles/global.css";
 import SEO from "@/components/layout/SEO/SEO.astro";
 import { Toaster } from "solid-toast";
@@ -290,6 +293,7 @@ const cookieMessage =
   import { acceptCookies, rejectCookies, initializeCookieConsent } from "@/utils/cookie";
   import { onAuthStateChanged } from "@/services/firebase";
   import { syncTokenWithServer, syncLogoutWithServer } from "@/utils/auth";
+  import { animateTitleLines } from "@/utils/animations";
   import type { User } from "firebase/auth";
 
   let tokenRefreshInterval: ReturnType<typeof setInterval> | null = null;
@@ -385,6 +389,8 @@ const cookieMessage =
   );
 
   elements.forEach((el) => observer.observe(el));
+
+  animateTitleLines();
 </script>
 
 <style>

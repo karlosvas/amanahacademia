@@ -2,23 +2,6 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-@font-face {
-  font-family: "Jomolhari";
-  src: url("/fonts/jomolhari-regular.woff2") format("woff2");
-  font-display: swap;
-}
-@font-face {
-  font-family: "Inter";
-  src: url("/fonts/Inter-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Jomolhari";
-  src: url("/fonts/jomolhari-regular.woff2") format("woff2");
-  font-display: swap;
-}
-
 .dark {
   background-color: var(--color-brown, #fff);
   color: var(--color-white, #fff);
@@ -110,12 +93,11 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 body {
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: theme("fontFamily.sans");
   font-style: normal;
-}
-
-.font-jomolhari {
-  font-family: "Jomolhari", serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -168,6 +150,24 @@ dialog.modal::backdrop {
 .scroll-fade-in.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+.title-line {
+  transform: scaleX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-line {
+    transform: none;
+  }
+}
+
+@media (pointer: coarse) {
+  input:not([type="checkbox"], [type="radio"]),
+  textarea,
+  select {
+    font-size: max(16px, 1em) !important;
+  }
 }
 
 @keyframes modalAppear {

@@ -9,7 +9,7 @@ const data = Astro.props.data as HomeI18n;
 
 <section class="relative w-full">
   <div
-    class="absolute top-0 left-0 w-full h-full overflow-hidden rounded-none shadow-[0_0_10px_0_rgba(255,120,60,0.5)] m-0 p-0 z-0"
+    class="scroll-fade-in absolute top-0 left-0 w-full h-full overflow-hidden rounded-none shadow-[0_0_10px_0_rgba(255,120,60,0.5)] m-0 p-0 z-0"
   >
     <Image
       src={banner}
@@ -29,18 +29,18 @@ const data = Astro.props.data as HomeI18n;
     </div>
   </div>
   <h1
-    class="scroll-fade-in text-center px-10 pt-20 pb-1 text-red font-bold text-5xl select-none font-jomolhari z-20 relative"
+    class="scroll-fade-in text-center px-6 pt-20 pb-1 text-red font-display font-semibold tracking-tight leading-tight text-4xl sm:text-5xl md:text-6xl select-none z-20 relative"
   >
     Amanah Academia
   </h1>
-  <div class="scroll-fade-in bg-salmon h-2 m-auto mb-10 w-80 mt-1 z-20 relative"></div>
-  <h2 class="scroll-fade-in text-center m-10 text-red font-semibold font-jomolhari z-20 relative pb-20">
-    Del primer hola a todo un mundo <br /> <span class="text-gray-700">Academia de Español</span>
+  <div class="title-line bg-salmon h-1.5 sm:h-2 rounded-full m-auto mb-8 w-48 sm:w-80 mt-3 z-20 relative"></div>
+  <h2 class="scroll-fade-in text-center mx-6 my-8 text-red font-display font-medium text-xl sm:text-2xl leading-snug z-20 relative pb-20">
+    Del primer hola a todo un mundo <br /> <span class="font-sans text-base sm:text-lg font-semibold text-gray-700">Academia de Español</span>
   </h2>
 </section>
 
 <AboutUs data={data} />
 
-<p class="m-0 md:m-10 px-4 sm:px-6 md:px-10 text-red text-center text-xs sm:text-sm font-jomolhari leading-relaxed font-semibold scroll-fade-in">
+<p class="max-w-3xl mx-auto my-10 px-4 sm:px-6 text-red text-center text-sm sm:text-base leading-relaxed font-medium scroll-fade-in">
     {data.focus.note.map((note, _) => <span >{note}</span> <br />)}
 </p>

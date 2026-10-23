@@ -17,9 +17,9 @@ const hasOffer: boolean = typeof old_price === "number" && typeof price === "num
   class="scroll-fade-in w-full min-h-[400px] sm:min-h-[450px] md:min-h-[500px] relative text-center text-black bg-smoothBrown rounded-xl py-4 sm:py-6 md:py-8 lg:py-10 px-4 sm:px-8 flex flex-col h-full containter-pricing"
   card-pricing-tier={id}
 >
-  <h2 class="font-semibold text-red px-2 sm:px-3 md:px-5 text-sm sm:text-base md:text-lg">{data.title}</h2>
+  <h2 class="font-display font-semibold text-red px-2 sm:px-3 md:px-5 text-base sm:text-lg md:text-xl">{data.title}</h2>
   <div class="flex-1 flex flex-col items-center">
-    <ul class="text-start text-xs sm:text-sm mb-4 sm:mb-5 flex-1 flex flex-col items-start justify-center w-full">
+    <ul class="text-start text-sm sm:text-base mb-4 sm:mb-5 flex-1 flex flex-col items-start justify-center w-full">
       {
         (data.content ?? []).map((item: string) => (
           <li class="flex my-1 sm:my-2 gap-x-2 w-full ">
@@ -64,7 +64,7 @@ const hasOffer: boolean = typeof old_price === "number" && typeof price === "num
   <button
     card-button={id}
     data-modal-id={id}
-    class="reserve-class bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red rounded-md py-2 sm:py-3 px-4 sm:px-5 xl:px-10 text-white font-semibold mt-auto transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 text-xs sm:text-sm w-full"
+    class="reserve-class bg-gradient-to-r from-salmon to-brown hover:from-lightRed hover:to-red rounded-md py-2 sm:py-3 px-4 sm:px-5 xl:px-10 text-white font-semibold mt-auto transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 text-sm sm:text-base w-full"
   >
     {data.button}
   </button>

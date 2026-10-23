@@ -59,12 +59,12 @@ const classesByOrganizer = listOfClass.reduce(
 ---
 
 <section>
-  <h1 class="text-red text-4xl font-bold my-10">Profesores y Estudiantes</h1>
+  <h1 class="font-display text-red text-4xl font-bold my-10">Profesores y Estudiantes</h1>
   {
     Object.entries(classesByOrganizer).map(([organizerName, bookings]) => (
       <div class="mb-6 border border-gray-200 rounded-lg overflow-hidden">
         <h2
-          class="text-2xl font-semibold p-4 bg-brown hover:bg-salmon duration-300 cursor-pointer flex items-center justify-between transition-colors text-white dark:text-emerald-50"
+          class="font-display text-2xl font-semibold p-4 bg-brown hover:bg-salmon duration-300 cursor-pointer flex items-center justify-between transition-colors text-white dark:text-emerald-50"
           onclick={`const panel = this.nextElementSibling; panel.classList.toggle('max-h-0'); panel.classList.toggle('opacity-0'); panel.classList.toggle('max-h-[3200px]'); panel.classList.toggle('opacity-100'); this.querySelector('svg').classList.toggle('rotate-180')`}
         >
           <span>{organizerName}</span>

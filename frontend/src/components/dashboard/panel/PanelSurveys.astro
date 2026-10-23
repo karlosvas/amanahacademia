@@ -21,7 +21,7 @@ const hasSurveys: boolean = surveys.length > 0;
 ---
 
 <section>
-  <h1 class="text-red text-4xl font-bold my-10">Encuestas</h1>
+  <h1 class="font-display text-red text-4xl font-bold my-10">Encuestas</h1>
   {
     hasSurveys ? (
       surveys.map((survey: Survey) => <SurveyCard survey={survey} iconType="active" />)
@@ -40,7 +40,7 @@ const hasSurveys: boolean = surveys.length > 0;
           </div>
 
           <div class="flex-1">
-            <h3 class="text-lg font-bold text-[#6d0006]">No hay encuestas disponibles</h3>
+            <h3 class="font-display text-lg font-bold text-[#6d0006]">No hay encuestas disponibles</h3>
             <p class="mt-1 text-sm text-[#8a4141]">
               En este momento no se encontraron encuestas para mostrar. Cuando haya nuevas, aparecerán aquí.
             </p>
@@ -62,7 +62,7 @@ const hasSurveys: boolean = surveys.length > 0;
           </div>
 
           <div class="flex-1">
-            <h3 class="text-lg font-bold text-[#6d0006]">No pudimos cargar las encuestas</h3>
+            <h3 class="font-display text-lg font-bold text-[#6d0006]">No pudimos cargar las encuestas</h3>
             <p class="mt-1 text-sm text-[#8a4141]">
               Puede ser un problema temporal de conexión o del servidor. Inténtalo de nuevo en unos segundos.
             </p>

@@ -96,7 +96,7 @@ const showOffers: boolean = Boolean(responsePricingData?.offers_enabled && respo
 
 <main class="relative text-black">
   <div class="w-full max-w-7xl xl:w-3/4 m-auto px-2 sm:px-4">
-    <Title customStyleText="text-2xl " customStyleLine="w-20 mb-10">{data.title}</Title>
+    <Title customStyleText="text-2xl sm:text-3xl" customStyleLine="w-20 mb-10">{data.title}</Title>
     <div
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center items-stretch h-auto gap-6 sm:gap-8 md:gap-6 lg:gap-4 w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 lg:px-4"
     >
@@ -126,19 +126,19 @@ const showOffers: boolean = Boolean(responsePricingData?.offers_enabled && respo
       </CardPricing>
     </div>
     <div
-      class="w-full md:w-11/12 lg:w-4/5 xl:w-3/4 flex flex-col lg:flex-row text-xs sm:text-sm mt-12 sm:mt-16 md:mt-20 m-auto pb-8 md:pb-12 lg:pb-16 xl:pb-20 px-4 sm:px-6 md:px-8 lg:px-6 xl:px-0 gap-6 sm:gap-8 lg:gap-6 scroll-fade-in"
+      class="w-full md:w-11/12 lg:w-4/5 xl:w-3/4 flex flex-col lg:flex-row text-sm sm:text-base mt-12 sm:mt-16 md:mt-20 m-auto pb-8 md:pb-12 lg:pb-16 xl:pb-20 px-4 sm:px-6 md:px-8 lg:px-6 xl:px-0 gap-6 sm:gap-8 lg:gap-6 scroll-fade-in"
     >
       <div class="flex-1">
         <h4 class="text-salmon text-base sm:text-lg font-semibold">
           {data.info[0].title}
         </h4>
-        <p class="mt-2 text-xs sm:text-sm leading-relaxed">
+        <p class="mt-2 text-sm sm:text-base leading-relaxed">
           {data.info[0].description}
         </p>
         <button
           card-button={Class.Free}
           data-modal-id={Class.Free}
-          class="reserve-class transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 bg-red text-salmon dark:text-black py-2 sm:py-2.5 px-4 sm:px-6 md:px-8 lg:px-10 rounded-full mt-3 sm:mt-4 md:mt-5 text-xs sm:text-sm cal-btn font-semibold w-full sm:w-auto"
+          class="reserve-class transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-offset-2 bg-red text-salmon dark:text-black py-2 sm:py-2.5 px-4 sm:px-6 md:px-8 lg:px-10 rounded-full mt-3 sm:mt-4 md:mt-5 text-sm sm:text-base cal-btn font-semibold w-full sm:w-auto"
         >
           {data.info[0].button}
         </button>
@@ -147,7 +147,7 @@ const showOffers: boolean = Boolean(responsePricingData?.offers_enabled && respo
         <h4 class="text-salmon text-base sm:text-lg font-semibold">
           {data.info[1].title}
         </h4>
-        <p class="mt-2 text-xs sm:text-sm leading-relaxed">
+        <p class="mt-2 text-sm sm:text-base leading-relaxed">
           {data.info[1].description}
         </p>
       </div>
@@ -155,7 +155,7 @@ const showOffers: boolean = Boolean(responsePricingData?.offers_enabled && respo
         <h4 class="text-salmon text-base sm:text-lg font-semibold">
           {data.info[2].title}
         </h4>
-        <p class="mt-2 text-xs sm:text-sm leading-relaxed">
+        <p class="mt-2 text-sm sm:text-base leading-relaxed">
           {data.info[2].description}
           <a class="text-salmon font-semibold" href="mailto:anaortegagutierrez99@gmail.com" rel="noopener noreferrer">
             contact@amanahacademia.com

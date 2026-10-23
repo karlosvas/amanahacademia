@@ -21,6 +21,6 @@ response.data = response.data.filter((pi) => pi.status != "requires_payment_meth
 ---
 
 <section>
-  <h1 class="text-red text-4xl font-bold my-10">Pagos</h1>
+  <h1 class="font-display text-red text-4xl font-bold my-10">Pagos</h1>
   {response.data.map((pi: PaymentIntentSimplified) => <PanelPrice paymentIntent={pi} iconType="conversion" />)}
 </section>

@@ -4,7 +4,7 @@ import type { InfoI18n } from "@/types/types";
 const data = Astro.props.data as InfoI18n;
 ---
 
-<main class="text-sm bg-gradient-to-br from-light to-[#F8EDEB] text-black min-h-screen py-8 px-4">
+<main class="text-sm sm:text-base bg-gradient-to-br from-light to-[#F8EDEB] text-black min-h-screen py-8 px-4">
   <div class="max-w-4xl mx-auto">
     <!-- Header -->
     <div
@@ -13,7 +13,7 @@ const data = Astro.props.data as InfoI18n;
       <div class="absolute inset-0 bg-pattern z-0"></div>
       <div class="relative z-10">
         <i class="fas fa-shield-alt text-lightRed text-4xl mb-4"></i>
-        <h1 class="font-playfair text-4xl md:text-5xl font-black text-lightRed mb-4 drop-shadow-sm">
+        <h1 class="font-display text-4xl md:text-5xl font-black text-lightRed mb-4 drop-shadow-sm">
           {data.header.title}
         </h1>
         <p class="text-lg md:text-xl text-salmon max-w-2xl mx-auto">
@@ -27,16 +27,16 @@ const data = Astro.props.data as InfoI18n;
       class="bg-transparent rounded-2xl shadow-lg p-6 md:p-8 mb-8 border-l-4 border-lightRed hover:shadow-xl transition-shadow"
     >
       <h2
-        class="font-playfair text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
+        class="font-display text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
       >
-        <i class="fas fa-user-shield mr-3">{data.privacyPolicy.title}</i>
+        {data.privacyPolicy.title}
       </h2>
 
       <!-- Información que recopilamos y su uso -->
       <div class="space-y-3">
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-info-circle mr-3 text-salmon">{data.privacyPolicy.sections.informationCollection.title}</i>
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.privacyPolicy.sections.informationCollection.title}
           </h3>
           <p class="mb-4">
             {data.privacyPolicy.sections.informationCollection.content}
@@ -45,8 +45,8 @@ const data = Astro.props.data as InfoI18n;
 
         <!-- Protección de datos -->
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-lock mr-3 text-salmon">{data.privacyPolicy.sections.dataProtection.title}</i>
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.privacyPolicy.sections.dataProtection.title}
           </h3>
           <p class="mb-4">
             {data.privacyPolicy.sections.dataProtection.content}
@@ -55,8 +55,8 @@ const data = Astro.props.data as InfoI18n;
 
         <!-- Comunicaciones y newsletter -->
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-envelope mr-3 text-salmon">{data.privacyPolicy.sections.communications.title}</i>
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.privacyPolicy.sections.communications.title}
           </h3>
           <p class="mb-4">
             {data.privacyPolicy.sections.communications.content}
@@ -65,8 +65,8 @@ const data = Astro.props.data as InfoI18n;
 
         <!-- Cookies y tecnologías similares -->
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-cookie mr-3 text-salmon">{data.privacyPolicy.sections.cookies.title}</i>
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.privacyPolicy.sections.cookies.title}
           </h3>
           <p class="mb-4">
             {data.privacyPolicy.sections.cookies.content}
@@ -75,8 +75,8 @@ const data = Astro.props.data as InfoI18n;
 
         <!-- Cambios en la politica -->
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-calendar-alt mr-3 text-salmon">{data.privacyPolicy.sections.policyChanges.title}</i>
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.privacyPolicy.sections.policyChanges.title}
           </h3>
           <p class="mb-4">
             {data.privacyPolicy.sections.policyChanges.content}
@@ -90,16 +90,16 @@ const data = Astro.props.data as InfoI18n;
       class="bg-transparent rounded-2xl shadow-lg p-6 md:p-8 mb-8 border-l-4 border-lightRed hover:shadow-xl transition-shadow"
     >
       <h2
-        class="font-playfair text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
+        class="font-display text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
       >
-        <i class="fas fa-file-contract mr-3">{data.termsConditions.title}</i>
+        {data.termsConditions.title}
       </h2>
 
       <!-- Uso de la platafomrma -->
       <div class="space-y-3">
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-desktop mr-3 text-salmon">{data.termsConditions.sections.platformUse.title}</i>
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.termsConditions.sections.platformUse.title}
           </h3>
           <p class="mb-4">
             {data.termsConditions.sections.platformUse.content}
@@ -108,8 +108,8 @@ const data = Astro.props.data as InfoI18n;
 
         <!-- Propiedad intelectual -->
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-copyright mr-3 text-salmon">{data.termsConditions.sections.intellectualProperty.title}</i>
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.termsConditions.sections.intellectualProperty.title}
           </h3>
           <p class="mb-4">
             {data.termsConditions.sections.intellectualProperty.content}
@@ -118,10 +118,8 @@ const data = Astro.props.data as InfoI18n;
 
         <!-- Limitación de responsabilidad -->
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-exclamation-triangle mr-3 text-salmon"
-              >{data.termsConditions.sections.liabilityLimitation.title}</i
-            >
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.termsConditions.sections.liabilityLimitation.title}
           </h3>
           <p class="mb-4">
             {data.termsConditions.sections.liabilityLimitation.content}
@@ -130,10 +128,8 @@ const data = Astro.props.data as InfoI18n;
 
         <!-- Pagos y suscripciones -->
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-credit-card mr-3 text-salmon"
-              >{data.termsConditions.sections.paymentsSubscriptions.title}</i
-            >
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.termsConditions.sections.paymentsSubscriptions.title}
           </h3>
           <p class="mb-4">
             {data.termsConditions.sections.paymentsSubscriptions.content}
@@ -142,8 +138,8 @@ const data = Astro.props.data as InfoI18n;
 
         <!-- Ley aplicable y resolución de conflictos -->
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-gavel mr-3 text-salmon">{data.termsConditions.sections.applicableLaw.title}</i>
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.termsConditions.sections.applicableLaw.title}
           </h3>
           <p class="mb-4">
             {data.termsConditions.sections.applicableLaw.content}
@@ -158,23 +154,23 @@ const data = Astro.props.data as InfoI18n;
     >
       <!-- LIcencia -->
       <h2
-        class="font-playfair text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
+        class="font-display text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
       >
-        <i class="fas fa-file-signature mr-3">{data.license.title}</i>
+        {data.license.title}
       </h2>
 
       <!-- Licencia de uso -->
       <div>
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-id-card mr-3 text-salmon">{data.license.sections.usageLicense.title}</i>
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.license.sections.usageLicense.title}
           </h3>
           <p class="mb-4">{data.license.sections.usageLicense.content}</p>
         </div>
 
         <div class="bg-red-50 p-6 rounded-xl hover:bg-red-100">
-          <h3 class="text-xl font-semibold text-lightRed mb-3 flex items-center">
-            <i class="fas fa-ban mr-3 text-salmon">{data.license.sections.restrictions.title}</i>
+          <h3 class="font-display text-xl font-semibold text-lightRed mb-3 flex items-center">
+            {data.license.sections.restrictions.title}
           </h3>
           <p class="mb-4">
             {data.license.sections.restrictions.content}
@@ -196,7 +192,7 @@ const data = Astro.props.data as InfoI18n;
       class="bg-transparent rounded-2xl shadow-lg p-6 md:p-8 mb-8 border-l-4 border-lightRed hover:shadow-xl transition-shadow"
     >
       <h2
-        class="font-playfair text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
+        class="font-display text-3xl text-lightRed text-center mb-6 pb-4 relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-20 after:h-1 after:bg-gradient-to-r after:from-lightRed after:to-salmon after:rounded-full"
       >
         <i class="fas fa-medal mr-3"></i>{data.securityHallOfFame.title}
       </h2>
@@ -210,7 +206,7 @@ const data = Astro.props.data as InfoI18n;
           target="_blank"
           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-lightRed to-salmon text-white font-medium rounded-full hover:shadow-lg transition-all hover:-translate-y-1"
         >
-          <i class="fas fa-trophy ml-2">{data.securityHallOfFame.button}</i>
+          {data.securityHallOfFame.button}
         </a>
       </div>
     </section>

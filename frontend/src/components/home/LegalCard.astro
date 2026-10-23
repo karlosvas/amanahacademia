@@ -6,8 +6,8 @@ const { colourRectangle } = Astro.props;
   <div class=`${colourRectangle} w-10 h-10 rounded-full flex items-center justify-center m-auto`>
     <slot name="icon" />
   </div>
-  <h3 class="p-3 text-red font-semibold"><slot name="title" /></h3>
-  <p class="text-sm">
+  <h3 class="font-display p-3 text-red text-lg font-semibold"><slot name="title" /></h3>
+  <p class="text-sm sm:text-base leading-relaxed">
     <slot name="description" />
   </p>
 </div>
