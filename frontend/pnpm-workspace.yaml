@@ -4,3 +4,6 @@ allowBuilds:
   esbuild: true
   protobufjs: true
   sharp: true
+overrides:
+  "@vercel/routing-utils>path-to-regexp": ^6.3.0
+  "@vercel/cli-config>zod": ^4.6.6
