@@ -17,7 +17,7 @@ const { SENTRY_AUTH_TOKEN } = loadEnv(
 export default defineConfig({
   site: "https://amanahacademia.com",
   output: "server",
-  adapter: vercel(),
+  adapter: vercel({ imageService: true }),
   i18n: {
     defaultLocale: "es",
     locales: ["es", "en", "fr", "de", "it", "pt", "ar"],
