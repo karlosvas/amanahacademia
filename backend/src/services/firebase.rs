@@ -49,4 +49,4 @@ where
 
 #[cfg(test)]
 #[path = "../test/services/firebase.rs"]
-mod tests;
+mod extended_tests;

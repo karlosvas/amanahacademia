@@ -37,4 +37,4 @@ pub fn insert_options_by_country(
 
 #[cfg(test)]
 #[path = "../test/services/payments.rs"]
-mod tests;
+mod extended_tests;

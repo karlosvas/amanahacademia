@@ -44,4 +44,4 @@ where
 
 #[cfg(test)]
 #[path = "../test/validations/validations.rs"]
-mod tests;
+mod extended_tests;

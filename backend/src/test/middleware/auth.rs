@@ -13,7 +13,7 @@ mod tests {
             },
         },
         axum::http::StatusCode,
-        jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, encode},
+        jsonwebtoken::{Algorithm, EncodingKey, Header, encode},
         reqwest::Client as HttpClient,
         rsa::rand_core::OsRng,
         serde_json::{Value, json},
@@ -26,7 +26,6 @@ mod tests {
 
     struct TestRsaKeys {
         encoding_key: EncodingKey,
-        decoding_key: DecodingKey,
         kid: String,
         public_pem: String,
     }
@@ -78,9 +77,8 @@ mod tests {
 
         TestRsaKeys {
             encoding_key: EncodingKey::from_rsa_pem(private_pem.as_bytes()).unwrap(),
-            decoding_key: DecodingKey::from_rsa_pem(public_pem.as_bytes()).unwrap(),
             kid: "test-key-id".to_string(),
-            public_pem: public_pem,
+            public_pem,
         }
     }
 

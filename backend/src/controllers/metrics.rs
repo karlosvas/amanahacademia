@@ -158,4 +158,4 @@ pub async fn get_class_metrics(
 
 #[cfg(test)]
 #[path = "../test/controllers/metrics.rs"]
-mod tests;
+mod extended_tests;

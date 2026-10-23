@@ -34,4 +34,4 @@ where
 
 #[cfg(test)]
 #[path = "../test/services/metrics.rs"]
-mod tests;
+mod extended_tests;

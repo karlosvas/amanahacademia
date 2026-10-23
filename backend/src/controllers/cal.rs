@@ -725,4 +725,4 @@ pub async fn get_all_bookings(
 
 #[cfg(test)]
 #[path = "../test/controllers/cal.rs"]
-mod tests;
+mod extended_tests;
