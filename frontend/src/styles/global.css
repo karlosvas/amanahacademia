@@ -98,7 +98,7 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 /* Smaller elements (e.g. small panels) may need slightly thinner scrollbars */
-::-webkit-scrollbar.small {
+.small::-webkit-scrollbar {
   width: 6px;
 }
 
