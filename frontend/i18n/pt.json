@@ -221,7 +221,8 @@
     },
     "comments": {
       "best": "Comentários com mais curtidas",
-      "title": "Itens de avaliação",
+      "latest": "Todas as avaliações",
+      "title": "O que dizem os nossos alunos",
       "button": "Comentar",
       "modal": {
         "title": "Deixe seu comentário",
@@ -231,15 +232,11 @@
         "placeholder": "Escreva seu comentário aqui...",
         "loading": "Carregando..."
       },
-      "evaluations": {
-        "title": "Avaliações",
-        "types": [
-          "Profissionalismo",
-          "Eficiência",
-          "Tempo de resposta dos serviços",
-          "Tempo de contato administrativo",
-          "Satisfação do usuário"
-        ]
+      "summary": {
+        "title": "Avaliação média",
+        "review_one": "{count} avaliação",
+        "review_other": "{count} avaliações",
+        "empty": "Ainda não há avaliações. Seja o primeiro a partilhar a sua!"
       }
     },
     "contact": {

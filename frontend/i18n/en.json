@@ -221,7 +221,8 @@
     },
     "comments": {
       "best": "Most liked comments",
-      "title": "Evaluation items",
+      "latest": "All reviews",
+      "title": "What our students say",
       "button": "Comment",
       "modal": {
         "title": "Leave your comment",
@@ -231,15 +232,11 @@
         "placeholder": "Write your comment here...",
         "loading": "Loading..."
       },
-      "evaluations": {
-        "title": "Evaluations",
-        "types": [
-          "Professionalism",
-          "Efficiency",
-          "Service response time",
-          "Administrative contact time",
-          "User satisfaction"
-        ]
+      "summary": {
+        "title": "Average rating",
+        "review_one": "{count} review",
+        "review_other": "{count} reviews",
+        "empty": "No reviews yet. Be the first to share yours!"
       }
     },
     "contact": {

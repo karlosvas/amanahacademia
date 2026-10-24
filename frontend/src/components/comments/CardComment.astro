@@ -31,12 +31,12 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
 
 <div
   data-comment-id={comment.id}
-  class="relative bg-lightSalmon w-full rounded-lg scroll-fade-in overflow-hidden flex flex-col h-full"
+  class="relative bg-lightSalmon w-full rounded-2xl shadow-sm scroll-fade-in overflow-hidden flex flex-col h-full text-gray-800"
 >
   <EditCommentButtons buttonsCommentTraductions={buttonsCommentTraductions} lang={lang} isReply={false} />
 
   <!-- Header compacto -->
-  <div class="p-4">
+  <div class="p-5">
     <div class="flex items-center space-x-3">
       <!-- Avatar pequeño -->
       <Avatar info={avatar} />
@@ -44,15 +44,15 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
       <!-- Info del usuario compacta -->
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between">
-          <h5 class="text-sm font-medium truncate w-32">
+          <h5 class="text-sm sm:text-base font-semibold truncate pr-2">
             {comment.name}
           </h5>
-          <time class="text-xs mr-2">
+          <time class="text-xs text-gray-600 shrink-0 mr-2">
             {comment.timestamp}
           </time>
         </div>
-        <div class="mt-0.5 flex items-start">
-          <StarGroup star={comment.stars} size={12} />
+        <div class="mt-1 flex items-start">
+          <StarGroup star={comment.stars} size={14} />
         </div>
       </div>
     </div>

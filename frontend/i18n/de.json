@@ -223,7 +223,8 @@
     },
     "comments": {
       "best": "Kommentare mit den meisten Likes",
-      "title": "Bewertungselemente",
+      "latest": "Alle Bewertungen",
+      "title": "Das sagen unsere Schüler",
       "button": "Kommentieren",
       "modal": {
         "title": "Hinterlasse deinen Kommentar",
@@ -233,15 +234,11 @@
         "placeholder": "Schreibe deinen Kommentar hier...",
         "loading": "Wird geladen..."
       },
-      "evaluations": {
-        "title": "Bewertungen",
-        "types": [
-          "Professionalität",
-          "Effizienz",
-          "Reaktionszeit der Dienste",
-          "Dauer des administrativen Kontakts",
-          "Zufriedenheit der Benutzer"
-        ]
+      "summary": {
+        "title": "Durchschnittliche Bewertung",
+        "review_one": "{count} Bewertung",
+        "review_other": "{count} Bewertungen",
+        "empty": "Noch keine Bewertungen. Teile als Erste oder Erster deine Meinung!"
       }
     },
     "contact": {

@@ -227,12 +227,15 @@ export type ModalComent = {
 
 export type CommentI18n = {
   best: string;
+  latest: string;
   title: string;
   button: string;
   modal: ModalComent;
-  evaluations: {
+  summary: {
     title: string;
-    types: string[];
+    review_one: string;
+    review_other: string;
+    empty: string;
   };
 };
 

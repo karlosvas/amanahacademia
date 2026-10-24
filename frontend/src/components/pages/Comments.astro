@@ -1,7 +1,7 @@
 ---
 import CardComment from "@/components/comments/CardComment.astro";
-import StarGroup from "@/components/comments/StarGroup.astro";
-import Stadistics from "@/components/comments/Stadistics.astro";
+import RatingSummary from "@/components/comments/RatingSummary.astro";
+import Title from "@/components/common/Title.astro";
 import { ApiService } from "@/services/helper";
 import CommentModal from "@/components/comments/CommentModal.astro";
 import { processComments } from "@/services/comments";
@@ -10,11 +10,11 @@ import type { CommentI18n } from "@/types/types";
 import { log } from "@/services/logger";
 
 const data = Astro.props.data as CommentI18n;
+const lang = Astro.currentLocale ?? "es";
 
 const helper = new ApiService();
 let comments: Comment[] = [];
 let bestComments: Comment[] = [];
-let mediaStars: number = 0.0;
 try {
   const response: ResponseAPI<Comment[]> = await helper.getAllComments();
   if (response.success) {
@@ -32,83 +32,66 @@ try {
     }));
 
     ({ comments, bestComments } = processComments(commentsData));
-    // Ordenamos por timestamp
-    mediaStars = comments.reduce((acc, comment) => acc + (comment.stars ?? 0), 0) / comments.length;
   } else {
     log.error("Error loading comments", response);
   }
 } catch (error) {
-  // Dejar tener comentarios por defecto o vacío
   log.error("Network error loading comments", error);
   comments = [];
 }
 
-const percentaje = ["90", "70", "95", "80", "89"];
+const latestComments = comments.toReversed();
+const totalReviews = comments.length;
+const averageStars =
+  totalReviews > 0 ? comments.reduce((acc, comment) => acc + (comment.stars ?? 0), 0) / totalReviews : 0;
+const starDistribution = [5, 4, 3, 2, 1].map(
+  (stars) => comments.filter((comment) => Math.min(5, Math.max(1, Math.round(comment.stars ?? 0))) === stars).length,
+);
 ---
 
-<main
-  class="py-6 sm:py-8 md:py-10 lg:mt-0 mb-12 sm:mb-16 md:mb-20 m-auto w-full 2xl:w-3/4
-              grid grid-cols-1 lg:grid-cols-3
-              gap-4 sm:gap-6 lg:gap-8 items-start justify-items-center px-2 sm:px-4 comments-grid scroll-fade-in"
->
-  <!-- Sección 1: Estadísticas y comentarios destacados -->
-  <div class="w-full max-w-sm mx-auto justify-self-center md:justify-self-center lg:justify-self-start section-1">
-    <div class="text-center mb-4 sm:mb-6">
-      <p class="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-800 font-sans">{mediaStars.toFixed(2)}</p>
-      <StarGroup star={mediaStars} size={50} />
-    </div>
-    <h5 class="text-gray-800 ml-2 sm:ml-3 mb-10 sm:mb-4 font-semibold text-sm sm:text-base">
-      {data.best}
-    </h5>
-    <div class="space-y-3 sm:space-y-4">
+<main class="scroll-fade-in w-full max-w-6xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24">
+  <Title customStyleLine="w-20 mb-10 sm:mb-14">{data.title}</Title>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12 items-start">
+    <aside class="w-full max-w-md mx-auto lg:max-w-none lg:sticky lg:top-24">
+      <RatingSummary
+        average={averageStars}
+        total={totalReviews}
+        distribution={starDistribution}
+        lang={lang}
+        data={data}
+      />
+    </aside>
+
+    <div class="lg:col-span-2 space-y-12">
       {
-        bestComments.length > 0 &&
-          bestComments.map((comment: Comment) => {
-            return <CardComment comment={comment} id={"best-" + comment.id} data={data} footer={false} />;
-          })
+        bestComments.length > 0 && (
+          <section>
+            <h3 class="font-display text-xl sm:text-2xl font-semibold text-red mb-5">{data.best}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+              {bestComments.map((comment: Comment) => (
+                <CardComment comment={comment} id={"best-" + comment.id} data={data} footer={false} />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        latestComments.length > 0 && (
+          <section>
+            <h3 class="font-display text-xl sm:text-2xl font-semibold text-red mb-5">{data.latest}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+              {latestComments.map((comment: Comment) => (
+                <CardComment comment={comment} id={comment.id} data={data} footer={true} />
+              ))}
+            </div>
+          </section>
+        )
       }
     </div>
   </div>
 
-  <!-- Sección 2: Botón comentar y más comentarios -->
-  <div
-    class="max-w-sm sm:max-w-2xl mt-24 w-full lg:col-span-1 lg:max-w-sm flex flex-col items-center justify-self-center lg:justify-self-auto order-2 lg:order-2 section-2"
-  >
-    <button
-      id="open-comment-modal"
-      class="bg-lightRed hover:bg-salmon
-           rounded-lg text-gray-100 text-lg sm:text-xl font-semibold w-full max-w-48 sm:max-w-56
-           py-2 sm:py-3 px-4 sm:px-6 shadow-lg hover:shadow-xl transform
-            sm:mb-6 mt-6 sm:mt-8 lg:mt-0"
-    >
-      {data.button}
-    </button>
-    <div
-      class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4 lg:gap-6 justify-items-center mt-10"
-    >
-      {
-        comments.length > 0 &&
-          comments.map((comment: Comment) => (
-            <CardComment comment={comment} id={comment.id} data={data} footer={true} />
-          ))
-      }
-    </div>
-  </div>
-
-  <!-- Sección 3: Elementos de evaluación -->
-  <div
-    class="bg-lightSalmon mt-12 sm:mt-16 lg:mt-20 rounded-lg max-w-sm w-full overflow-hidden mx-auto md:mx-auto lg:mx-0 order-3 section-3"
-  >
-    <!-- Header -->
-    <div class="px-3 sm:px-4 py-2 sm:py-3 bg-salmon">
-      <h5 class="text-xs sm:text-sm font-semibold">{data.evaluations.title}</h5>
-    </div>
-
-    <!-- Contenido -->
-    <div class="p-3 sm:p-4 space-y-8 sm:space-y-10 lg:space-y-14 pb-6 sm:pb-8 lg:pb-10">
-      {data.evaluations.types.map((element, i) => <Stadistics title={element} percentage={percentaje[i] ?? "100"} />)}
-    </div>
-  </div>
   <CommentModal id={"comment-modal"} edit={false} data={data.modal} />
 </main>
 <script>
@@ -187,26 +170,3 @@ const percentaje = ["90", "70", "95", "80", "89"];
     });
   });
 </script>
-
-<style>
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .comments-grid {
-      grid-template-columns: 1fr;
-    }
-    .section-1 {
-      grid-column: 1;
-      justify-self: center;
-      max-width: 400px;
-    }
-    .section-2 {
-      grid-column: 1;
-      justify-self: center;
-      max-width: 600px;
-    }
-    .section-3 {
-      grid-column: 1;
-      justify-self: center;
-      max-width: 400px;
-    }
-  }
-</style>

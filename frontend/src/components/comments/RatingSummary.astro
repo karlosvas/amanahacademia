@@ -1,0 +1,68 @@
+---
+import StarGroup from "./StarGroup.astro";
+import StarIcon from "@/assets/star.svg";
+import type { CommentI18n } from "@/types/types";
+
+interface Props {
+  average: number;
+  total: number;
+  distribution: number[];
+  lang: string;
+  data: CommentI18n;
+}
+
+const { average, total, distribution, lang, data } = Astro.props;
+
+const pluralCategory = new Intl.PluralRules(lang).select(total);
+const reviewsLabel = (pluralCategory === "one" ? data.summary.review_one : data.summary.review_other).replace(
+  "{count}",
+  total.toString(),
+);
+---
+
+<div class="bg-lightSalmon rounded-2xl p-6 sm:p-8 shadow-sm text-center text-gray-800">
+  <p class="text-sm font-semibold uppercase tracking-wider text-red">{data.summary.title}</p>
+
+  {
+    total > 0 ? (
+      <>
+        <p class="mt-4 font-display font-semibold leading-none">
+          <span class="text-6xl">{average.toFixed(1)}</span>
+          <span class="text-2xl text-gray-500">/5</span>
+        </p>
+        <div class="mt-4">
+          <StarGroup star={average} size={28} />
+        </div>
+        <p class="mt-3 text-sm text-gray-600">{reviewsLabel}</p>
+
+        <ul class="mt-6 space-y-2.5">
+          {distribution.map((count, i) => {
+            const stars = 5 - i;
+            const percentage = Math.round((count / total) * 100);
+            return (
+              <li class="flex items-center gap-3 text-sm">
+                <span class="flex w-8 shrink-0 items-center justify-end gap-1 font-medium tabular-nums">
+                  {stars}
+                  <StarIcon class="text-amber-400" width={12} height={12} />
+                </span>
+                <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-gray-900/10">
+                  <div class="h-full rounded-full bg-amber-400" style={`width: ${percentage}%`} />
+                </div>
+                <span class="w-10 shrink-0 text-right tabular-nums text-gray-600">{percentage}%</span>
+              </li>
+            );
+          })}
+        </ul>
+      </>
+    ) : (
+      <p class="mt-4 text-base leading-relaxed">{data.summary.empty}</p>
+    )
+  }
+
+  <button
+    id="open-comment-modal"
+    class="mt-8 w-full rounded-lg bg-red px-6 py-3 text-base font-semibold text-gray-50 shadow-md transition-colors duration-200 hover:bg-lightRed hover:shadow-lg"
+  >
+    {data.button}
+  </button>
+</div>
