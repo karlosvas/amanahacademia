@@ -40,6 +40,7 @@ html,
 body {
   box-sizing: border-box;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 *,
 *:before,
