@@ -15,10 +15,20 @@ const data = Astro.props.data as PricingI18n;
 let teachers: Teacher[] | undefined;
 let bookings: CalBookingPayload[] = [];
 let schedules: Schedule[] = [];
-try {
-  // Obtenemos los profesores desde la API
-  const helper = new ApiService();
-  const response: ResponseAPI<Teacher[]> = await helper.getTeachers();
+let responsePricingData: PricingApiResponse | undefined;
+
+const helper = new ApiService();
+const pricingUrl = new URL("/api/pricing", Astro.url);
+
+const [teachersResult, bookingsResult, schedulesResult, pricesResult] = await Promise.allSettled([
+  helper.getTeachers(),
+  helper.getGroupBookings(),
+  helper.getAllAvailableTimeSchedulesTeam(),
+  fetch(pricingUrl),
+]);
+
+if (teachersResult.status === "fulfilled") {
+  const response: ResponseAPI<Teacher[]> = teachersResult.value;
 
   // Si la respuesta es exitosa, asignamos los datos a la variable teachers
   if (response.success && response.data) {
@@ -30,16 +40,21 @@ try {
   // Si no hay profesores porque ubo un probelma en el servidor lo redirijimos a /, si no hay profesores mostramos un toast
   if (teachers === undefined || teachers === null) return Astro.redirect("/");
   else if (teachers.length === 0) toast.error("No teachers available at the moment.");
+} else log.error("Error fetching teachers:", teachersResult.reason);
 
-  // Obtenemos las bookings de clases grupales (público, no requiere autenticación)
-  const bookingsResponse: ResponseAPI<CalBookingPayload[]> = await helper.getGroupBookings();
+// Obtenemos las bookings de clases grupales (público, no requiere autenticación)
+if (bookingsResult.status === "fulfilled") {
+  const bookingsResponse: ResponseAPI<CalBookingPayload[]> = bookingsResult.value;
 
   if (bookingsResponse.success && bookingsResponse.data) {
     bookings = bookingsResponse.data;
   } else if (!bookingsResponse.success) log.error(bookingsResponse);
   else log.error("Unknown error fetching group bookings");
+} else log.error("Error fetching group bookings:", bookingsResult.reason);
 
-  let shedulesResponse: ResponseAPI<Schedule[]> = await helper.getAllAvailableTimeSchedulesTeam();
+if (schedulesResult.status === "fulfilled") {
+  const shedulesResponse: ResponseAPI<Schedule[]> = schedulesResult.value;
+
   if (shedulesResponse.success && shedulesResponse.data) {
     schedules = shedulesResponse.data;
 
@@ -69,26 +84,23 @@ try {
       });
     }
   } else if (!shedulesResponse.success) log.error(shedulesResponse);
-  else log.error("Unknown error fetching group bookings");
-} catch (e) {
-  log.error("Error fetching teachers:", e);
-}
+  else log.error("Unknown error fetching schedules");
+} else log.error("Error fetching schedules:", schedulesResult.reason);
 
-let responsePricingData: PricingApiResponse | undefined;
-
-try {
-  const pricingUrl = new URL("/api/pricing", Astro.url);
-  const pricesResponse: Response = await fetch(pricingUrl);
+if (pricesResult.status === "fulfilled") {
+  const pricesResponse: Response = pricesResult.value;
 
   if (!pricesResponse.ok) {
     log.error(`Error fetching pricing data: ${pricesResponse.status}`);
     return;
   }
 
-  responsePricingData = await pricesResponse.json();
-} catch (e) {
-  log.error("Error fetching pricing data:", e);
-}
+  try {
+    responsePricingData = await pricesResponse.json();
+  } catch (e) {
+    log.error("Error fetching pricing data:", e);
+  }
+} else log.error("Error fetching pricing data:", pricesResult.reason);
 
 // Solo se pintan las ofertas si el flag está activo y la API ha devuelto precios antiguos
 const showOffers: boolean = Boolean(responsePricingData?.offers_enabled && responsePricingData?.old_prices);
