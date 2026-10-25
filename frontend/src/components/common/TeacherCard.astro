@@ -17,7 +17,7 @@ const { teacher, i, id } = Astro.props;
   aria-hidden={i !== 0}
 >
   <figure class="flex flex-col items-center text-center">
-    <div class="relative group">
+    <div class="img-skeleton relative group rounded-3xl">
       <div
         class="absolute -inset-0 bg-salmon rounded-3xl blur opacity-0 group-hover:opacity-40 transition-opacity duration-300"
         aria-hidden="true"
@@ -26,13 +26,15 @@ const { teacher, i, id } = Astro.props;
       <img
         src={teacher.url_image}
         alt={`Fotografía de ${teacher.name}, profesor nativo de ${teacher.native_lang}`}
-        class="carousel-img relative w-52 h-52 md:w-56 md:h-56 lg:w-64 lg:h-64 rounded-3xl object-cover shadow-xl hover:shadow-2xl hover:shadow-red-500/30 hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
+        class="carousel-img relative block w-52 h-52 md:w-56 md:h-56 lg:w-64 lg:h-64 rounded-3xl object-cover shadow-xl hover:shadow-2xl hover:shadow-red-500/30 hover:scale-105 transition-all duration-300 ease-out cursor-pointer"
         data-index={i}
         data-cal-teacher={teacher.name}
         data-cal-namespace={id}
         data-cal-host={teacher.cal_id}
         data-cal-link={`${teacher.cal_link}/${id}`}
         loading="lazy"
+        onload="this.parentElement.classList.add('is-loaded')"
+        onerror="this.parentElement.classList.add('is-error')"
       />
     </div>
     <figcaption class="text-black text-center space-y-1.5 px-2 md:px-3 pt-5">

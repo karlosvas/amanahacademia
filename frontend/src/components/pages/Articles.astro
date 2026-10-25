@@ -25,7 +25,7 @@ const R2_URL = import.meta.env.PUBLIC_R2_PUBLIC_URL;
             href="#"
             data-pdf-url={R2_URL + article.data.pdfUrl}
             data-pdf-name={article.data.title + ".pdf"}
-            class="article-link scroll-fade-in mb-4 break-inside-avoid rounded-lg bg-salmon overflow-hidden cursor-pointer block"
+            class="article-link img-skeleton scroll-fade-in mb-4 break-inside-avoid rounded-lg overflow-hidden cursor-pointer block"
             style={`height: ${150 + Math.random() * 180}px; width: 100%`}
             data-article-id={article.id}
             data-article-title={article.data.title}
@@ -33,9 +33,11 @@ const R2_URL = import.meta.env.PUBLIC_R2_PUBLIC_URL;
             <img
               src={R2_URL + article.data.imageUrl}
               alt={article.data.title}
-              class="w-full h-full rounded-lg object-cover object-top transition-transform duration-300 ease-out hover:scale-105"
+              class="w-full h-full rounded-lg object-cover object-top transition-[transform,opacity] duration-300 ease-out hover:scale-105"
               loading="lazy"
               decoding="async"
+              onload="this.parentElement.classList.add('is-loaded')"
+              onerror="this.parentElement.classList.add('is-error')"
             />
           </a>
         );

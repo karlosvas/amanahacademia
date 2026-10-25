@@ -17,6 +17,8 @@
   --color-white: #131313; /* Blanco cálido (no puro) */
   --color-black: #f3f3f3; /* Fondo base casi negro */
   --color-background: #5f4949;
+  --skeleton-base: #4a3838;
+  --skeleton-shine: #6b5252;
 }
 
 .light {
@@ -34,6 +36,8 @@
   --color-white: #fff4e1;
   --color-black: #131313;
   --color-background: #fff4e1;
+  --skeleton-base: #fcdcc8;
+  --skeleton-shine: #fff4e1;
 }
 
 html,
@@ -155,6 +159,56 @@ dialog.modal::backdrop {
 
 .title-line {
   transform: scaleX(0);
+}
+
+.img-skeleton {
+  position: relative;
+}
+
+.img-skeleton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    110deg,
+    var(--skeleton-base) 35%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-base) 65%
+  );
+  background-size: 250% 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.img-skeleton.is-loaded::before,
+.img-skeleton.is-error::before {
+  opacity: 0;
+  animation: none;
+}
+
+.img-skeleton > img {
+  opacity: 0;
+}
+
+.img-skeleton.is-loaded > img {
+  opacity: 1;
+}
+
+@keyframes skeletonShimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .img-skeleton::before {
+    animation: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
