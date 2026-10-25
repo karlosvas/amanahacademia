@@ -44,6 +44,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),
+      "astro:env/server": resolve(
+        __dirname,
+        "./test/stubs/astro-env-server.ts",
+      ),
     },
   },
 });

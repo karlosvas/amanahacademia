@@ -190,23 +190,17 @@ export interface MergeFields {
 /// Stripe
 export interface CheckoutPaymentIntentResponse {
   client_secret: string;
-  status: string;
-  error?: string;
-}
-
-export interface CheckoutPaymentIntentRequest {
   amount: number;
   currency: string;
 }
 
-export interface RelationalCalStripe {
-  cal_id: string;
-  stripe_id: string;
+export interface CheckoutPaymentIntentRequest {
+  booking_uid?: string;
+  class_type?: string;
+  weeks?: number;
 }
 
-export interface StripeRelation {
-  stripe_id: string;
-}
+export type BookingPayments = Record<string, unknown>;
 
 export interface PaymentIntentSimplified {
   id: string;

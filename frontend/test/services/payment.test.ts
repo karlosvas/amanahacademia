@@ -8,20 +8,15 @@ import {
   type Mock,
 } from "vitest";
 import {
-  showError,
-  successPayment,
+  buildCheckoutRequest,
   clearMessages,
-  initializePrice,
+  createCheckout,
+  handlePayment,
   initializeStripe,
+  showError,
 } from "@/services/payment";
-import { ApiService } from "@/services/helper";
 import { FrontendStripe, getErrorFrontStripe } from "@/enums/enums";
-import { getPrice } from "@/services/calendar";
 
-vi.mock("@/services/helper");
-vi.mock("@/services/calendar", () => ({
-  getPrice: vi.fn(),
-}));
 vi.mock("@/services/logger", () => ({
   log: {
     debug: vi.fn(),
@@ -32,7 +27,6 @@ vi.mock("@/services/logger", () => ({
 }));
 
 describe("payment.ts", () => {
-  let mockApiService: any;
   let mockStripe: any;
   let mockElements: any;
   let mockPaymentElement: any;
@@ -53,11 +47,6 @@ describe("payment.ts", () => {
     errorDiv.textContent = "";
     errorDiv.style.display = "none";
 
-    const successDiv = document.createElement("div");
-    successDiv.id = "success-message";
-    successDiv.textContent = "";
-    successDiv.style.display = "none";
-
     const submitButton = document.createElement("button");
     submitButton.id = "submit-button";
     submitButton.textContent = "Submit";
@@ -65,10 +54,6 @@ describe("payment.ts", () => {
     const buttonText = document.createElement("span");
     buttonText.id = "button-text";
     buttonText.textContent = "Pay";
-
-    const pricingDiv = document.createElement("div");
-    pricingDiv.id = "pricing";
-    pricingDiv.textContent = "";
 
     const paymentElement = document.createElement("div");
     paymentElement.id = "payment-element";
@@ -81,22 +66,8 @@ describe("payment.ts", () => {
     document.body.appendChild(submitButton);
     document.body.appendChild(buttonText);
     document.body.appendChild(errorDiv);
-    document.body.appendChild(successDiv);
-    document.body.appendChild(pricingDiv);
     document.body.appendChild(paymentElement);
     document.body.appendChild(loadingDiv);
-
-    mockApiService = {
-      getBookingById: vi.fn(),
-      createBooking: vi.fn(),
-      confirmBooking: vi.fn(),
-      saveCalStripeConnection: vi.fn(),
-      checkout: vi.fn(),
-    };
-
-    vi.mocked(ApiService).mockImplementation(function () {
-      return mockApiService;
-    });
 
     mockPaymentElement = {
       mount: vi.fn().mockResolvedValue(undefined),
@@ -112,10 +83,8 @@ describe("payment.ts", () => {
       elements: vi.fn().mockReturnValue(mockElements),
     };
 
-    if (typeof globalThis !== "undefined") {
-      (globalThis as any).Stripe = vi.fn().mockReturnValue(mockStripe);
-      (globalThis as any).gtag = vi.fn();
-    }
+    (globalThis as any).Stripe = vi.fn().mockReturnValue(mockStripe);
+    (globalThis as any).gtag = vi.fn();
 
     Object.defineProperty(globalThis, "location", {
       value: {
@@ -128,11 +97,6 @@ describe("payment.ts", () => {
 
     globalThis.fetch = vi.fn() as any;
     mockedFetch = globalThis.fetch as unknown as Mock;
-
-    vi.spyOn(globalThis, "setTimeout").mockImplementation((fn: any) => {
-      fn();
-      return 0 as any;
-    });
   });
 
   afterEach(() => {
@@ -140,26 +104,16 @@ describe("payment.ts", () => {
     vi.restoreAllMocks();
   });
 
+  const errorText = () => document.getElementById("error-message")?.textContent;
+
   //////////////////// showError ////////////////////
   describe("showError", () => {
     it("should display error message in error div", () => {
-      const errorMessage = "Test error message";
-
-      showError(errorMessage);
+      showError("Test error message");
 
       const errorDiv = document.getElementById("error-message")!;
-      expect(errorDiv.textContent).toBe(errorMessage);
+      expect(errorDiv.textContent).toBe("Test error message");
       expect(errorDiv.style.display).toBe("block");
-    });
-
-    it("should clear success message when showing error", () => {
-      const successDiv = document.getElementById("success-message")!;
-      successDiv.textContent = "Success!";
-
-      showError("Error occurred");
-
-      const updatedSuccessDiv = document.getElementById("success-message")!;
-      expect(updatedSuccessDiv.textContent).toBe("");
     });
 
     it("should handle missing error div gracefully", () => {
@@ -171,379 +125,228 @@ describe("payment.ts", () => {
 
   //////////////////// clearMessages ////////////////////
   describe("clearMessages", () => {
-    it("should clear and hide both error and success messages", () => {
+    it("should clear and hide the error message", () => {
       const errorDiv = document.getElementById("error-message")!;
-      const successDiv = document.getElementById("success-message")!;
-
       errorDiv.textContent = "Error!";
       errorDiv.style.display = "block";
-      successDiv.textContent = "Success!";
-      successDiv.style.display = "block";
 
       clearMessages();
 
-      const updatedErrorDiv = document.getElementById("error-message")!;
-      const updatedSuccessDiv = document.getElementById("success-message")!;
-      expect(updatedErrorDiv.textContent).toBe("");
-      expect(updatedErrorDiv.style.display).toBe("none");
-      expect(updatedSuccessDiv.textContent).toBe("");
-      expect(updatedSuccessDiv.style.display).toBe("none");
+      expect(errorDiv.textContent).toBe("");
+      expect(errorDiv.style.display).toBe("none");
     });
 
     it("should handle missing divs gracefully", () => {
       document.getElementById("error-message")?.remove();
-      document.getElementById("success-message")?.remove();
 
       expect(() => clearMessages()).not.toThrow();
     });
   });
 
-  //////////////////// successPayment ////////////////////
-  describe("successPayment", () => {
-    it("should handle group-class by adding attendee and creating booking", async () => {
-      const mockBooking = {
-        success: true,
-        data: {
-          attendees: [{ name: "User 1", email: "user1@test.com" }],
-          startTime: "2024-01-01T10:00:00Z",
-          endTime: "2024-01-01T11:00:00Z",
-        },
-      };
-
-      mockApiService.getBookingById.mockResolvedValue(mockBooking);
-      mockApiService.createBooking.mockResolvedValue({ success: true });
-      mockApiService.saveCalStripeConnection.mockResolvedValue({
-        success: true,
-      });
-
-      const paymentIntent = { id: "pi_123" };
-
-      await successPayment(
-        mockApiService,
-        paymentIntent,
-        "booking-123",
-        "accepted",
-        "group-class",
-        "new@test.com",
+  //////////////////// buildCheckoutRequest ////////////////////
+  describe("buildCheckoutRequest", () => {
+    it("should use the booking uid when present", () => {
+      const params = new URLSearchParams(
+        "uid=booking-1&type=group-class&status=pending&weeks=4",
       );
 
-      expect(mockApiService.getBookingById).toHaveBeenCalledWith("booking-123");
-      expect(mockApiService.createBooking).toHaveBeenCalledWith({
-        ...mockBooking.data,
-        attendees: [
-          { name: "User 1", email: "user1@test.com" },
-          { name: "", email: "new@test.com" },
-        ],
-        startTime: "2024-01-01T10:00:00Z",
-        endTime: "2024-01-01T11:00:00Z",
+      expect(buildCheckoutRequest(params)).toEqual({
+        booking_uid: "booking-1",
       });
     });
 
-    it("should throw error if booking fetch fails for group-class", async () => {
-      mockApiService.getBookingById.mockResolvedValue({ success: false });
+    it("should accept the bookingUid parameter sent by Cal.com", () => {
+      const params = new URLSearchParams("bookingUid=booking-2&uid=booking-2");
 
-      const paymentIntent = { id: "pi_123" };
-
-      await expect(
-        successPayment(
-          mockApiService,
-          paymentIntent,
-          "booking-123",
-          "accepted",
-          "group-class",
-          "new@test.com",
-        ),
-      ).rejects.toThrow("Error to get booking");
-    });
-
-    it("should throw error if booking creation fails for group-class", async () => {
-      const mockBooking = {
-        success: true,
-        data: {
-          attendees: [],
-          startTime: "2024-01-01T10:00:00Z",
-          endTime: "2024-01-01T11:00:00Z",
-        },
-      };
-
-      mockApiService.getBookingById.mockResolvedValue(mockBooking);
-      mockApiService.createBooking.mockResolvedValue({ success: false });
-
-      const paymentIntent = { id: "pi_123" };
-
-      await expect(
-        successPayment(
-          mockApiService,
-          paymentIntent,
-          "booking-123",
-          "accepted",
-          "group-class",
-          "new@test.com",
-        ),
-      ).rejects.toThrow("Error to update booking");
-    });
-
-    it("should confirm booking if status is not accepted", async () => {
-      mockApiService.confirmBooking.mockResolvedValue({ success: true });
-      mockApiService.saveCalStripeConnection.mockResolvedValue({
-        success: true,
-      });
-
-      const paymentIntent = { id: "pi_123" };
-
-      await successPayment(
-        mockApiService,
-        paymentIntent,
-        "booking-123",
-        "pending",
-        "individual-class",
-        "test@test.com",
-      );
-
-      expect(mockApiService.confirmBooking).toHaveBeenCalledWith("booking-123");
-    });
-
-    it("should not confirm booking if status is accepted", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({
-        success: true,
-      });
-
-      const paymentIntent = { id: "pi_123" };
-
-      await successPayment(
-        mockApiService,
-        paymentIntent,
-        "booking-123",
-        "accepted",
-        "individual-class",
-        "test@test.com",
-      );
-
-      expect(mockApiService.confirmBooking).not.toHaveBeenCalled();
-    });
-
-    it("should throw error if booking confirmation fails", async () => {
-      mockApiService.confirmBooking.mockResolvedValue({ success: false });
-
-      const paymentIntent = { id: "pi_123" };
-
-      await expect(
-        successPayment(
-          mockApiService,
-          paymentIntent,
-          "booking-123",
-          "pending",
-          "individual-class",
-          "test@test.com",
-        ),
-      ).rejects.toThrow("Error to confirm booking");
-    });
-
-    it("should save cal-stripe connection", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({
-        success: true,
-      });
-
-      const paymentIntent = { id: "pi_123" };
-
-      await successPayment(
-        mockApiService,
-        paymentIntent,
-        "booking-123",
-        "accepted",
-        "individual-class",
-        "test@test.com",
-      );
-
-      expect(mockApiService.saveCalStripeConnection).toHaveBeenCalledWith({
-        cal_id: "booking-123",
-        stripe_id: "pi_123",
+      expect(buildCheckoutRequest(params)).toEqual({
+        booking_uid: "booking-2",
       });
     });
 
-    it("should throw error if saving connection fails", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({
-        success: false,
+    it("should build the weeks flow request", () => {
+      const params = new URLSearchParams("type=group-class&weeks=4");
+
+      expect(buildCheckoutRequest(params)).toEqual({
+        class_type: "group-class",
+        weeks: 4,
       });
-
-      const paymentIntent = { id: "pi_123" };
-
-      await expect(
-        successPayment(
-          mockApiService,
-          paymentIntent,
-          "booking-123",
-          "accepted",
-          "individual-class",
-          "test@test.com",
-        ),
-      ).rejects.toThrow("Error to save relation");
     });
 
-    it("should clear error message on success", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({
-        success: true,
-      });
-
-      const errorDiv = document.getElementById("error-message")!;
-      errorDiv.textContent = "Some error";
-
-      const paymentIntent = { id: "pi_123" };
-
-      await successPayment(
-        mockApiService,
-        paymentIntent,
-        "booking-123",
-        "accepted",
-        "individual-class",
-        "test@test.com",
-      );
-
-      const updatedErrorDiv = document.getElementById("error-message")!;
-      expect(updatedErrorDiv.textContent).toBe("");
-    });
-
-    it("should send gtag event if gtag is available", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({
-        success: true,
-      });
-
-      const paymentIntent = { id: "pi_123" };
-
-      await successPayment(
-        mockApiService,
-        paymentIntent,
-        "booking-123",
-        "accepted",
-        "individual-class",
-        "test@test.com",
-      );
-
-      if (typeof globalThis !== "undefined" && (globalThis as any).gtag) {
-        expect((globalThis as any).gtag).toHaveBeenCalledWith(
-          "event",
-          "class_booking",
-          { bookingUid: "booking-123" },
-        );
+    it("should reject invalid weeks", () => {
+      for (const weeks of ["0", "13", "abc", "2.5", ""]) {
+        const params = new URLSearchParams(`type=group-class&weeks=${weeks}`);
+        expect(buildCheckoutRequest(params)).toBeNull();
       }
     });
 
-    it("should redirect to success page after 2 seconds", async () => {
-      mockApiService.saveCalStripeConnection.mockResolvedValue({
-        success: true,
-      });
-
-      const paymentIntent = { id: "pi_123" };
-
-      await successPayment(
-        mockApiService,
-        paymentIntent,
-        "booking-123",
-        "accepted",
-        "individual-class",
-        "test@test.com",
-      );
-
-      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 2000);
-      expect(globalThis.location.href).toBe("/payments/payment-success");
+    it("should reject missing parameters", () => {
+      expect(buildCheckoutRequest(new URLSearchParams())).toBeNull();
+      expect(buildCheckoutRequest(new URLSearchParams("weeks=4"))).toBeNull();
     });
   });
 
-  //////////////////// initializePrice ////////////////////
-  describe("initializePrice", () => {
-    beforeEach(() => {
-      vi.mocked(getPrice).mockReturnValue(50);
-    });
+  //////////////////// createCheckout ////////////////////
+  describe("createCheckout", () => {
+    const checkoutData = {
+      client_secret: "pi_123_secret_456",
+      amount: 3000,
+      currency: "eur",
+    };
 
-    it("should fetch pricing without test country", async () => {
+    it("should send the request to the server checkout endpoint", async () => {
       mockedFetch.mockResolvedValue({
         ok: true,
-        json: vi.fn().mockResolvedValue({ country: "ES", pricing: {} }),
-      } as any);
+        status: 200,
+        json: async () => ({ success: true, data: checkoutData }),
+      });
 
-      await initializePrice(null, "individual-class");
+      const result = await createCheckout(
+        "token-123",
+        { booking_uid: "booking-1" },
+        null,
+      );
 
-      expect(mockedFetch).toHaveBeenCalledWith("/api/pricing");
+      expect(result).toEqual(checkoutData);
+      expect(mockedFetch).toHaveBeenCalledWith("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer token-123",
+        },
+        body: JSON.stringify({ booking_uid: "booking-1" }),
+      });
     });
 
-    it("should fetch pricing with test country", async () => {
+    it("should forward the test country", async () => {
       mockedFetch.mockResolvedValue({
         ok: true,
-        json: vi.fn().mockResolvedValue({ country: "US", pricing: {} }),
-      } as any);
+        status: 200,
+        json: async () => ({ success: true, data: checkoutData }),
+      });
 
-      await initializePrice("US", "individual-class");
+      await createCheckout("token-123", { booking_uid: "booking-1" }, "MA");
 
-      expect(mockedFetch).toHaveBeenCalledWith("/api/pricing?test_country=US");
-    });
-
-    it("should show error if slugType is missing", async () => {
-      mockedFetch.mockResolvedValue({
-        ok: true,
-        json: vi.fn().mockResolvedValue({ country: "ES", pricing: {} }),
-      } as any);
-
-      const result = await initializePrice(null, "");
-
-      expect(result).toBeUndefined();
-      const errorDiv = document.getElementById("error-message");
-      expect(errorDiv?.textContent).toBe(
-        getErrorFrontStripe(FrontendStripe.MISSING_SLUG),
+      expect(mockedFetch.mock.calls[0][0]).toBe(
+        "/api/checkout?test_country=MA",
       );
     });
 
-    it("should show error if fetch fails", async () => {
+    it("should show a specific error when the booking cannot be paid", async () => {
       mockedFetch.mockResolvedValue({
         ok: false,
-        json: vi.fn().mockResolvedValue({}),
-      } as any);
+        status: 409,
+        json: async () => ({ success: false, error: "already paid" }),
+      });
 
-      const result = await initializePrice(null, "individual-class");
+      const result = await createCheckout(
+        "token-123",
+        { booking_uid: "booking-1" },
+        null,
+      );
 
-      expect(result).toBeUndefined();
-      const errorDiv = document.getElementById("error-message");
-      expect(errorDiv?.textContent).toBe(
-        getErrorFrontStripe(FrontendStripe.PRICING_FETCH_ERROR),
+      expect(result).toBeNull();
+      expect(errorText()).toBe(
+        getErrorFrontStripe(FrontendStripe.BOOKING_NOT_PAYABLE),
       );
     });
 
-    it("should show error if pricing element not found", async () => {
-      document.getElementById("pricing")?.remove();
-
+    it("should show a configuration error when payments are unavailable", async () => {
       mockedFetch.mockResolvedValue({
-        ok: true,
-        json: vi.fn().mockResolvedValue({ country: "ES", pricing: {} }),
-      } as any);
+        ok: false,
+        status: 503,
+        json: async () => {
+          throw new Error("empty body");
+        },
+      });
 
-      const result = await initializePrice(null, "individual-class");
+      const result = await createCheckout(
+        "token-123",
+        { booking_uid: "booking-1" },
+        null,
+      );
 
-      expect(result).toBeUndefined();
-      const errorDiv = document.getElementById("error-message");
-      expect(errorDiv?.textContent).toBe(
-        getErrorFrontStripe(FrontendStripe.PRICING_ELEMENT_NOT_FOUND),
+      expect(result).toBeNull();
+      expect(errorText()).toBe(
+        getErrorFrontStripe(FrontendStripe.MISSING_CONFIG),
       );
     });
 
-    it("should set pricing element text and return pricing", async () => {
-      mockedFetch.mockResolvedValue({
-        ok: true,
-        json: vi.fn().mockResolvedValue({ country: "ES", pricing: {} }),
-      } as any);
+    it("should show a connection error when the request fails", async () => {
+      mockedFetch.mockRejectedValue(new Error("Network error"));
 
-      const result = await initializePrice(null, "individual-class");
+      const result = await createCheckout(
+        "token-123",
+        { booking_uid: "booking-1" },
+        null,
+      );
 
-      const pricingElement = document.getElementById("pricing");
-      expect(pricingElement?.textContent).toBe("50 €");
-      expect(result).toBe(50);
+      expect(result).toBeNull();
+      expect(errorText()).toBe(
+        getErrorFrontStripe(FrontendStripe.CONNECTION_ERROR),
+      );
+    });
+  });
+
+  //////////////////// handlePayment ////////////////////
+  describe("handlePayment", () => {
+    it("should show an error if stripe is not initialized", async () => {
+      await handlePayment(null, null, "secret");
+
+      expect(errorText()).toBe(
+        getErrorFrontStripe(FrontendStripe.STRIPE_NOT_INITIALIZED),
+      );
     });
 
-    it("should handle fetch exception", async () => {
-      const result = await initializePrice(null, "individual-class");
+    it("should show card errors and re-enable the button", async () => {
+      mockStripe.confirmPayment.mockResolvedValue({
+        error: { type: "card_error", message: "Tarjeta rechazada" },
+      });
 
-      expect(result).toBeUndefined();
-      const errorDiv = document.getElementById("error-message");
-      expect(errorDiv?.textContent).toBe(
-        getErrorFrontStripe(FrontendStripe.GENERIC_ERROR),
+      await handlePayment(mockStripe, mockElements, "secret");
+
+      const submitButton = document.getElementById(
+        "submit-button",
+      ) as HTMLButtonElement;
+      expect(errorText()).toBe("Tarjeta rechazada");
+      expect(submitButton.disabled).toBe(false);
+      expect(document.getElementById("button-text")?.textContent).toBe("Pay");
+      expect(globalThis.location.href).toBe("");
+    });
+
+    it("should show a generic error for unexpected statuses", async () => {
+      mockStripe.confirmPayment.mockResolvedValue({
+        paymentIntent: { id: "pi_123", status: "requires_payment_method" },
+      });
+
+      await handlePayment(mockStripe, mockElements, "secret");
+
+      expect(errorText()).toBe(
+        getErrorFrontStripe(FrontendStripe.UNKNOWN_PAYMENT_STATUS),
+      );
+      expect(globalThis.location.href).toBe("");
+    });
+
+    it("should redirect to the success page after a successful payment", async () => {
+      mockStripe.confirmPayment.mockResolvedValue({
+        paymentIntent: { id: "pi_123", status: "succeeded" },
+      });
+
+      await handlePayment(mockStripe, mockElements, "pi_123_secret_456");
+
+      expect(mockStripe.confirmPayment).toHaveBeenCalledWith({
+        elements: mockElements,
+        confirmParams: {
+          return_url: "http://localhost:3000/payments/payment-success",
+        },
+        redirect: "if_required",
+      });
+      expect((globalThis as any).gtag).toHaveBeenCalledWith(
+        "event",
+        "class_booking",
+        { payment_intent: "pi_123" },
+      );
+      expect(globalThis.location.href).toBe(
+        "/payments/payment-success?payment_intent_client_secret=pi_123_secret_456",
       );
     });
   });
@@ -551,59 +354,22 @@ describe("payment.ts", () => {
   //////////////////// initializeStripe ////////////////////
   describe("initializeStripe", () => {
     const STRIPE_PUBLIC_KEY = "pk_test_123";
-    const pricing = 50;
-
-    it("should test that ApiService mock works", () => {
-      // First verify the mock is configured correctly
-      const instance = new ApiService();
-      expect(instance).toBe(mockApiService);
-      expect(instance.checkout).toBeDefined();
-    });
+    const CLIENT_SECRET = "pi_123_secret_456";
 
     it("should initialize stripe and elements successfully", async () => {
-      mockApiService.checkout.mockResolvedValue({
-        success: true,
-        data: { client_secret: "cs_test_123" },
-      });
+      const result = await initializeStripe(STRIPE_PUBLIC_KEY, CLIENT_SECRET);
 
-      const result = await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
-
-      if (typeof globalThis !== "undefined") {
-        expect((globalThis as any).Stripe).toHaveBeenCalledWith(
-          STRIPE_PUBLIC_KEY,
-        );
-      }
-      expect(mockApiService.checkout).toHaveBeenCalledWith({
-        amount: 5000,
-        currency: "EUR",
-      });
+      expect((globalThis as any).Stripe).toHaveBeenCalledWith(
+        STRIPE_PUBLIC_KEY,
+      );
       expect(result).toEqual({ stripe: mockStripe, elements: mockElements });
     });
 
-    it("should convert euros to cents correctly", async () => {
-      mockApiService.checkout.mockResolvedValue({
-        success: true,
-        data: { client_secret: "cs_test_123" },
-      });
-
-      await initializeStripe(STRIPE_PUBLIC_KEY, 25.5);
-
-      expect(mockApiService.checkout).toHaveBeenCalledWith({
-        amount: 2550,
-        currency: "EUR",
-      });
-    });
-
-    it("should create elements with correct appearance config", async () => {
-      mockApiService.checkout.mockResolvedValue({
-        success: true,
-        data: { client_secret: "cs_test_123" },
-      });
-
-      await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
+    it("should create elements with the client secret and appearance", async () => {
+      await initializeStripe(STRIPE_PUBLIC_KEY, CLIENT_SECRET);
 
       expect(mockStripe.elements).toHaveBeenCalledWith({
-        clientSecret: "cs_test_123",
+        clientSecret: CLIENT_SECRET,
         appearance: expect.objectContaining({
           theme: "stripe",
           variables: expect.objectContaining({
@@ -616,56 +382,33 @@ describe("payment.ts", () => {
     });
 
     it("should create and mount payment element", async () => {
-      mockApiService.checkout.mockResolvedValue({
-        success: true,
-        data: { client_secret: "cs_test_123" },
-      });
-
-      await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
+      await initializeStripe(STRIPE_PUBLIC_KEY, CLIENT_SECRET);
 
       expect(mockElements.create).toHaveBeenCalledWith("payment");
       expect(mockPaymentElement.mount).toHaveBeenCalledWith("#payment-element");
     });
 
     it("should hide loading spinner", async () => {
-      mockApiService.checkout.mockResolvedValue({
-        success: true,
-        data: { client_secret: "cs_test_123" },
-      });
-
       const loading = document.querySelector(".loading") as HTMLDivElement;
 
-      await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
+      await initializeStripe(STRIPE_PUBLIC_KEY, CLIENT_SECRET);
 
       expect(loading.style.display).toBe("none");
     });
 
     it("should enable submit button", async () => {
-      mockApiService.checkout.mockResolvedValue({
-        success: true,
-        data: { client_secret: "cs_test_123" },
-      });
-
       const submitButton = document.getElementById(
         "submit-button",
       ) as HTMLButtonElement;
       submitButton.disabled = true;
 
-      await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
+      await initializeStripe(STRIPE_PUBLIC_KEY, CLIENT_SECRET);
 
-      const updatedSubmitButton = document.getElementById(
-        "submit-button",
-      ) as HTMLButtonElement;
-      expect(updatedSubmitButton.disabled).toBe(false);
+      expect(submitButton.disabled).toBe(false);
     });
 
     it("should handle payment element change events", async () => {
-      mockApiService.checkout.mockResolvedValue({
-        success: true,
-        data: { client_secret: "cs_test_123" },
-      });
-
-      await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
+      await initializeStripe(STRIPE_PUBLIC_KEY, CLIENT_SECRET);
 
       expect(mockPaymentElement.on).toHaveBeenCalledWith(
         "change",
@@ -675,78 +418,31 @@ describe("payment.ts", () => {
       const changeHandler = mockPaymentElement.on.mock.calls[0][1];
 
       changeHandler({ error: { message: "Card error" } });
-      let errorDiv = document.getElementById("error-message");
-      expect(errorDiv?.textContent).toBe("Card error");
+      expect(errorText()).toBe("Card error");
 
       changeHandler({ error: null });
-      errorDiv = document.getElementById("error-message");
-      expect(errorDiv?.textContent).toBe("");
-    });
-
-    it("should return null if loading element is missing", async () => {
-      mockApiService.checkout.mockResolvedValue({
-        success: true,
-        data: { client_secret: "cs_test_123" },
-      });
-
-      const loading = document.querySelector(".loading");
-      loading?.remove();
-
-      const result = await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
-
-      expect(result).toBeNull();
-    });
-
-    it("should return null if loading element has no style property", async () => {
-      mockApiService.checkout.mockResolvedValue({
-        success: true,
-        data: { client_secret: "cs_test_123" },
-      });
-
-      const fakeLoading = { style: undefined };
-
-      const originalQuerySelector = document.querySelector.bind(document);
-      vi.spyOn(document, "querySelector").mockImplementation(
-        (selector: string) => {
-          if (selector === ".loading") return fakeLoading as any;
-          return originalQuerySelector(selector);
-        },
-      );
-
-      const result = await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
-
-      expect(result).toBeNull();
+      expect(errorText()).toBe("");
     });
 
     it("should return null if submit button not found", async () => {
-      mockApiService.checkout.mockResolvedValue({
-        success: true,
-        data: { client_secret: "cs_test_123" },
-      });
-
       document.getElementById("submit-button")?.remove();
 
-      const result = await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
-
-      expect(result).toBeNull();
-    });
-
-    it("should show error if checkout fails", async () => {
-      mockApiService.checkout.mockResolvedValue({
-        success: false,
-      });
-
-      const result = await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
+      const result = await initializeStripe(STRIPE_PUBLIC_KEY, CLIENT_SECRET);
 
       expect(result).toBeNull();
     });
 
     it("should handle exception during initialization", async () => {
-      mockApiService.checkout.mockRejectedValue(new Error("Network error"));
+      (globalThis as any).Stripe = vi.fn(() => {
+        throw new Error("Stripe failed");
+      });
 
-      const result = await initializeStripe(STRIPE_PUBLIC_KEY, pricing);
+      const result = await initializeStripe(STRIPE_PUBLIC_KEY, CLIENT_SECRET);
 
       expect(result).toBeNull();
+      expect(errorText()).toBe(
+        getErrorFrontStripe(FrontendStripe.STRIPE_INITIALIZATION_ERROR),
+      );
     });
   });
 });

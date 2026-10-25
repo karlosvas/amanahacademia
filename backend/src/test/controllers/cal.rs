@@ -78,7 +78,7 @@ mod tests {
         let _m = server
             .mock("POST", "/bookings/booking-123/confirm")
             .match_header("Authorization", "test-api-key")
-            .match_header("cal-api-version", "2024-06-11")
+            .match_header("cal-api-version", "2024-08-13")
             .with_status(200)
             .with_header("content-type", "application/json")
             .with_body(mock_response.to_string())
@@ -108,7 +108,7 @@ mod tests {
         let _m = server
             .mock("POST", "/bookings/booking-456/confirm")
             .match_header("Authorization", "test-api-key")
-            .match_header("cal-api-version", "2024-06-11")
+            .match_header("cal-api-version", "2024-08-13")
             .with_status(400)
             .with_header("content-type", "application/json")
             .with_body(json!({"error": "Booking already confirmed"}).to_string())

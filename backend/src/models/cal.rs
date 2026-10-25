@@ -19,6 +19,8 @@ pub enum BookingStatus {
     Cancelled,
     #[serde(alias = "REJECTED")]
     Rejected,
+    #[serde(rename = "awaiting_host", alias = "AWAITING_HOST")]
+    AwaitingHost,
 }
 
 /// Obtener el booking por id
@@ -277,6 +279,27 @@ pub struct CalBookingPayload {
     /// Lista de emails de invitados adicionales (para agregar al crear el booking)
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub guests: Option<Vec<String>>,
+
+    #[serde(
+        rename = "cancelledByEmail",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub cancelled_by_email: Option<String>,
+
+    #[serde(
+        rename = "rescheduledToUid",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub rescheduled_to_uid: Option<String>,
+
+    #[serde(
+        rename = "rescheduledFromUid",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub rescheduled_from_uid: Option<String>,
 }
 /// Estructura para agregar invitados a un booking
 #[derive(Debug, Deserialize, Serialize, Clone)]

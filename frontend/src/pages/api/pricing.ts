@@ -2,22 +2,18 @@ import {
   COUNTRY_GROUP_LABELS,
   CURRENCY,
   CURRENCY_SYMBOL,
-  DEFAULT_COUNTRY,
   getActivePrices,
   getOldPrices,
   getPriceLevel,
   OFFERS_ENABLED,
+  resolveCountry,
 } from "@/config/pricing";
 import type { PricingApiResponse } from "@/types/types";
 
 export async function GET({ request }: { request: Request }) {
   const url = new URL(request.url);
 
-  const country =
-    url.searchParams.get("test_country") || // Para pruebas
-    request.headers.get("CF-IPCountry") || // Encabezado común (Probablemente funciona)
-    request.headers.get("x-vercel-ip-country") || // Encabezado OFICIAL de Vercel (Máxima fiabilidad)
-    DEFAULT_COUNTRY; // Valor por defecto
+  const country = resolveCountry(request);
 
   const isDevelopment =
     url.hostname === "localhost" ||

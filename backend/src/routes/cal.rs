@@ -4,7 +4,7 @@ use {
             add_booking, add_guests_to_booking, confirm_booking, get_all_bookings,
             get_all_schedules, get_booking, get_schedule,
         },
-        middleware::auth::firebase_auth_middleware,
+        middleware::auth::{admin_middleware, firebase_auth_middleware},
         models::state::AppState,
     },
     axum::{
@@ -16,10 +16,20 @@ use {
 
 pub fn router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     let protected_routes: Router<Arc<AppState>> = Router::new()
+        .route("/bookings/:id", get(get_booking))
+        .layer(middleware::from_fn_with_state(
+            state.clone(),
+            firebase_auth_middleware,
+        ));
+
+    let admin_routes: Router<Arc<AppState>> = Router::new()
         .route("/bookings/:id/confirm", post(confirm_booking))
         .route("/bookings/:id/guests", post(add_guests_to_booking))
-        .route("/bookings/:id", get(get_booking))
         .route("/bookings", post(add_booking))
+        .layer(middleware::from_fn_with_state(
+            state.clone(),
+            admin_middleware,
+        ))
         .layer(middleware::from_fn_with_state(
             state.clone(),
             firebase_auth_middleware,
@@ -33,5 +43,6 @@ pub fn router(state: Arc<AppState>) -> Router<Arc<AppState>> {
     Router::new()
         .merge(public_routes)
         .merge(protected_routes)
+        .merge(admin_routes)
         .with_state(state)
 }

@@ -53,6 +53,7 @@ export enum FrontendStripe {
   STRIPE_INITIALIZATION_ERROR = "STRIPE_INITIALIZATION_ERROR",
   SERVER_ERROR = "SERVER_ERROR",
   MISSING_USER_EMAIL = "MISSING_USER_EMAIL",
+  BOOKING_NOT_PAYABLE = "BOOKING_NOT_PAYABLE",
 }
 
 // Manejar en todos los idiomas erroes de los toast
@@ -271,6 +272,8 @@ export const FrontendStripeTranslations: Record<
     [FrontendStripe.SERVER_ERROR]: "Error del servidor",
     [FrontendStripe.MISSING_USER_EMAIL]:
       "Se requiere un correo electrónico válido para procesar el pago",
+    [FrontendStripe.BOOKING_NOT_PAYABLE]:
+      "Esta reserva ya está pagada o ya no se puede pagar",
   },
   en: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]:
@@ -300,6 +303,8 @@ export const FrontendStripeTranslations: Record<
     [FrontendStripe.SERVER_ERROR]: "Server error",
     [FrontendStripe.MISSING_USER_EMAIL]:
       "A valid email is required to process the payment",
+    [FrontendStripe.BOOKING_NOT_PAYABLE]:
+      "This booking is already paid or can no longer be paid",
   },
   pt: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]:
@@ -334,6 +339,8 @@ export const FrontendStripeTranslations: Record<
     [FrontendStripe.SERVER_ERROR]: "Erro do servidor",
     [FrontendStripe.MISSING_USER_EMAIL]:
       "Um e-mail válido é necessário para processar o pagamento",
+    [FrontendStripe.BOOKING_NOT_PAYABLE]:
+      "Esta reserva já está paga ou já não pode ser paga",
   },
   it: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]:
@@ -369,6 +376,8 @@ export const FrontendStripeTranslations: Record<
     [FrontendStripe.SERVER_ERROR]: "Errore del server",
     [FrontendStripe.MISSING_USER_EMAIL]:
       "È richiesta un'email valida per elaborare il pagamento",
+    [FrontendStripe.BOOKING_NOT_PAYABLE]:
+      "Questa prenotazione è già stata pagata o non può più essere pagata",
   },
   fr: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]:
@@ -402,6 +411,8 @@ export const FrontendStripeTranslations: Record<
     [FrontendStripe.SERVER_ERROR]: "Erreur du serveur",
     [FrontendStripe.MISSING_USER_EMAIL]:
       "Une adresse e-mail valide est requise pour traiter le paiement",
+    [FrontendStripe.BOOKING_NOT_PAYABLE]:
+      "Cette réservation est déjà payée ou ne peut plus être payée",
   },
   de: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]:
@@ -436,6 +447,8 @@ export const FrontendStripeTranslations: Record<
     [FrontendStripe.SERVER_ERROR]: "Serverfehler",
     [FrontendStripe.MISSING_USER_EMAIL]:
       "Eine gültige E-Mail-Adresse ist erforderlich, um die Zahlung zu verarbeiten",
+    [FrontendStripe.BOOKING_NOT_PAYABLE]:
+      "Diese Buchung ist bereits bezahlt oder kann nicht mehr bezahlt werden",
   },
   ar: {
     [FrontendStripe.STRIPE_NOT_INITIALIZED]: "تعذر تهيئة نظام الدفع",
@@ -459,6 +472,8 @@ export const FrontendStripeTranslations: Record<
     [FrontendStripe.SERVER_ERROR]: "خطأ في الخادم",
     [FrontendStripe.MISSING_USER_EMAIL]:
       "يجب توفير بريد إلكتروني صالح لمعالجة الدفع",
+    [FrontendStripe.BOOKING_NOT_PAYABLE]:
+      "هذا الحجز مدفوع بالفعل أو لم يعد من الممكن دفعه",
   },
 };
 export function getErrorFrontStripe(

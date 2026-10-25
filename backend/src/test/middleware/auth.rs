@@ -365,6 +365,12 @@ mod tests {
                     recent_changes: Arc::new(RwLock::new(Vec::new())),
                     team_id: Some("1234".to_string()),
                 },
+                payment_options: crate::models::state::PaymentOptions {
+                    stripe_webhook_secret: None,
+                    cal_webhook_secret: None,
+                    internal_api_secret: None,
+                    auto_refunds_enabled: false,
+                },
             }),
             token_rsa,
         )

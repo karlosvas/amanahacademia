@@ -25,117 +25,66 @@ import Title from "../common/Title.astro";
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-  import { showError, handlePayment, handleCustomPayment } from "@/services/payment";
-  import { initializePrice, initializeStripe, getWeeks } from "@/services/payment";
+  import { buildCheckoutRequest, createCheckout, handlePayment, initializeStripe, showError } from "@/services/payment";
   import { getErrorFrontStripe, FrontendStripe } from "@/enums/enums";
   import { getCurrentUserToken, onAuthStateChanged } from "@/services/firebase";
   import { log } from "@/services/logger";
   import { showModalAnimation } from "@/utils/modals";
 
-  // Obtenemos la configuracion inicial
   const STRIPE_PUBLIC_KEY = import.meta.env.PUBLIC_STRIPE_API_KEY;
-  const URL_BACKEND = import.meta.env.PUBLIC_BACKEND_URL;
 
-  if (!STRIPE_PUBLIC_KEY || !URL_BACKEND) {
-    showError(getErrorFrontStripe(FrontendStripe.MISSING_CONFIG));
-    throw new Error("Missing Stripe configuration");
-  }
-
-  let stripe: any;
-  let elements: any;
   const params = new URLSearchParams(globalThis.location.search);
-  const slugType: string | null = params.get("type");
-  const bookingUid: string | null = params.get("uid");
-  const status: string | null = params.get("status");
-  const testCountry: string | null = params.get("test_country");
-  const weeks: string | null = params.get("weeks");
-  const isCustomWeeksFlow = Boolean(weeks);
+  const checkoutRequest = buildCheckoutRequest(params);
+  const testCountry: string | null = import.meta.env.DEV ? params.get("test_country") : null;
 
-  // Inicializar cuando el DOM esté listo
-  document.addEventListener("DOMContentLoaded", async () => {
+  const redirectHomeLater = () => {
+    setTimeout(() => {
+      globalThis.location.href = "/";
+    }, 5000);
+  };
+
+  let checkoutStarted = false;
+
+  const startCheckout = async () => {
+    if (!checkoutRequest) {
+      log.error("Missing URL parameters, redirecting to home page.");
+      showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
+      redirectHomeLater();
+      return;
+    }
+
+    const token = await getCurrentUserToken();
+    if (!token) {
+      showError(getErrorFrontStripe(FrontendStripe.GENERIC_ERROR));
+      return;
+    }
+
+    const checkout = await createCheckout(token, checkoutRequest, testCountry);
+    if (!checkout) return;
+
+    const pricingElement = document.getElementById("pricing");
+    if (pricingElement) pricingElement.textContent = ` ${(checkout.amount / 100).toFixed(2)} €`;
+
+    const result = await initializeStripe(STRIPE_PUBLIC_KEY, checkout.client_secret);
+    if (!result) return;
+
+    const submitButton = document.getElementById("submit-button");
+    submitButton?.addEventListener("click", () =>
+      handlePayment(result.stripe, result.elements, checkout.client_secret),
+    );
+  };
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!STRIPE_PUBLIC_KEY) {
+      showError(getErrorFrontStripe(FrontendStripe.MISSING_CONFIG));
+      return;
+    }
+
     onAuthStateChanged((user) => {
       if (user) {
-        try {
-          if (!slugType || (!isCustomWeeksFlow && (!bookingUid || !status))) {
-            log.error("Missing URL parameters, redirecting to home page.");
-            showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
-            throw new Error("Missing URL parameters");
-          }
-
-          // Esperamos a que cargue firebase antes de inicializar Stripe
-          setTimeout(async () => {
-            let price = await initializePrice(testCountry, slugType);
-            if (!price) {
-              log.error("Missing pricing information");
-              showError(getErrorFrontStripe(FrontendStripe.MISSING_PRICING));
-              throw new Error("Missing pricing information");
-            }
-
-            // If the user select weeks to pay we need to calculate the price based on the number of weeks and the base price per week
-            if (weeks) {
-              const classesPerWeek = 2;
-              price = price * getWeeks(weeks) * classesPerWeek;
-              log.info(`User selected to pay in ${weeks} weeks, adjusted price: ${price}`);
-
-              const pricingElement = document.getElementById("pricing");
-              if (pricingElement) pricingElement.textContent = ` ${price} €`;
-            }
-
-            const result = await initializeStripe(STRIPE_PUBLIC_KEY, price);
-
-            if (!result) {
-              log.error("Stripe initialization failed");
-              showError(getErrorFrontStripe(FrontendStripe.STRIPE_INITIALIZATION_ERROR));
-              throw new Error("Stripe initialization failed");
-            }
-
-            // Asignar los valores retornados a las variables del scope
-            stripe = result.stripe;
-            elements = result.elements;
-
-            if (weeks) {
-              const submitButton = document.getElementById("submit-button");
-              if (!submitButton) {
-                log.error("Submit button not found");
-                showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
-                throw new Error("Submit button not found");
-              }
-
-              submitButton.addEventListener("click", () => handleCustomPayment(stripe, elements), { once: true });
-            } else {
-              const submitButton = document.getElementById("submit-button");
-              if (!submitButton || !bookingUid || !status || !slugType) {
-                log.error("Submit button not found or missing booking parameters");
-                showError(getErrorFrontStripe(FrontendStripe.MISSING_URL_PARAMS));
-                throw new Error("Submit button not found or missing booking parameters");
-              }
-
-              if (!user.email) {
-                log.error("User email is required for payment processing");
-                showError(getErrorFrontStripe(FrontendStripe.MISSING_USER_EMAIL));
-                throw new Error("User email is required for payment processing");
-              }
-
-              /**
-               * Procesa el pago mediante Stripe cuando el usuario hace click en el botón de pagar
-               * @param stripe - Instancia de Stripe inicializada
-               * @param elements - Elementos de Stripe que contienen los datos del formulario de pago
-               * @param bookingUid - Identificador único de la reserva
-               * @param status - Estado actual de la reserva
-               * @param slug - Tipo de clase seleccionada
-               * @returns Promise que se resuelve cuando el pago se completa o rechaza si falla
-               * @throws {Error} Si el pago es rechazado o hay un error de red
-               */
-              submitButton.addEventListener("click", () =>
-                handlePayment(stripe, elements, bookingUid!, status!, slugType!, user.email as string),
-              );
-            }
-          }, 1000);
-        } catch (_) {
-          setTimeout(() => {
-            globalThis.location.href = "/";
-          }, 5000);
-        }
+        if (checkoutStarted) return;
+        checkoutStarted = true;
+        void startCheckout();
       } else {
         log.error("User not authenticated for payment, redirecting to login modal");
 

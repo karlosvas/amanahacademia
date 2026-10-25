@@ -23,7 +23,12 @@ const seoData = getSEOData("info", currentLang) as PropsSEO;
   structuredData={seoData.structuredData}
 >
   <main class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 px-4">
-    <div class="max-w-md w-full text-center space-y-8 animate-fade-in">
+    <div id="payment-checking" class="max-w-md w-full text-center space-y-4 animate-fade-in">
+      <div class="mx-auto w-16 h-16 rounded-full border-4 border-emerald-200 border-t-emerald-600 animate-spin"></div>
+      <p class="text-gray-600 text-lg">Comprobando tu pago...</p>
+    </div>
+
+    <div id="payment-succeeded" class="hidden max-w-md w-full text-center space-y-8 animate-fade-in">
       <!-- Icono de éxito -->
       <div class="mx-auto w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center animate-scale-in">
         <svg class="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,8 +63,58 @@ const seoData = getSEOData("info", currentLang) as PropsSEO;
         Volver al inicio
       </a>
     </div>
+
+    <div id="payment-processing" class="hidden max-w-md w-full text-center space-y-6 animate-fade-in">
+      <h1 class="font-display text-3xl font-bold text-gray-900">Estamos procesando tu pago</h1>
+      <p class="text-gray-600 text-lg">Te enviaremos un correo en cuanto se confirme. No hace falta que vuelvas a pagar.</p>
+      <a href={`/${currentLang}`} class="inline-block w-full px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl">
+        Volver al inicio
+      </a>
+    </div>
+
+    <div id="payment-failed" class="hidden max-w-md w-full text-center space-y-6 animate-fade-in">
+      <h1 class="font-display text-3xl font-bold text-gray-900">No hemos podido confirmar el pago</h1>
+      <p class="text-gray-600 text-lg">
+        Si se ha realizado algún cargo, escríbenos a contact@amanahacademia.com y lo revisaremos.
+      </p>
+      <a href={`/${currentLang}`} class="inline-block w-full px-8 py-3 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-xl">
+        Volver al inicio
+      </a>
+    </div>
   </main>
 </Layout>
+
+<script src="https://js.stripe.com/v3/" is:inline></script>
+<script>
+  import { log } from "@/services/logger";
+
+  const showState = (state: "succeeded" | "processing" | "failed") => {
+    document.getElementById("payment-checking")?.classList.add("hidden");
+    document.getElementById(`payment-${state}`)?.classList.remove("hidden");
+  };
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const clientSecret = new URLSearchParams(globalThis.location.search).get("payment_intent_client_secret");
+    const publicKey = import.meta.env.PUBLIC_STRIPE_API_KEY;
+
+    if (!clientSecret || !publicKey || !globalThis.Stripe) {
+      showState("failed");
+      return;
+    }
+
+    try {
+      const { paymentIntent, error } = await globalThis.Stripe(publicKey).retrievePaymentIntent(clientSecret);
+      if (error || !paymentIntent) throw error;
+
+      if (paymentIntent.status === "succeeded") showState("succeeded");
+      else if (paymentIntent.status === "processing") showState("processing");
+      else showState("failed");
+    } catch (error) {
+      log.error("Error retrieving payment status", error);
+      showState("failed");
+    }
+  });
+</script>
 
 <style>
   @keyframes fade-in {

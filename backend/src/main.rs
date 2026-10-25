@@ -3,7 +3,10 @@ use {
         controllers,
         models::{
             metrics::ServiceAccount,
-            state::{AppState, CalOptions, CustomFirebase, GAOptions, KeyCache, MailchimpOptions},
+            state::{
+                AppState, CalOptions, CustomFirebase, GAOptions, KeyCache, MailchimpOptions,
+                PaymentOptions,
+            },
         },
         routes,
     },
@@ -24,7 +27,7 @@ use {
         cors::{AllowOrigin, CorsLayer},
         trace::TraceLayer,
     },
-    tracing::{error, info},
+    tracing::{error, info, warn},
     tracing_subscriber::{
         EnvFilter,
         fmt::{self},
@@ -112,8 +115,29 @@ async fn main() {
         firebase_client: HttpClient::new(),
     };
 
-    let stripe_client: StripeClient =
-        StripeClient::new(env::var("STRIPE_API_KEY").expect("STRIPE_API_KEY must be set"));
+    let stripe_api_key: String = env::var("STRIPE_API_KEY").expect("STRIPE_API_KEY must be set");
+    if cfg!(debug_assertions) && stripe_api_key.starts_with("sk_live_") {
+        warn!("⚠️ STRIPE_API_KEY es una clave LIVE en modo desarrollo: usa una clave sk_test_");
+    }
+    let stripe_client: StripeClient = StripeClient::new(stripe_api_key);
+
+    let optional_secret = |name: &str| -> Option<String> {
+        let value: Option<String> = env::var(name).ok().filter(|value| !value.trim().is_empty());
+        if value.is_none() {
+            error!(
+                "{} is not set: the features that depend on it are disabled",
+                name
+            );
+        }
+        value
+    };
+
+    let payment_options: PaymentOptions = PaymentOptions {
+        stripe_webhook_secret: optional_secret("STRIPE_WEBHOOK_SECRET"),
+        cal_webhook_secret: optional_secret("CAL_WEBHOOK_SECRET"),
+        internal_api_secret: optional_secret("INTERNAL_API_SECRET"),
+        auto_refunds_enabled: env::var("AUTO_REFUNDS_ENABLED").is_ok_and(|value| value == "true"),
+    };
 
     let resend_client: Resend = Resend::new(
         env::var("RESEND_API_KEY")
@@ -165,6 +189,7 @@ async fn main() {
         mailchimp_client,
         cal_options,
         ga_options,
+        payment_options,
     });
 
     // Configuración de CORS (Cross-Origin Resource Sharing)

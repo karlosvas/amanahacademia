@@ -15,6 +15,14 @@ pub struct AppState {
     pub mailchimp_client: MailchimpOptions,
     pub cal_options: CalOptions,
     pub ga_options: GAOptions,
+    pub payment_options: PaymentOptions,
+}
+
+pub struct PaymentOptions {
+    pub stripe_webhook_secret: Option<String>,
+    pub cal_webhook_secret: Option<String>,
+    pub internal_api_secret: Option<String>,
+    pub auto_refunds_enabled: bool,
 }
 
 /// Configuración para interactuar con la API de Google Analytics

@@ -1,9 +1,12 @@
 use {
-    crate::models::{
-        error::AuthError,
-        firebase::UserAuthentication,
-        metrics::{ClaimsGA, ServiceAccount, TokenResponse},
-        state::AppState,
+    crate::{
+        controllers::users::get_user_data_db,
+        models::{
+            error::AuthError,
+            firebase::UserAuthentication,
+            metrics::{ClaimsGA, ServiceAccount, TokenResponse},
+            state::AppState,
+        },
     },
     axum::{
         extract::{Request, State},
@@ -60,6 +63,35 @@ pub async fn firebase_auth_middleware(
 
     // Agregar el token original a las extensiones del request
     request.extensions_mut().insert(token.to_string());
+
+    Ok(next.run(request).await)
+}
+
+#[instrument(skip(state, request, next))]
+pub async fn admin_middleware(
+    State(state): State<Arc<AppState>>,
+    request: Request,
+    next: Next,
+) -> Result<Response, StatusCode> {
+    let user_claims: UserAuthentication = request
+        .extensions()
+        .get::<UserAuthentication>()
+        .cloned()
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+    let id_token: String = request
+        .extensions()
+        .get::<String>()
+        .cloned()
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+
+    let is_admin: bool = get_user_data_db(&user_claims, &id_token, &state)
+        .await
+        .is_some_and(|user| user.role.as_deref() == Some("admin"));
+
+    if !is_admin {
+        warn!(user_id = %user_claims.sub, "Admin route denied");
+        return Err(StatusCode::FORBIDDEN);
+    }
 
     Ok(next.run(request).await)
 }

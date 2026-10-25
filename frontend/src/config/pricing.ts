@@ -29,7 +29,7 @@ export const OFFERS_ENABLED: boolean = parseBooleanFlag(
 /**
  * Precios base en EUR por clase (sin oferta).
  * Es la ÚNICA fuente de verdad: lo que se pinta en las tarjetas y lo que se cobra en Stripe
- * (el importe del PaymentIntent se calcula en el frontend a partir de /api/pricing).
+ * (el servidor de /api/checkout envía estos precios al backend, que calcula el importe).
  *
  * high -> primer grupo de países (mayor nivel de vida)
  * low  -> segundo grupo de países (menor nivel de vida)
@@ -151,4 +151,13 @@ export const CURRENCY_SYMBOL = "€";
 
 export function getPriceLevel(country: string): PriceLevel {
   return HIGH_INCOME_COUNTRIES.includes(country) ? "high" : "low";
+}
+
+export function resolveCountry(request: Request): string {
+  if (import.meta.env.DEV) {
+    const testCountry = new URL(request.url).searchParams.get("test_country");
+    if (testCountry) return testCountry.toUpperCase();
+  }
+
+  return request.headers.get("x-vercel-ip-country") || DEFAULT_COUNTRY;
 }

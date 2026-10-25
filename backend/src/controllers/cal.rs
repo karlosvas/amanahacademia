@@ -8,6 +8,7 @@ use {
         state::AppState,
         webhook::{Attendee, BookingChange, CalBookingsResponse},
     },
+    crate::services::payments::booking_event_type_id,
     axum::{
         Json, debug_handler,
         extract::{Path, Query, State},
@@ -61,7 +62,7 @@ pub async fn confirm_booking(
         .client
         .post(&url)
         .header("Content-Type", "application/json")
-        .header("cal-api-version", "2024-06-11")
+        .header("cal-api-version", "2024-08-13")
         .header("Authorization", &state.cal_options.api_key)
         .send()
         .await
@@ -721,6 +722,104 @@ pub async fn get_all_bookings(
         }
         Err(ref e) => handle_network_error(e),
     }
+}
+
+async fn read_cal_error(response: Response) -> String {
+    let status = response.status();
+    let body = response.text().await.unwrap_or_default();
+    format!("Cal.com error ({}): {}", status, body)
+}
+
+#[instrument(skip(state))]
+pub async fn fetch_booking(state: &AppState, uid: &str) -> Result<CalBookingPayload, String> {
+    let response: Response = state
+        .cal_options
+        .client
+        .get(format!("{}/bookings/{}", state.cal_options.base_url, uid))
+        .header("Authorization", &state.cal_options.api_key)
+        .header("cal-api-version", "2024-08-13")
+        .send()
+        .await
+        .map_err(|e| format!("Failed to communicate with Cal.com: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(read_cal_error(response).await);
+    }
+
+    response
+        .json::<CalApiResponse<CalBookingPayload>>()
+        .await
+        .map(|cal_response| cal_response.data)
+        .map_err(|e| format!("Invalid booking data format: {}", e))
+}
+
+#[instrument(skip(state))]
+pub async fn confirm_booking_by_uid(state: &AppState, uid: &str) -> Result<(), String> {
+    let response: Response = state
+        .cal_options
+        .client
+        .post(format!(
+            "{}/bookings/{}/confirm",
+            state.cal_options.base_url, uid
+        ))
+        .header("Content-Type", "application/json")
+        .header("cal-api-version", "2024-08-13")
+        .header("Authorization", &state.cal_options.api_key)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to communicate with Cal.com: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(read_cal_error(response).await);
+    }
+
+    info!(booking_uid = %uid, "Booking confirmed after payment");
+    Ok(())
+}
+
+#[instrument(skip(state, booking), fields(booking_uid = ?booking.uid))]
+pub async fn add_seat_to_booking(
+    state: &AppState,
+    booking: &CalBookingPayload,
+    email: &str,
+    name: &str,
+) -> Result<(), String> {
+    let event_type_id: i64 = booking_event_type_id(booking)
+        .ok_or_else(|| "Booking without event type id".to_string())?;
+    let start_time: &String = booking
+        .start_time
+        .as_ref()
+        .ok_or_else(|| "Booking without start time".to_string())?;
+
+    let body: Value = json!({
+        "start": start_time,
+        "eventTypeId": event_type_id,
+        "attendee": {
+            "name": name,
+            "email": email,
+            "timeZone": "Europe/Madrid",
+            "language": "es",
+        },
+    });
+
+    let response: Response = state
+        .cal_options
+        .client
+        .post(format!("{}/bookings", state.cal_options.base_url))
+        .header("Content-Type", "application/json")
+        .header("cal-api-version", "2024-08-13")
+        .header("Authorization", &state.cal_options.api_key)
+        .json(&body)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to communicate with Cal.com: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(read_cal_error(response).await);
+    }
+
+    info!("Student added to group booking after payment");
+    Ok(())
 }
 
 #[cfg(test)]

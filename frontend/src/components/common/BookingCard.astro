@@ -237,11 +237,7 @@ const PayloadNoClass = {
             return;
           }
 
-          const params = new URLSearchParams({
-            uid: response.data.uid,
-            type: response.data.metadata?.slugType || "group-class",
-            status: response.data.status || "pending",
-          });
+          const params = new URLSearchParams({ uid: response.data.uid });
 
           location.href = `${import.meta.env.PUBLIC_FRONTEND_URL}/payment?${params}`;
         } catch (error) {

@@ -4,7 +4,10 @@ pub mod fixtures {
     use crate::models::{
         cal::{BookingStatus, CalBookingPayload},
         metrics::ServiceAccount,
-        state::{AppState, CalOptions, CustomFirebase, GAOptions, KeyCache, MailchimpOptions},
+        state::{
+            AppState, CalOptions, CustomFirebase, GAOptions, KeyCache, MailchimpOptions,
+            PaymentOptions,
+        },
         user::{Provider, UserRequest},
     };
     use resend_rs::Resend;
@@ -83,6 +86,12 @@ pub mod fixtures {
                 base_url: "https://analyticsdata.googleapis.com/v1beta".to_string(),
                 property_id: "test-property".to_string(),
             },
+            payment_options: PaymentOptions {
+                stripe_webhook_secret: Some("whsec_test".to_string()),
+                cal_webhook_secret: Some("cal_test".to_string()),
+                internal_api_secret: Some("internal_test".to_string()),
+                auto_refunds_enabled: false,
+            },
         }
     }
 
@@ -121,6 +130,9 @@ pub mod fixtures {
             ics_uid: None,
             rescheduled_by_email: None,
             guests: None,
+            cancelled_by_email: None,
+            rescheduled_to_uid: None,
+            rescheduled_from_uid: None,
         }
     }
 }

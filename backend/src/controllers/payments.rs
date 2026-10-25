@@ -1,157 +1,216 @@
 use {
     crate::{
+        controllers::cal::{add_seat_to_booking, confirm_booking_by_uid, fetch_booking},
         models::{
+            cal::{BookingStatus, CalBookingPayload},
+            firebase::UserAuthentication,
             response::ResponseAPI,
             state::AppState,
             stripe::{
-                CurrencyMap, PayloadCreacteProduct, PaymentIntentSimplified, PaymentPayload,
-                PaymentResponse, PricePayload, ProductPayload, RelationalCalStripe, StripeRelation,
+                BookingPayment, CheckoutPayload, CheckoutResponse, CurrencyMap,
+                PayloadCreacteProduct, PaymentIntentSimplified, PricePayload, ProductPayload,
             },
         },
-        services::payments::insert_options_by_country,
+        services::payments::{
+            PaidClass, booking_class_slug, booking_has_attendee, checkout_amount_cents,
+            insert_options_by_country, is_safe_id, payment_intent_ids_from_relation,
+            relation_has_payment_from, secure_eq,
+        },
     },
     axum::{
         Extension, Json, debug_handler,
         extract::{Path, State},
-        http::StatusCode,
-        response::IntoResponse,
+        http::{HeaderMap, StatusCode},
+        response::{IntoResponse, Response},
     },
-    serde_json::json,
+    serde_json::{Value, json},
     std::{collections::HashMap, str::FromStr, sync::Arc},
     stripe::{
-        CreatePaymentIntent, CreatePaymentIntentAutomaticPaymentMethods, CreateProduct,
+        CreatePaymentIntent, CreatePaymentIntentAutomaticPaymentMethods,
+        CreatePaymentIntentAutomaticPaymentMethodsAllowRedirects, CreateProduct,
         CreateProductDefaultPriceData, CreateProductDefaultPriceDataCurrencyOptions, Currency,
-        Expandable, List, ListPaymentIntents, ListPrices, ListProducts, PaymentIntent, Price,
-        PriceId, Product, ProductId, StripeError, UpdatePrice, UpdateProduct,
+        Expandable, List, ListPaymentIntents, ListPrices, ListProducts, PaymentIntent,
+        PaymentIntentId, PaymentIntentStatus, Price, PriceId, Product, ProductId, StripeError,
+        UpdatePrice, UpdateProduct,
     },
     tracing::instrument,
 };
 
-/// Comprar precios genericos
+fn error_response(status: StatusCode, message: &str) -> Response {
+    (status, Json(ResponseAPI::<()>::error(message.to_string()))).into_response()
+}
+
+async fn resolve_checkout_class(
+    state: &AppState,
+    payload: &CheckoutPayload,
+    email: &str,
+) -> Result<(PaidClass, Option<String>), (StatusCode, &'static str)> {
+    match (payload.booking_uid.as_deref(), payload.weeks) {
+        (Some(uid), None) => {
+            if !is_safe_id(uid) {
+                return Err((StatusCode::BAD_REQUEST, "Invalid booking id"));
+            }
+
+            let booking: CalBookingPayload = fetch_booking(state, uid).await.map_err(|e| {
+                tracing::error!("[payment_intent] Error fetching booking {}: {}", uid, e);
+                (StatusCode::BAD_GATEWAY, "Could not retrieve the booking")
+            })?;
+
+            if !matches!(
+                booking.status,
+                BookingStatus::Pending | BookingStatus::Accepted
+            ) {
+                return Err((StatusCode::CONFLICT, "This booking can no longer be paid"));
+            }
+
+            let class: PaidClass = booking_class_slug(&booking)
+                .as_deref()
+                .and_then(PaidClass::from_slug)
+                .ok_or_else(|| {
+                    tracing::warn!("[payment_intent] Booking {} has no paid class type", uid);
+                    (StatusCode::BAD_REQUEST, "This class type cannot be paid")
+                })?;
+
+            let relation: Value = fetch_booking_relation(state, uid).await.map_err(|e| {
+                tracing::error!("[payment_intent] Error reading payments of {}: {}", uid, e);
+                (StatusCode::BAD_GATEWAY, "Could not verify the booking")
+            })?;
+
+            let already_paid: bool = match class {
+                PaidClass::Group => relation_has_payment_from(&relation, email),
+                _ => !payment_intent_ids_from_relation(&relation).is_empty(),
+            };
+            if already_paid {
+                return Err((StatusCode::CONFLICT, "This booking is already paid"));
+            }
+
+            Ok((class, Some(uid.to_string())))
+        }
+        (None, Some(_)) => payload
+            .class_type
+            .as_deref()
+            .and_then(PaidClass::from_slug)
+            .map(|class| (class, None))
+            .ok_or((StatusCode::BAD_REQUEST, "Invalid class type")),
+        _ => Err((
+            StatusCode::BAD_REQUEST,
+            "Either booking_uid or weeks must be provided",
+        )),
+    }
+}
+
 #[debug_handler]
 #[instrument(
-    skip(state, payload),
-    fields(
-        amount = %payload.amount,
-        currency = %payload.currency,
-        operation = "payment_intent"
-    )
+    skip(state, user_claims, headers, payload),
+    fields(user_id = %user_claims.sub, operation = "payment_intent")
 )]
 pub async fn payment_intent(
     State(state): State<Arc<AppState>>,
-    Json(payload): Json<PaymentPayload>,
+    Extension(user_claims): Extension<UserAuthentication>,
+    headers: HeaderMap,
+    Json(payload): Json<CheckoutPayload>,
 ) -> impl IntoResponse {
-    tracing::debug!(
-        "[payment_intent] payload: amount={}, currency={}",
-        payload.amount,
-        payload.currency
-    );
-
-    // Validar el monto mínimo (ejemplo: $5.00 USD = 500 centavos)
-    if payload.amount < 500 {
-        tracing::warn!("[payment_intent] Monto menor al mínimo: {}", payload.amount);
-        return (
-            StatusCode::BAD_REQUEST,
-            Json(ResponseAPI::<()>::error(
-                "El monto mínimo es 5.00€".to_string(),
-            )),
-        )
-            .into_response();
-    }
-
-    // Crear el PaymentIntent
-    let currency: Currency =
-        Currency::from_str(&payload.currency.to_string()).unwrap_or(Currency::EUR);
-    tracing::debug!("[payment_intent] Usando currency: {:?}", currency);
-
-    let payment_intent = CreatePaymentIntent {
-        amount: payload.amount,
-        currency,
-        payment_method: None,
-        payment_method_types: None,
-        confirm: Some(false),
-        return_url: None,
-        automatic_payment_methods: Some(CreatePaymentIntentAutomaticPaymentMethods {
-            enabled: true,
-            allow_redirects: Some(
-                stripe::CreatePaymentIntentAutomaticPaymentMethodsAllowRedirects::Never,
-            ),
-        }),
-        capture_method: None,
-        confirmation_method: None,
-        customer: None,
-        description: None,
-        error_on_requires_action: None,
-        expand: &[],
-        mandate: None,
-        mandate_data: None,
-        metadata: None,
-        off_session: None,
-        on_behalf_of: None,
-        payment_method_configuration: None,
-        payment_method_data: None,
-        payment_method_options: None,
-        radar_options: None,
-        receipt_email: None,
-        setup_future_usage: None,
-        shipping: None,
-        statement_descriptor: None,
-        statement_descriptor_suffix: None,
-        transfer_data: None,
-        transfer_group: None,
-        use_stripe_sdk: None,
-        application_fee_amount: None,
+    let Some(internal_secret) = state.payment_options.internal_api_secret.as_deref() else {
+        tracing::error!("[payment_intent] INTERNAL_API_SECRET is not configured");
+        return error_response(
+            StatusCode::SERVICE_UNAVAILABLE,
+            "Payments are not configured",
+        );
     };
 
-    tracing::debug!("[payment_intent] Creando PaymentIntent con Stripe...");
-    match PaymentIntent::create(&state.stripe_client, payment_intent).await {
+    let provided_secret: &str = headers
+        .get("x-internal-secret")
+        .and_then(|value| value.to_str().ok())
+        .unwrap_or_default();
+    if !secure_eq(provided_secret, internal_secret) {
+        tracing::warn!("[payment_intent] Request without a valid internal secret");
+        return error_response(StatusCode::FORBIDDEN, "Forbidden");
+    }
+
+    let Some(email) = user_claims.email.clone().filter(|email| !email.is_empty()) else {
+        return error_response(StatusCode::BAD_REQUEST, "User email is required");
+    };
+
+    let (class, booking_uid) = match resolve_checkout_class(&state, &payload, &email).await {
+        Ok(resolved) => resolved,
+        Err((status, message)) => return error_response(status, message),
+    };
+
+    let amount: i64 = match checkout_amount_cents(class, &payload.prices, payload.weeks) {
+        Ok(amount) => amount,
+        Err(e) => {
+            tracing::error!("[payment_intent] Invalid amount: {}", e);
+            return error_response(StatusCode::BAD_REQUEST, "Invalid price");
+        }
+    };
+
+    let mut metadata: HashMap<String, String> = HashMap::from([
+        ("class_type".to_string(), class.slug().to_string()),
+        ("user_uid".to_string(), user_claims.sub.clone()),
+        ("user_email".to_string(), email.clone()),
+    ]);
+    if let Some(name) = user_claims
+        .name
+        .as_ref()
+        .filter(|name| !name.trim().is_empty())
+    {
+        metadata.insert("user_name".to_string(), name.clone());
+    }
+    if let Some(uid) = &booking_uid {
+        metadata.insert("booking_uid".to_string(), uid.clone());
+    }
+    if let Some(weeks) = payload.weeks {
+        metadata.insert("weeks".to_string(), weeks.to_string());
+    }
+
+    let description: String = match (&booking_uid, payload.weeks) {
+        (Some(uid), _) => format!("{} - booking {}", class.slug(), uid),
+        (None, Some(weeks)) => format!("{} - {} weeks", class.slug(), weeks),
+        (None, None) => class.slug().to_string(),
+    };
+
+    let mut params: CreatePaymentIntent = CreatePaymentIntent::new(amount, Currency::EUR);
+    params.automatic_payment_methods = Some(CreatePaymentIntentAutomaticPaymentMethods {
+        enabled: true,
+        allow_redirects: Some(CreatePaymentIntentAutomaticPaymentMethodsAllowRedirects::Never),
+    });
+    params.metadata = Some(metadata);
+    params.receipt_email = Some(&email);
+    params.description = Some(&description);
+
+    match PaymentIntent::create(&state.stripe_client, params).await {
         Ok(payment_intent) => {
             tracing::info!(
-                "[payment_intent] PaymentIntent creado: id={}, status={:?}",
+                "[payment_intent] PaymentIntent created: id={}, amount={}, class={}",
                 payment_intent.id,
-                payment_intent.status
+                amount,
+                class.slug()
             );
 
-            // Extraer el client_secret
-            let client_secret = match payment_intent.client_secret {
-                Some(secret) => secret,
-                None => {
-                    tracing::error!("[payment_intent] No se recibió client_secret");
-                    return (
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        Json(ResponseAPI::<()>::error("Error interno".to_string())),
-                    )
-                        .into_response();
-                }
+            let Some(client_secret) = payment_intent.client_secret else {
+                tracing::error!("[payment_intent] Missing client_secret");
+                return error_response(StatusCode::INTERNAL_SERVER_ERROR, "Internal error");
             };
 
-            // Con confirm=false, el status DEBE ser RequiresPaymentMethod
-            // Esto es correcto y esperado
             (
                 StatusCode::OK,
                 Json(ResponseAPI::success(
-                    "PaymentIntent creado".to_string(),
-                    PaymentResponse {
-                        client_secret: Some(client_secret),
-                        status: format!("{:?}", payment_intent.status),
-                        error: None,
+                    "PaymentIntent created".to_string(),
+                    CheckoutResponse {
+                        client_secret,
+                        amount,
+                        currency: "eur".to_string(),
                     },
                 )),
             )
                 .into_response()
         }
         Err(stripe_error) => {
-            tracing::error!(
-                error = ?stripe_error,
-                "Stripe API error"
-            );
-            (
+            tracing::error!(error = ?stripe_error, "Stripe API error");
+            error_response(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ResponseAPI::<()>::error(
-                    "Error processing payment".to_string(),
-                )),
+                "Error processing payment",
             )
-                .into_response()
         }
     }
 }
@@ -448,81 +507,178 @@ pub async fn delete_price(
     }
 }
 
-/// Recibir la relación entre cal y stripe
-#[debug_handler]
-#[instrument(
-    skip(state),
-    fields(
-        cal_id = %payload.cal_id,
-        stripe_id = %payload.stripe_id,
-        operation = "archive_cal_connection"
-    )
-)]
-pub async fn archive_cal_connection(
-    State(state): State<Arc<AppState>>,
-    Extension(id_token): Extension<String>,
-    Json(payload): Json<RelationalCalStripe>,
-) -> impl IntoResponse {
-    let url_firebase_db: String = format!(
+fn relation_url(state: &AppState, path: &str) -> String {
+    format!(
         "{}/relation_cal_stripe/{}.json?auth={}",
-        state.firebase_options.firebase_database_url, payload.cal_id, id_token
-    );
+        state.firebase_options.firebase_database_url,
+        path,
+        state.firebase_options.firebase_database_secret
+    )
+}
 
-    tracing::info!(
-        "💾 Saving Cal-Stripe relation: {} -> {}",
-        payload.cal_id,
-        payload.stripe_id
-    );
-
-    match state
+async fn fetch_booking_relation(state: &AppState, booking_uid: &str) -> Result<Value, String> {
+    let response = state
         .firebase_options
         .firebase_client
-        .put(&url_firebase_db)
-        .json(&json!({
-            "stripe_id": payload.stripe_id
-        }))
+        .get(relation_url(state, booking_uid))
         .send()
         .await
-    {
-        Ok(response) => {
-            if response.status().is_success() {
-                tracing::info!("Relation saved successfully");
-                let mut data = HashMap::new();
-                data.insert("cal_id".to_string(), payload.cal_id.clone());
-                data.insert("stripe_id".to_string(), payload.stripe_id.clone());
-                (
-                    StatusCode::OK,
-                    Json(ResponseAPI::<HashMap<String, String>>::success(
-                        "Relation saved successfully".to_string(),
-                        data,
-                    )),
-                )
-                    .into_response()
-            } else {
-                let error_text: String = response.text().await.unwrap_or_default();
-                tracing::error!("Firebase error: {}", error_text);
+        .map_err(|e| format!("Firebase request failed: {}", e))?;
 
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(ResponseAPI::<()>::error(
-                        "Failed to save relation".to_string(),
-                    )),
-                )
-                    .into_response()
-            }
-        }
-        Err(e) => {
-            tracing::error!("Request failed: {}", e);
-
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(ResponseAPI::<()>::error(
-                    "Failed to send request".to_string(),
-                )),
-            )
-                .into_response()
-        }
+    if !response.status().is_success() {
+        return Err(format!("Firebase error: {}", response.status()));
     }
+
+    response
+        .json()
+        .await
+        .map_err(|e| format!("Invalid Firebase response: {}", e))
+}
+
+pub async fn get_booking_payment_ids(
+    state: &AppState,
+    booking_uid: &str,
+) -> Result<Vec<String>, String> {
+    let relation: Value = fetch_booking_relation(state, booking_uid).await?;
+    Ok(payment_intent_ids_from_relation(&relation))
+}
+
+async fn put_relation_entry(state: &AppState, path: &str, entry: &Value) -> Result<(), String> {
+    let response = state
+        .firebase_options
+        .firebase_client
+        .put(relation_url(state, path))
+        .json(entry)
+        .send()
+        .await
+        .map_err(|e| format!("Firebase request failed: {}", e))?;
+
+    if !response.status().is_success() {
+        let error_text: String = response.text().await.unwrap_or_default();
+        return Err(format!("Firebase error: {}", error_text));
+    }
+
+    Ok(())
+}
+
+#[instrument(skip(state))]
+pub async fn transfer_booking_payments(
+    state: &AppState,
+    from_uid: &str,
+    to_uid: &str,
+) -> Result<usize, String> {
+    if !is_safe_id(from_uid) || !is_safe_id(to_uid) {
+        return Err(format!("Invalid booking ids: {} -> {}", from_uid, to_uid));
+    }
+
+    let relation: Value = fetch_booking_relation(state, from_uid).await?;
+    let payment_ids: Vec<String> = payment_intent_ids_from_relation(&relation);
+
+    for payment_id in &payment_ids {
+        let mut entry: Value = match relation.get(payment_id) {
+            Some(Value::Object(entry)) => Value::Object(entry.clone()),
+            _ => json!({}),
+        };
+        entry["rescheduled_from"] = json!(from_uid);
+        put_relation_entry(state, &format!("{}/{}", to_uid, payment_id), &entry).await?;
+    }
+
+    tracing::info!(
+        "Moved {} payment(s) from booking {} to rescheduled booking {}",
+        payment_ids.len(),
+        from_uid,
+        to_uid
+    );
+    Ok(payment_ids.len())
+}
+
+async fn save_booking_payment(
+    state: &AppState,
+    booking_uid: &str,
+    payment_intent_id: &str,
+    payment: &BookingPayment,
+) -> Result<(), String> {
+    let entry: Value =
+        serde_json::to_value(payment).map_err(|e| format!("Invalid payment entry: {}", e))?;
+    put_relation_entry(
+        state,
+        &format!("{}/{}", booking_uid, payment_intent_id),
+        &entry,
+    )
+    .await
+}
+
+#[instrument(skip(state))]
+pub async fn fulfill_payment(state: &AppState, payment_intent_id: &str) -> Result<(), String> {
+    let id: PaymentIntentId = payment_intent_id
+        .parse()
+        .map_err(|e| format!("Invalid PaymentIntent id: {}", e))?;
+    let payment_intent: PaymentIntent = PaymentIntent::retrieve(&state.stripe_client, &id, &[])
+        .await
+        .map_err(|e| format!("Error retrieving PaymentIntent: {}", e))?;
+
+    if payment_intent.status != PaymentIntentStatus::Succeeded {
+        tracing::warn!(
+            "PaymentIntent {} is {:?}, skipping fulfillment",
+            payment_intent.id,
+            payment_intent.status
+        );
+        return Ok(());
+    }
+
+    let Some(booking_uid) = payment_intent.metadata.get("booking_uid") else {
+        tracing::info!(
+            "PaymentIntent {} has no booking to fulfill (metadata: {:?})",
+            payment_intent.id,
+            payment_intent.metadata
+        );
+        return Ok(());
+    };
+
+    let class: PaidClass = payment_intent
+        .metadata
+        .get("class_type")
+        .and_then(|slug| PaidClass::from_slug(slug))
+        .ok_or_else(|| format!("PaymentIntent {} without class type", payment_intent.id))?;
+    let email: &String = payment_intent
+        .metadata
+        .get("user_email")
+        .ok_or_else(|| format!("PaymentIntent {} without user email", payment_intent.id))?;
+
+    save_booking_payment(
+        state,
+        booking_uid,
+        payment_intent.id.as_str(),
+        &BookingPayment {
+            email: email.clone(),
+            amount: payment_intent.amount,
+            class_type: class.slug().to_string(),
+            created: payment_intent.created,
+        },
+    )
+    .await?;
+
+    let booking: CalBookingPayload = fetch_booking(state, booking_uid).await?;
+
+    if class == PaidClass::Group && !booking_has_attendee(&booking, email) {
+        let name: String = payment_intent
+            .metadata
+            .get("user_name")
+            .cloned()
+            .unwrap_or_else(|| email.split('@').next().unwrap_or(email).to_string());
+        add_seat_to_booking(state, &booking, email, &name).await?;
+    }
+
+    if booking.status == BookingStatus::Pending {
+        confirm_booking_by_uid(state, booking_uid).await?;
+    }
+
+    tracing::info!(
+        "Payment {} fulfilled for booking {}",
+        payment_intent.id,
+        booking_uid
+    );
+    Ok(())
 }
 
 /// Obtener todas las reservas pagadas vinculadas a Cal.com
@@ -546,8 +702,10 @@ pub async fn get_all_paid_reservations(
     {
         Ok(response) => {
             if response.status().is_success() {
-                let data: HashMap<String, StripeRelation> =
-                    response.json().await.unwrap_or_default();
+                let data: Value = match response.json::<Value>().await {
+                    Ok(Value::Object(relations)) => Value::Object(relations),
+                    _ => json!({}),
+                };
                 (
                     StatusCode::OK,
                     Json(ResponseAPI::success(
@@ -563,7 +721,7 @@ pub async fn get_all_paid_reservations(
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     Json(ResponseAPI::<()>::error(
-                        "Failed to save relation".to_string(),
+                        "Failed to get relations".to_string(),
                     )),
                 )
                     .into_response()
@@ -607,3 +765,7 @@ pub async fn get_all_paid_reservations(
 // ) -> impl IntoResponse {
 //     StatusCode::NO_CONTENT.into_response()
 // }
+
+#[cfg(test)]
+#[path = "../test/controllers/payments.rs"]
+mod extended_tests;

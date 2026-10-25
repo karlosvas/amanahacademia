@@ -72,11 +72,12 @@ describe("API Routes - Pricing", () => {
       expect(data.prices).toEqual(lowPrices);
     });
 
-    it("should use CF-IPCountry header when available", async () => {
+    it("should ignore the client-controlled CF-IPCountry header", async () => {
       const request = createMockRequest({
         url: "http://example.com/api/pricing",
         headers: {
-          "CF-IPCountry": "FR",
+          "CF-IPCountry": "MX",
+          "x-vercel-ip-country": "FR",
         },
       });
 
@@ -89,7 +90,28 @@ describe("API Routes - Pricing", () => {
       expect(data.level).toBe("high");
     });
 
-    it("should use x-vercel-ip-country header when CF-IPCountry is not available", async () => {
+    it("should ignore test_country outside development", async () => {
+      vi.stubEnv("DEV", false);
+      try {
+        const request = createMockRequest({
+          url: "http://example.com/api/pricing?test_country=MX",
+          headers: {
+            "x-vercel-ip-country": "FR",
+          },
+        });
+
+        const { GET } = await import("@/pages/api/pricing");
+        const response = await GET({ request });
+
+        const data: PricingApiResponse = await response.json();
+
+        expect(data.country).toBe("FR");
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
+
+    it("should use x-vercel-ip-country header", async () => {
       const request = createMockRequest({
         url: "http://example.com/api/pricing",
         headers: {

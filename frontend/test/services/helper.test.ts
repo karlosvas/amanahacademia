@@ -268,25 +268,6 @@ describe("ApiService", () => {
     );
   });
 
-  it("should confirm booking with auth header", async () => {
-    mockedFetch.mockResolvedValueOnce(
-      mockFetchResponse(200, { success: true }),
-    );
-
-    await apiService.confirmBooking("bk-123");
-
-    expect(mockedFetch).toHaveBeenCalledWith(
-      "http://localhost:3000/cal/bookings/bk-123/confirm",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer mock-token",
-        },
-      },
-    );
-  });
-
   //////////////////// COMENTARIOS - Métodos faltantes ////////////////////
   it("should get comment by id with auth", async () => {
     mockedFetch.mockResolvedValueOnce(
@@ -535,48 +516,6 @@ describe("ApiService", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(contact),
-      },
-    );
-  });
-
-  it("should create checkout payment intent", async () => {
-    const payload = { amount: 100 } as any;
-    mockedFetch.mockResolvedValueOnce(
-      mockFetchResponse(200, { success: true, data: {} }),
-    );
-
-    await apiService.checkout(payload);
-
-    expect(mockedFetch).toHaveBeenCalledWith(
-      "http://localhost:3000/payment/intent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer mock-token",
-        },
-        body: JSON.stringify(payload),
-      },
-    );
-  });
-
-  it("should save cal-stripe connection", async () => {
-    const payload = { calId: "cal-1", stripeId: "stripe-1" } as any;
-    mockedFetch.mockResolvedValueOnce(
-      mockFetchResponse(200, { success: true }),
-    );
-
-    await apiService.saveCalStripeConnection(payload);
-
-    expect(mockedFetch).toHaveBeenCalledWith(
-      "http://localhost:3000/payment/cal/connection",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer mock-token",
-        },
-        body: JSON.stringify(payload),
       },
     );
   });

@@ -8,11 +8,8 @@ import type {
   UserRequest,
   UpdateComment,
   ContactMailchimp,
-  CheckoutPaymentIntentResponse,
-  CheckoutPaymentIntentRequest,
-  RelationalCalStripe,
+  BookingPayments,
   ReplyComment,
-  StripeRelation,
   PaymentIntentSimplified,
   BookingRequest,
   Schedule,
@@ -291,36 +288,6 @@ export class ApiService {
   }
 
   //////////////////// STRIPE /////////////////////
-  // Payment intent para la sesion de firebase
-  async checkout(
-    payload: CheckoutPaymentIntentRequest,
-  ): Promise<ResponseAPI<CheckoutPaymentIntentResponse>> {
-    const token = await getCurrentUserToken();
-    return this.fetchApi<CheckoutPaymentIntentResponse>("/payment/intent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-  }
-
-  // Guardar la relacion entre cal.com y stripe en firebase
-  async saveCalStripeConnection(
-    payload: RelationalCalStripe,
-  ): Promise<ResponseAPI<void>> {
-    const token = await getCurrentUserToken();
-    return this.fetchApi<void>("/payment/cal/connection", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-  }
-
   // Obtener el historial de reservas pagadas
   async getPaidReservations(
     token_cookie: string,
@@ -337,9 +304,9 @@ export class ApiService {
   // Obtener conexiones cal.com - stripe
   async getAllConnections(
     token_cookie: string,
-  ): Promise<ResponseAPI<StripeRelation[]>> {
+  ): Promise<ResponseAPI<BookingPayments>> {
     const token = token_cookie || (await getCurrentUserToken());
-    return this.fetchApi<StripeRelation[]>("/payment/cal/connection/all", {
+    return this.fetchApi<BookingPayments>("/payment/cal/connection/all", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -348,18 +315,6 @@ export class ApiService {
   }
 
   //////////////////// CAL.COM ////////////////////
-  // Confirmación del booking al pagar
-  async confirmBooking(bookingUid: string): Promise<ResponseAPI<void>> {
-    const token = await getCurrentUserToken();
-    return this.fetchApi<void>(`/cal/bookings/${bookingUid}/confirm`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
-
   // Obtener booking por id
   async getBookingById(
     bookingUid: string,

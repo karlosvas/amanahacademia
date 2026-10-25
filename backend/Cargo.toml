@@ -30,6 +30,9 @@ chrono = { version = "0.4", features = ["serde"] }
 validator = { version = "0.21", features = ["derive"] }
 async-trait = "0.1"
 rand = "0.10.1"
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"
 
 [dev-dependencies]
 mockito = "1.5"    # Mock de HTTP servers para testing

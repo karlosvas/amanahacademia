@@ -4,24 +4,34 @@ use {
     stripe::{CreateProductDefaultPriceDataRecurring, Currency, PaymentIntent},
 };
 
-/// Payload para crear un PaymentIntent (pago único)
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
+pub struct PriceTable {
+    pub individual_standard: f64,
+    pub individual_conversation: f64,
+    pub group: f64,
+}
+
 #[derive(Debug, Deserialize)]
-pub struct PaymentPayload {
-    /// Cantidad en la unidad más pequeña de la moneda (céntimos para USD/EUR)
+pub struct CheckoutPayload {
+    pub booking_uid: Option<String>,
+    pub class_type: Option<String>,
+    pub weeks: Option<u32>,
+    pub prices: PriceTable,
+}
+
+#[derive(Debug, Serialize)]
+pub struct CheckoutResponse {
+    pub client_secret: String,
     pub amount: i64,
-    /// Código ISO de moneda en minúsculas (ej: "usd", "eur")
     pub currency: String,
 }
 
-/// Respuesta tras crear o consultar un PaymentIntent
-#[derive(Debug, Serialize)]
-pub struct PaymentResponse {
-    /// Secret usado por Stripe.js en el frontend para confirmar el pago
-    pub client_secret: Option<String>,
-    /// Estado del pago: "requires_payment_method", "succeeded", "canceled", etc.
-    pub status: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub error: Option<String>,
+#[derive(Debug, Deserialize, Serialize)]
+pub struct BookingPayment {
+    pub email: String,
+    pub amount: i64,
+    pub class_type: String,
+    pub created: i64,
 }
 
 /// Payload para crear un producto en Stripe
@@ -57,21 +67,6 @@ pub struct PayloadCreacteProduct {
 
 /// HashMap indexado por tipo de moneda (útil para precios multi-moneda)
 pub type CurrencyMap<T> = HashMap<Currency, T>;
-
-/// Relación entre un evento de Cal.com y un producto/precio de Stripe
-#[derive(Debug, Deserialize, Serialize)]
-pub struct RelationalCalStripe {
-    /// ID del evento en Cal.com
-    pub cal_id: String,
-    /// ID del producto o precio en Stripe (price_xxx o prod_xxx)
-    pub stripe_id: String,
-}
-
-/// Relación entre un evento de Cal.com y un producto/precio de Stripe
-#[derive(Debug, Deserialize, Serialize)]
-pub struct StripeRelation {
-    pub stripe_id: String,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PaymentIntentSimplified {
