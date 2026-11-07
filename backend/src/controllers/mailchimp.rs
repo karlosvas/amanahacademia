@@ -1,7 +1,7 @@
 use {
     crate::{
         models::{
-            mailchimp::{AddContactResponse, Contact, MembersResponse},
+            mailchimp::{AddContactResponse, Contact, MembersResponse, UpsertContact},
             response::ResponseAPI,
             state::AppState,
         },
@@ -19,31 +19,44 @@ pub async fn add_contact(
     State(state): State<Arc<AppState>>,
     Json(contact): Json<Contact>,
 ) -> impl IntoResponse {
-    // URL para agreagar contactos a nuestra audiencia
+    let email: String = contact.email_address.trim().to_lowercase();
     let url_mailchimp: String = format!(
-        "{}/lists/{}/members",
+        "{}/lists/{}/members/{}",
         state.mailchimp_client.get_base_url(),
-        state.mailchimp_client.list_id
+        state.mailchimp_client.list_id,
+        email
     );
+    let body = UpsertContact {
+        email_address: &email,
+        status_if_new: &contact.status,
+        merge_fields: contact.merge_fields.as_ref(),
+    };
 
     match state
         .mailchimp_client
         .client
-        .post(&url_mailchimp)
+        .put(&url_mailchimp)
         .basic_auth("", Some(&state.mailchimp_client.api_key))
-        .json(&contact)
+        .json(&body)
         .send()
         .await
     {
         Ok(response) => match handle_mailchimp_response::<AddContactResponse>(response).await {
-            Ok(contact_response) => (
-                StatusCode::CREATED,
-                Json(ResponseAPI::<AddContactResponse>::success(
-                    "Contacto añadido correctamente".to_string(),
-                    contact_response,
-                )),
-            )
-                .into_response(),
+            Ok(contact_response) => {
+                let message = if contact_response.status == "subscribed" || contact_response.status == "pending" {
+                    "Contacto añadido correctamente"
+                } else {
+                    "El contacto ya existía y no está suscrito"
+                };
+                (
+                    StatusCode::OK,
+                    Json(ResponseAPI::<AddContactResponse>::success(
+                        message.to_string(),
+                        contact_response,
+                    )),
+                )
+                    .into_response()
+            }
             Err((status, error)) => (status, Json(ResponseAPI::<()>::error(error))).into_response(),
         },
         Err(e) => (

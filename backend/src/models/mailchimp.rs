@@ -10,6 +10,14 @@ pub struct Contact {
     pub merge_fields: Option<MergeFields>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct UpsertContact<'a> {
+    pub email_address: &'a str,
+    pub status_if_new: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub merge_fields: Option<&'a MergeFields>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct MergeFields {
     /// Nombre del contacto
