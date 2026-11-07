@@ -8,10 +8,10 @@ const { buttonsCommentTraductions, lang } = Astro.props;
 ---
 
 <!-- Formulario de respuesta (oculto por defecto) -->
-<div class="reply-form hidden px-4 py-3 bg-[#fff5f2] border-t border-salmon">
+<div class="reply-form hidden px-4 py-3 bg-[color-mix(in_srgb,var(--color-black)_7%,transparent)] border-t border-lightBrown text-black">
   <div class="flex space-x-2">
     <textarea
-      class="reply-textarea flex-1 p-2 text-sm border border-salmon rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-red)]"
+      class="reply-textarea flex-1 p-2 text-sm bg-background text-black border border-salmon rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-red)]"
       placeholder={buttonsCommentTraductions[lang].reply + "..."}
       rows="2"></textarea>
   </div>
@@ -28,6 +28,45 @@ const { buttonsCommentTraductions, lang } = Astro.props;
 </div>
 
 <style>
+  .reply-form:not(.hidden) {
+    animation: replyFormIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform-origin: top;
+  }
+
+  @keyframes replyFormIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scaleY(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scaleY(1);
+    }
+  }
+
+  .reply-form.closing {
+    animation: replyFormOut 0.2s cubic-bezier(0.4, 0, 1, 1) both;
+    transform-origin: top;
+    pointer-events: none;
+  }
+
+  @keyframes replyFormOut {
+    from {
+      opacity: 1;
+      transform: translateY(0) scaleY(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-8px) scaleY(0.96);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reply-form:not(.hidden) {
+      animation: none;
+    }
+  }
+
   /* Estilo para el textarea de respuesta */
   .reply-textarea:focus {
     outline: none;

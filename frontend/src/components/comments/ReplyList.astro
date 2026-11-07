@@ -13,8 +13,8 @@ const { replies, buttonsCommentTraductions, lang } = Astro.props;
 
 {
   replies && replies.length > 0 && (
-    <div class="replies-section px-4 py-3 bg-[#fff5f2] border-t border-salmon">
-      <div class="text-xs font-medium mb-2 text-gray-600 replies-count">
+    <div class="replies-section px-4 py-3 bg-[color-mix(in_srgb,var(--color-black)_7%,transparent)] border-t border-lightBrown text-black">
+      <div class="text-xs font-medium mb-2 opacity-70 replies-count">
         {replies.length}{" "}
         {replies.length === 1 ? buttonsCommentTraductions[lang].response : buttonsCommentTraductions[lang].responses}
       </div>

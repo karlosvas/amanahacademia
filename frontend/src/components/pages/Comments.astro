@@ -49,48 +49,38 @@ const starDistribution = [5, 4, 3, 2, 1].map(
 );
 ---
 
-<main class="scroll-fade-in w-full max-w-6xl mx-auto px-4 sm:px-6 pb-16 sm:pb-24">
+<main class="scroll-fade-in mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24">
   <Title customStyleLine="w-20 mb-10 sm:mb-14">{data.title}</Title>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12 items-start">
-    <aside class="w-full max-w-md mx-auto lg:max-w-none lg:sticky lg:top-24">
-      <RatingSummary
-        average={averageStars}
-        total={totalReviews}
-        distribution={starDistribution}
-        lang={lang}
-        data={data}
-      />
-    </aside>
+  <RatingSummary average={averageStars} total={totalReviews} distribution={starDistribution} lang={lang} data={data} />
 
-    <div class="lg:col-span-2 space-y-12">
-      {
-        bestComments.length > 0 && (
-          <section>
-            <h3 class="font-display text-xl sm:text-2xl font-semibold text-red mb-5">{data.best}</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-              {bestComments.map((comment: Comment) => (
-                <CardComment comment={comment} id={"best-" + comment.id} data={data} footer={false} />
-              ))}
-            </div>
-          </section>
-        )
-      }
+  {
+    bestComments.length > 0 && (
+      <section class="mt-14 sm:mt-20">
+        <h3 class="mb-6 font-display text-2xl font-semibold text-red sm:text-3xl">{data.best}</h3>
+        <div class="grid grid-cols-1 items-start gap-5 md:grid-cols-2 sm:gap-6">
+          {bestComments.map((comment: Comment) => (
+            <CardComment comment={comment} id={"best-" + comment.id} data={data} footer={false} />
+          ))}
+        </div>
+      </section>
+    )
+  }
 
-      {
-        latestComments.length > 0 && (
-          <section>
-            <h3 class="font-display text-xl sm:text-2xl font-semibold text-red mb-5">{data.latest}</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-              {latestComments.map((comment: Comment) => (
-                <CardComment comment={comment} id={comment.id} data={data} footer={true} />
-              ))}
+  {
+    latestComments.length > 0 && (
+      <section class="mt-14 sm:mt-20">
+        <h3 class="mb-6 font-display text-2xl font-semibold text-red sm:text-3xl">{data.latest}</h3>
+        <div class="grid grid-cols-1 items-start gap-5 md:grid-cols-2 lg:grid-cols-3 sm:gap-6">
+          {latestComments.map((comment: Comment) => (
+            <div>
+              <CardComment comment={comment} id={comment.id} data={data} footer={true} />
             </div>
-          </section>
-        )
-      }
-    </div>
-  </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
 
   <CommentModal id={"comment-modal"} edit={false} data={data.modal} />
 </main>

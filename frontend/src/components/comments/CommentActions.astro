@@ -12,12 +12,10 @@ interface Props {
 const { commentId, likeCount, usersLiked, buttonsCommentTraductions, lang } = Astro.props;
 ---
 
-<!-- Footer minimalista -->
-<div class="px-4 py-1 bg-salmon mt-auto">
+<div class="mt-auto border-t border-lightBrown px-4 py-1.5">
   <div class="flex items-center justify-between">
-    <!-- Botón de responder -->
     <button
-      class="reply-btn flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-[var(--color-light-red)] transition-colors duration-200"
+      class="reply-btn flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-smoothBrown transition-colors duration-200"
     >
       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -29,9 +27,8 @@ const { commentId, likeCount, usersLiked, buttonsCommentTraductions, lang } = As
       <span class="text-xs font-medium">{buttonsCommentTraductions[lang].reply}</span>
     </button>
 
-    <!-- Botón de like compacto -->
     <button
-      class="flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-[var(--color-light-red)] transition-colors duration-200 like-icon cursor-pointer"
+      class="flex items-center space-x-1 px-2 py-1 rounded-md hover:bg-smoothBrown transition-colors duration-200 like-icon cursor-pointer"
       data-users-liked={JSON.stringify(usersLiked ?? [])}
       data-id={commentId}
     >

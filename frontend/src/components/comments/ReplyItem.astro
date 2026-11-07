@@ -13,7 +13,7 @@ const { reply, buttonsCommentTraductions, lang } = Astro.props;
 ---
 
 <div
-  class="reply-item flex space-x-2 p-2 bg-lightSalmon rounded-md shadow-sm relative"
+  class="reply-item flex space-x-2 p-3 bg-background text-black border border-lightBrown rounded-xl relative"
   data-reply-id={reply.id}
   data-reply-author={reply.author_uid}
   data-debug-name={reply.name}
@@ -23,10 +23,10 @@ const { reply, buttonsCommentTraductions, lang } = Astro.props;
     <div class="flex items-center justify-between">
       <span class="text-xs font-medium">{reply.name}</span>
       <div class="flex items-center space-x-2">
-        <time class="text-xs text-gray-700">{reply.timestamp}</time>
+        <time class="text-xs opacity-60">{reply.timestamp}</time>
       </div>
     </div>
-    <p class="text-sm mt-1 text-gray-700 reply-content">{reply.content}</p>
+    <p class="text-sm mt-1 opacity-90 reply-content">{reply.content}</p>
   </div>
   <EditCommentButtons buttonsCommentTraductions={buttonsCommentTraductions} lang={lang} isReply={true} />
 </div>

@@ -25,76 +25,73 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
   id={idCommentShared}
   data-edit={edit}
   data-comment-modal="true"
-  class="modal border-0 rounded-2xl p-0 shadow-2xl bg-gradient-to-br from-white to-smoothBrown overflow-hidden font-normal text-sm w-full max-w-96"
+  class="modal m-auto w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-2xl border border-lightBrown bg-smoothBrown p-0 text-sm font-normal text-black shadow-2xl"
 >
-  <div class="bg-lightSalmon rounded-lg shadow-lg p-6 max-w-sm w-full">
-    <form id={formId}>
-      <!-- Header -->
-      <div class="space-y-3">
-        <h2 class="font-display text-[var(--color-brown)] text-center font-medium text-lg">
-          {dataModal.title}
-        </h2>
-      </div>
+  <form id={formId} class="relative p-6 sm:p-8">
+    <button
+      type="button"
+      aria-label="close-modal"
+      class="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full opacity-60 transition-all hover:bg-background hover:opacity-100 [&>*]:pointer-events-none"
+    >
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"></path>
+      </svg>
+    </button>
 
-      <!-- Rating Section -->
-      <div class="space-y-3 mb-10">
-        <label class="block text-[var(--color-brown)] text-center font-medium">
-          {dataModal.description}
-        </label>
-        <div id={starRatingId} class="flex justify-center space-x-2">
-          {
-            Array.from({ length: 5 }).map((_, i) => (
-              <button
-                type="button"
-                data-star={i + 1}
-                class="star-btn transition-all duration-200 hover:scale-110 outline-none focus:outline-none rounded"
-              >
-                <StarsSelectionIcon />
-              </button>
-            ))
-          }
-        </div>
-        <input type="hidden" id={ratingValueId} value="0" />
-      </div>
+    <h2 class="pr-8 font-display text-2xl font-semibold text-red">
+      {dataModal.title}
+    </h2>
+    <p class="mt-1 text-sm opacity-70">
+      {dataModal.description}
+    </p>
 
-      <!-- User Info Section -->
-      <div class="flex items-center space-x-3 bg-lightRed rounded-xl p-3 backdrop-blur-sm">
-        <div
-          class="avatar-container h-10 w-10 rounded-full bg-[var(--color-salmon)] text-white flex items-center justify-center ring-2 ring-[var(--color-salmon)] font-medium"
-        >
-          <Avatar info={null} server={false} />
-        </div>
-        <span id={avatarNameId} class="text-black font-medium">{dataModal.loading}</span>
+    <div class="mt-6 flex items-center gap-3 border-b border-lightBrown pb-5">
+      <div class="avatar-container flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full">
+        <Avatar info={null} server={false} />
       </div>
+      <span id={avatarNameId} class="truncate font-medium">{dataModal.loading}</span>
+    </div>
 
-      <!-- Comment Section -->
-      <textarea
-        id={commentTextId}
-        rows="6"
-        class="mt-2 bg-[--color-custom-gray] border-2 border-[--color-custom-gray] rounded-xl py-4 px-2 outline-none w-full focus:border-salmon focus:ring-1 focus:ring-salmon transition-all duration-200 shadow-sm resize-none placeholder-gray-400 text-black"
-        placeholder={dataModal.placeholder}></textarea>
+    <div id={starRatingId} class="mt-5 flex space-x-1">
+      {
+        Array.from({ length: 5 }).map((_, i) => (
+          <button
+            type="button"
+            data-star={i + 1}
+            class="star-btn rounded p-0.5 outline-none transition-transform duration-150 hover:scale-110 focus-visible:ring-2 focus-visible:ring-salmon"
+          >
+            <StarsSelectionIcon />
+          </button>
+        ))
+      }
+    </div>
+    <input type="hidden" id={ratingValueId} value="0" />
 
-      <!-- Action Buttons -->
-      <div class="flex justify-between gap-3 pt-2">
-        <button
-          type="button"
-          id={resetBtnId}
-          class="border-2 border-salmon text-salmon hover:bg-salmon hover:text-white transition-all duration-200 font-medium py-2 px-4 rounded-xl"
-        >
-          {dataModal.cleanup}
-        </button>
-        <button
-          type="submit"
-          id={submitBtnId}
-          disabled
-          class="bg-lightRed hover:bg-red text-white font-medium py-2 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          <ArrowSubmitIcon />
-          {dataModal.submit}
-        </button>
-      </div>
-    </form>
-  </div>
+    <textarea
+      id={commentTextId}
+      rows="5"
+      class="mt-4 w-full resize-none rounded-xl border border-lightBrown bg-background px-4 py-3 text-black outline-none transition-colors duration-200 placeholder:opacity-50 focus:border-salmon focus:ring-1 focus:ring-salmon"
+      placeholder={dataModal.placeholder}></textarea>
+
+    <div class="mt-5 flex items-center justify-between gap-3">
+      <button
+        type="button"
+        id={resetBtnId}
+        class="rounded-lg px-4 py-2.5 font-medium opacity-70 transition-all hover:bg-background hover:opacity-100"
+      >
+        {dataModal.cleanup}
+      </button>
+      <button
+        type="submit"
+        id={submitBtnId}
+        disabled
+        class="flex items-center gap-2 rounded-lg bg-red px-6 py-2.5 font-semibold text-gray-50 transition-colors duration-200 hover:bg-lightRed disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <ArrowSubmitIcon />
+        {dataModal.submit}
+      </button>
+    </div>
+  </form>
 </dialog>
 
 <script>
@@ -224,11 +221,11 @@ const submitBtnId = edit ? `update-btn-${idCommentShared}` : `submit-btn-${idCom
       this.starButtons.forEach((star, index) => {
         const svg = star.querySelector("svg")!;
         if (index < currentRating) {
-          svg.classList.remove("text-gray-300", "hover:text-yellow-200");
-          svg.classList.add("text-yellow-300");
+          svg.classList.remove("text-lightBrown", "hover:text-[#F29C2C]");
+          svg.classList.add("text-[#F29C2C]");
         } else {
-          svg.classList.remove("text-yellow-300");
-          svg.classList.add("text-gray-300", "hover:text-yellow-200");
+          svg.classList.remove("text-[#F29C2C]");
+          svg.classList.add("text-lightBrown", "hover:text-[#F29C2C]");
         }
       });
     }

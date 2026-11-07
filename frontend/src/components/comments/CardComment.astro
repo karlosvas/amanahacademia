@@ -29,43 +29,28 @@ const avatar: AvatarProps = {
 const lang = Astro.cookies.get("langCookie")?.value || "es";
 ---
 
-<div
+<article
   data-comment-id={comment.id}
-  class="relative bg-lightSalmon w-full rounded-2xl shadow-sm scroll-fade-in overflow-hidden flex flex-col h-full text-gray-800"
+  class="relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-lightBrown bg-smoothBrown text-black scroll-fade-in transition-colors duration-200 hover:border-salmon"
 >
   <EditCommentButtons buttonsCommentTraductions={buttonsCommentTraductions} lang={lang} isReply={false} />
 
-  <!-- Header compacto -->
-  <div class="p-5">
-    <div class="flex items-center space-x-3">
-      <!-- Avatar pequeño -->
-      <Avatar info={avatar} />
-
-      <!-- Info del usuario compacta -->
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center justify-between">
-          <h5 class="text-sm sm:text-base font-semibold truncate pr-2">
-            {comment.name}
-          </h5>
-          <time class="text-xs text-gray-600 shrink-0 mr-2">
-            {comment.timestamp}
-          </time>
-        </div>
-        <div class="mt-1 flex items-start">
-          <StarGroup star={comment.stars} size={14} />
-        </div>
-      </div>
+  <div class="px-6 pb-5 pt-6">
+    <div class="flex items-center justify-between gap-3 pr-6">
+      <StarGroup star={comment.stars} size={16} align="justify-start" />
+      <time class="shrink-0 text-xs opacity-60">{comment.timestamp}</time>
     </div>
 
-    <!-- Contenido del comentario -->
-    <div class="mt-3">
-      <p class="text-gray-800 text-sm sm:text-base leading-relaxed line-clamp-3">
-        {comment.content}
-      </p>
+    <blockquote class="mt-4">
+      <p class="text-[15px] leading-7 line-clamp-6">{comment.content}</p>
+    </blockquote>
+
+    <div class="mt-5 flex items-center gap-3 border-t border-lightBrown pt-4">
+      <Avatar info={avatar} />
+      <h5 class="min-w-0 truncate text-sm font-semibold">{comment.name}</h5>
     </div>
   </div>
 
-  <!-- Actions (like y responder) -->
   {
     footer && (
       <CommentActions
@@ -78,12 +63,11 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
     )
   }
 
-  <!-- Formulario de respuesta -->
-  <ReplyForm buttonsCommentTraductions={buttonsCommentTraductions} lang={lang} />
-
-  <!-- Respuestas anidadas -->
-  <ReplyList replies={comment.reply ?? []} buttonsCommentTraductions={buttonsCommentTraductions} lang={lang} />
-</div>
+  <div>
+    <ReplyForm buttonsCommentTraductions={buttonsCommentTraductions} lang={lang} />
+    <ReplyList replies={comment.reply ?? []} buttonsCommentTraductions={buttonsCommentTraductions} lang={lang} />
+  </div>
+</article>
 
 <CommentModal id={idCommentShared} edit={true} data={data} />
 
@@ -104,6 +88,28 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
   import { isFrontendError, FrontendError } from "@/types/types";
 
   const helper = new ApiService();
+
+  function closeAnimated(form: Element) {
+    if (form.classList.contains("hidden") || form.classList.contains("closing")) return;
+    if (globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      form.classList.add("hidden");
+      return;
+    }
+    form.classList.add("closing");
+    form.addEventListener(
+      "animationend",
+      () => {
+        form.classList.add("hidden");
+        form.classList.remove("closing");
+      },
+      { once: true },
+    );
+  }
+  function toggleAnimated(el: Element) {
+    if (el.classList.contains("hidden")) el.classList.remove("hidden");
+    else closeAnimated(el);
+  }
+
   const lang = document.cookie.match(/lang=([^;]+)/)?.[1] || "es";
 
   // Selectors
@@ -119,8 +125,8 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
 
   // Cerrar menus al hacer click fuera
   document.addEventListener("click", () => {
-    menus.forEach((menu) => !menu.classList.contains("hidden") && menu.classList.add("hidden"));
-    replyMenus.forEach((menu) => !menu.classList.contains("hidden") && menu.classList.add("hidden"));
+    menus.forEach((menu) => closeAnimated(menu));
+    replyMenus.forEach((menu) => closeAnimated(menu));
   });
 
   // Toggle formulario de reply
@@ -133,12 +139,11 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
       const replyForm = commentEl.querySelector<HTMLElement>(".reply-form");
       if (!replyForm) return;
 
-      replyForm.classList.toggle("hidden");
-      const isNowHidden = replyForm.classList.contains("hidden");
-
-      if (!isNowHidden) {
-        const ta = replyForm.querySelector<HTMLTextAreaElement>(".reply-textarea");
-        ta?.focus();
+      if (replyForm.classList.contains("hidden")) {
+        replyForm.classList.remove("hidden");
+        replyForm.querySelector<HTMLTextAreaElement>(".reply-textarea")?.focus();
+      } else {
+        closeAnimated(replyForm);
       }
     });
   });
@@ -157,7 +162,7 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
       e.stopPropagation();
       const replyForm = target.closest(".reply-form") as HTMLElement | null;
       if (replyForm) {
-        replyForm.classList.add("hidden");
+        closeAnimated(replyForm);
         const textarea = replyForm.querySelector<HTMLTextAreaElement>(".reply-textarea");
         if (textarea) textarea.value = "";
       }
@@ -171,7 +176,7 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
       try {
         const auth = await getFirebaseAuth();
         if (!auth.currentUser) throw new FrontendError(getErrorToast(FrontendErrorCode.NEED_AUTHENTICATION));
-        menus[index].classList.toggle("hidden");
+        toggleAnimated(menus[index]);
       } catch (e) {
         isFrontendError(e) ? toast.error(e.message) : toast.error(getErrorToast(FrontendErrorCode.UNKNOWN_ERROR));
       }
@@ -191,7 +196,7 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
 
         await handleDeleteComment(helper, commentId);
 
-        menus[idx].classList.add("hidden");
+        closeAnimated(menus[idx]);
         toast.success("Comentario eliminado");
         commentDiv.remove();
       } catch (e) {
@@ -226,7 +231,7 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
   replyConfigs.forEach((config, index) => {
     config.addEventListener("click", async (e) => {
       e.stopPropagation();
-      replyMenus[index].classList.toggle("hidden");
+      toggleAnimated(replyMenus[index]);
     });
   });
 
@@ -303,7 +308,7 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
           editForm = document.createElement("div");
           editForm.className = "edit-reply-form mt-2";
           editForm.innerHTML = `
-          <textarea class="edit-reply-textarea w-full p-2 text-xs border border-salmon rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-red)]" rows="3">${currentContent}</textarea>
+          <textarea class="edit-reply-textarea w-full p-2 text-xs bg-background text-black border border-salmon rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-red)]" rows="3">${currentContent}</textarea>
           <div class="flex justify-end space-x-2 mt-2">
             <button class="cancel-edit-reply-btn px-3 py-1 text-xs rounded-md hover:bg-salmon transition-colors">
               ${buttonsCommentTraductions[lang].cancel}
@@ -322,7 +327,7 @@ const lang = Astro.cookies.get("langCookie")?.value || "es";
 
         // Ocultar menú
         const replyMenu = btn.closest(".reply-config-menu");
-        if (replyMenu) replyMenu.classList.add("hidden");
+        if (replyMenu) closeAnimated(replyMenu);
 
         // Cancelar edición
         const cancelBtn = editForm.querySelector(".cancel-edit-reply-btn");
