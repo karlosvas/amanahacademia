@@ -66,8 +66,6 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v3.1.0
         with:
           projectBaseDir: .
-          args: >
-            -Dsonar.scanner.skipJreProvisioning=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
