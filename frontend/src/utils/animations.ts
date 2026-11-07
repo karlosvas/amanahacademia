@@ -40,7 +40,7 @@ export function animateTitleLines() {
     gsap.utils.toArray<HTMLElement>(".title-line").forEach((line) => {
       const fadeIn = findFadeIn(line);
       if (fadeIn) {
-        waitForFadeIn(fadeIn).then(() => expand(line));
+        void waitForFadeIn(fadeIn).then(() => expand(line));
       } else {
         expand(line, { trigger: line, start: "top 90%", once: true });
       }

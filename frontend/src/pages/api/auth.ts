@@ -34,7 +34,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ cookies }) => {
+export const DELETE: APIRoute = ({ cookies }) => {
   cookies.delete("session", { path: "/" });
 
   return new Response(JSON.stringify({ success: true }), {

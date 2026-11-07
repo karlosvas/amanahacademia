@@ -10,7 +10,7 @@ import {
 } from "@/config/pricing";
 import type { PricingApiResponse } from "@/types/types";
 
-export async function GET({ request }: { request: Request }) {
+export function GET({ request }: { request: Request }) {
   const url = new URL(request.url);
 
   const country = resolveCountry(request);
