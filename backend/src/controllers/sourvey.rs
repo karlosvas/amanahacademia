@@ -214,3 +214,7 @@ pub async fn get_all_survey_results(
     )
         .into_response()
 }
+
+#[cfg(test)]
+#[path = "../test/controllers/sourvey.rs"]
+mod extended_tests;

@@ -43,7 +43,9 @@ pub async fn add_contact(
     {
         Ok(response) => match handle_mailchimp_response::<AddContactResponse>(response).await {
             Ok(contact_response) => {
-                let message = if contact_response.status == "subscribed" || contact_response.status == "pending" {
+                let message = if contact_response.status == "subscribed"
+                    || contact_response.status == "pending"
+                {
                     "Contacto añadido correctamente"
                 } else {
                     "El contacto ya existía y no está suscrito"
@@ -102,3 +104,7 @@ pub async fn get_all_contacts(State(state): State<Arc<AppState>>) -> impl IntoRe
             .into_response(),
     }
 }
+
+#[cfg(test)]
+#[path = "../test/controllers/mailchimp.rs"]
+mod extended_tests;

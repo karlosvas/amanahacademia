@@ -75,6 +75,7 @@ pub struct MailchimpOptions {
     /// Prefijo del datacenter (ej: "us1", "us19") extraído del API key
     pub datacenter: String,
     pub client: reqwest::Client,
+    pub base_url_override: Option<String>,
 }
 impl MailchimpOptions {
     pub fn new(api_key: String, datacenter: String, list_id: String) -> Self {
@@ -83,10 +84,14 @@ impl MailchimpOptions {
             datacenter,
             list_id,
             client: reqwest::Client::new(),
+            base_url_override: None,
         }
     }
 
     pub fn get_base_url(&self) -> String {
+        if let Some(base_url) = &self.base_url_override {
+            return base_url.clone();
+        }
         format!("https://{}.api.mailchimp.com/3.0", self.datacenter)
     }
 }
